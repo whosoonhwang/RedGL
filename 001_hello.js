@@ -111,7 +111,10 @@ translate_rotate_scale = function (targetMat, position, rx, ry, rz, scale) {
 var gl;
 function initGL(canvas) {
 	try {
-		gl = canvas.getContext("experimental-webgl");
+		gl = canvas.getContext("experimental-webgl",{
+			premultipliedAlpha : false,
+			alpha:false
+		});
 		gl.cvs = canvas
 	} catch (e) {
 	}
@@ -190,21 +193,25 @@ function initBuffers() {
 	)
 
 
+
 	squareBufferInfo = helper.createBufferInfo(
 		gl,
 		helper.createArrayBuffer(
 			gl,
 			'aVertexPosition',
-			new Float32Array([
-				-1.0, -1.0, 0.0,
-				1.0, -1.0, 0.0,
-				-1.0, 1.0, 0.0,
-				-1.0, 1.0, 0.0,
-				1.0, -1.0, 0.0,
-				1.0, 1.0, 0.0
-			]),
+			new Float32Array(
+				model['vertexs']
+			),
 			// pointSize, pointNum, type, normalize, stride, offset
-			3, 6, gl.FLOAT, false, 0, 0
+			3, model['vertexs'].length / 3, gl.FLOAT, false, 0, 0
+		),
+		helper.createIndexBuffer(
+			gl,
+			new Uint16Array(
+				model['indices']
+			),
+			// pointSize, pointNum, type, normalize, stride, offset
+			1, model['indices'].length, gl.UNSIGNED_SHORT, false, 0, 0
 		)
 	)
 }
@@ -226,17 +233,17 @@ function webGLStart() {
 	initBuffers();
 
 	var Mesh;
-	Mesh = function (programInfo, bufferInfo, uniformsInfo) {
+	Mesh = function (programInfo, bufferInfos, uniformsInfos) {
 		this.programInfo = programInfo
-		this.bufferInfo = bufferInfo
+		this.bufferInfos = bufferInfos
 		this.uniforms = {
 			uPMatrix: pMatrix,
 			uMVMatrix: mvMatrix
 		}
 		//TODO: uniformsInfo가 있으면 또 밀어넣어야함
-		this.position = [Math.random() * 20 - 10, Math.random() * 20 - 10, -Math.random() * 100 - 20.0]
-		this.rotation = [Math.random(), Math.random(), Math.random()]
-		this.scale = [1, 1, 1]
+		this.position = new Float32Array([Math.random() * 30 - 15, Math.random() * 30 - 15, -Math.random() * 20 - 30.0])
+		this.rotation = new Float32Array([Math.random(), Math.random(), Math.random()])
+		this.scale = new Float32Array([0.05, 0.05, 0.05])
 		this.drawMode = gl.TRIANGLES
 	}
 	renderList = [
@@ -244,11 +251,27 @@ function webGLStart() {
 	]
 	var i = 3000
 	while (i--) {
-		renderList.push(new Mesh(programInfo, i % 2 ? cubeBufferInfo : squareBufferInfo))
+		renderList.push(new Mesh(programInfo, i % 2 ? squareBufferInfo : squareBufferInfo))
 	}
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
 	gl.enable(gl.DEPTH_TEST);
+	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_ALPHA);
+	gl.enable(gl.BLEND);
 
 	requestAnimationFrame(drawScene)
 }
-webGLStart()
+Recard.AjaxGet(function (v) {
+	model = JSON.parse(v['content'])
+	webGLStart()
+}, 'test.js')
+Recard.Css('body').S(
+	'margin',0,
+	'padding',0,
+	'overflow','hidden'
+)
+Recard.WIN_RESIZER.add('test',function(e){
+	Recard.Dom('#lesson01-canvas').S(
+		'@width',Recard.WIN.w,
+		'@height',Recard.WIN.h
+	)
+})

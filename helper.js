@@ -28,7 +28,7 @@ helper = {
 		shader['parseData'] = parseData
 		return shader;
 	},
-	createProgramInfo: (function(){
+	createProgramInfo: (function () {
 		var ProgramInfo;
 		ProgramInfo = function () {
 			this.attributes = {}
@@ -44,12 +44,12 @@ helper = {
 			gl.attachShader(programInfo, vertexShader);
 			gl.attachShader(programInfo, fragmentShader);
 			gl.linkProgram(programInfo);
-	
+
 			if (!gl.getProgramParameter(programInfo, gl.LINK_STATUS)) alert("Could not initialise shaders");
-	
+
 			gl.useProgram(programInfo);
 			var info;
-			
+
 			info = {}
 			vertexShader.parseData.forEach(function (v) {
 				var tInfo;
@@ -82,7 +82,7 @@ helper = {
 		buffer['offset'] = offset ? offset : 0
 		return buffer
 	},
-	createArrayBuffer: function (gl, pointer,list, pointSize, pointNum, type, normalize, stride, offset) {
+	createArrayBuffer: function (gl, pointer, list, pointSize, pointNum, type, normalize, stride, offset) {
 		var buffer;
 		buffer = gl.createBuffer();
 		gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
@@ -90,10 +90,10 @@ helper = {
 		buffer['pointer'] = pointer
 		buffer['pointSize'] = pointSize
 		buffer['pointNum'] = pointNum
-		buffer['type'] = type   // the data is 32bit floats
+		buffer['type'] = type // the data is 32bit floats
 		buffer['normalize'] = normalize ? normalize : false // don't normalize the data
-		buffer['stride'] = stride ? stride : 0        // 0 = move forward size * sizeof(type) each iteration to get the next position
-		buffer['offset'] = offset ? offset : 0        // start at the beginning of the buffer
+		buffer['stride'] = stride ? stride : 0 // 0 = move forward size * sizeof(type) each iteration to get the next position
+		buffer['offset'] = offset ? offset : 0 // start at the beginning of the buffer
 		return buffer
 	},
 	createBufferInfo: (function () {
@@ -118,19 +118,19 @@ helper = {
 		}
 	})(),
 	drawObjectList: function (gl, renderList, time) {
-		time = time / 1000
+		time = time / 500000
 		gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		// renderList.forEach(function (drawInfo) {
 		var i = renderList.length
 		var drawInfo
-		var bufferInfo, programInfo;
+		var tBufferInfo, programInfo;
 		while (i--) {
 			drawInfo = renderList[i]
 			programInfo = drawInfo['programInfo']
-			drawInfo['rotation'][0] = time
-			drawInfo['rotation'][1] = time
-			drawInfo['rotation'][2] = time
+			drawInfo['rotation'][0] += 0.01
+			drawInfo['rotation'][1] += 0.01
+			drawInfo['rotation'][2] += 0.001
 			mat4.identity(mvMatrix);
 			// mat4.translate(mvMatrix, mvMatrix, drawInfo['position']);
 			// mat4.rotateX(mvMatrix, mvMatrix, drawInfo['rotation'][0]);
@@ -138,38 +138,48 @@ helper = {
 			// mat4.rotateZ(mvMatrix, mvMatrix, drawInfo['rotation'][2]);
 			translate_rotate_scale(mvMatrix, drawInfo['position'], drawInfo['rotation'][0], drawInfo['rotation'][1], drawInfo['rotation'][2], drawInfo['scale'])
 			// mat4.scale(mvMatrix, mvMatrix, drawInfo['scale']);
-			
-			for (var k in drawInfo['bufferInfo']['attributes']) {
-				bufferInfo = drawInfo['bufferInfo']['attributes'][k]
-				gl.bindBuffer(gl.ARRAY_BUFFER, bufferInfo);
-				gl.vertexAttribPointer(programInfo['attributes'][k], bufferInfo.pointSize, bufferInfo.type, bufferInfo.normalize, bufferInfo.stride, bufferInfo.offset);
+
+			for (var k in drawInfo['bufferInfos']['attributes']) {
+				tBufferInfo = drawInfo['bufferInfos']['attributes'][k]
+				gl.bindBuffer(gl.ARRAY_BUFFER, tBufferInfo);
+				gl.vertexAttribPointer(programInfo['attributes'][k], tBufferInfo.pointSize, tBufferInfo.type, tBufferInfo.normalize, tBufferInfo.stride, tBufferInfo.offset);
 			}
 			for (var k in programInfo['uniforms']) {
 				//TODO: 여길 어떻게든 간소화
 				var tKey;
-				tKey = drawInfo['uniforms'][k]
-				if(tKey instanceof Float32Array ||  tKey instanceof Float64Array){
-					if(tKey && tKey.length){
-						if(tKey.length == 16) tKey = 'uniformMatrix4fv'
-						else if(tKey.length == 12) tKey = 'uniformMatrix3fv'
-						else if(tKey.length == 8) tKey = 'uniformMatrix2fv'
-					}
-				}else{
-					if(tKey && tKey.length){
-						if(tKey.length == 16) tKey = 'uniformMatrix4iv'
-						else if(tKey.length == 12) tKey = 'uniformMatrix3iv'
-						else if(tKey.length == 8) tKey = 'uniformMatrix2iv'
+				var typeMAP;
+				typeMAP = {
+					f: {
+						16: 'uniformMatrix4fv',
+						12: 'uniformMatrix3fv',
+						8: 'uniformMatrix2fv'
+					},
+					i: {
+						16: 'uniformMatrix4iv',
+						12: 'uniformMatrix3iv',
+						8: 'uniformMatrix2iv'
 					}
 				}
-				
+				tKey = drawInfo['uniforms'][k]
+				if (tKey instanceof Float32Array || tKey instanceof Float64Array) {
+					if (tKey && tKey.length) tKey = typeMAP['f'][tKey.length]
+				} else if (
+					tKey instanceof Uint8Array ||
+					tKey instanceof Uint16Array ||
+					tKey instanceof Uint32Array ||
+					tKey instanceof Int8Array ||
+					tKey instanceof Int16Array ||
+					tKey instanceof Int32Array
+				) {
+					if (tKey && tKey.length) tKey = typeMAP['i'][tKey.length]
+				} else throw '안되는 나쁜 타입인거야!!'
 				gl[tKey](programInfo['uniforms'][k].location, false, drawInfo['uniforms'][k]);
 			}
-			if (drawInfo['bufferInfo']['indices']) {
-				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, drawInfo['bufferInfo']['indices']);
-				gl.drawElements(drawInfo['drawMode'], drawInfo['bufferInfo']['indices'].pointNum, gl.UNSIGNED_SHORT, 0);
-			}
-			else {
-				gl.drawArrays(drawInfo['drawMode'], 0, drawInfo['bufferInfo']['attributes']['position'].pointNum)
+			if (drawInfo['bufferInfos']['indices']) {
+				gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, drawInfo['bufferInfos']['indices']);
+				gl.drawElements(drawInfo['drawMode'], drawInfo['bufferInfos']['indices'].pointNum, gl.UNSIGNED_SHORT, 0);
+			} else {
+				gl.drawArrays(drawInfo['drawMode'], 0, drawInfo['bufferInfos']['attributes']['position'].pointNum)
 			}
 		}
 		// })
