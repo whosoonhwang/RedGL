@@ -111,9 +111,9 @@ translate_rotate_scale = function (targetMat, position, rx, ry, rz, scale) {
 var gl;
 function initGL(canvas) {
 	try {
-		gl = canvas.getContext("experimental-webgl",{
-			premultipliedAlpha : false,
-			alpha:false
+		gl = canvas.getContext("experimental-webgl", {
+			premultipliedAlpha: false,
+			alpha: false
 		});
 		gl.cvs = canvas
 	} catch (e) {
@@ -123,7 +123,7 @@ function initGL(canvas) {
 	}
 }
 
-var programInfo;
+var colorProgram, bitmapProgram;
 var mvMatrix
 var pMatrix
 
@@ -190,6 +190,7 @@ function initBuffers() {
 			// pointSize, pointNum, type, normalize, stride, offset
 			1, 36, gl.UNSIGNED_SHORT, false, 0, 0
 		)
+
 	)
 
 
@@ -212,8 +213,18 @@ function initBuffers() {
 			),
 			// pointSize, pointNum, type, normalize, stride, offset
 			1, model['indices'].length, gl.UNSIGNED_SHORT, false, 0, 0
+		),
+		helper.createArrayBuffer(
+			gl,
+			'aTexcoord',
+			new Float32Array(
+				model['texcoord']
+			),
+			// pointSize, pointNum, type, normalize, stride, offset
+			2, model['texcoord'].length / 2, gl.FLOAT, false, 0, 0
 		)
 	)
+	console.log(model)
 }
 
 function drawScene(time) {
@@ -227,35 +238,66 @@ function drawScene(time) {
 
 function webGLStart() {
 	initGL(document.getElementById("lesson01-canvas"));
-	programInfo = helper.createProgramInfo(gl, 'shader-vs', 'shader-fs')
+	colorProgram = helper.createProgramInfo(gl, 'shader-vs', 'shader-fs')
+	bitmapProgram = helper.createProgramInfo(gl, 'shader-vs-bitmap', 'shader-fs-bitmap')
 	mvMatrix = mat4.create();
 	pMatrix = mat4.create();
 	initBuffers();
-
+	var texture = gl.createTexture();
+	gl.bindTexture(gl.TEXTURE_2D, texture);
+	// Fill the texture with a 1x1 blue pixel.
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+		new Uint8Array([0, 0, 255, 255]));
+	// Asynchronously load an image
+	var image = new Image();
+	image.src = "test.png";
+	image.addEventListener('load', function () {
+		// Now that the image has loaded make copy it to the texture.
+		gl.bindTexture(gl.TEXTURE_2D, texture);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+		// gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+		gl.generateMipmap(gl.TEXTURE_2D);
+		gl.bindTexture(gl.TEXTURE_2D, null);
+		//   console.log(texture)
+	});
 	var Mesh;
 	Mesh = function (programInfo, bufferInfos, uniformsInfos) {
 		this.programInfo = programInfo
 		this.bufferInfos = bufferInfos
+		////
+
+		////
+		
 		this.uniforms = {
 			uPMatrix: pMatrix,
 			uMVMatrix: mvMatrix
 		}
+		if(programInfo == bitmapProgram) this.uniforms.uTexture = texture
+		else this.uniforms.uColor = [Math.random(),Math.random(),Math.random()]
 		//TODO: uniformsInfo가 있으면 또 밀어넣어야함
-		this.position = new Float32Array([Math.random() * 30 - 15, Math.random() * 30 - 15, -Math.random() * 20 - 30.0])
+		this.position = new Float32Array([Math.random() * 50 - 25, Math.random() * 50 - 25, -Math.random() * 50 - 10.0])
 		this.rotation = new Float32Array([Math.random(), Math.random(), Math.random()])
-		this.scale = new Float32Array([0.05, 0.05, 0.05])
+		this.scale = new Float32Array([1, 1, 1])
 		this.drawMode = gl.TRIANGLES
 	}
 	renderList = [
 
 	]
-	var i = 3000
+	var i = 500
 	while (i--) {
-		renderList.push(new Mesh(programInfo, i % 2 ? squareBufferInfo : squareBufferInfo))
+		renderList.push(new Mesh(i % 2 ? bitmapProgram : colorProgram, i % 2 ? squareBufferInfo : cubeBufferInfo))
 	}
+	
+	///
+	gl.clearColor(1,1,1,1);
+	gl.clear(gl.COLOR_BUFFER_BIT);
+	// Turn off rendering to alpha
+	gl.colorMask(true, true, true, false);
+	///
+
 	gl.clearColor(0.0, 0.0, 0.0, 1.0);
-	gl.enable(gl.DEPTH_TEST);
-	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_ALPHA);
+	// gl.enable(gl.DEPTH_TEST);
+	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	gl.enable(gl.BLEND);
 
 	requestAnimationFrame(drawScene)
@@ -265,13 +307,13 @@ Recard.AjaxGet(function (v) {
 	webGLStart()
 }, 'test.js')
 Recard.Css('body').S(
-	'margin',0,
-	'padding',0,
-	'overflow','hidden'
+	'margin', 0,
+	'padding', 0,
+	'overflow', 'hidden'
 )
-Recard.WIN_RESIZER.add('test',function(e){
+Recard.WIN_RESIZER.add('test', function (e) {
 	Recard.Dom('#lesson01-canvas').S(
-		'@width',Recard.WIN.w,
-		'@height',Recard.WIN.h
+		'@width', Recard.WIN.w,
+		'@height', Recard.WIN.h
 	)
 })
