@@ -282,7 +282,7 @@ function webGLStart() {
 	renderList = [
 
 	]
-	var i = 5000
+	var i = 3000
 	while (i--) {
 		renderList.push(new Mesh(i % 2 ? bitmapProgram : colorProgram, i % 2 ? squareBufferInfo : cubeBufferInfo))
 	}
