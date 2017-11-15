@@ -151,8 +151,23 @@ function initBuffers() {
 	)
 	cubeBufferInfo = helper.createBufferInfo(
 		gl,
-		cubeVertex,
-		cubeIndex
+		helper.createArrayBuffer(
+			gl,
+			'aVertexPosition',
+			new Float32Array(
+				model2['vertexs']
+			),
+			// pointSize, pointNum, type, normalize, stride, offset
+			3, model2['vertexs'].length / 3, gl.FLOAT, false, 0, 0
+		),
+		helper.createIndexBuffer(
+			gl,
+			new Uint16Array(
+				model2['indices']
+			),
+			// pointSize, pointNum, type, normalize, stride, offset
+			1, model2['indices'].length, gl.UNSIGNED_SHORT, false, 0, 0
+		)
 
 	)
 
@@ -188,9 +203,7 @@ function drawScene(time) {
 		renderList[i].rotation[1]+=0.01
 		renderList[i].rotation[2]+=0.01
 	}
-
 	helper.drawObjectList(gl, renderList, time)
-	requestAnimationFrame(drawScene)
 }
 
 
@@ -205,6 +218,27 @@ function webGLStart() {
 	var texture2 = helper.createTexture(gl,'test.png')
 	var texture3 = helper.createTexture(gl,'crate.png')
 	var Mesh;
+	var typeMAP;
+	typeMAP = {
+		f: {
+			16: 'uniformMatrix4fv',
+			12: 'uniformMatrix3fv',
+			8: 'uniformMatrix2fv',
+			4: 'uniform4fv',
+			3: 'uniform3fv',
+			2: 'uniform2fv',
+			1: 'uniform1f'
+		},
+		i: {
+			16: 'uniformMatrix4iv',
+			12: 'uniformMatrix3iv',
+			8: 'uniformMatrix2iv',
+			4: 'uniform4iv',
+			3: 'uniform3iv',
+			2: 'uniform2iv',
+			1: 'uniform1iv'
+		}
+	}
 	Mesh = function (programInfo, bufferInfos, uniformsInfos) {
 		this.programInfo = programInfo
 		this.bufferInfos = bufferInfos
@@ -215,26 +249,49 @@ function webGLStart() {
 			uPMatrix: pMatrix,
 			uMVMatrix: mvMatrix
 		}
+		this.uniformsList = []
 		if(programInfo == bitmapProgram) this.uniforms.uTexture = Math.random()>0.5 ? texture : texture2
 		else this.uniforms.uColor = [Math.random(),Math.random(),Math.random()]
+
+		// 유니폼값의 gl매서드를 미리 구하고
+		for(var k in this.uniforms){
+			var tKey = this.uniforms[k]
+			if (tKey instanceof Float32Array || tKey instanceof Float64Array || tKey instanceof Array) {
+				tKey['_method'] = typeMAP['f'][tKey.length]
+			} else if (
+				tKey instanceof Uint8Array ||
+				tKey instanceof Uint16Array ||
+				tKey instanceof Uint32Array ||
+				tKey instanceof Int8Array ||
+				tKey instanceof Int16Array ||
+				tKey instanceof Int32Array 
+			) {
+				tKey['_method'] = typeMAP['i'][tKey.length]	
+			} else if(tKey instanceof WebGLTexture){
+			}else throw '안되는 나쁜 타입인거야!!'
+			this.uniformsList.push([k,tKey])
+		}
+		
+
 		//TODO: uniformsInfo가 있으면 또 밀어넣어야함
 		this.position = new Float32Array([Math.random() * 50 - 25, Math.random() * 50 - 25, -Math.random() * 50 - 50.0])
 		this.rotation = new Float32Array([Math.random(), Math.random(), Math.random()])
-		this.scale = new Float32Array([1, 1, 1])
+		this.scale = new Float32Array(programInfo == bitmapProgram ? [0.1, 0.1, 0.1] : [0.5,0.5,0.5])
 		this.drawMode = gl.TRIANGLES
 	}
 	renderList = [
 
 	]
-	var i = 1000
+	var i = 3000
 	while (i--) {
 		renderList.push(new Mesh(i % 2 ? bitmapProgram : colorProgram, i % 2 ? squareBufferInfo : cubeBufferInfo))
 	}
-	renderList.sort(function(a,b){
-		if(a['programInfo']['name'] > b['programInfo']['name']) return -1
-		if(a['programInfo']['name'] < b['programInfo']['name']) return 1
-		return 0
-	})
+	// renderList.sort(function(a,b){
+	// 	if(a['programInfo']['name'] > b['programInfo']['name']) return -1
+	// 	if(a['programInfo']['name'] < b['programInfo']['name']) return 1
+	// 	return 0
+	// })
+	
 	console.log(renderList)
 	
 	///
@@ -261,12 +318,19 @@ function webGLStart() {
 	
 	})
 	Recard.EVENT_EMITTER.fire(window,'resize',{})
-	requestAnimationFrame(drawScene)
+	Recard.LOOPER.add('RENDER',drawScene)
 }
-Recard.AjaxGet(function (v) {
-	model = JSON.parse(v['content'])
+Recard.AjaxLoader(function (v) {
+	model = JSON.parse(v[0]['content'])
+	model2 = JSON.parse(v[1]['content'])
 	webGLStart()
-}, 'test.js')
+}, {
+	url :'test.js',
+	method : 'GET'
+},{
+	url :'test2.js',
+	method : 'GET'
+}).start()
 Recard.Css('body').S(
 	'margin', 0,
 	'padding', 0,

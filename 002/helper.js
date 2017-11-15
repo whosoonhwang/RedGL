@@ -154,121 +154,111 @@ helper = {
 	drawObjectList: (function(){
 		var prevBuffer={},prevDrawBuffer
 		var prevProgram
+		var testMap = 0
+		var sortedMap = {}
 		return function (gl, renderList, time) {
 			time = time / 500000
 			gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 			// renderList.forEach(function (drawInfo) {
-			var i = renderList.length
+			var i 
 			var drawInfo
 			var tBufferInfo, programInfo;
 			var prevTexture
-			while (i--) {
-				drawInfo = renderList[i]
-				programInfo = drawInfo['programInfo']
-				mvMatrix[0] = 1;
-				mvMatrix[1] = 0;
-				mvMatrix[2] = 0;
-				mvMatrix[3] = 0;
-				mvMatrix[4] = 0;
-				mvMatrix[5] = 1;
-				mvMatrix[6] = 0;
-				mvMatrix[7] = 0;
-				mvMatrix[8] = 0;
-				mvMatrix[9] = 0;
-				mvMatrix[10] = 1;
-				mvMatrix[11] = 0;
-				mvMatrix[12] = 0;
-				mvMatrix[13] = 0;
-				mvMatrix[14] = 0;
-				mvMatrix[15] = 1;
-				// mat4.translate(mvMatrix, mvMatrix, drawInfo['position']);
-				// mat4.rotateX(mvMatrix, mvMatrix, drawInfo['rotation'][0]);
-				// mat4.rotateY(mvMatrix, mvMatrix, drawInfo['rotation'][1]);
-				// mat4.rotateZ(mvMatrix, mvMatrix, drawInfo['rotation'][2]);
-				translate_rotate_scale(mvMatrix, drawInfo['position'], drawInfo['rotation'][0], drawInfo['rotation'][1], drawInfo['rotation'][2], drawInfo['scale'])
-				// mat4.scale(mvMatrix, mvMatrix, drawInfo['scale']);
-				if(prevProgram != programInfo['program']) gl.useProgram(programInfo['program'])
-				prevProgram = programInfo['program']
-				
-				for (var k in drawInfo['bufferInfos']['attributes']) {
-					tBufferInfo = drawInfo['bufferInfos']['attributes'][k]
-					if (prevBuffer[programInfo['attributes'][tBufferInfo['pointer']]['location']] != tBufferInfo) {
-						gl.bindBuffer(gl.ARRAY_BUFFER, tBufferInfo);
-						// console.log(k,programInfo['attributes'][tBufferInfo['pointer']])
-						tBufferInfo['enabled'] ? 0 : gl.enableVertexAttribArray(programInfo['attributes'][tBufferInfo['pointer']]['location'])
-						gl.vertexAttribPointer(programInfo['attributes'][tBufferInfo['pointer']]['location'], tBufferInfo.pointSize, tBufferInfo.type, tBufferInfo.normalize, tBufferInfo.stride, tBufferInfo.offset);
-						prevBuffer[programInfo['attributes'][tBufferInfo['pointer']]['location']] = tBufferInfo
-					}
-					
+			
+			if (testMap==0) {
+				i=renderList.length
+				while(i--){
+					var tName = renderList[i]['programInfo']['name'];
+					sortedMap[tName] ? 0 : sortedMap[tName] = [];
+					sortedMap[tName].push(renderList[i])
 				}
-				for (var k in programInfo['uniforms']) {
-					//TODO: 여길 어떻게든 간소화
-					var tKey;
-					var typeMAP;
-					typeMAP = {
-						f: {
-							16: 'uniformMatrix4fv',
-							12: 'uniformMatrix3fv',
-							8: 'uniformMatrix2fv',
-							4: 'uniform4fv',
-							3: 'uniform3fv',
-							2: 'uniform2fv',
-							1: 'uniform1f'
-						},
-						i: {
-							16: 'uniformMatrix4iv',
-							12: 'uniformMatrix3iv',
-							8: 'uniformMatrix2iv',
-							4: 'uniform4iv',
-							3: 'uniform3iv',
-							2: 'uniform2iv',
-							1: 'uniform1iv'
-						}
-					}
-					// console.log(drawInfo['uniforms'])
-					tKey = drawInfo['uniforms'][k]
-					if (tKey instanceof Float32Array || tKey instanceof Float64Array || tKey instanceof Array) {
-						if (tKey && tKey.length) tKey = typeMAP['f'][tKey.length]
-						if(tKey.length>11) gl[tKey](programInfo['uniforms'][k]['location'], false, drawInfo['uniforms'][k]);
-						else gl[tKey](programInfo['uniforms'][k]['location'], drawInfo['uniforms'][k]);
-					} else if (
-						tKey instanceof Uint8Array ||
-						tKey instanceof Uint16Array ||
-						tKey instanceof Uint32Array ||
-						tKey instanceof Int8Array ||
-						tKey instanceof Int16Array ||
-						tKey instanceof Int32Array 
-					) {
-						if (tKey && tKey.length) {
-							tKey = typeMAP['i'][tKey.length]
-							if(tKey.length>11) gl[tKey](programInfo['uniforms'][k]['location'], false, drawInfo['uniforms'][k]);
-							else gl[tKey](programInfo['uniforms'][k]['location'], drawInfo['uniforms'][k]);
-						}					
-					} else if(tKey instanceof WebGLTexture){
-						if(prevTexture==undefined || prevTexture !=tKey){
-							gl.activeTexture(gl.TEXTURE0);
-							gl.bindTexture(gl.TEXTURE_2D, tKey);
-							gl.uniform1i(programInfo['uniforms'][k].location, 0);
-							prevTexture = tKey
+				console.log('정렬!')
+			}
+			
+			// console.log(sortedMap)
+			for(var kk in sortedMap){
+				i = sortedMap[kk].length
+				while (i--) {
+					drawInfo = sortedMap[kk][i]
+					programInfo = drawInfo['programInfo']
+					mvMatrix[0] = 1;
+					mvMatrix[1] = 0;
+					mvMatrix[2] = 0;
+					mvMatrix[3] = 0;
+					mvMatrix[4] = 0;
+					mvMatrix[5] = 1;
+					mvMatrix[6] = 0;
+					mvMatrix[7] = 0;
+					mvMatrix[8] = 0;
+					mvMatrix[9] = 0;
+					mvMatrix[10] = 1;
+					mvMatrix[11] = 0;
+					mvMatrix[12] = 0;
+					mvMatrix[13] = 0;
+					mvMatrix[14] = 0;
+					mvMatrix[15] = 1;
+					// mat4.translate(mvMatrix, mvMatrix, drawInfo['position']);
+					// mat4.rotateX(mvMatrix, mvMatrix, drawInfo['rotation'][0]);
+					// mat4.rotateY(mvMatrix, mvMatrix, drawInfo['rotation'][1]);
+					// mat4.rotateZ(mvMatrix, mvMatrix, drawInfo['rotation'][2]);
+					translate_rotate_scale(mvMatrix, drawInfo['position'], drawInfo['rotation'][0], drawInfo['rotation'][1], drawInfo['rotation'][2], drawInfo['scale'])
+					// mat4.scale(mvMatrix, mvMatrix, drawInfo['scale']);
+					if(prevProgram != programInfo['program']) gl.useProgram(programInfo['program'])
+					prevProgram = programInfo['program']
+					
+					for (var k in drawInfo['bufferInfos']['attributes']) {
+						tBufferInfo = drawInfo['bufferInfos']['attributes'][k]
+						if (prevBuffer[programInfo['attributes'][tBufferInfo['pointer']]['location']] != tBufferInfo) {
+							gl.bindBuffer(gl.ARRAY_BUFFER, tBufferInfo);
+							// console.log(k,programInfo['attributes'][tBufferInfo['pointer']])
+							tBufferInfo['enabled'] ? 0 : gl.enableVertexAttribArray(programInfo['attributes'][tBufferInfo['pointer']]['location'])
+							gl.vertexAttribPointer(programInfo['attributes'][tBufferInfo['pointer']]['location'], tBufferInfo.pointSize, tBufferInfo.type, tBufferInfo.normalize, tBufferInfo.stride, tBufferInfo.offset);
+							prevBuffer[programInfo['attributes'][tBufferInfo['pointer']]['location']] = tBufferInfo
 						}
 						
-					}else throw '안되는 나쁜 타입인거야!!'
-							
-				}
-				if (drawInfo['bufferInfos']['indices']) {				
-					if (prevDrawBuffer != drawInfo['bufferInfos']['indices']) {
-						gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, drawInfo['bufferInfos']['indices']);
 					}
-					gl.drawElements(drawInfo['drawMode'], drawInfo['bufferInfos']['indices'].pointNum, gl.UNSIGNED_SHORT, 0);
-					prevDrawBuffer = drawInfo['bufferInfos']['indices']
-				} else {
-					if (prevDrawBuffer != drawInfo['bufferInfos']['attributes']['position']) {
-						gl.drawArrays(drawInfo['drawMode'], 0, drawInfo['bufferInfos']['attributes']['position'].pointNum)
+					var i2 = drawInfo['uniformsList'].length
+					// console.log(drawInfo['uniformsList'])
+					while(i2--){
+						//TODO: 여길 어떻게든 간소화
+						var tKey,k;						
+						// console.log(drawInfo['uniforms'])
+						// console.log(drawInfo['uniformsList'][i2])
+						tKey = drawInfo['uniformsList'][i2][1]
+						k = drawInfo['uniformsList'][i2][0]
+						// console.log(tKey)
+						if (tKey['_method']) {
+							tKey.length>11
+							? gl[tKey['_method']](programInfo['uniforms'][k]['location'], false, drawInfo['uniforms'][k])
+							: gl[tKey['_method']](programInfo['uniforms'][k]['location'], drawInfo['uniforms'][k])
+						} else if(tKey instanceof WebGLTexture){
+							if(prevTexture==undefined || prevTexture !=tKey){
+								gl.activeTexture(gl.TEXTURE0);
+								gl.bindTexture(gl.TEXTURE_2D, tKey);
+								gl.uniform1i(programInfo['uniforms'][k]['location'], 0);
+								prevTexture = tKey
+							}							
+						}else throw '안되는 나쁜 타입인거야!!'
+								
 					}
-					prevDrawBuffer = drawInfo['bufferInfos']['attributes']['position']
+					if (drawInfo['bufferInfos']['indices']) {				
+						if (prevDrawBuffer != drawInfo['bufferInfos']['indices']) {
+							gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, drawInfo['bufferInfos']['indices']);
+						}
+						gl.drawElements(drawInfo['drawMode'], drawInfo['bufferInfos']['indices'].pointNum, gl.UNSIGNED_SHORT, 0);
+						prevDrawBuffer = drawInfo['bufferInfos']['indices']
+					} else {
+						if (prevDrawBuffer != drawInfo['bufferInfos']['attributes']['position']) {
+							gl.drawArrays(drawInfo['drawMode'], 0, drawInfo['bufferInfos']['attributes']['position'].pointNum)
+						}
+						prevDrawBuffer = drawInfo['bufferInfos']['attributes']['position']
+					}
 				}
+				
 			}
+			testMap++
+			if(testMap>60*5)  testMap = 0,sortedMap = {}
 			// })
 		}
 	})()
