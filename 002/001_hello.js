@@ -190,7 +190,9 @@ function initBuffers() {
 	console.log(model)
 }
 
+var prevTime = performance.now()
 function drawScene(time) {
+	
 	// gl.cvs.width = 1024 + Math.sin(time/1000)*100
 	var aspect = gl.cvs.clientWidth / gl.cvs.clientHeight;
 	mat4.perspective(pMatrix, 45, aspect, 0.1, 1000.0);
@@ -203,6 +205,8 @@ function drawScene(time) {
 		renderList[i].rotation[1]+=0.01
 		renderList[i].rotation[2]+=0.01
 	}
+	if(time-prevTime<16) return console.log('걸려따')
+	prevTime = time
 	helper.drawObjectList(gl, renderList, time)
 }
 
@@ -282,7 +286,7 @@ function webGLStart() {
 	renderList = [
 
 	]
-	var i = 3000
+	var i = 4000
 	while (i--) {
 		renderList.push(new Mesh(i % 2 ? bitmapProgram : colorProgram, i % 2 ? squareBufferInfo : cubeBufferInfo))
 	}
