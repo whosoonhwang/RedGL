@@ -177,6 +177,8 @@ function initBuffers() {
 
 function drawScene(time) {
 	// gl.cvs.width = 1024 + Math.sin(time/1000)*100
+	var aspect = gl.cvs.clientWidth / gl.cvs.clientHeight;
+	mat4.perspective(pMatrix, 45, aspect, 0.1, 1000.0);
 	var i = renderList.length
 	while (i--) {
 		renderList[i].position[0] =Math.sin(i+time/50000+renderList[i].rotation[0])*30+ Math.cos(i+time/2000)*10
@@ -224,7 +226,7 @@ function webGLStart() {
 	renderList = [
 
 	]
-	var i = 3000
+	var i = 1000
 	while (i--) {
 		renderList.push(new Mesh(i % 2 ? bitmapProgram : colorProgram, i % 2 ? squareBufferInfo : cubeBufferInfo))
 	}
@@ -256,8 +258,7 @@ function webGLStart() {
 			'width', '100%',
 			'height', '100%'
 		)
-		var aspect = gl.cvs.clientWidth / gl.cvs.clientHeight;
-		mat4.perspective(pMatrix, 45, aspect, 0.1, 1000.0);
+	
 	})
 	Recard.EVENT_EMITTER.fire(window,'resize',{})
 	requestAnimationFrame(drawScene)
