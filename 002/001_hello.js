@@ -251,8 +251,10 @@ function webGLStart() {
 	
 	Recard.WIN_RESIZER.add('test', function (e) {
 		Recard.Dom('#lesson01-canvas').S(
-			'@width', Recard.WIN.w,
-			'@height', Recard.WIN.h
+			'@width', Recard.WIN.w*window.devicePixelRatio,
+			'@height', Recard.WIN.h*window.devicePixelRatio,
+			'width', '100%',
+			'height', '100%'
 		)
 		var aspect = gl.cvs.clientWidth / gl.cvs.clientHeight;
 		mat4.perspective(pMatrix, 45, aspect, 0.1, 1000.0);
