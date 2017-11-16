@@ -89,12 +89,12 @@ function drawScene(time) {
 	
 	var i = renderList.length
 	while (i--) {
-		// renderList[i].position[0] =SIN(i+time/5000+renderList[i].rotation[0])*30+ COS(i+time/2000)*10
-		// renderList[i].position[1] =COS(i+time/3000+renderList[i].rotation[1])*30 +COS(i+time/3000)*5
-		// renderList[i].position[2] =SIN(i+time/1000+renderList[i].rotation[2])*10-75
-		// renderList[i].rotation[0]+=0.001
-		// renderList[i].rotation[1]+=0.001
-		// renderList[i].rotation[2]+=0.01
+		renderList[i].position[0] =SIN(i+time/5000+renderList[i].rotation[0])*30+ COS(i+time/2000)*10
+		renderList[i].position[1] =COS(i+time/3000+renderList[i].rotation[1])*30 +COS(i+time/3000)*5
+		renderList[i].position[2] =SIN(i+time/1000+renderList[i].rotation[2])*10-55
+		renderList[i].rotation[0]+=0.001
+		renderList[i].rotation[1]+=0.001
+		renderList[i].rotation[2]+=0.001
 	}
 	if(time-prevTime<16) return console.log('걸려따')
 	prevTime = time
@@ -110,9 +110,9 @@ function webGLStart() {
 	
 	pMatrix = mat4.create();
 	initBuffers();
-	var texture = helper.createTexture(gl,'crate.png')
-	var texture2 = helper.createTexture(gl,'test.png')
-	var texture3 = helper.createTexture(gl,'crate.png')
+	var texture = helper.createTexture(gl,atlasList[0].canvas)
+	// var texture2 = helper.createTexture(gl,'test.png')
+	// var texture3 = helper.createTexture(gl,'crate.png')
 	var Mesh;
 	var typeMAP;
 	typeMAP = {
@@ -155,7 +155,23 @@ function webGLStart() {
 			// (2) [0.25, 0]
 			// (2) [0.25, 0.125]
 			// (2) [0.125, 0.125]
-			this.uniforms.uAtlascoord = new Float32Array([0.125,0.125,0.25-0.125,0.25-0.125])
+			var t0 = Math.random() > 0.9 ? atlasList[0].uv()['crate']
+				: Math.random() > 0.8 ? atlasList[0].uv()['draft1']
+					: Math.random() > 0.7 ? atlasList[0].uv()['draft2']
+							: Math.random() > 0.5 ? atlasList[0].uv()['draft4']
+									: atlasList[0].uv()['test']
+			this.uniforms.uAtlascoord = new Float32Array([
+				t0[0][0],
+				t0[0][1],
+				(t0[1][0]-t0[0][0])/2,
+				(t0[2][1]-t0[0][1])/2
+			])
+			// console.log(new Float32Array([
+			// 	t0[0][0],
+			// 	t0[0][1],
+			// 	(t0[1][0]-t0[0][0])/2,
+			// 	(t0[2][1]-t0[0][1])/2
+			// ]))
 		}
 		else this.uniforms.uColor = [Math.random(),Math.random(),Math.random()]
 
@@ -180,15 +196,15 @@ function webGLStart() {
 		
 
 		//TODO: uniformsInfo가 있으면 또 밀어넣어야함
-		this.position = new Float32Array([0,0,-10])
-		this.rotation = new Float32Array([0,0,0])
-		this.scale = new Float32Array(programInfo == bitmapProgram ? [0.1,0.1,0.1] : [0.1,0.1,0.1])
+		this.position = new Float32Array([Math.random(),Math.random(),Math.random()])
+		this.rotation = new Float32Array([Math.random(),Math.random(),Math.random()])
+		this.scale = new Float32Array(programInfo == bitmapProgram ? [0.1,0.1,0.1] : [0.5,0.5,0.5])
 		this.drawMode = gl.TRIANGLES
 	}
 	renderList = [
 
 	]
-	var i = 2
+	var i = 4000
 	while (i--) {
 		renderList.push(new Mesh(i % 2 ? bitmapProgram : colorProgram, i % 2 ? squareBufferInfo : cubeBufferInfo))
 	}
@@ -227,10 +243,13 @@ function webGLStart() {
 	Recard.EVENT_EMITTER.fire(window,'resize',{})
 	Recard.LOOPER.add('RENDER',drawScene)
 }
+
 Recard.AjaxLoader(function (v) {
 	model = JSON.parse(v[0]['content'])
 	model2 = JSON.parse(v[1]['content'])
-	webGLStart()
+	setTimeout(function(){
+		webGLStart()
+	},2000)
 }, {
 	url :'test.js',
 	method : 'GET'
@@ -243,3 +262,52 @@ Recard.Css('body').S(
 	'padding', 0,
 	'overflow', 'hidden'
 )
+
+var atlas
+var atlasList
+var createAtlas = function(img){
+	var t0;
+	if(img && (img.width > 2048 || img.height > 2048)) throw '이미지가 너무커!'
+	t0 = Recard.Dom('canvas').S('@width',2048,'@height',2048,'background', 'red','margin',5).__dom__
+	// document.body.appendChild(t0)
+	atlas= new Atlas(t0);
+	atlasList.push(atlas)
+	console.log('생성!')
+	// atlas.tilepad = true;
+}
+atlasList = []
+createAtlas()
+function atlasPack(img) {
+		atlas = atlasList[atlasList.length - 1]
+		var node = atlas.pack(img);
+		if (node === false) {
+			// 아틀라스를 전체를 돌면서 찾아야하고..
+			// TODO: 공간없는놈은 어떻게 찾지?
+			i = atlasList.length
+			while (i--) {
+				// 기존있는놈중에 들어가면 종료시키고
+				var node = atlas.pack(img);
+				if (node) return
+			}
+			// 여기까지 흘러들어오면 아틀라스캔버스 자체를 추가한다.
+			if (node === false) {
+				createAtlas(img)
+				atlas.pack(img)
+			}
+		}
+		//TODO: 아틀라스가 변경되면 실제로 텍스쳐가 어떻게 참조하지?
+		// console.log(img, atlas)
+
+	}
+	var texturePath = 'asset/';
+[
+	'crate','test',
+	'draft1','draft2','draft3','draft4','draft5'
+].forEach(function (name) {
+	var img = new Image();
+	img.id = name;
+	img.src = texturePath + name + '.png';
+	img.onload = function () {
+		atlasPack(img);
+	};
+});

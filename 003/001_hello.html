@@ -16,8 +16,7 @@
             uniform vec4 uAtlascoord;
             uniform sampler2D uTexture;
             void main(void) {
-                //gl_FragColor = texture2D(uTexture, vTexcoord*vec2(uAtlascoord[2],uAtlascoord[3]));
-                gl_FragColor = texture2D(uTexture, vTexcoord);
+                gl_FragColor = texture2D(uTexture, uAtlascoord.xy + vTexcoord*uAtlascoord.zw);
             }
     </script>
     <script id="shader-vs-bitmap" type="x-shader/x-vertex">

@@ -139,20 +139,22 @@ helper = {
 		gl.bindTexture(gl.TEXTURE_2D, texture)
 		// Fill the texture with a 1x1 blue pixel.
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 255, 255]))
+
 		var image = new Image();
-		image.src = src
+		image.src = src instanceof Element ? src.toDataURL() : src
 		image.addEventListener('load', function () {
 			// Now that the image has loaded make copy it to the texture.
 			gl.bindTexture(gl.TEXTURE_2D, texture);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 			// gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-			// gl.texParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-			// gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+			gl.texParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
 			// gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+			texture.loaded = 1
 			gl.generateMipmap(gl.TEXTURE_2D);
-			gl.bindTexture(gl.TEXTURE_2D, null);
 		});
 		// 액티브된적이있는지
+		texture.loaded = 0
 		texture.actived = 0
 		// 웹지엘 텍스쳐인지
 		texture._webglTexture = 1
@@ -162,6 +164,7 @@ helper = {
 		var testMap = 0
 		var sortedMap = {}
 		var prevAttr={}
+		var prevDiffuse
 		return function (gl, renderList, time) {
 		
 		
@@ -170,7 +173,7 @@ helper = {
 			var i ,i2
 			var drawInfo
 			var tBufferInfo;
-			var prevDiffuse
+		
 		
 			
 			if (testMap==0) {
@@ -283,16 +286,18 @@ helper = {
 							v.length > 11
 								? gl[v._uniformMethod](tLocation, false, tUniformValueGroup[k])
 								: gl[v._uniformMethod](tLocation, tUniformValueGroup[k])
-						} else if(v._webglTexture){
-							if(prevDiffuse==undefined || prevDiffuse !=v){
-								v.actived ? 0 : gl.activeTexture(gl.TEXTURE0)
-								v.actived = 1
-								gl.bindTexture(gl.TEXTURE_2D, v)
-								gl.uniform1i(tLocation, 0)
-								prevDiffuse = v
-							}							
-						}else throw '안되는 나쁜 타입인거야!!'
-								
+						} else if (v._webglTexture) {
+							if (prevDiffuse == undefined || prevDiffuse != v) {
+								if (v['loaded']) {
+									v.actived ? 0 : gl.activeTexture(gl.TEXTURE0)
+									v.actived = 1
+									gl.bindTexture(gl.TEXTURE_2D, v)
+									gl.uniform1i(tLocation, 0)
+									prevDiffuse = v
+								}
+							}
+						} else throw '안되는 나쁜 타입인거야!!'
+
 					}
 					if (tIndicesBuffer) {				
 						prevDrawBuffer == tIndicesBuffer ? 0 : gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, tIndicesBuffer)
