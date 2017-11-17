@@ -2,9 +2,9 @@
 var gl;
 function initGL(canvas) {
 	try {
-		gl = canvas.getContext("experimental-webgl", {
+		gl = canvas.getContext("webgl", {
 			premultipliedAlpha: false,
-			alpha: false,
+			alpha: false
 			
 		});
 		gl.cvs = canvas
@@ -92,9 +92,9 @@ function drawScene(time) {
 		renderList[i].position[0] =SIN(i+time/5000+renderList[i].rotation[0])*30+ COS(i+time/2000)*10
 		renderList[i].position[1] =COS(i+time/3000+renderList[i].rotation[1])*30 +COS(i+time/3000)*5
 		renderList[i].position[2] =SIN(i+time/1000+renderList[i].rotation[2])*10-55
-		renderList[i].rotation[0]+=0.001
-		renderList[i].rotation[1]+=0.001
-		renderList[i].rotation[2]+=0.001
+		renderList[i].rotation[0]+=0.005
+		renderList[i].rotation[1]+=0.005
+		renderList[i].rotation[2]+=0.005
 	}
 	if(time-prevTime<16) return console.log('걸려따')
 	prevTime = time
@@ -111,7 +111,7 @@ function webGLStart() {
 	pMatrix = mat4.create();
 	initBuffers();
 	var texture = helper.createTexture(gl,atlasList[0].canvas)
-	// var texture2 = helper.createTexture(gl,'test.png')
+	var texture2 = helper.createTexture(gl,'test.png')
 	// var texture3 = helper.createTexture(gl,'crate.png')
 	var Mesh;
 	var typeMAP;
@@ -158,13 +158,13 @@ function webGLStart() {
 			var t0 = Math.random() > 0.9 ? atlasList[0].uv()['crate']
 				: Math.random() > 0.8 ? atlasList[0].uv()['draft1']
 					: Math.random() > 0.7 ? atlasList[0].uv()['draft2']
-							: Math.random() > 0.5 ? atlasList[0].uv()['draft4']
-									: atlasList[0].uv()['test']
+						: Math.random() > 0.5 ? atlasList[0].uv()['draft4']
+							: atlasList[0].uv()['test']
 			this.uniforms.uAtlascoord = new Float32Array([
 				t0[0][0],
 				t0[0][1],
-				(t0[1][0]-t0[0][0])/2,
-				(t0[2][1]-t0[0][1])/2
+				(t0[1][0] - t0[0][0]) / 2,
+				(t0[2][1] - t0[0][1]) / 2
 			])
 			// console.log(new Float32Array([
 			// 	t0[0][0],
@@ -173,7 +173,7 @@ function webGLStart() {
 			// 	(t0[2][1]-t0[0][1])/2
 			// ]))
 		}
-		else this.uniforms.uColor = [Math.random(),Math.random(),Math.random()]
+		else this.uniforms.uColor = new Float32Array([Math.random(),Math.random(),Math.random()])
 
 		// 유니폼값의 gl매서드를 미리 구하고
 		for(var k in this.uniforms){
@@ -221,13 +221,14 @@ function webGLStart() {
 	gl.clearColor(1,1,1,1);
 	gl.clear(gl.COLOR_BUFFER_BIT);
 		// Turn off rendering to alpha
-	gl.colorMask(true, true, true, false);
-	///
-	gl.clearColor(0.0, 0.0, 0.0, 1.0);
+	// gl.colorMask(true, true, true, false);
+	// gl.clearColor(0.0, 0.0, 0.0, 1.0);
 	gl.enable(gl.DEPTH_TEST);
 	gl.depthFunc(gl.LESS)
-	
-	// gl.cullFace(gl.FRONT)
+	//	
+	gl.enable(gl.CULL_FACE);
+	gl.cullFace(gl.BACK)
+	//
 	gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
 	gl.enable(gl.BLEND);
 	
@@ -299,8 +300,6 @@ function atlasPack(img) {
 				atlas.pack(img)
 			}
 		}
-		//TODO: 아틀라스가 변경되면 실제로 텍스쳐가 어떻게 참조하지?
-		// console.log(img, atlas)
 
 	}
 	var texturePath = 'asset/';

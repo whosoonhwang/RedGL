@@ -1,6 +1,7 @@
 "use strict";
 var helper;
 var SIN, COS;
+var UUID = 1
 SIN = Math.sin
 COS = Math.cos
 helper = {
@@ -95,6 +96,7 @@ helper = {
 		buffer['stride'] = stride ? stride : 0
 		buffer['offset'] = offset ? offset : 0
 		buffer['enabled'] = 0
+		buffer.UUID = UUID++
 		return buffer
 	},
 	createArrayBuffer: function (gl, pointer, list, pointSize, pointNum, type, normalize, stride, offset) {
@@ -110,6 +112,7 @@ helper = {
 		buffer['stride'] = stride ? stride : 0 // 0 = move forward size * sizeof(type) each iteration to get the next position
 		buffer['offset'] = offset ? offset : 0 // start at the beginning of the buffer
 		buffer['enabled'] = 0
+		buffer.UUID = UUID++
 		return buffer
 	},
 	createBufferInfo: (function () {
@@ -147,8 +150,8 @@ helper = {
 			gl.bindTexture(gl.TEXTURE_2D, texture);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
 			// gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-			// gl.texParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-			// gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
+			gl.texParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
 			// gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 			texture.loaded = 1
 			gl.generateMipmap(gl.TEXTURE_2D);
@@ -158,15 +161,16 @@ helper = {
 		texture.actived = 0
 		// 웹지엘 텍스쳐인지
 		texture._webglTexture = 1
+		texture.UUID =  UUID++
 		return texture
 	},
 	drawObjectList: (function(){
 		var testMap = 0
 		var sortedMap = {}
 		var prevAttr={}
+		var prevUniform = {}
 		var prevDiffuse
 		return function (gl, renderList, time) {
-		
 		
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 		
@@ -183,7 +187,10 @@ helper = {
 					sortedMap[tName] ? 0 : (sortedMap[tName] = [],sortedMap[tName].len = 0);
 					sortedMap[tName][sortedMap[tName].len] = renderList[i], sortedMap[tName].len++
 				}
-				console.log('정렬!')
+				for(var k in sortedMap){
+					sortedMap[k].sort()
+				}
+				console.log('정렬!',sortedMap)
 			}
 			var prevDrawBuffer
 			var prevProgram
@@ -197,7 +204,7 @@ helper = {
 			var tLocation
 			var tUniformLocationGroup
 			var tUniformValueGroup
-			var tAttr
+			var tAttrValue
 			var tIndicesBuffer  
 			var tVertexBuffer
 			var tNormalBuffer
@@ -206,6 +213,7 @@ helper = {
 			var tMvMatrix
 			var a, aSx, aSy, aSz, aCx, aCy, aCz, tRx, tRy, tRz, a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, b00, b01, b02, b10, b11, b12, b20, b21, b22;
 			var aX,aY,aZ
+			var updated_uPMatrix
 			for(var kk in sortedMap){
 				i = sortedMap[kk].length
 				while (i--) {
@@ -259,58 +267,65 @@ helper = {
 					a[12] = a[12],a[13] = a[13],a[14] = a[14],a[15] = a[15]
 					// translate_rotate_scale(mvMatrix, drawInfo['position'], drawInfo['rotation'][0], drawInfo['rotation'][1], drawInfo['rotation'][2], drawInfo['scale'])
 					/////////////////////
-					prevProgram != tProgram ? gl.useProgram(tProgram) : 0
+					prevProgram != tProgram ? (gl.useProgram(tProgram),updated_uPMatrix=false) : 0
 					prevProgram = tProgram
 					
 					for (var k in tAttrValueGroup) {
-						tAttr = tAttrValueGroup[k]
-						tPointer = tAttr['pointer']
+						tAttrValue = tAttrValueGroup[k],
+						tPointer = tAttrValue['pointer'],
 						tLocation = tAttrLocationGroup[tPointer]['location']
 						//
-						var t = gl.vertexAttribPointer
-						prevAttr[tLocation] == tAttr
+						prevAttr[tLocation] == tAttrValue.UUID
 							? 0
 							: (
-								gl.bindBuffer(gl.ARRAY_BUFFER, tAttr),
-								tAttr.enabled ? 0 : (gl.enableVertexAttribArray(tLocation),tAttr.enabled=1),
-								gl.vertexAttribPointer(tLocation, tAttr.pointSize, tAttr.type, tAttr.normalize, tAttr.stride, tAttr.offset),
-								prevAttr[tLocation] = tAttr
+								gl.bindBuffer(gl.ARRAY_BUFFER, tAttrValue),
+								tAttrValue.enabled ? 0 : (gl.enableVertexAttribArray(tLocation),tAttrValue.enabled=1),
+								gl.vertexAttribPointer(tLocation, tAttrValue.pointSize, tAttrValue.type, tAttrValue.normalize, tAttrValue.stride, tAttrValue.offset),
+								prevAttr[tLocation] = tAttrValue.UUID
 							)
 					}
 					i2 = tUniformsList.length
 					while(i2--){
-						var v,k;						
-						v = tUniformsList[i2][1], k = tUniformsList[i2][0]
+						var tUniformValue,k;						
+						k = tUniformsList[i2][0], tUniformValue = tUniformsList[i2][1]
 						tLocation = tUniformLocationGroup[k]['location']
-						if (v._uniformMethod) {
-							v.length > 11
-								? gl[v._uniformMethod](tLocation, false, tUniformValueGroup[k])
-								: gl[v._uniformMethod](tLocation, tUniformValueGroup[k])
-						} else if (v._webglTexture) {
-							if (prevDiffuse == undefined || prevDiffuse != v) {
-								if (v['loaded']) {
-									v.actived ? 0 : gl.activeTexture(gl.TEXTURE0)
-									v.actived = 1
-									gl.bindTexture(gl.TEXTURE_2D, v)
-									gl.uniform1i(tLocation, 0)
-									prevDiffuse = v
-								}
-							}
-						} else throw '안되는 나쁜 타입인거야!!'
+						if (tUniformValue._uniformMethod) {
+							k == 'uPMatrix' && updated_uPMatrix
+								? 0
+								: tUniformValue.length > 11
+									? gl[tUniformValue._uniformMethod](tLocation, false, tUniformValueGroup[k])
+									: gl[tUniformValue._uniformMethod](tLocation, tUniformValueGroup[k])
+							
+							k == 'uPMatrix' ? updated_uPMatrix = true : 0
 
+						} else if (tUniformValue._webglTexture) {
+							if (tUniformValue.loaded && prevDiffuse != tUniformValue.UUID) {
+								// console.log('오남',prevDiffuse[tUniformValue.UUID] , tUniformValue)	
+								// console.log('오남2',tUniformValue)							
+								tUniformValue.actived ? 0 : gl.activeTexture(gl.TEXTURE1)
+								tUniformValue.actived = 1,
+								gl.bindTexture(gl.TEXTURE_2D, tUniformValue),
+								gl.uniform1i(tLocation, 0),
+								prevDiffuse = tUniformValue.UUID
+								// console.log(prevDiffuse)
+							}
+							
+						} else throw '안되는 나쁜 타입인거야!!'
 					}
+				
 					if (tIndicesBuffer) {				
-						prevDrawBuffer == tIndicesBuffer ? 0 : gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, tIndicesBuffer)
+						prevDrawBuffer == tIndicesBuffer.UUID ? 0 : gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, tIndicesBuffer)
 						gl.drawElements(drawInfo['drawMode'], tIndicesBuffer['pointNum'], gl.UNSIGNED_SHORT, 0)
-						prevDrawBuffer = tIndicesBuffer
+						prevDrawBuffer = tIndicesBuffer.UUID
 					} else {
-						prevDrawBuffer == tVertexBuffer ? 0 : gl.drawArrays(drawInfo['drawMode'], 0, tVertexBuffer['pointNum'])
-						prevDrawBuffer = tVertexBuffer
+						prevDrawBuffer == tVertexBuffer.UUID ? 0 : gl.drawArrays(drawInfo['drawMode'], 0, tVertexBuffer['pointNum'])
+						prevDrawBuffer = tVertexBuffer.UUID
 					}
 				}				
 			}			
 			testMap++
 			if(testMap>60*60)  testMap = 0,sortedMap = {}
+		
 		}
 	})()
 }
