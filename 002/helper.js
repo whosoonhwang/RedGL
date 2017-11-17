@@ -158,6 +158,7 @@ helper = {
 		var sortedMap = {}
 		return function (gl, renderList, time) {
 			time = time / 500000
+		
 			gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 			// renderList.forEach(function (drawInfo) {
@@ -257,6 +258,7 @@ helper = {
 				}
 				
 			}
+			
 			testMap++
 			if(testMap>60*5)  testMap = 0,sortedMap = {}
 			// })
