@@ -99,7 +99,7 @@ drawScene = (function () {
 			renderList[i].rotation[1] += 0.005
 			renderList[i].rotation[2] += 0.005
 		}
-		if (time - prevTime < 16) return console.log('걸려따')
+		// if (time - prevTime < 16) return console.log('걸려따')
 		prevTime = time
 		helper.drawObjectList(gl, renderList, time)
 
@@ -115,8 +115,9 @@ function webGLStart() {
 	pMatrix = mat4.create();
 	initBuffers();
 	var texture = helper.createTexture(gl, atlasList[0].canvas)
+	// var texture1 = helper.createTexture(gl, 'asset/draft1.png')
 	var texture2 = helper.createTexture(gl, 'test.png')
-	// var texture3 = helper.createTexture(gl,'crate.png')
+	var texture3 = helper.createTexture(gl,'crate.png')
 	var Mesh;
 	var typeMAP;
 	typeMAP = {
@@ -154,7 +155,8 @@ function webGLStart() {
 		}
 		this.uniformsList = []
 		if (programInfo == bitmapProgram) {
-			this.uniforms.uTexture = texture
+			this.uniforms.uTexture = texture//Math.random() > 0.5 ? texture : (Math.random() > 0.5 ? texture2 : texture3)
+			// this.uniforms.uTexture = Math.random() > 0.5 ? texture1 : (Math.random() > 0.5 ? texture2 : texture3)
 			// (2) [0.125, 0]
 			// (2) [0.25, 0]
 			// (2) [0.25, 0.125]
