@@ -99,7 +99,7 @@ drawScene = (function () {
 			renderList[i].rotation[1] += 0.005
 			renderList[i].rotation[2] += 0.005
 		}
-		if (time - prevTime < 16) return console.log('걸려따')
+		// if (time - prevTime < 16) return console.log('걸려따')
 		prevTime = time
 		helper.drawObjectList(gl, renderList, time)
 
@@ -116,7 +116,7 @@ function webGLStart() {
 	initBuffers();
 	var texture = helper.createTexture(gl, atlasList[0].canvas)
 	var texture2 = helper.createTexture(gl, 'test.png')
-	// var texture3 = helper.createTexture(gl,'crate.png')
+	var texture3 = helper.createTexture(gl,'crate.png')
 	var Mesh;
 	var typeMAP;
 	typeMAP = {

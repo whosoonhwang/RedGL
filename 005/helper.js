@@ -4,6 +4,7 @@ var SIN, COS;
 var UUID = 1
 SIN = Math.sin
 COS = Math.cos
+var prevDiffuseUUID //TODO: 이건 다시 내부로옮겨야함
 helper = {
 	getShaderFromScript: function (gl, id) {
 		var shaderScript = document.getElementById(id);
@@ -142,20 +143,30 @@ helper = {
 		gl.bindTexture(gl.TEXTURE_2D, texture)
 		// Fill the texture with a 1x1 blue pixel.
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 255, 255]))
-
 		var image = new Image();
 		image.src = src instanceof Element ? src.toDataURL() : src
 		image.addEventListener('load', function () {
 			// Now that the image has loaded make copy it to the texture.
 			gl.bindTexture(gl.TEXTURE_2D, texture);
 			gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+			// gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+			// gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+			////// 기본레벨설정
 			// gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+
+
 			gl.texParameterf(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
 			// gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-			texture.loaded = 1
 			gl.generateMipmap(gl.TEXTURE_2D);
+			prevDiffuseUUID =null
+			gl.bindTexture(gl.TEXTURE_2D, null)
+			texture.loaded = 1
+			image.onload = null
 		});
+		prevDiffuseUUID =null
+		gl.bindTexture(gl.TEXTURE_2D, null)
 		// 액티브된적이있는지
 		texture.loaded = 0
 		texture.actived = 0
@@ -169,7 +180,7 @@ helper = {
 		var sortedMap = {}
 		var cacheAttrUUID = {}
 		var prevUniform = {}
-		var prevDiffuseUUID
+	
 		//
 		var i, i2
 		var drawInfo
@@ -202,6 +213,8 @@ helper = {
 		var tProgramName
 		//
 		var tUniformValue, tUniformKey;
+		//
+		var bitmapRenderable
 		return function (gl, renderList, time) {
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 			if (testMap == 0) {
@@ -288,16 +301,12 @@ helper = {
 							)
 					}
 					i2 = tUniformsList.length
+					bitmapRenderable = true
 					while (i2--) {
-
 						tUniformKey = tUniformsList[i2][0], tUniformValue = tUniformsList[i2][1]
 						tLocation = tUniformLocationGroup[tUniformKey]['location']
 						if (tUniformValue._uniformMethod) {
-							// if (
-							// 	prevUniform[tLocation]  == tUniformValue
-							// ) {
-
-							// } else {
+						
 							tUniformKey == 'uPMatrix' && updated_uPMatrix
 								? 0
 								: tUniformsList[i2][2] // 매트릭스형태인지 아닌지 파악
@@ -305,28 +314,26 @@ helper = {
 									: gl[tUniformValue._uniformMethod](tLocation, tUniformValueGroup[tUniformKey])
 
 							tUniformKey == 'uPMatrix' ? updated_uPMatrix = true : 0
-							// prevUniform[tLocation] = tUniformValue
-							// }
-
-
 						} else if (tUniformValue._webglTexture) {
+							if (!prevDiffuseUUID) bitmapRenderable = false //TODO: 여기도 텍스쳐를 만들때 상태관리를 하면될듯
 							if (tUniformValue.loaded && prevDiffuseUUID != tUniformValue.UUID) {
-								// console.log('오남',prevDiffuse[tUniformValue.UUID] , tUniformValue)	
-								// console.log('오남2',tUniformValue)							
-								tUniformValue.actived ? 0 : gl.activeTexture(gl.TEXTURE1)
-								tUniformValue.actived = 1,
-									gl.bindTexture(gl.TEXTURE_2D, tUniformValue),
-									gl.uniform1i(tLocation, 0),
-									prevDiffuseUUID = tUniformValue.UUID
+								console.log('오남', prevDiffuseUUID, tUniformValue)
+								tUniformValue.actived ? 0 : gl.activeTexture(gl.TEXTURE1) // 0번을 아틀라스가 먹고있으니 1번부터 쓰자
+								tUniformValue.actived = 1
+								gl.bindTexture(gl.TEXTURE_2D, tUniformValue)
+								gl.uniform1i(tLocation, 1)
+								prevDiffuseUUID = tUniformValue.UUID
 								// console.log(prevDiffuse)
 							}
 
 						} else throw '안되는 나쁜 타입인거야!!'
 					}
 					if (tIndicesBuffer) {
-						cacheDrawBufferUUID == tIndicesBuffer.UUID ? 0 : gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, tIndicesBuffer)
-						gl.drawElements(drawInfo['drawMode'], tIndicesBuffer['pointNum'], gl.UNSIGNED_SHORT, 0)
-						cacheDrawBufferUUID = tIndicesBuffer.UUID
+						if (bitmapRenderable) {
+							cacheDrawBufferUUID == tIndicesBuffer.UUID ? 0 : gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, tIndicesBuffer)
+							gl.drawElements(drawInfo['drawMode'], tIndicesBuffer['pointNum'], gl.UNSIGNED_SHORT, 0)
+							cacheDrawBufferUUID = tIndicesBuffer.UUID
+						}
 					} else {
 						cacheDrawBufferUUID == tVertexBuffer.UUID ? 0 : gl.drawArrays(drawInfo['drawMode'], 0, tVertexBuffer['pointNum'])
 						cacheDrawBufferUUID = tVertexBuffer.UUID
