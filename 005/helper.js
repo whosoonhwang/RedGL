@@ -28,7 +28,7 @@ helper = {
 			console.log(gl.getShaderInfoLog(shader))
 			throw '형식이 맞지 않습니다.';;
 		}
-		
+
 		parseData = str.match(/.attribute[\s\S]+?\;|.uniform[\s\S]+?\;/g)
 		console.log(parseData)
 		shader['parseData'] = parseData
@@ -41,7 +41,7 @@ helper = {
 			this.attributes = {}
 			this.uniforms = {}
 		}
-		return function (gl, name,vs, fs) {
+		return function (gl, name, vs, fs) {
 			var result;
 			var vertexShader, fragmentShader;
 			var program;
@@ -123,7 +123,7 @@ helper = {
 			}
 			this.indices = null
 		}
-		return function (gl, verticesBuffer, indicesBuffer, texcoordBuffer,normalBuffer) {
+		return function (gl, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer) {
 			var result;
 			result = new BufferInfo()
 
@@ -137,7 +137,7 @@ helper = {
 			return result
 		}
 	})(),
-	createTexture : function(gl,src){
+	createTexture: function (gl, src) {
 		var texture = gl.createTexture()
 		gl.bindTexture(gl.TEXTURE_2D, texture)
 		// Fill the texture with a 1x1 blue pixel.
@@ -161,60 +161,63 @@ helper = {
 		texture.actived = 0
 		// 웹지엘 텍스쳐인지
 		texture._webglTexture = 1
-		texture.UUID =  UUID++
+		texture.UUID = UUID++
 		return texture
 	},
-	drawObjectList: (function(){
+	drawObjectList: (function () {
 		var testMap = 0
 		var sortedMap = {}
-		var cacheAttrUUID={}
+		var cacheAttrUUID = {}
 		var prevUniform = {}
 		var prevDiffuseUUID
+		//
+		var i, i2
+		var drawInfo
+		var tBufferInfo;
+		//
+		var cacheDrawBufferUUID
+		var prevProgram
+		var tMaterial
+		var tProgramInfo
+		var tProgram
+		var tBufferInfo
+		var tAttrValueGroup
+		var tAttrLocationGroup
+		var tPointer
+		var tLocation
+		var tUniformLocationGroup
+		var tUniformValueGroup
+		var tAttrValue
+		var tIndicesBuffer
+		var tVertexBuffer
+		var tNormalBuffer
+		var tTexcoordBuffer
+		var tUniformsList
+		var tMvMatrix
+		var a, aSx, aSy, aSz, aCx, aCy, aCz, tRx, tRy, tRz, a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, b00, b01, b02, b10, b11, b12, b20, b21, b22;
+		var aX, aY, aZ
+		var updated_uPMatrix
+		//
+		var k, kk
+		var tProgramName
+		//
+		var tUniformValue, tUniformKey;
 		return function (gl, renderList, time) {
-		
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-		
-			var i ,i2
-			var drawInfo
-			var tBufferInfo;
-		
-		
-			
-			if (testMap==0) {
-				i=renderList.length
-				while(i--){
-					var tName = renderList[i]['material']['programInfo']['name'];
-					sortedMap[tName] ? 0 : (sortedMap[tName] = [],sortedMap[tName].len = 0);
-					sortedMap[tName][sortedMap[tName].len] = renderList[i], sortedMap[tName].len++
+			if (testMap == 0) {
+				i = renderList.length
+				while (i--) {
+					tProgramName = renderList[i]['material']['programInfo']['name'];
+					sortedMap[tProgramName] ? 0 : (sortedMap[tProgramName] = [], sortedMap[tProgramName].len = 0);
+					sortedMap[tProgramName][sortedMap[tProgramName].len] = renderList[i], sortedMap[tProgramName].len++
 				}
-				for(var k in sortedMap){
+				for (k in sortedMap) {
 					sortedMap[k].sort()
 				}
-				console.log('정렬!',sortedMap)
+				console.log('정렬!', sortedMap)
 			}
-			var prevDrawBufferUUID
-			var prevProgram
-			var tMaterial
-			var tProgramInfo
-			var tProgram
-			var tBufferInfo
-			var tAttrValueGroup
-			var tAttrLocationGroup
-			var tPointer
-			var tLocation
-			var tUniformLocationGroup
-			var tUniformValueGroup
-			var tAttrValue
-			var tIndicesBuffer  
-			var tVertexBuffer
-			var tNormalBuffer
-			var tTexcoordBuffer
-			var tUniformsList
-			var tMvMatrix
-			var a, aSx, aSy, aSz, aCx, aCy, aCz, tRx, tRy, tRz, a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, b00, b01, b02, b10, b11, b12, b20, b21, b22;
-			var aX,aY,aZ
-			var updated_uPMatrix
-			for(var kk in sortedMap){
+
+			for (kk in sortedMap) {
 				i = sortedMap[kk].length
 				while (i--) {
 					drawInfo = sortedMap[kk][i]
@@ -233,13 +236,13 @@ helper = {
 					tMvMatrix = drawInfo['mvMatrix']
 					tUniformsList = drawInfo['uniformsList']
 					// 매트릭스 초기화
-					tMvMatrix[0] = 1,tMvMatrix[1] = 0,tMvMatrix[2] = 0,tMvMatrix[3] = 0,
-					tMvMatrix[4] = 0,tMvMatrix[5] = 1,tMvMatrix[6] = 0,tMvMatrix[7] = 0,
-					tMvMatrix[8] = 0,tMvMatrix[9] = 0,tMvMatrix[10] = 1,tMvMatrix[11] = 0,
-					tMvMatrix[12] = 0,tMvMatrix[13] = 0,tMvMatrix[14] = 0,tMvMatrix[15] = 1
+					tMvMatrix[0] = 1, tMvMatrix[1] = 0, tMvMatrix[2] = 0, tMvMatrix[3] = 0,
+						tMvMatrix[4] = 0, tMvMatrix[5] = 1, tMvMatrix[6] = 0, tMvMatrix[7] = 0,
+						tMvMatrix[8] = 0, tMvMatrix[9] = 0, tMvMatrix[10] = 1, tMvMatrix[11] = 0,
+						tMvMatrix[12] = 0, tMvMatrix[13] = 0, tMvMatrix[14] = 0, tMvMatrix[15] = 1
 					//////////////////////////////////////////
 					//////////////////////////////////////////
-				
+
 					a = tMvMatrix
 					// 이동
 					aX = drawInfo['position'][0], aY = drawInfo['position'][1], aZ = drawInfo['position'][2];
@@ -248,55 +251,63 @@ helper = {
 					a[14] = a[2] * aX + a[6] * aY + a[10] * aZ + a[14];
 					a[15] = a[3] * aX + a[7] * aY + a[11] * aZ + a[15];
 					// xyz축 회전 
-					tRx = drawInfo['rotation'][0],tRy = drawInfo['rotation'][1],tRz = drawInfo['rotation'][2]
+					tRx = drawInfo['rotation'][0], tRy = drawInfo['rotation'][1], tRz = drawInfo['rotation'][2]
 					aSx = SIN(tRx), aCx = COS(tRx), aSy = SIN(tRy), aCy = COS(tRy), aSz = SIN(tRz), aCz = COS(tRz),
-					a00 = a[0], a01 = a[1], a02 = a[2],
-					a10 = a[4], a11 = a[5], a12 = a[6],
-					a20 = a[8], a21 = a[9], a22 = a[10],
-					b00 = aCy * aCz, b01 = aSx * aSy * aCz - aCx * aSz, b02 = aCx * aSy * aCz + aSx * aSz,
-					b10 = aCy * aSz, b11 = aSx * aSy * aSz + aCx * aCz, b12 = aCx * aSy * aSz - aSx * aCz,
-					b20 = -aSy, b21 = aSx * aCy, b22 = aCx * aCy,
-					a[0] = a00 * b00 + a10 * b01 + a20 * b02, a[1] = a01 * b00 + a11 * b01 + a21 * b02, a[2] = a02 * b00 + a12 * b01 + a22 * b02,
-					a[4] = a00 * b10 + a10 * b11 + a20 * b12, a[5] = a01 * b10 + a11 * b11 + a21 * b12, a[6] = a02 * b10 + a12 * b11 + a22 * b12,
-					a[8] = a00 * b20 + a10 * b21 + a20 * b22, a[9] = a01 * b20 + a11 * b21 + a21 * b22, a[10] = a02 * b20 + a12 * b21 + a22 * b22;
+						a00 = a[0], a01 = a[1], a02 = a[2],
+						a10 = a[4], a11 = a[5], a12 = a[6],
+						a20 = a[8], a21 = a[9], a22 = a[10],
+						b00 = aCy * aCz, b01 = aSx * aSy * aCz - aCx * aSz, b02 = aCx * aSy * aCz + aSx * aSz,
+						b10 = aCy * aSz, b11 = aSx * aSy * aSz + aCx * aCz, b12 = aCx * aSy * aSz - aSx * aCz,
+						b20 = -aSy, b21 = aSx * aCy, b22 = aCx * aCy,
+						a[0] = a00 * b00 + a10 * b01 + a20 * b02, a[1] = a01 * b00 + a11 * b01 + a21 * b02, a[2] = a02 * b00 + a12 * b01 + a22 * b02,
+						a[4] = a00 * b10 + a10 * b11 + a20 * b12, a[5] = a01 * b10 + a11 * b11 + a21 * b12, a[6] = a02 * b10 + a12 * b11 + a22 * b12,
+						a[8] = a00 * b20 + a10 * b21 + a20 * b22, a[9] = a01 * b20 + a11 * b21 + a21 * b22, a[10] = a02 * b20 + a12 * b21 + a22 * b22;
 					// 스케일
 					aX = drawInfo['scale'][0], aY = drawInfo['scale'][1], aZ = drawInfo['scale'][2]
-					a[0] = a[0] * aX,a[1] = a[1] * aX,a[2] = a[2] * aX,a[3] = a[3] * aX;
-					a[4] = a[4] * aY,a[5] = a[5] * aY,a[6] = a[6] * aY,a[7] = a[7] * aY,
-					a[8] = a[8] * aZ,a[9] = a[9] * aZ,a[10] = a[10] * aZ,a[11] = a[11] * aZ,
-					a[12] = a[12],a[13] = a[13],a[14] = a[14],a[15] = a[15]
+					a[0] = a[0] * aX, a[1] = a[1] * aX, a[2] = a[2] * aX, a[3] = a[3] * aX;
+					a[4] = a[4] * aY, a[5] = a[5] * aY, a[6] = a[6] * aY, a[7] = a[7] * aY,
+						a[8] = a[8] * aZ, a[9] = a[9] * aZ, a[10] = a[10] * aZ, a[11] = a[11] * aZ,
+						a[12] = a[12], a[13] = a[13], a[14] = a[14], a[15] = a[15]
 					// translate_rotate_scale(mvMatrix, drawInfo['position'], drawInfo['rotation'][0], drawInfo['rotation'][1], drawInfo['rotation'][2], drawInfo['scale'])
 					/////////////////////
-					prevProgram != tProgram ? (gl.useProgram(tProgram),updated_uPMatrix=false) : 0
+					prevProgram != tProgram ? (gl.useProgram(tProgram), updated_uPMatrix = false) : 0
 					prevProgram = tProgram
-					
-					for (var k in tAttrValueGroup) {
+
+					for (k in tAttrValueGroup) {
 						tAttrValue = tAttrValueGroup[k],
-						tPointer = tAttrValue['pointer'],
-						tLocation = tAttrLocationGroup[tPointer]['location']
+							tPointer = tAttrValue['pointer'],
+							tLocation = tAttrLocationGroup[tPointer]['location']
 						//
 						cacheAttrUUID[tLocation] == tAttrValue.UUID
 							? 0
 							: (
 								gl.bindBuffer(gl.ARRAY_BUFFER, tAttrValue),
-								tAttrValue.enabled ? 0 : (gl.enableVertexAttribArray(tLocation),tAttrValue.enabled=1),
+								tAttrValue.enabled ? 0 : (gl.enableVertexAttribArray(tLocation), tAttrValue.enabled = 1),
 								gl.vertexAttribPointer(tLocation, tAttrValue.pointSize, tAttrValue.type, tAttrValue.normalize, tAttrValue.stride, tAttrValue.offset),
 								cacheAttrUUID[tLocation] = tAttrValue.UUID
 							)
 					}
 					i2 = tUniformsList.length
-					while(i2--){
-						var tUniformValue,k;						
-						k = tUniformsList[i2][0], tUniformValue = tUniformsList[i2][1]
-						tLocation = tUniformLocationGroup[k]['location']
+					while (i2--) {
+
+						tUniformKey = tUniformsList[i2][0], tUniformValue = tUniformsList[i2][1]
+						tLocation = tUniformLocationGroup[tUniformKey]['location']
 						if (tUniformValue._uniformMethod) {
-							k == 'uPMatrix' && updated_uPMatrix
+							// if (
+							// 	prevUniform[tLocation]  == tUniformValue
+							// ) {
+
+							// } else {
+							tUniformKey == 'uPMatrix' && updated_uPMatrix
 								? 0
-								: tUniformValue.length > 11
-									? gl[tUniformValue._uniformMethod](tLocation, false, tUniformValueGroup[k])
-									: gl[tUniformValue._uniformMethod](tLocation, tUniformValueGroup[k])
-							
-							k == 'uPMatrix' ? updated_uPMatrix = true : 0
+								: tUniformsList[i2][2] // 매트릭스형태인지 아닌지 파악
+									? gl[tUniformValue._uniformMethod](tLocation, false, tUniformValueGroup[tUniformKey])
+									: gl[tUniformValue._uniformMethod](tLocation, tUniformValueGroup[tUniformKey])
+
+							tUniformKey == 'uPMatrix' ? updated_uPMatrix = true : 0
+							// prevUniform[tLocation] = tUniformValue
+							// }
+
 
 						} else if (tUniformValue._webglTexture) {
 							if (tUniformValue.loaded && prevDiffuseUUID != tUniformValue.UUID) {
@@ -304,28 +315,27 @@ helper = {
 								// console.log('오남2',tUniformValue)							
 								tUniformValue.actived ? 0 : gl.activeTexture(gl.TEXTURE1)
 								tUniformValue.actived = 1,
-								gl.bindTexture(gl.TEXTURE_2D, tUniformValue),
-								gl.uniform1i(tLocation, 0),
-								prevDiffuseUUID = tUniformValue.UUID
+									gl.bindTexture(gl.TEXTURE_2D, tUniformValue),
+									gl.uniform1i(tLocation, 0),
+									prevDiffuseUUID = tUniformValue.UUID
 								// console.log(prevDiffuse)
 							}
-							
+
 						} else throw '안되는 나쁜 타입인거야!!'
 					}
-				
-					if (tIndicesBuffer) {				
-						prevDrawBufferUUID == tIndicesBuffer.UUID ? 0 : gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, tIndicesBuffer)
+					if (tIndicesBuffer) {
+						cacheDrawBufferUUID == tIndicesBuffer.UUID ? 0 : gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, tIndicesBuffer)
 						gl.drawElements(drawInfo['drawMode'], tIndicesBuffer['pointNum'], gl.UNSIGNED_SHORT, 0)
-						prevDrawBufferUUID = tIndicesBuffer.UUID
+						cacheDrawBufferUUID = tIndicesBuffer.UUID
 					} else {
-						prevDrawBufferUUID == tVertexBuffer.UUID ? 0 : gl.drawArrays(drawInfo['drawMode'], 0, tVertexBuffer['pointNum'])
-						prevDrawBufferUUID = tVertexBuffer.UUID
+						cacheDrawBufferUUID == tVertexBuffer.UUID ? 0 : gl.drawArrays(drawInfo['drawMode'], 0, tVertexBuffer['pointNum'])
+						cacheDrawBufferUUID = tVertexBuffer.UUID
 					}
-				}				
-			}			
+				}
+			}
 			testMap++
-			if(testMap>60*60)  testMap = 0,sortedMap = {}
-		
+			// if(testMap>60*60)  testMap = 0,sortedMap = {}
+
 		}
 	})()
 }
