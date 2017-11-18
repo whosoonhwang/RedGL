@@ -167,9 +167,9 @@ helper = {
 	drawObjectList: (function(){
 		var testMap = 0
 		var sortedMap = {}
-		var prevAttr={}
+		var cacheAttrUUID={}
 		var prevUniform = {}
-		var prevDiffuse
+		var prevDiffuseUUID
 		return function (gl, renderList, time) {
 		
 			gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
@@ -192,7 +192,7 @@ helper = {
 				}
 				console.log('정렬!',sortedMap)
 			}
-			var prevDrawBuffer
+			var prevDrawBufferUUID
 			var prevProgram
 			var tMaterial
 			var tProgramInfo
@@ -275,13 +275,13 @@ helper = {
 						tPointer = tAttrValue['pointer'],
 						tLocation = tAttrLocationGroup[tPointer]['location']
 						//
-						prevAttr[tLocation] == tAttrValue.UUID
+						cacheAttrUUID[tLocation] == tAttrValue.UUID
 							? 0
 							: (
 								gl.bindBuffer(gl.ARRAY_BUFFER, tAttrValue),
 								tAttrValue.enabled ? 0 : (gl.enableVertexAttribArray(tLocation),tAttrValue.enabled=1),
 								gl.vertexAttribPointer(tLocation, tAttrValue.pointSize, tAttrValue.type, tAttrValue.normalize, tAttrValue.stride, tAttrValue.offset),
-								prevAttr[tLocation] = tAttrValue.UUID
+								cacheAttrUUID[tLocation] = tAttrValue.UUID
 							)
 					}
 					i2 = tUniformsList.length
@@ -299,14 +299,14 @@ helper = {
 							k == 'uPMatrix' ? updated_uPMatrix = true : 0
 
 						} else if (tUniformValue._webglTexture) {
-							if (tUniformValue.loaded && prevDiffuse != tUniformValue.UUID) {
+							if (tUniformValue.loaded && prevDiffuseUUID != tUniformValue.UUID) {
 								// console.log('오남',prevDiffuse[tUniformValue.UUID] , tUniformValue)	
 								// console.log('오남2',tUniformValue)							
 								tUniformValue.actived ? 0 : gl.activeTexture(gl.TEXTURE1)
 								tUniformValue.actived = 1,
 								gl.bindTexture(gl.TEXTURE_2D, tUniformValue),
 								gl.uniform1i(tLocation, 0),
-								prevDiffuse = tUniformValue.UUID
+								prevDiffuseUUID = tUniformValue.UUID
 								// console.log(prevDiffuse)
 							}
 							
@@ -314,17 +314,17 @@ helper = {
 					}
 				
 					if (tIndicesBuffer) {				
-						prevDrawBuffer == tIndicesBuffer.UUID ? 0 : gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, tIndicesBuffer)
+						prevDrawBufferUUID == tIndicesBuffer.UUID ? 0 : gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, tIndicesBuffer)
 						gl.drawElements(drawInfo['drawMode'], tIndicesBuffer['pointNum'], gl.UNSIGNED_SHORT, 0)
-						prevDrawBuffer = tIndicesBuffer.UUID
+						prevDrawBufferUUID = tIndicesBuffer.UUID
 					} else {
-						prevDrawBuffer == tVertexBuffer.UUID ? 0 : gl.drawArrays(drawInfo['drawMode'], 0, tVertexBuffer['pointNum'])
-						prevDrawBuffer = tVertexBuffer.UUID
+						prevDrawBufferUUID == tVertexBuffer.UUID ? 0 : gl.drawArrays(drawInfo['drawMode'], 0, tVertexBuffer['pointNum'])
+						prevDrawBufferUUID = tVertexBuffer.UUID
 					}
 				}				
 			}			
 			testMap++
-			// if(testMap>60*60)  testMap = 0,sortedMap = {}
+			if(testMap>60*60)  testMap = 0,sortedMap = {}
 		
 		}
 	})()
