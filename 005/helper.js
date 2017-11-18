@@ -317,7 +317,7 @@ helper = {
 						} else if (tUniformValue._webglTexture) {
 							if (!prevDiffuseUUID) bitmapRenderable = false //TODO: 여기도 텍스쳐를 만들때 상태관리를 하면될듯
 							if (tUniformValue.loaded && prevDiffuseUUID != tUniformValue.UUID) {
-								console.log('오남', prevDiffuseUUID, tUniformValue)
+								// console.log('오남', prevDiffuseUUID, tUniformValue)
 								tUniformValue.actived ? 0 : gl.activeTexture(gl.TEXTURE1) // 0번을 아틀라스가 먹고있으니 1번부터 쓰자
 								tUniformValue.actived = 1
 								gl.bindTexture(gl.TEXTURE_2D, tUniformValue)
