@@ -5,8 +5,8 @@ var RedShaderInfo;
     var tGL;
     var tShader;
     var tDatas;
-    RedShaderInfo = function (redGL, type, key, source) {
-        if (!(this instanceof RedShaderInfo)) return new RedShaderInfo(redGL, type, key, source)
+    RedShaderInfo = function (redGL, key, type, source) {
+        if (!(this instanceof RedShaderInfo)) return new RedShaderInfo(redGL, key, type, source)
         if (!redGL['__datas']['shaderInfo']) {
             redGL['__datas']['shaderInfo'] = {}
             redGL['__datas']['shaderInfo'][RedShaderInfo.FRAGMENT_SHADER] = {}
@@ -15,8 +15,8 @@ var RedShaderInfo;
         // 저장할 공간확보하고
         tDatas = redGL['__datas']['shaderInfo']
         // 기존에 등록된 녀석이면 기존 데이터 리턴
-        if (tDatas[type][key]) return console.log('캐싱쉐이더 리턴!',key), tDatas[type][key]
-        tGL = redGL.__gl
+        if (tDatas[type][key]) return console.log('캐싱쉐이더 리턴!', key), tDatas[type][key]
+        tGL = redGL.gl
         // 쉐이더생성
         switch (type) {
             case RedShaderInfo.VERTEX_SHADER:

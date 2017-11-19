@@ -17,7 +17,7 @@ var RedProgramInfo;
         tDatas = redGL['__datas']['programInfo']
         // 기존에 등록된 녀석이면 기존 데이터 리턴
         if (tDatas[key]) return console.log('캐싱프로그램 리턴!', key), tDatas[key]
-        tGL = redGL.__gl
+        tGL = redGL.gl
         this['key'] = key
         this['attributes'] = {}
         this['uniforms'] = {}
