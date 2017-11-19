@@ -33,8 +33,14 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		createShader: function (key, type, source) {
 			return new RedShaderInfo(this, key, type, source)
 		},
+		getShader: function (key, type) {
+			//TODO:
+		},
 		createProgram: function (key, vShaderInfo, fShaderInfo) {
 			return new RedProgramInfo(this, key, vShaderInfo, fShaderInfo)
+		},
+		getPrgram: function (key) {
+			//TODO:
 		},
 		createArrayBuffer: function (key, pointer, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode) {
 			return new RedBufferInfo(this, RedBufferInfo.ARRAY_BUFFER, key, pointer, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode)
@@ -51,6 +57,5 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		createGeometryInfo: function (key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer) {
 			return new RedGeometryInfo(this, key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer)
 		}
-
 	}
 })();

@@ -160,12 +160,12 @@ helper = {
 			gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_NEAREST);
 			// gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 			gl.generateMipmap(gl.TEXTURE_2D);
-			prevDiffuseUUID =null
+			prevDiffuseUUID = null
 			gl.bindTexture(gl.TEXTURE_2D, null)
 			texture.loaded = 1
 			image.onload = null
 		});
-		prevDiffuseUUID =null
+		prevDiffuseUUID = null
 		gl.bindTexture(gl.TEXTURE_2D, null)
 		// 액티브된적이있는지
 		texture.loaded = 0
@@ -180,7 +180,7 @@ helper = {
 		var sortedMap = {}
 		var cacheAttrUUID = {}
 		var prevUniform = {}
-	
+
 		//
 		var i, i2
 		var drawInfo
@@ -306,7 +306,7 @@ helper = {
 						tUniformKey = tUniformsList[i2][0], tUniformValue = tUniformsList[i2][1]
 						tLocation = tUniformLocationGroup[tUniformKey]['location']
 						if (tUniformValue._uniformMethod) {
-						
+
 							tUniformKey == 'uPMatrix' && updated_uPMatrix
 								? 0
 								: tUniformsList[i2][2] // 매트릭스형태인지 아닌지 파악
@@ -342,7 +342,6 @@ helper = {
 			}
 			testMap++
 			// if(testMap>60*60)  testMap = 0,sortedMap = {}
-
 		}
 	})()
 }
