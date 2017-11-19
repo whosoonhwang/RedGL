@@ -41,6 +41,16 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		},
 		createIndexBuffer: function (key, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode) {
 			return new RedBufferInfo(this, RedBufferInfo.ELEMENT_ARRAY_BUFFER, key, null, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode)
+		},
+		getArrayBuffer: function (key) {
+			return this['__datas']['RedBufferInfo'][key]
+		},
+		getIndexBuffer: function (key) {
+			return this['__datas']['RedBufferInfo'][key]
+		},
+		createGeometryInfo: function (key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer) {
+			return new RedGeometryInfo(this, key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer)
 		}
+
 	}
 })();

@@ -83,14 +83,14 @@ function initBuffers() {
 var prevTime = performance.now()
 var drawScene
 drawScene = (function () {
-	var aspect,i
+	var aspect, i
 	return function (time) {
 
 		// gl.cvs.width = 1024 + Math.sin(time/1000)*100
-		 aspect = gl.cvs.clientWidth / gl.cvs.clientHeight;
+		aspect = gl.cvs.clientWidth / gl.cvs.clientHeight;
 		mat4.perspective(pMatrix, 45, aspect, 0.1, 1000.0);
 
-		 i = renderList.length
+		i = renderList.length
 		while (i--) {
 			renderList[i].position[0] = SIN(i + time / 5000 + renderList[i].rotation[0]) * 30 + COS(i + time / 2000) * 10
 			renderList[i].position[1] = COS(i + time / 3000 + renderList[i].rotation[1]) * 30 + COS(i + time / 3000) * 5
@@ -117,7 +117,7 @@ function webGLStart() {
 	var texture = helper.createTexture(gl, atlasList[0].canvas)
 	// var texture1 = helper.createTexture(gl, 'asset/draft1.png')
 	var texture2 = helper.createTexture(gl, 'test.png')
-	var texture3 = helper.createTexture(gl,'crate.png')
+	var texture3 = helper.createTexture(gl, 'crate.png')
 	var Mesh;
 	var typeMAP;
 	typeMAP = {

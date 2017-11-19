@@ -71,17 +71,19 @@ testData = new Float32Array([
 			16, 17, 18,   16, 18, 19,
 			20, 21, 22,   20, 22, 23 
 		])
-console.log(test.createArrayBuffer(
+
+console.log(  test.createArrayBuffer(
 	'testBuffer',
 	'aPointer',
 	testData,
 	3, 24,test.gl.FLOAT
 ))
-console.log(test.createIndexBuffer(
+console.log( test.createIndexBuffer(
 	'testIndexBuffer',
 	testData2,
 	2, testData2.length/2,test.gl.UNSIGNED_SHORT
 ))
+console.log(test.createGeometryInfo('testGeo',test.getArrayBuffer('testBuffer'),test.getIndexBuffer('testIndexBuffer')))
 console.log(test.createProgram('basic'))
 console.log(test)
 console.log(test2)

@@ -5,7 +5,7 @@ var RedBufferInfo;
     var tDatas;
     var tBufferType;
     var tBuffer;
-    RedBufferInfo = function (redGL, bufferType, key, pointer, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode) {
+    RedBufferInfo = function (redGL, bufferType, key, pointer, arrayData, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode) {
         if (!(this instanceof RedBufferInfo)) return new RedBufferInfo(redGL, key, vShaderInfo, fShaderInfo)
         if (!redGL['__datas']['RedBufferInfo']) {
             redGL['__datas']['RedBufferInfo'] = {}
@@ -21,22 +21,31 @@ var RedBufferInfo;
         switch (bufferType) {
             case RedBufferInfo.ARRAY_BUFFER:
                 bufferType = tGL.ARRAY_BUFFER
+                if (!(arrayData instanceof Float32Array || arrayData instanceof Float64Array || arrayData instanceof Array)) throw 'TypedArray형식을 사용해야합니다.'
                 break
             case RedBufferInfo.ELEMENT_ARRAY_BUFFER:
                 bufferType = tGL.ELEMENT_ARRAY_BUFFER
+                if (
+                    !(arrayData instanceof Uint8Array ||
+                        arrayData instanceof Uint16Array ||
+                        arrayData instanceof Uint32Array ||
+                        arrayData instanceof Int8Array ||
+                        arrayData instanceof Int16Array ||
+                        arrayData instanceof Int32Array)
+                ) throw 'TypedArray형식을 사용해야합니다.'
                 break
             default:
                 throw '지원하지 않는 버퍼타입입니다. '
         }
         tGL.bindBuffer(bufferType, tBuffer);
-        tGL.bufferData(bufferType, dataList, drawMode ? drawMode : tGL.STATIC_DRAW);
+        tGL.bufferData(bufferType, arrayData, drawMode ? drawMode : tGL.STATIC_DRAW);
         // 정보생성
         this['shaderPointerKey'] = pointer // 쉐이더 포인터 네임
         if (arrayType) this['arrayType'] = arrayType // 타입드어레이 타입
-        else throw '버퍼데이터의 형식을 지정해주세요' //TODO: 존재하지않을경우 자동 처리도 고려해보자...
+        else throw '버퍼데이터의 형식을 지정해주세요'
         if (pointSize) this['pointSize'] = pointSize // 포인트 구성수
         else throw 'pointSize를 입력하세요'
-        this['pointNum'] = pointNum ? pointNum : dataList.length.pointSize // 포인트수 
+        this['pointNum'] = pointNum ? pointNum : arrayData.length.pointSize // 포인트수 
         this['normalize'] = normalize ? normalize : false
         this['stride'] = stride ? stride : 0 // 0 = move forward size * sizeof(type) each iteration to get the next position
         this['offset'] = offset ? offset : 0 // start at the beginning of the buffer
@@ -48,7 +57,6 @@ var RedBufferInfo;
         this['__UUID'] = REDGL_UUID++
         // 캐싱
         tDatas[key] = this
-        Object.freeze(this)
         // console.log(this)
     }
     RedBufferInfo.ARRAY_BUFFER = 'arrayBuffer'
