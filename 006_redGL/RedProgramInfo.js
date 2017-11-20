@@ -28,7 +28,7 @@ var RedProgramInfo;
         tGL.attachShader(tProgram, fShaderInfo['shader'])
         tGL.linkProgram(tProgram)
         // 프로그램 링크 확인
-        if (!tGL.getProgramParameter(tProgram, tGL.LINK_STATUS)) throw "쉐이더를 초기화 할 수 없습니다."
+        if (!tGL.getProgramParameter(tProgram, tGL.LINK_STATUS)) throw "프로그램을 초기화 할 수 없습니다."
         tGL.useProgram(tProgram);
         info = {}
         tList.length = 0
@@ -38,7 +38,7 @@ var RedProgramInfo;
                 data['parseData'].forEach(function (v) {
                     var tInfo;
                     tInfo = {}
-                    v = v.trim().replace(';', '').split(' ')
+                    v = v.split(' ')
                     if (v[0] == 'attribute') {
                         tInfo['location'] = tGL.getAttribLocation(tProgram, v[2]);
                         self['attributes'][v[2]] = tInfo
@@ -48,7 +48,6 @@ var RedProgramInfo;
                     }
                 })
             }
-
         });
         this['program'] = tProgram
         this['shaderInfos'] = {
