@@ -118,27 +118,83 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		createShader: function (key, type, source) {
 			return new RedShaderInfo(this, key, type, source)
 		},
+		/**DOC:
+		{
+			title :`getShader`,
+			code : 'FUNCTION',
+			description : `- TODO`
+		}
+		:DOC*/
 		getShader: function (key, type) {
 			//TODO:
 		},
+		/**DOC:
+		{
+			title :`createProgram`,
+			code : 'FUNCTION',
+			description : `- TODO`
+		}
+		:DOC*/
 		createProgram: function (key, vShaderInfo, fShaderInfo) {
 			return new RedProgramInfo(this, key, vShaderInfo, fShaderInfo)
 		},
+		/**DOC:
+		{
+			title :`getProgramInfo`,
+			code : 'FUNCTION',
+			description : `- TODO`
+		}
+		:DOC*/
 		getProgramInfo: function (key) {
 			//TODO:
 		},
+		/**DOC:
+		{
+			title :`createArrayBuffer`,
+			code : 'FUNCTION',
+			description : `- TODO`
+		}
+		:DOC*/
 		createArrayBuffer: function (key, pointer, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode) {
 			return new RedBufferInfo(this, RedBufferInfo.ARRAY_BUFFER, key, pointer, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode)
 		},
+		/**DOC:
+		{
+			title :`createIndexBuffer`,
+			code : 'FUNCTION',
+			description : `- TODO`
+		}
+		:DOC*/
 		createIndexBuffer: function (key, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode) {
 			return new RedBufferInfo(this, RedBufferInfo.ELEMENT_ARRAY_BUFFER, key, null, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode)
 		},
+		/**DOC:
+		{
+			title :`getArrayBuffer`,
+			code : 'FUNCTION',
+			description : `- TODO`
+		}
+		:DOC*/
 		getArrayBuffer: function (key) {
 			return this['__datas']['RedBufferInfo'][key]
 		},
+		/**DOC:
+		{
+			title :`getIndexBuffer`,
+			code : 'FUNCTION',
+			description : `- TODO`
+		}
+		:DOC*/
 		getIndexBuffer: function (key) {
 			return this['__datas']['RedBufferInfo'][key]
 		},
+		/**DOC:
+		{
+			title :`createGeometryInfo`,
+			code : 'FUNCTION',
+			description : `- TODO`
+		}
+		:DOC*/
 		createGeometryInfo: function (key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer) {
 			return new RedGeometryInfo(this, key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer)
 		}

@@ -1,5 +1,25 @@
 [
   {
+    "title": "createArrayBuffer",
+    "code": "FUNCTION",
+    "description": "- TODO"
+  },
+  {
+    "title": "createGeometryInfo",
+    "code": "FUNCTION",
+    "description": "- TODO"
+  },
+  {
+    "title": "createIndexBuffer",
+    "code": "FUNCTION",
+    "description": "- TODO"
+  },
+  {
+    "title": "createProgram",
+    "code": "FUNCTION",
+    "description": "- TODO"
+  },
+  {
     "title": "createShader",
     "code": "FUNCTION",
     "description": "\n- RedGL 쉐이더 생성기.\n- 유일키만 지원하며 키 중복일경우 기존 캐싱된 쉐이더정보를 반환함.\n- 단 프레그먼트/버텍스의 키는 따로 관리함.\n",
@@ -26,6 +46,26 @@
     },
     "example": "\nvar test;\ntest = RedGL(Canvas Element)\n// basic이라는 이름으로 버텍스 쉐이더를 만든다. \ntest.createShader('basic', RedShaderInfo.VERTEX_SHADER, 쉐이더소스)\n",
     "return": "RedShaderInfo Instance"
+  },
+  {
+    "title": "getArrayBuffer",
+    "code": "FUNCTION",
+    "description": "- TODO"
+  },
+  {
+    "title": "getIndexBuffer",
+    "code": "FUNCTION",
+    "description": "- TODO"
+  },
+  {
+    "title": "getProgramInfo",
+    "code": "FUNCTION",
+    "description": "- TODO"
+  },
+  {
+    "title": "getShader",
+    "code": "FUNCTION",
+    "description": "- TODO"
   },
   {
     "title": "getSourceFromScript",
