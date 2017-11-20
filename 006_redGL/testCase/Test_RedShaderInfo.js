@@ -16,6 +16,16 @@ redSuite(
         }, true),
         redGroup(
             '벨리데이션 확인',
+            redTest("RedShaderInfo - RedGL 인스턴스만허용 : redGL", function (unit) {
+                var t0;
+                t0 = true
+                try {
+                    RedShaderInfo(1, 'redGLTest', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('shader-vs'))
+                } catch (error) {
+                    t0 = false
+                }
+                unit.run(t0)
+            }, false),
             redTest("RedShaderInfo - 문자열만 허용 : key", function (unit) {
                 var t0;
                 t0 = true
@@ -72,7 +82,12 @@ redSuite(
                 var t0;
                 t0 = RedShaderInfo(testGL, 'basic', RedShaderInfo.VERTEX_SHADER)
                 unit.run(t0['parseData'][1])
-            }, "uniform mat4 uMVMatrix")
+            }, "uniform mat4 uMVMatrix"),
+            redTest("RedShaderInfo - 인스턴스 정보확인 : shader", function (unit) {
+                var t0;
+                t0 = RedShaderInfo(testGL, 'basic', RedShaderInfo.VERTEX_SHADER)
+                unit.run(t0['shader'] instanceof WebGLShader)
+            }, true)
         )
     )
 )
