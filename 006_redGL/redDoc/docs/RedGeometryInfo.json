@@ -12,6 +12,12 @@
     "return": "RedbufferInfo"
   },
   {
+    "title": "key",
+    "description": "고유키",
+    "example": "인스턴스.key",
+    "return": "String"
+  },
+  {
     "constructorYn": true,
     "title": "RedGeometryInfo",
     "description": "\n    - RedGeometryInfo 인스턴스 생성자\n    - <b>유일키</b>만 지원하며 키 중복일경우 에러발생         \n",

@@ -71,5 +71,9 @@ console.log(test.createGeometryInfo('testGeo', test.getArrayBuffer('testBuffer')
 console.log(test.createProgram('basic'))
 console.log(test)
 console.log(test2)
+var testMat = RedMaterialInfo(test,test.getProgramInfo('basic'))
+console.log(testMat)
+console.log(RedMeshInfo(test, 'testMesh', test.getGeometryInfo('testGeo'), testMat))
+
 
 console.log(test.gl == test2.gl)

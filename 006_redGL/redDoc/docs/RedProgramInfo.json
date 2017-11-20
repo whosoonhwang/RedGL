@@ -55,6 +55,12 @@
     "return": "Object"
   },
   {
+    "title": "shaderInfos",
+    "description": "\n //TODO: 이놈을 외부에서 주입해야하는구만..\n 아마도 재질마다...필요한 유니폼들이 있을것이고..\n 해당하는 경우만 본인이 따로 재징등에...적용해 줄수있어야한다.\n 결국 프로그램이 유니폼에대한 정의를 내린다.\n",
+    "example": "인스턴스.shaderInfos",
+    "return": "Object"
+  },
+  {
     "title": "uniforms",
     "description": "쉐이더에 등록된 uniform 정보들",
     "example": "인스턴스.uniforms",

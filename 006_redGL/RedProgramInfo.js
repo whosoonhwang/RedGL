@@ -55,10 +55,10 @@ var RedProgramInfo;
         if (!vShaderInfo instanceof RedShaderInfo) throw 'vShaderInfo - RedShaderInfo만 허용됩니다.'
         if (!fShaderInfo instanceof RedShaderInfo) throw 'fShaderInfo - RedShaderInfo만 허용됩니다.'
         // 저장할 공간확보하고
-        if (!redGL['__datas']['programInfo']) {
-            redGL['__datas']['programInfo'] = {}
+        if (!redGL['__datas']['RedProgramInfo']) {
+            redGL['__datas']['RedProgramInfo'] = {}
         }
-        tDatas = redGL['__datas']['programInfo']
+        tDatas = redGL['__datas']['RedProgramInfo']
         // 기존에 등록된 녀석이면 기존 데이터 리턴
         if (tDatas[key]) return console.log('캐싱프로그램 리턴!', key), tDatas[key]
         tGL = redGL.gl
@@ -139,10 +139,27 @@ var RedProgramInfo;
             fShaderInfo: fShaderInfo
         }
         this['__UUID'] = REDGL_UUID++
+         /**DOC:
+		{
+            title :`shaderInfos`,
+            description : `
+             //TODO: 이놈을 외부에서 주입해야하는구만..
+             아마도 재질마다...필요한 유니폼들이 있을것이고..
+             해당하는 경우만 본인이 따로 재징등에...적용해 줄수있어야한다.
+             결국 프로그램이 유니폼에대한 정의를 내린다.
+            `,
+			example : `인스턴스.shaderInfos`,
+			return : 'Object'
+		}
+	    :DOC*/
+        this['makeUniformValue'] = function(target){
+            target.uniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random()])
+        }
         // 캐싱
         tDatas[key] = this
         Object.freeze(this)
         // console.log(this)
     }
+
     Object.freeze(RedProgramInfo)
 })();

@@ -146,7 +146,7 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		}
 		:DOC*/
 		getProgramInfo: function (key) {
-			//TODO:
+			return this['__datas']['RedProgramInfo'][key]
 		},
 		/**DOC:
 		{
@@ -197,6 +197,9 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		:DOC*/
 		createGeometryInfo: function (key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer) {
 			return new RedGeometryInfo(this, key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer)
+		},
+		getGeometryInfo : function(key){
+			return this['__datas']['RedGeometryInfo'][key]
 		}
 	}
 })();
