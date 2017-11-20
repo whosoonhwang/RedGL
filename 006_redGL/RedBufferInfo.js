@@ -120,7 +120,6 @@ var RedBufferInfo;
         tGL.bindBuffer(bufferType, tBuffer);
         tGL.bufferData(bufferType, arrayData, drawMode = drawMode ? drawMode : tGL.STATIC_DRAW);
         // 정보생성
-        // 쉐이더 포인터 네임
         /**DOC:
 		{
             title :`shaderPointerKey`,
