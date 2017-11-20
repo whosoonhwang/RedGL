@@ -35,7 +35,7 @@
                 '포인트 구성사이즈'
             ],
             pointNum : [
-                {type:'Number'},
+                {type:'Integer'},
                 '포인트 갯수',
                 '입력하지않으면 rawData/pointSize로 자동입력'
             ],
@@ -44,11 +44,11 @@
                 '기본값 : false'
             ],
             stride : [
-                {type:'Number'},
+                {type:'Integer'},
                 '기본값 : 0'
             ],
             offset : [
-                {type:'Number'},
+                {type:'Integer'},
                 '기본값 : 0'
             ],
             drawMode : [
@@ -98,7 +98,10 @@ var RedBufferInfo;
         switch (bufferType) {
             case RedBufferInfo.ARRAY_BUFFER:
                 bufferType = tGL.ARRAY_BUFFER
-                if (!(arrayData instanceof Float32Array || arrayData instanceof Float64Array || arrayData instanceof Array)) throw 'TypedArray형식을 사용해야합니다.'
+                if (!(arrayData instanceof Float32Array || arrayData instanceof Float64Array)) {
+                    if(arrayData instanceof Array) console.log('TypedArray형식을 권장합니다.')
+                    else throw 'TypedArray형식을 사용해야합니다.'
+                }
                 break
             case RedBufferInfo.ELEMENT_ARRAY_BUFFER:
                 bufferType = tGL.ELEMENT_ARRAY_BUFFER
@@ -115,29 +118,89 @@ var RedBufferInfo;
                 throw '지원하지 않는 버퍼타입입니다. '
         }
         tGL.bindBuffer(bufferType, tBuffer);
-        tGL.bufferData(bufferType, arrayData, drawMode ? drawMode : tGL.STATIC_DRAW);
+        tGL.bufferData(bufferType, arrayData, drawMode = drawMode ? drawMode : tGL.STATIC_DRAW);
         // 정보생성
         // 쉐이더 포인터 네임
+        /**DOC:
+		{
+            title :`shaderPointerKey`,
+			description : `쉐이더연동될 포인터 네임`,
+			example : `인스턴스.shaderPointerKey`,
+			return : 'Strinf'
+        }
+        :DOC*/
         this['shaderPointerKey'] = shaderPointerKey
-        // 타입드어레이 타입
+        /**DOC:
+		{
+            title :`arrayType`,
+			description : `버퍼적용시 전달할 타입드 어레이 타입`,
+			example : `인스턴스.arrayType`,
+			return : 'glConst'
+        }
+        :DOC*/
         if (arrayType) this['arrayType'] = arrayType
         else throw '버퍼데이터의 형식을 지정해주세요'
-        // 포인트 구성수
+        /**DOC:
+		{
+            title :`pointSize`,
+			description : `포인트 구성수`,
+			example : `인스턴스.pointSize`,
+			return : 'Integer'
+        }
+        :DOC*/
         if (pointSize) this['pointSize'] = pointSize
         else throw 'pointSize를 입력하세요'
         // 포인트수 
-        this['pointNum'] = pointNum ? pointNum : arrayData.length.pointSize
+
+        if (typeof (pointNum = pointNum ? pointNum : arrayData.length / pointSize) != 'number' || pointNum != parseInt(pointNum)) throw 'pointNum - Integer만 허용됩니다.'
+        /**DOC:
+		{
+            title :`pointNum`,
+			description : `버퍼의 포인트 전체 갯수`,
+			example : `인스턴스.pointNum`,
+			return : 'Integer'
+		}
+	    :DOC*/
+        this['pointNum'] = pointNum
+        /**DOC:
+		{
+            title :`normalize`,
+			description : `버퍼 적용시 노말라이즈 할지 여부`,
+			example : `인스턴스.normalize`,
+			return : 'Boolean'
+		}
+	    :DOC*/
         this['normalize'] = normalize ? normalize : false
         //
-
-
         if (typeof (stride = stride ? stride : 0) != 'number' || stride != parseInt(stride)) throw 'stride - Integer만 허용됩니다.' // 0 = move forward size * sizeof(type) each iteration to get the next position
         if (typeof (offset = offset ? offset : 0) != 'number' || offset != parseInt(offset)) throw 'offset - Integer만 허용됩니다.' // start at the beginning of the buffer
+        /**DOC:
+		{
+            title :`stride`,
+			description : `0 = move forward size * sizeof(type) each iteration to get the next position`,
+			example : `인스턴스.stride`,
+			return : 'Integer'
+		}
+	    :DOC*/
         this['stride'] = stride
+        /**DOC:
+		{
+            title :`offset`,
+			description : `start at the beginning of the buffer`,
+			example : `인스턴스.offset`,
+			return : 'Integer'
+		}
+	    :DOC*/
         this['offset'] = offset
-        //
-        this['enabled'] = 0 // 활성화되었는지 여부
-        //
+        /**DOC:
+		{
+            title :`enabled`,
+			description : `버퍼의 로케이션이 활성화 되었는지 여부`,
+			example : `인스턴스.enabled`,
+			return : 'Boolean'
+		}
+	    :DOC*/
+        this['enabled'] = 0
         /**DOC:
 		{
             title :`key`,
@@ -156,13 +219,48 @@ var RedBufferInfo;
 		}
 	    :DOC*/
         this['bufferType'] = tBufferType
+        /**DOC:
+		{
+            title :`buffer`,
+			description : `실제버퍼`,
+			example : `인스턴스.buffer`,
+			return : 'WebGLBuffer'
+		}
+	    :DOC*/
         this['buffer'] = tBuffer
+        /**DOC:
+		{
+            title :`drawMode`,
+			description : `그리기모드`,
+			example : `인스턴스.drawMode`,
+			return : 'glConst'
+		}
+	    :DOC*/
+        this['drawMode'] = drawMode
         this['__UUID'] = REDGL_UUID++
         // 캐싱
         tDatas[key] = this
         // console.log(this)
     }
+    /**DOC:
+		{
+            title :`ARRAY_BUFFER`,
+            code:'CONST',
+			description : `ARRAY_BUFFER 지정 상수`,
+			example : `RedBufferInfo.ARRAY_BUFFER`,
+			return : 'String'
+		}
+    :DOC*/
     RedBufferInfo.ARRAY_BUFFER = 'arrayBuffer'
+    /**DOC:
+		{
+            title :`ELEMENT_ARRAY_BUFFER`,
+            code:'CONST',
+			description : `ELEMENT_ARRAY_BUFFER 지정 상수`,
+			example : `RedBufferInfo.ELEMENT_ARRAY_BUFFER`,
+			return : 'String'
+		}
+    :DOC*/
     RedBufferInfo.ELEMENT_ARRAY_BUFFER = 'elementArrayBuffer'
     Object.freeze(RedBufferInfo)
 })();
