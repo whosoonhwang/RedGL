@@ -7,8 +7,13 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, target-densitydpi=device-dpi"
     />
-
-    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+    <style>
+        body{
+            margin:0;
+            padding:0;
+            overflow: hidden
+        }
+    </style>
     <script type="text/javascript" src="lib/gl-matrix-min.js"></script>
     <script id="shader-fs" type="x-shader/x-fragment">
             precision lowp float;
@@ -36,11 +41,11 @@
     <script src="RedSceneInfo.js"></script>
     <script src="RedRender.js"></script>
     <script src="redGL.js"></script>
+    
 </head>
 
 <body>
     <canvas id="test" style="border: none;background:red" width="1280" height="768"></canvas>
-    <canvas id="test2" style="border: none;background:red" width="2" height="2"></canvas>
     <script src="index.js"></script>
 </body>
 

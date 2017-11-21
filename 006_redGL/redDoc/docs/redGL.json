@@ -90,15 +90,42 @@
   {
     "constructorYn": true,
     "title": "RedGL",
-    "description": "\nRedGL 인스턴스 생성자\n",
+    "description": "\n- RedGL 인스턴스 생성자\n",
     "params": {
       "canvas": [
         {
           "type": "Canvas Element"
         }
+      ],
+      "fullMode": [
+        {
+          "type": "Boolean"
+        },
+        "- 기본값 false",
+        "- true일경우 윈도우사이즈가 변할때마다 추적함"
       ]
     },
     "example": "\nRedGL(document.getElementById('test'))\n",
     "return": "RedGL Instance"
+  },
+  {
+    "title": "setSize",
+    "code": "FUNCTION",
+    "description": "\nwengl 캔버스의 크기를 지정함.\n인자를 입력하지 않으면 화면상의 풀사이즈로 적용됨\n",
+    "params": {
+      "width": [
+        {
+          "type": "Number"
+        },
+        "가로값"
+      ],
+      "height": [
+        {
+          "type": "Number"
+        },
+        "세로값"
+      ]
+    },
+    "example": "\n인스턴스.setSize(600,600)\n"
   }
 ]
