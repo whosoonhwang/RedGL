@@ -3,6 +3,7 @@ var RedGL;
 var REDGL_UUID; // 내부에서 사용할 고유아이디
 (function () {
 	var getGL;
+	var instanceList = [];
 	REDGL_UUID = 0
 	getGL = (function () {
 		var checkList; // 체크할 리스트
@@ -26,11 +27,16 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			constructorYn : true,
 			title :`RedGL`,
 			description : `
-				RedGL 인스턴스 생성자
+				- RedGL 인스턴스 생성자
 			`,
 			params : {
 				canvas : [
 					{type:'Canvas Element'}
+				],
+				fullMode : [
+					{type:'Boolean'},
+					'- 기본값 false',
+					'- true일경우 윈도우사이즈가 변할때마다 추적함'
 				]
 			},
 			example : `
@@ -39,11 +45,13 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			return : 'RedGL Instance'
 		}
 	:DOC*/
-	RedGL = function (canvas) {
-		if (!(this instanceof RedGL)) return new RedGL(canvas)
+	RedGL = function (canvas, fullMode) {
+		if (!(this instanceof RedGL)) return new RedGL(canvas, fullMode)
 		var tGL;
 		this.__canvas = canvas
 		this.gl = tGL = getGL(canvas)
+		fullMode ? this.setSize() : 0 // 풀모드일경우....처음 확장
+		this.fullMode = fullMode
 		this.__UUID = REDGL_UUID++
 		this.__datas = {}
 		console.log('RedGL 생성완료')
@@ -62,14 +70,61 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		tGL.cullFace(tGL.BACK)
 		// set the blendMode
 		tGL.blendFunc(tGL.SRC_ALPHA, tGL.ONE_MINUS_SRC_ALPHA);
-		tGL.enable(tGL.BLEND);   
+		tGL.enable(tGL.BLEND);
 		// set the scissor rectangle
 		tGL.enable(tGL.SCISSOR_TEST);
 		tGL.scissor(0, 0, tGL.drawingBufferWidth, tGL.drawingBufferHeight);
 		// set the viewport rectangle
 		tGL.viewport(0, 0, tGL.drawingBufferWidth, tGL.drawingBufferHeight);
+		instanceList.push(this)
 	}
+	window.addEventListener('resize', function () {
+		instanceList.forEach(function (v) {
+			if (v['fullMode']) v.setSize()
+		})
+	})
 	RedGL.prototype = {
+		/**DOC:
+		{
+			title :`setSize`,
+			code: 'FUNCTION',
+			description : `
+				wengl 캔버스의 크기를 지정함.
+				인자를 입력하지 않으면 화면상의 풀사이즈로 적용됨
+			`,
+			params : {
+				width : [
+					{type:'Number'},
+					'가로값'
+				],
+				height : [
+					{type:'Number'},
+					'세로값'
+				]
+			},
+			example : `
+				인스턴스.setSize(600,600)
+			`
+		}
+		:DOC*/
+		setSize: function (width, height) {
+			console.log('실행을했냐!')
+			var gl;
+			var W, H;
+			W = width ? width : (document.documentElement ? document.documentElement.clientWidth : document.body.clientWidth)
+			H = height ? height : (document.documentElement ? document.documentElement.clientHeight : document.body.clientHeight)
+			gl = this.gl
+			W = W * window.devicePixelRatio
+			H = H * window.devicePixelRatio
+			this.__canvas.width = W
+			this.__canvas.height = H
+			this.__canvas.style.width = W
+			this.__canvas.style.height = H
+			gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+			// set the scissor rectangle
+			gl.enable(gl.SCISSOR_TEST);
+			gl.scissor(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+		},
 		/**DOC:
 		{
 			title :`getSourceFromScript`,
@@ -89,7 +144,7 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			return : 'String'
 		}
 		:DOC*/
-		getSourceFromScript : (function () {
+		getSourceFromScript: (function () {
 			var shaderScript
 			var str, k;
 			return function (id) {
@@ -227,7 +282,7 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			description : `- TODO`
 		}
 		:DOC*/
-		getGeometryInfo : function(key){
+		getGeometryInfo: function (key) {
 			return this['__datas']['RedGeometryInfo'][key]
 		},
 		createMesh: function (key, geometry, material) {

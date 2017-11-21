@@ -16,9 +16,8 @@ var RedRender;
         this['targetScene'] = redScene
         this['__UUID'] = REDGL_UUID++
         //
-        var i,i2, k; // 루프변수
+        var k; //루프변수
         var tScene; // 대상 RedScene
-        var tChildren; // 대상 children
         var tMesh; // 대상 메쉬
         var tMVMatrix; // 대상 메쉬의 매트릭스 
         ///////////////////////////////////////////////////////////////////
@@ -50,7 +49,7 @@ var RedRender;
         var pMatrix;
         var aspect;
         cacheAttrUUID = {}
-        this.render = function (time) {
+        this.render = function(time){
             self['callback'] ? self['callback'](time) : 0
             tGL = redGL.gl
             //////////////////////////////////////////////////////////////////
@@ -67,16 +66,20 @@ var RedRender;
             //////////////////////////////////////////////////////////////////
             tGL.clear(tGL.COLOR_BUFFER_BIT | tGL.DEPTH_BUFFER_BIT);
             tScene = self['targetScene']
-            tChildren = tScene['children']
-            i = tChildren.length
+            self.draw(tScene['children'],time)
+            requestAnimationFrame(self.render)
+        }
+        this.draw = function (renderList,time,parentMTX) {
+            var i,i2; // 루프변수
+            i = renderList.length
             while (i--) {
-                tMesh = tChildren[i]
+                tMesh = renderList[i]
                 tMVMatrix = tMesh['uMVMatrix']
                 // 매트릭스 초기화
                 tMVMatrix[0] = 1, tMVMatrix[1] = 0, tMVMatrix[2] = 0, tMVMatrix[3] = 0,
-                    tMVMatrix[4] = 0, tMVMatrix[5] = 1, tMVMatrix[6] = 0, tMVMatrix[7] = 0,
-                    tMVMatrix[8] = 0, tMVMatrix[9] = 0, tMVMatrix[10] = 1, tMVMatrix[11] = 0,
-                    tMVMatrix[12] = 0, tMVMatrix[13] = 0, tMVMatrix[14] = 0, tMVMatrix[15] = 1
+                tMVMatrix[4] = 0, tMVMatrix[5] = 1, tMVMatrix[6] = 0, tMVMatrix[7] = 0,
+                tMVMatrix[8] = 0, tMVMatrix[9] = 0, tMVMatrix[10] = 1, tMVMatrix[11] = 0,
+                tMVMatrix[12] = 0, tMVMatrix[13] = 0, tMVMatrix[14] = 0, tMVMatrix[15] = 1
                 // 기본 변환
                 a = tMVMatrix
                 // 이동
@@ -88,21 +91,23 @@ var RedRender;
                 // xyz축 회전 
                 tRx = tMesh['rotation'][0], tRy = tMesh['rotation'][1], tRz = tMesh['rotation'][2]
                 aSx = SIN(tRx), aCx = COS(tRx), aSy = SIN(tRy), aCy = COS(tRy), aSz = SIN(tRz), aCz = COS(tRz),
-                    a00 = a[0], a01 = a[1], a02 = a[2],
-                    a10 = a[4], a11 = a[5], a12 = a[6],
-                    a20 = a[8], a21 = a[9], a22 = a[10],
-                    b00 = aCy * aCz, b01 = aSx * aSy * aCz - aCx * aSz, b02 = aCx * aSy * aCz + aSx * aSz,
-                    b10 = aCy * aSz, b11 = aSx * aSy * aSz + aCx * aCz, b12 = aCx * aSy * aSz - aSx * aCz,
-                    b20 = -aSy, b21 = aSx * aCy, b22 = aCx * aCy,
-                    a[0] = a00 * b00 + a10 * b01 + a20 * b02, a[1] = a01 * b00 + a11 * b01 + a21 * b02, a[2] = a02 * b00 + a12 * b01 + a22 * b02,
-                    a[4] = a00 * b10 + a10 * b11 + a20 * b12, a[5] = a01 * b10 + a11 * b11 + a21 * b12, a[6] = a02 * b10 + a12 * b11 + a22 * b12,
-                    a[8] = a00 * b20 + a10 * b21 + a20 * b22, a[9] = a01 * b20 + a11 * b21 + a21 * b22, a[10] = a02 * b20 + a12 * b21 + a22 * b22;
+                a00 = a[0], a01 = a[1], a02 = a[2],
+                a10 = a[4], a11 = a[5], a12 = a[6],
+                a20 = a[8], a21 = a[9], a22 = a[10],
+                b00 = aCy * aCz, b01 = aSx * aSy * aCz - aCx * aSz, b02 = aCx * aSy * aCz + aSx * aSz,
+                b10 = aCy * aSz, b11 = aSx * aSy * aSz + aCx * aCz, b12 = aCx * aSy * aSz - aSx * aCz,
+                b20 = -aSy, b21 = aSx * aCy, b22 = aCx * aCy,
+                a[0] = a00 * b00 + a10 * b01 + a20 * b02, a[1] = a01 * b00 + a11 * b01 + a21 * b02, a[2] = a02 * b00 + a12 * b01 + a22 * b02,
+                a[4] = a00 * b10 + a10 * b11 + a20 * b12, a[5] = a01 * b10 + a11 * b11 + a21 * b12, a[6] = a02 * b10 + a12 * b11 + a22 * b12,
+                a[8] = a00 * b20 + a10 * b21 + a20 * b22, a[9] = a01 * b20 + a11 * b21 + a21 * b22, a[10] = a02 * b20 + a12 * b21 + a22 * b22;
                 // 스케일
                 aX = tMesh['scale'][0], aY = tMesh['scale'][1], aZ = tMesh['scale'][2]
                 a[0] = a[0] * aX, a[1] = a[1] * aX, a[2] = a[2] * aX, a[3] = a[3] * aX;
                 a[4] = a[4] * aY, a[5] = a[5] * aY, a[6] = a[6] * aY, a[7] = a[7] * aY,
-                    a[8] = a[8] * aZ, a[9] = a[9] * aZ, a[10] = a[10] * aZ, a[11] = a[11] * aZ,
-                    a[12] = a[12], a[13] = a[13], a[14] = a[14], a[15] = a[15]
+                a[8] = a[8] * aZ, a[9] = a[9] * aZ, a[10] = a[10] * aZ, a[11] = a[11] * aZ,
+                a[12] = a[12], a[13] = a[13], a[14] = a[14], a[15] = a[15]
+                // 부모가있으면 곱함
+                if (parentMTX) mat4.multiply(tMVMatrix, parentMTX,tMVMatrix )
                 // 정보세팅
                 tMeterial = tMesh['materialInfo']
                 tProgramInfo = tMeterial['programInfo']
@@ -134,11 +139,11 @@ var RedRender;
                             // console.log(tAttrBufferInfo),
                             tGL.vertexAttribPointer(
                                 tLocation,
-                                tAttrBufferInfo.pointSize,
-                                tAttrBufferInfo.arrayType,
-                                tAttrBufferInfo.normalize,
-                                tAttrBufferInfo.stride,
-                                tAttrBufferInfo.offset
+                                tAttrBufferInfo['pointSize'],
+                                tAttrBufferInfo['arrayType'],
+                                tAttrBufferInfo['normalize'],
+                                tAttrBufferInfo['stride'],
+                                tAttrBufferInfo['offset']
                             ),
                             cacheAttrUUID[tLocation] = tAttrBufferInfo['__UUID'] // 상태 캐싱
                             // ,console.log('한번만되는지확인')
@@ -174,6 +179,7 @@ var RedRender;
                     else throw '안되는 나쁜 타입인거야!!'
                 }
                 // uMVMatrix 입력 //TODO: 이것도 자동으로 하고싶은데...
+                
                 tGL.uniformMatrix4fv(tUniformLocationGroup['uMVMatrix']['location'], false, tMVMatrix)
                 if (tIndicesBuffer) {
                     // if (bitmapRenderable) {
@@ -185,8 +191,9 @@ var RedRender;
                     tGL.drawArrays(tMesh['drawMode'], 0, tVertexPositionBuffer['pointNum'])
                     cacheDrawBufferUUID = tVertexPositionBuffer['__UUID']
                 }
+                if (tMesh['children'].length) self.draw(tMesh['children'], time, mat4.clone(tMVMatrix))
             }
-            requestAnimationFrame(self.render)
+            
         }
     }
     RedRender.prototype = {
