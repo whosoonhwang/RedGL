@@ -82,7 +82,7 @@ var testMat = RedMaterialInfo(testGL, 'basic')
 console.log(testMat)
 console.log(testMatDefine)
 // 메쉬 생성 테스트
-console.log(testGL.createMesh('testMesh', testGL.getGeometryInfo('testGeo'), testMat))
+console.log(testGL.createMeshInfo('testMesh', testGL.getGeometryInfo('testGeo'), testMat))
 // Scene 생성
 var testScene = RedSceneInfo(testGL, 'testScene')
 console.log(testScene)
@@ -90,7 +90,7 @@ console.log(testScene)
 // 데모
 var i = 100, i2,i3;
 while (i--) {
-	var tMesh = testGL.createMesh('testMesh' + i, testGL.getGeometryInfo('testGeo'), RedMaterialInfo(testGL, 'basic'))
+	var tMesh = testGL.createMeshInfo('testMesh' + i, testGL.getGeometryInfo('testGeo'), RedMaterialInfo(testGL, 'basic'))
 	tMesh.position[0] = Math.random() * 80 - 40
 	tMesh.position[1] = Math.random() * 80 - 40
 	tMesh.position[2] = -55 - Math.random()*30
@@ -99,7 +99,7 @@ while (i--) {
 	tMesh.rotation[2] = Math.random()*Math.PI*2
 	i2 = 6
 	while (i2--) {		
-		var tSub = testGL.createMesh('testMesh_' + i + '_' + i2, testGL.getGeometryInfo('testGeo'), RedMaterialInfo(testGL, 'basic'))
+		var tSub = testGL.createMeshInfo('testMesh_' + i + '_' + i2, testGL.getGeometryInfo('testGeo'), RedMaterialInfo(testGL, 'basic'))
 		tSub.position[0] = Math.random()*20-10
 		tSub.position[1] = Math.random()*20-10
 		tSub.position[2] = Math.random()*20-10
@@ -110,7 +110,7 @@ while (i--) {
 		tMesh.children.push(tSub)
 		i3 = 5
 		while (i3--) {		
-			var tSub = testGL.createMesh('testMesh_' + i + '_' + i2+'_'+i3, testGL.getGeometryInfo('testGeo'), RedMaterialInfo(testGL, 'basic'))
+			var tSub = testGL.createMeshInfo('testMesh_' + i + '_' + i2+'_'+i3, testGL.getGeometryInfo('testGeo'), RedMaterialInfo(testGL, 'basic'))
 			tSub.position[0] = Math.random()*20-10
 			tSub.position[1] = Math.random()*20-10
 			tSub.position[2] = Math.random()*20-10

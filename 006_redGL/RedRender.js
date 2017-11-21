@@ -1,6 +1,35 @@
 "use strict";
 var RedRender;
-//TODO: 작성중
+/**DOC:
+    {
+        constructorYn : true,
+        title :`RedMeshInfo`,
+        description : `
+            <h2>렌더러이고..현재 구현중</h2>
+            - <span style="color:red"><b>입력하지않으면 그냥 UUID를 생성해버릴까..</b></span>
+        `,
+        params : {
+            redGL : [
+                {type:'RedGL Instance'},
+                '- redGL 인스턴스'
+            ],
+            redScene : [
+                {type:'RedSceneInfo'},
+                '- RedSceneInfo을 일단 최초 렌더 그룹으로 본다.',
+                '- <span style="color:red"><b>월드는 어찌할지 고민중</b></span>'
+            ],
+            callback : [
+                {type:'Function'},
+                '- 루프시 사전에 돌릴 콜백등록',
+                '- <span style="color:red"><b>이놈은 누중에 루프관리자가 먹겠군</b></span>'
+            ]
+        },
+        example : `
+            //TODO
+        `,
+        return : 'RedRender Instance'
+    }
+:DOC*/
 (function () {
     var tDatas;
     var SIN, COS;

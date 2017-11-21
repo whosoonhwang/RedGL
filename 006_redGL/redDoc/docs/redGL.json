@@ -20,7 +20,7 @@
     "description": "\n- 재질정보생성\n"
   },
   {
-    "title": "createMesh",
+    "title": "createMeshInfo",
     "code": "FUNCTION",
     "description": "- TODO"
   },
@@ -69,6 +69,11 @@
   },
   {
     "title": "getIndexBufferInfo",
+    "code": "FUNCTION",
+    "description": "- TODO"
+  },
+  {
+    "title": "getMeshInfo",
     "code": "FUNCTION",
     "description": "- TODO"
   },

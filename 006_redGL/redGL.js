@@ -289,13 +289,23 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		},
 		/**DOC:
 		{
-			title :`createMesh`,
+			title :`createMeshInfo`,
 			code : 'FUNCTION',
 			description : `- TODO`
 		}
 		:DOC*/
-		createMesh: function (key, geometry, material) {
+		createMeshInfo: function (key, geometry, material) {
 			return new RedMeshInfo(this, key, geometry, material)
+		},
+		/**DOC:
+		{
+			title :`getMeshInfo`,
+			code : 'FUNCTION',
+			description : `- TODO`
+		}
+		:DOC*/
+		getMeshInfo: function (key) {
+			return this['__datas']['RedMeshInfo'][key]
 		},
 		/**DOC:
 		{
@@ -308,6 +318,6 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		:DOC*/
 		createMaterialInfo : function (typeName) {
 			return new RedMaterialInfo(this, typeName)
-		},
+		}
 	}
 })();
