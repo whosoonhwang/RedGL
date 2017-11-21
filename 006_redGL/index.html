@@ -1,0 +1,47 @@
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>구조화를해보자</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, target-densitydpi=device-dpi"
+    />
+
+    <meta http-equiv="content-type" content="text/html; charset=ISO-8859-1">
+    <script type="text/javascript" src="lib/gl-matrix-min.js"></script>
+    <script id="shader-fs" type="x-shader/x-fragment">
+            precision lowp float;
+            uniform vec3 uColor;
+            void main(void) {
+                gl_FragColor = vec4(uColor, 1.0);
+            }
+    </script>
+    <script id="shader-vs" type="x-shader/x-vertex">
+            attribute vec3 aVertexPosition;        
+            uniform mat4 uMVMatrix;
+            uniform mat4 uPMatrix;         
+            void main(void) {
+                gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+             
+            }
+    </script>
+    <script src="RedShaderInfo.js"></script>
+    <script src="RedProgramInfo.js"></script>
+    <script src="RedBufferInfo.js"></script>
+    <script src="RedGeometryInfo.js"></script>
+    <script src="RedMeshInfo.js"></script>
+    <script src="RedMaterialInfo.js"></script>
+    <script src="RedMaterialDefine.js"></script>
+    <script src="RedSceneInfo.js"></script>
+    <script src="RedRender.js"></script>
+    <script src="redGL.js"></script>
+</head>
+
+<body>
+    <canvas id="test" style="border: none;background:red" width="1280" height="768"></canvas>
+    <canvas id="test2" style="border: none;background:red" width="2" height="2"></canvas>
+    <script src="index.js"></script>
+</body>
+
+</html>
