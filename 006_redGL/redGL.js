@@ -66,6 +66,8 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		// set the scissor rectangle
 		tGL.enable(tGL.SCISSOR_TEST);
 		tGL.scissor(0, 0, tGL.drawingBufferWidth, tGL.drawingBufferHeight);
+		// set the viewport rectangle
+		tGL.viewport(0, 0, tGL.drawingBufferWidth, tGL.drawingBufferHeight);
 	}
 	RedGL.prototype = {
 		/**DOC:

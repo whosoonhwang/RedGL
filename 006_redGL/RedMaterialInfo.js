@@ -90,8 +90,18 @@ var RedMaterialInfo;
         }
         :DOC*/
         this['uniforms'] = tUniform ={}
+        
         // 유니폼은 프로그램에 의하여 생성되고, 재질정보를 토대로 렌더시 참조
         tData['programInfo'].makeUniformValue(this)
+        /**DOC:
+		{
+            title :`needUniformList`,
+			description : `렌더링시 유니폼리스트를 다시 만들어야할지 여부`,
+			example : `인스턴스.needUniformList`,
+			return : 'Boolean'
+        }
+        :DOC*/
+        this['needUniformList'] = true
         // 유니폼을 업데이트할 glMethod를 찾는다. 
         for(k in tUniform){
             t0 = tUniform[k]

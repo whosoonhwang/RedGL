@@ -56,31 +56,36 @@ testData2 = new Uint16Array([
 	20, 21, 22, 20, 22, 23
 ])
 
+//  버텍스버퍼생성
 console.log(test.createArrayBuffer(
 	'testBuffer',
 	'aVertexPosition',
 	testData,
 	3, 24, test.gl.FLOAT
 ))
+// 인덱스 버퍼생성
 console.log(test.createIndexBuffer(
 	'testIndexBuffer',
 	testData2,
-	2, testData2.length / 2, test.gl.UNSIGNED_SHORT
+	1, testData2.length , test.gl.UNSIGNED_SHORT
 ))
+// 지오메트리생성
 console.log(test.createGeometryInfo('testGeo', test.getArrayBuffer('testBuffer'), test.getIndexBuffer('testIndexBuffer')))
+// 프로그램생성
 console.log(test.createProgram('basic'))
-console.log(test)
-
-var testMat2 = RedMaterialDefine(test, test.getProgramInfo('basic'))
-console.log(testMat2)
+// 재질정의
+var testMatDefine = RedMaterialDefine(test, test.getProgramInfo('basic'))
+// 재질생성
 var testMat = RedMaterialInfo(test, 'basic')
 console.log(testMat)
-
+console.log(testMatDefine)
+// 메쉬 생성 테스트
 console.log(test.createMesh('testMesh', test.getGeometryInfo('testGeo'), testMat))
-
-
+// Scene 생성
 var testScene = RedSceneInfo(test, 'testScene')
 console.log(testScene)
+///////////////////////////////////////////////////////////////////////////////////////////
+// 데모
 var i = 4000
 while (i--) {
 	var tMesh = test.createMesh('testMesh' + i, test.getGeometryInfo('testGeo'), RedMaterialInfo(test, 'basic'))
@@ -102,10 +107,10 @@ var renderer = RedRender(test, testScene, function (time) {
 	COS = Math.cos
 	while(i--){
 		tMesh = testScene.children[i]
-		tMesh.position[0] = SIN(i + time / 5000 + tMesh.rotation[0]) * 30 + COS(i + time / 2000) * 10
+		tMesh.position[0] = SIN(i + time / 6000 + tMesh.rotation[0]) * 30 + COS(i + time / 2000) * 15
 		tMesh.position[1] = COS(i + time / 3000 + tMesh.rotation[1]) * 30 + COS(i + time / 3000) * 5
-		tMesh.position[2] = SIN(i + time / 1000 + tMesh.rotation[2]) * 10 - 55
-		tMesh.rotation[0] += 0.005
+		tMesh.position[2] = SIN(i + time / 1000 + tMesh.rotation[2]) * 10 - 75
+		tMesh.rotation[0] += 0.01
 		tMesh.rotation[1] += 0.005
 		tMesh.rotation[2] += 0.005
 	}

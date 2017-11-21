@@ -47,6 +47,7 @@ var RedGeometryInfo;
 (function () {
     var tGL;
     var tDatas;
+    var k;
     RedGeometryInfo = function (redGL, key, verticesBufferInfo, indicesBufferInfo, texcoordBufferInfo, normalBufferInfo) {
         if (!(this instanceof RedGeometryInfo)) return new RedGeometryInfo(redGL, key, verticesBufferInfo, indicesBufferInfo, texcoordBufferInfo, normalBufferInfo)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
@@ -105,6 +106,12 @@ var RedGeometryInfo;
         if (verticesBufferInfo) this['attributes']['vertexPosition'] = verticesBufferInfo // 버텍스버퍼
         if (texcoordBufferInfo) this['attributes']['texcoord'] = texcoordBufferInfo // 코디네이트버퍼
         if (normalBufferInfo) this['attributes']['normal'] = normalBufferInfo // 노말버퍼
+        
+        this['__attributeList'] = []
+        for (k in this['attributes']) {
+            this['__attributeList'].push(this['attributes'][k])
+        }
+
         this['indices'] = indicesBufferInfo
         this['__UUID'] = REDGL_UUID++
         // 캐싱
