@@ -120,6 +120,12 @@ while (i--) {
 	}
 	testScene.children.push(tMesh)
 }
+var checkCall = document.createElement('div')
+document.body.appendChild(checkCall)
+checkCall.style.position = 'absolute'
+checkCall.style.left ='10px'
+checkCall.style.top ='10px'
+checkCall.style.color = '#fff'
 var renderer = RedRender(testGL, testScene, function (time) {
 	i = testScene.children.length
 	var tMesh,tMesh2,tMesh3
@@ -128,18 +134,12 @@ var renderer = RedRender(testGL, testScene, function (time) {
 	COS = Math.cos
 	while (i--) {
 		tMesh = testScene.children[i]
-		// tMesh.position[0] = SIN(i + time / 6000 + tMesh.rotation[0]) * 30 + COS(i + time / 2000) * 15
-		// tMesh.position[1] = COS(i + time / 3000 + tMesh.rotation[1]) * 30 + COS(i + time / 3000) * 5
-		// tMesh.position[2] = SIN(i + time / 1000 + tMesh.rotation[2]) * 10 - 75
 		tMesh.rotation[0] += 0.01
 		tMesh.rotation[1] += 0.01
 		tMesh.rotation[2] += 0.01
 		i2 = tMesh.children.length
 		while (i2--) {
 			tMesh2 = tMesh.children[i2]
-			// tMesh.position[0] = SIN(i + time / 6000 + tMesh.rotation[0]) * 30 + COS(i + time / 2000) * 15
-			// tMesh.position[1] = COS(i + time / 3000 + tMesh.rotation[1]) * 30 + COS(i + time / 3000) * 5
-			// tMesh.position[2] = SIN(i + time / 1000 + tMesh.rotation[2]) * 10 - 75
 			tMesh2.rotation[0] += 0.03
 			tMesh2.rotation[1] += 0.03
 			tMesh2.rotation[2] += 0.03
@@ -153,5 +153,6 @@ var renderer = RedRender(testGL, testScene, function (time) {
 			}
 		}
 	}
+	checkCall.innerHTML = 'numDrawCall : '+testGL.numDrawCall
 })
 renderer.start()
