@@ -99,8 +99,7 @@ var RedBufferInfo;
             case RedBufferInfo.ARRAY_BUFFER:
                 bufferType = tGL.ARRAY_BUFFER
                 if (!(arrayData instanceof Float32Array || arrayData instanceof Float64Array)) {
-                    if(arrayData instanceof Array) console.log('TypedArray형식을 권장합니다.')
-                    else throw 'TypedArray형식을 사용해야합니다.'
+                     throw 'TypedArray형식을 사용해야합니다.'
                 }
                 break
             case RedBufferInfo.ELEMENT_ARRAY_BUFFER:

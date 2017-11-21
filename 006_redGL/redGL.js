@@ -41,26 +41,31 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 	:DOC*/
 	RedGL = function (canvas) {
 		if (!(this instanceof RedGL)) return new RedGL(canvas)
-		var gl;
+		var tGL;
 		this.__canvas = canvas
-		this.gl = gl = getGL(canvas)
+		this.gl = tGL = getGL(canvas)
 		this.__UUID = REDGL_UUID++
 		this.__datas = {}
 		console.log('RedGL 생성완료')
 		// 초기상태정의
-		gl.clearColor(1, 1, 1, 1);
-		gl.clear(gl.COLOR_BUFFER_BIT);
+		tGL.clearColor(0, 0, 0, 1);
+		tGL.clear(tGL.COLOR_BUFFER_BIT);
 		// Turn off rendering to alpha
-		// gl.colorMask(true, true, true, false);
-		// gl.clearColor(0.0, 0.0, 0.0, 1.0);
-		gl.enable(gl.DEPTH_TEST);
-		gl.depthFunc(gl.LESS)
-		//	
-		gl.enable(gl.CULL_FACE);
-		gl.cullFace(gl.BACK)
-		//
-		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-		gl.enable(gl.BLEND);
+		// tGL.colorMask(true, true, true, false);
+		// tGL.clearColor(0.0, 0.0, 0.0, 1.0);
+
+		// set the depthTest
+		tGL.enable(tGL.DEPTH_TEST);
+		tGL.depthFunc(tGL.LESS)
+		// set the cullFace
+		tGL.enable(tGL.CULL_FACE);
+		tGL.cullFace(tGL.BACK)
+		// set the blendMode
+		tGL.blendFunc(tGL.SRC_ALPHA, tGL.ONE_MINUS_SRC_ALPHA);
+		tGL.enable(tGL.BLEND);   
+		// set the scissor rectangle
+		tGL.enable(tGL.SCISSOR_TEST);
+		tGL.scissor(0, 0, tGL.drawingBufferWidth, tGL.drawingBufferHeight);
 	}
 	RedGL.prototype = {
 		/**DOC:

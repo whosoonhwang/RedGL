@@ -266,21 +266,21 @@ helper = {
 					// xyz축 회전 
 					tRx = drawInfo['rotation'][0], tRy = drawInfo['rotation'][1], tRz = drawInfo['rotation'][2]
 					aSx = SIN(tRx), aCx = COS(tRx), aSy = SIN(tRy), aCy = COS(tRy), aSz = SIN(tRz), aCz = COS(tRz),
-						a00 = a[0], a01 = a[1], a02 = a[2],
-						a10 = a[4], a11 = a[5], a12 = a[6],
-						a20 = a[8], a21 = a[9], a22 = a[10],
-						b00 = aCy * aCz, b01 = aSx * aSy * aCz - aCx * aSz, b02 = aCx * aSy * aCz + aSx * aSz,
-						b10 = aCy * aSz, b11 = aSx * aSy * aSz + aCx * aCz, b12 = aCx * aSy * aSz - aSx * aCz,
-						b20 = -aSy, b21 = aSx * aCy, b22 = aCx * aCy,
-						a[0] = a00 * b00 + a10 * b01 + a20 * b02, a[1] = a01 * b00 + a11 * b01 + a21 * b02, a[2] = a02 * b00 + a12 * b01 + a22 * b02,
-						a[4] = a00 * b10 + a10 * b11 + a20 * b12, a[5] = a01 * b10 + a11 * b11 + a21 * b12, a[6] = a02 * b10 + a12 * b11 + a22 * b12,
-						a[8] = a00 * b20 + a10 * b21 + a20 * b22, a[9] = a01 * b20 + a11 * b21 + a21 * b22, a[10] = a02 * b20 + a12 * b21 + a22 * b22;
+					a00 = a[0], a01 = a[1], a02 = a[2],
+					a10 = a[4], a11 = a[5], a12 = a[6],
+					a20 = a[8], a21 = a[9], a22 = a[10],
+					b00 = aCy * aCz, b01 = aSx * aSy * aCz - aCx * aSz, b02 = aCx * aSy * aCz + aSx * aSz,
+					b10 = aCy * aSz, b11 = aSx * aSy * aSz + aCx * aCz, b12 = aCx * aSy * aSz - aSx * aCz,
+					b20 = -aSy, b21 = aSx * aCy, b22 = aCx * aCy,
+					a[0] = a00 * b00 + a10 * b01 + a20 * b02, a[1] = a01 * b00 + a11 * b01 + a21 * b02, a[2] = a02 * b00 + a12 * b01 + a22 * b02,
+					a[4] = a00 * b10 + a10 * b11 + a20 * b12, a[5] = a01 * b10 + a11 * b11 + a21 * b12, a[6] = a02 * b10 + a12 * b11 + a22 * b12,
+					a[8] = a00 * b20 + a10 * b21 + a20 * b22, a[9] = a01 * b20 + a11 * b21 + a21 * b22, a[10] = a02 * b20 + a12 * b21 + a22 * b22;
 					// 스케일
 					aX = drawInfo['scale'][0], aY = drawInfo['scale'][1], aZ = drawInfo['scale'][2]
 					a[0] = a[0] * aX, a[1] = a[1] * aX, a[2] = a[2] * aX, a[3] = a[3] * aX;
 					a[4] = a[4] * aY, a[5] = a[5] * aY, a[6] = a[6] * aY, a[7] = a[7] * aY,
-						a[8] = a[8] * aZ, a[9] = a[9] * aZ, a[10] = a[10] * aZ, a[11] = a[11] * aZ,
-						a[12] = a[12], a[13] = a[13], a[14] = a[14], a[15] = a[15]
+					a[8] = a[8] * aZ, a[9] = a[9] * aZ, a[10] = a[10] * aZ, a[11] = a[11] * aZ,
+					a[12] = a[12], a[13] = a[13], a[14] = a[14], a[15] = a[15]
 					// translate_rotate_scale(mvMatrix, drawInfo['position'], drawInfo['rotation'][0], drawInfo['rotation'][1], drawInfo['rotation'][2], drawInfo['scale'])
 					/////////////////////
 					prevProgram != tProgram ? (gl.useProgram(tProgram), updated_uPMatrix = false) : 0

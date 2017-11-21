@@ -50,15 +50,15 @@ var RedGeometryInfo;
     RedGeometryInfo = function (redGL, key, verticesBufferInfo, indicesBufferInfo, texcoordBufferInfo, normalBufferInfo) {
         if (!(this instanceof RedGeometryInfo)) return new RedGeometryInfo(redGL, key, verticesBufferInfo, indicesBufferInfo, texcoordBufferInfo, normalBufferInfo)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if(verticesBufferInfo && !(verticesBufferInfo instanceof RedBufferInfo)) throw 'verticesBufferInfo는 RedBufferInfo만 가능합니다.'
-        if(indicesBufferInfo && !(indicesBufferInfo instanceof RedBufferInfo)) throw 'indicesBufferInfo RedBufferInfo만 가능합니다.'
-        if(texcoordBufferInfo && !(texcoordBufferInfo instanceof RedBufferInfo)) throw 'texcoordBufferInfo RedBufferInfo만 가능합니다.'
-        if(normalBufferInfo && !(normalBufferInfo instanceof RedBufferInfo)) throw 'normalBufferInfo RedBufferInfo만 가능합니다.'
+        if (verticesBufferInfo && !(verticesBufferInfo instanceof RedBufferInfo)) throw 'verticesBufferInfo는 RedBufferInfo만 가능합니다.'
+        if (indicesBufferInfo && !(indicesBufferInfo instanceof RedBufferInfo)) throw 'indicesBufferInfo RedBufferInfo만 가능합니다.'
+        if (texcoordBufferInfo && !(texcoordBufferInfo instanceof RedBufferInfo)) throw 'texcoordBufferInfo RedBufferInfo만 가능합니다.'
+        if (normalBufferInfo && !(normalBufferInfo instanceof RedBufferInfo)) throw 'normalBufferInfo RedBufferInfo만 가능합니다.'
         //
-        if(verticesBufferInfo && verticesBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'verticesBufferInfo ARRAY_BUFFER 가능합니다.'
-        if(indicesBufferInfo && indicesBufferInfo.bufferType != RedBufferInfo.ELEMENT_ARRAY_BUFFER) throw 'indicesBufferInfo는 ELEMENT_ARRAY_BUFFER만 가능합니다.'
-        if(texcoordBufferInfo && texcoordBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'texcoordBufferInfo ARRAY_BUFFER 가능합니다.'
-        if(normalBufferInfo && normalBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'normalBufferInfo ARRAY_BUFFER 가능합니다.'
+        if (verticesBufferInfo && verticesBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'verticesBufferInfo ARRAY_BUFFER 가능합니다.'
+        if (indicesBufferInfo && indicesBufferInfo.bufferType != RedBufferInfo.ELEMENT_ARRAY_BUFFER) throw 'indicesBufferInfo는 ELEMENT_ARRAY_BUFFER만 가능합니다.'
+        if (texcoordBufferInfo && texcoordBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'texcoordBufferInfo ARRAY_BUFFER 가능합니다.'
+        if (normalBufferInfo && normalBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'normalBufferInfo ARRAY_BUFFER 가능합니다.'
         // 저장할 공간확보하고
         if (!redGL['__datas']['RedGeometryInfo']) {
             redGL['__datas']['RedGeometryInfo'] = {}
@@ -102,9 +102,9 @@ var RedGeometryInfo;
 		}
 	    :DOC*/
         this['key'] = key
-        this['attributes']['vertexPosition'] = verticesBufferInfo // 버텍스버퍼
-        this['attributes']['texcoord'] = texcoordBufferInfo // 코디네이트버퍼
-        this['attributes']['normal'] = normalBufferInfo // 노말버퍼
+        if (verticesBufferInfo) this['attributes']['vertexPosition'] = verticesBufferInfo // 버텍스버퍼
+        if (texcoordBufferInfo) this['attributes']['texcoord'] = texcoordBufferInfo // 코디네이트버퍼
+        if (normalBufferInfo) this['attributes']['normal'] = normalBufferInfo // 노말버퍼
         this['indices'] = indicesBufferInfo
         this['__UUID'] = REDGL_UUID++
         // 캐싱

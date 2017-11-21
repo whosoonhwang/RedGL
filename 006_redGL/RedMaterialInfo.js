@@ -41,6 +41,29 @@ var RedMaterialInfo;
 (function () {
     var tDefineMap
     var tData;
+    var tUniform;
+    var typeMAP;
+    var k,t0;
+	typeMAP = {
+		f: {
+			16: 'uniformMatrix4fv',
+			12: 'uniformMatrix3fv',
+			8: 'uniformMatrix2fv',
+			4: 'uniform4fv',
+			3: 'uniform3fv',
+			2: 'uniform2fv',
+			1: 'uniform1f'
+		},
+		i: {
+			16: 'uniformMatrix4iv',
+			12: 'uniformMatrix3iv',
+			8: 'uniformMatrix2iv',
+			4: 'uniform4iv',
+			3: 'uniform3iv',
+			2: 'uniform2iv',
+			1: 'uniform1iv'
+		}
+	}
     RedMaterialInfo = function (redGL, type) {
         if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, type)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
@@ -66,9 +89,27 @@ var RedMaterialInfo;
 			return : 'Object'
         }
         :DOC*/
-        this['uniforms'] = {}
+        this['uniforms'] = tUniform ={}
         // 유니폼은 프로그램에 의하여 생성되고, 재질정보를 토대로 렌더시 참조
         tData['programInfo'].makeUniformValue(this)
+        // 유니폼을 업데이트할 glMethod를 찾는다. 
+        for(k in tUniform){
+            t0 = tUniform[k]
+            if (t0 instanceof Float32Array || t0 instanceof Float64Array) {
+                t0['__uniformMethod'] = typeMAP['f'][t0.length]
+                t0['__isMatrix'] = t0['__uniformMethod'].length > 11
+			} else if (
+				t0 instanceof Uint8Array ||
+				t0 instanceof Uint16Array ||
+				t0 instanceof Uint32Array ||
+				t0 instanceof Int8Array ||
+				t0 instanceof Int16Array ||
+				t0 instanceof Int32Array
+			) {
+                t0['__uniformMethod'] = typeMAP['i'][t0.length]
+                t0['__isMatrix'] = t0['__uniformMethod'].length > 11
+			}else throw k+'는 올바르지 않은 타입입니다.'
+        }
         this['__UUID'] = REDGL_UUID++
     }
     Object.freeze(RedMaterialInfo)
