@@ -114,10 +114,10 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			W = width ? width : (document.documentElement ? document.documentElement.clientWidth : document.body.clientWidth)
 			H = height ? height : (document.documentElement ? document.documentElement.clientHeight : document.body.clientHeight)
 			gl = this.gl
-			W = W * window.devicePixelRatio
-			H = H * window.devicePixelRatio
-			this.__canvas.width = W
-			this.__canvas.height = H
+			W = W 
+			H = H 
+			this.__canvas.width = W* window.devicePixelRatio
+			this.__canvas.height = H* window.devicePixelRatio
 			this.__canvas.style.width = W
 			this.__canvas.style.height = H
 			gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
