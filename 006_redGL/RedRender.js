@@ -21,7 +21,10 @@ var RedRender;
         var tMesh; // 대상 메쉬
         var tMVMatrix; // 대상 메쉬의 매트릭스 
         ///////////////////////////////////////////////////////////////////
-        var a, aSx, aSy, aSz, aCx, aCy, aCz, tRx, tRy, tRz, a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, b00, b01, b02, b10, b11, b12, b20, b21, b22;
+        var a, aSx, aSy, aSz, aCx, aCy, aCz, tRx, tRy, tRz;
+        var a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, a30, a31, a32, a33;
+        var b0, b1, b2, b3;
+        var b00, b01, b02, b10, b11, b12, b20, b21, b22
         var aX, aY, aZ;
         ///////////////////////////////////////////////////////////////////
         var tGL; // 대상 RedGL의 gl context
@@ -107,7 +110,43 @@ var RedRender;
                 a[8] = a[8] * aZ, a[9] = a[9] * aZ, a[10] = a[10] * aZ, a[11] = a[11] * aZ,
                 a[12] = a[12], a[13] = a[13], a[14] = a[14], a[15] = a[15]
                 // 부모가있으면 곱함
-                if (parentMTX) mat4.multiply(tMVMatrix, parentMTX,tMVMatrix )
+                if (parentMTX) {
+                    // 부모매트릭스 복사
+                    var parentClone = new glMatrix.ARRAY_TYPE(16);
+                    parentClone[0] = parentMTX[0], parentClone[1] = parentMTX[1], parentClone[2] = parentMTX[2], parentClone[3] = parentMTX[3],
+                    parentClone[4] = parentMTX[4], parentClone[5] = parentMTX[5], parentClone[6] = parentMTX[6], parentClone[7] = parentMTX[7],
+                    parentClone[8] = parentMTX[8], parentClone[9] = parentMTX[9], parentClone[10] = parentMTX[10], parentClone[11] = parentMTX[11],
+                    parentClone[12] = parentMTX[12], parentClone[13] = parentMTX[13], parentClone[14] = parentMTX[14], parentClone[15] = parentMTX[15]
+                    /////////////////////////////////////////////////////////////////////////////////////////////
+                    // 매트립스 곱
+                    // mat4.multiply(tMVMatrix, parentClone, tMVMatrix)
+                    a00 = parentClone[0], a01 = parentClone[1], a02 = parentClone[2], a03 = parentClone[3],
+                    a10 = parentClone[4], a11 = parentClone[5], a12 = parentClone[6], a13 = parentClone[7],
+                    a20 = parentClone[8], a21 = parentClone[9], a22 = parentClone[10], a23 = parentClone[11],
+                    a30 = parentClone[12], a31 = parentClone[13], a32 = parentClone[14], a33 = parentClone[15],
+                    // Cache only the current line of the second matrix
+                    b0 = tMVMatrix[0], b1 = tMVMatrix[1], b2 = tMVMatrix[2], b3 = tMVMatrix[3],
+                    tMVMatrix[0] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30,
+                    tMVMatrix[1] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31,
+                    tMVMatrix[2] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32,
+                    tMVMatrix[3] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33,
+                    b0 = tMVMatrix[4], b1 = tMVMatrix[5], b2 = tMVMatrix[6], b3 = tMVMatrix[7],
+                    tMVMatrix[4] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30,
+                    tMVMatrix[5] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31,
+                    tMVMatrix[6] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32,
+                    tMVMatrix[7] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33,
+                    b0 = tMVMatrix[8], b1 = tMVMatrix[9], b2 = tMVMatrix[10], b3 = tMVMatrix[11],
+                    tMVMatrix[8] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30,
+                    tMVMatrix[9] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31,
+                    tMVMatrix[10] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32,
+                    tMVMatrix[11] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33,
+                    b0 = tMVMatrix[12], b1 = tMVMatrix[13], b2 = tMVMatrix[14], b3 = tMVMatrix[15],
+                    tMVMatrix[12] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30,
+                    tMVMatrix[13] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31,
+                    tMVMatrix[14] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32,
+                    tMVMatrix[15] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33
+                    /////////////////////////////////////////////////////////////////////////////////////////////
+                }
                 // 정보세팅
                 tMeterial = tMesh['materialInfo']
                 tProgramInfo = tMeterial['programInfo']
@@ -191,7 +230,7 @@ var RedRender;
                     tGL.drawArrays(tMesh['drawMode'], 0, tVertexPositionBuffer['pointNum'])
                     cacheDrawBufferUUID = tVertexPositionBuffer['__UUID']
                 }
-                if (tMesh['children'].length) self.draw(tMesh['children'], time, mat4.clone(tMVMatrix))
+                if (tMesh['children'].length) self.draw(tMesh['children'], time, tMVMatrix)
             }
             
         }
