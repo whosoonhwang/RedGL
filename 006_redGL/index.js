@@ -90,10 +90,10 @@ while (i--) {
 	var tMesh = testGL.createMesh('testMesh' + i, testGL.getGeometryInfo('testGeo'), RedMaterialInfo(testGL, 'basic'))
 	tMesh.position[0] = Math.random() * 80 - 40
 	tMesh.position[1] = Math.random() * 80 - 40
-	tMesh.position[2] = -50
-	tMesh.rotation[0] = Math.random()
-	tMesh.rotation[1] = Math.random()
-	tMesh.rotation[2] = Math.random()
+	tMesh.position[2] = -55 - Math.random()*30
+	tMesh.rotation[0] = Math.random()*Math.PI*2
+	tMesh.rotation[1] = Math.random()*Math.PI*2
+	tMesh.rotation[2] = Math.random()*Math.PI*2
 	i2 = 6
 	while (i2--) {		
 		var tSub = testGL.createMesh('testMesh_' + i + '_' + i2, testGL.getGeometryInfo('testGeo'), RedMaterialInfo(testGL, 'basic'))
