@@ -15,43 +15,46 @@ var RedRender;
         this['callback'] = callback
         this['targetScene'] = redScene
         this['__UUID'] = REDGL_UUID++
+        //
+        var i,k; // 루프변수
+        var tScene; // 대상 RedScene
+        var tChildren; // 대상 children
+        var tMesh; // 대상 메쉬
+        var tMVMatrix; // 대상 메쉬의 매트릭스 
+        ///////////////////////////////////////////////////////////////////
+        var a, aSx, aSy, aSz, aCx, aCy, aCz, tRx, tRy, tRz, a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, b00, b01, b02, b10, b11, b12, b20, b21, b22;
+        var aX, aY, aZ;
+        ///////////////////////////////////////////////////////////////////
+        var tGL; // 대상 RedGL의 gl context
+        var tMeterial; // 대상 재질
+        var tProgramInfo; // 대상 프로그램 정보
+        var tProgram; // 대상 프로그램
+        var tGeometry; // 대상 지오메트리
+        var tAttrGroup; // 대상 버퍼정보그룹
+        var tAttrLocationGroup; // 대상 Attribute의 location 정보들
+        var tAttrBufferInfo; // 대상 RedBufferInfo 
+        var tAttrPointer; // 대상 Attrobute가 반영될 쉐이더내의 변수이름
+        var tUniformGroup; // 대상 유니폼 그룹
+        var tUniformLocationGroup; // 대상 프로그램의 uniform location 정보들
+        var tUniformKey, tUniformValue; // 대상 유니폼 키와 값
+        var tLocation; // 대상 location 정보
+        var tIndicesBuffer; // 인덱스 버퍼
+        var tVertexPositionBuffer; // 포지션 버퍼
+        ///////////////////////////////////////////////////////////////////
+        var cacheProgram; // 이전 대상 프로그램        
         var cacheAttrUUID; // 어트리뷰트 캐싱정보
         var cacheDrawBufferUUID; // draw버퍼 캐싱정보
+        ///////////////////////////////////////////////////////////////////
+        var pMatrix;
+        var aspect;
         cacheAttrUUID = {}
         this.render = function (time) {
-            var i,k; // 루프변수
-            var tScene; // 대상 RedScene
-            var tChildren; // 대상 children
-            var tMesh; // 대상 메쉬
-            var tMVMatrix; // 대상 메쉬의 매트릭스 
-            ///////////////////////////////////////////////////////////////////
-            var a, aSx, aSy, aSz, aCx, aCy, aCz, tRx, tRy, tRz, a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, b00, b01, b02, b10, b11, b12, b20, b21, b22;
-            var aX, aY, aZ;
-            ///////////////////////////////////////////////////////////////////
-            var tGL; // 대상 RedGL의 gl context
-            var tMeterial; // 대상 재질
-            var tProgramInfo; // 대상 프로그램 정보
-            var tProgram; // 대상 프로그램
-            var tGeometry; // 대상 지오메트리
-            var tAttrGroup; // 대상 버퍼정보그룹
-            var tAttrLocationGroup; // 대상 Attribute의 location 정보들
-            var tAttrBufferInfo; // 대상 RedBufferInfo 
-            var tAttrPointer; // 대상 Attrobute가 반영될 쉐이더내의 변수이름
-            var tUniformGroup; // 대상 유니폼 그룹
-            var tUniformLocationGroup; // 대상 프로그램의 uniform location 정보들
-            var tUniformKey, tUniformValue; // 대상 유니폼 키와 값
-            var tLocation; // 대상 location 정보
-            var tIndicesBuffer; // 인덱스 버퍼
-            var tVertexPositionBuffer; // 포지션 버퍼
-            ///////////////////////////////////////////////////////////////////
-            var prevProgram; // 이전 대상 프로그램
-            ///////////////////////////////////////////////////////////////////
             self['callback'] ? self['callback'](time) : 0
             tGL = redGL.gl
             //////////////////////////////////////////////////////////////////
             // 프로그램마다.....pMatrix업데이트
-            var pMatrix = mat4.create()
-            var aspect = redGL.__canvas.clientWidth / redGL.__canvas.clientHeight;
+            pMatrix = mat4.create()
+            aspect = redGL.__canvas.clientWidth / redGL.__canvas.clientHeight;
             mat4.perspective(pMatrix, 45, aspect, 0.1, 1000.0);
             for(k in redGL['__datas']['RedProgramInfo']){
                 tLocation = redGL['__datas']['RedProgramInfo'][k]['uniforms']['uPMatrix']['location']
@@ -117,8 +120,8 @@ var RedRender;
                 tVertexPositionBuffer = tAttrGroup['vertexPosition']
                 
                 // 프로그램 세팅 & 캐싱
-                prevProgram != tProgram ? tGL.useProgram(tProgram) : 0
-                prevProgram = tProgram
+                cacheProgram != tProgram ? tGL.useProgram(tProgram) : 0
+                cacheProgram = tProgram
                 // 어트리뷰트 입력
                 for (k in tAttrGroup) {
                     tAttrBufferInfo = tAttrGroup[k], // 대상버퍼구하고

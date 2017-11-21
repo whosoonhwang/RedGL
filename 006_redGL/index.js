@@ -83,7 +83,7 @@ var testScene = RedSceneInfo(test, 'testScene')
 console.log(testScene)
 var i = 4000
 while (i--) {
-	var tMesh = test.createMesh('testMesh' + i, test.getGeometryInfo('testGeo'), testMat)
+	var tMesh = test.createMesh('testMesh' + i, test.getGeometryInfo('testGeo'), RedMaterialInfo(test, 'basic'))
 	tMesh.position[0] = Math.random()*80-40
 	tMesh.position[1] = Math.random()*80-40
 	tMesh.position[2] = -50
