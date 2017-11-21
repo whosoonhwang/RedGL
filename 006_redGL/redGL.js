@@ -161,7 +161,7 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		})(),
 		/**DOC:
 		{
-			title :`createShader`,
+			title :`createShaderInfo`,
 			code : 'FUNCTION',
 			description : `
 				- RedGL 쉐이더 생성기.
@@ -187,23 +187,25 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			 	var test;
 				test = RedGL(Canvas Element)
 				// basic이라는 이름으로 버텍스 쉐이더를 만든다. 
-				test.createShader('basic', RedShaderInfo.VERTEX_SHADER, 쉐이더소스)
+				test.createShaderInfo('basic', RedShaderInfo.VERTEX_SHADER, 쉐이더소스)
 			`,
 			return : 'RedShaderInfo Instance'
 		}
 		:DOC*/
-		createShader: function (key, type, source) {
+		createShaderInfo: function (key, type, source) {
 			return new RedShaderInfo(this, key, type, source)
 		},
 		/**DOC:
 		{
-			title :`getShader`,
+			title :`getShaderInfo`,
 			code : 'FUNCTION',
-			description : `- TODO`
+			description : `
+				- 정의된 쉐이더를 조회
+			`
 		}
 		:DOC*/
-		getShader: function (key, type) {
-			//TODO:
+		getShaderInfo: function (key, type) {
+			return this['__datas']['shaderInfo'][type][key]
 		},
 		/**DOC:
 		{
@@ -212,7 +214,7 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			description : `- TODO`
 		}
 		:DOC*/
-		createProgram: function (key, vShaderInfo, fShaderInfo) {
+		createProgramInfo: function (key, vShaderInfo, fShaderInfo) {
 			return new RedProgramInfo(this, key, vShaderInfo, fShaderInfo)
 		},
 		/**DOC:
@@ -227,42 +229,42 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		},
 		/**DOC:
 		{
-			title :`createArrayBuffer`,
+			title :`createArrayBufferInfo`,
 			code : 'FUNCTION',
 			description : `- TODO`
 		}
 		:DOC*/
-		createArrayBuffer: function (key, pointer, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode) {
+		createArrayBufferInfo: function (key, pointer, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode) {
 			return new RedBufferInfo(this, RedBufferInfo.ARRAY_BUFFER, key, pointer, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode)
 		},
 		/**DOC:
 		{
-			title :`createIndexBuffer`,
+			title :`createIndexBufferInfo`,
 			code : 'FUNCTION',
 			description : `- TODO`
 		}
 		:DOC*/
-		createIndexBuffer: function (key, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode) {
+		createIndexBufferInfo: function (key, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode) {
 			return new RedBufferInfo(this, RedBufferInfo.ELEMENT_ARRAY_BUFFER, key, null, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode)
 		},
 		/**DOC:
 		{
-			title :`getArrayBuffer`,
+			title :`getArrayBufferInfo`,
 			code : 'FUNCTION',
 			description : `- TODO`
 		}
 		:DOC*/
-		getArrayBuffer: function (key) {
+		getArrayBufferInfo: function (key) {
 			return this['__datas']['RedBufferInfo'][key]
 		},
 		/**DOC:
 		{
-			title :`getIndexBuffer`,
+			title :`getIndexBufferInfo`,
 			code : 'FUNCTION',
 			description : `- TODO`
 		}
 		:DOC*/
-		getIndexBuffer: function (key) {
+		getIndexBufferInfo: function (key) {
 			return this['__datas']['RedBufferInfo'][key]
 		},
 		/**DOC:
@@ -285,8 +287,37 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		getGeometryInfo: function (key) {
 			return this['__datas']['RedGeometryInfo'][key]
 		},
-		createMesh: function (key, geometry, material) {
+		/**DOC:
+		{
+			title :`createMeshInfo`,
+			code : 'FUNCTION',
+			description : `- TODO`
+		}
+		:DOC*/
+		createMeshInfo: function (key, geometry, material) {
 			return new RedMeshInfo(this, key, geometry, material)
+		},
+		/**DOC:
+		{
+			title :`getMeshInfo`,
+			code : 'FUNCTION',
+			description : `- TODO`
+		}
+		:DOC*/
+		getMeshInfo: function (key) {
+			return this['__datas']['RedMeshInfo'][key]
+		},
+		/**DOC:
+		{
+			title :`createMaterialInfo`,
+			code : 'FUNCTION',
+			description : `
+				- 재질정보생성
+			`
+		}
+		:DOC*/
+		createMaterialInfo : function (typeName) {
+			return new RedMaterialInfo(this, typeName)
 		}
 	}
 })();

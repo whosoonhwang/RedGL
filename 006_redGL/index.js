@@ -1,13 +1,7 @@
 "use strict";
 var testGL
 testGL = RedGL(document.getElementById('test'), true)
-console.log(testGL.createShader('basic', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('shader-vs')))
-console.log(testGL.createShader('basic', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('shader-fs')))
-testGL.createProgram(
-	'basic',
-	testGL.createShader('basic', RedShaderInfo.VERTEX_SHADER),
-	testGL.createShader('basic', RedShaderInfo.FRAGMENT_SHADER)
-)
+
 var testData, testData2;
 testData = new Float32Array([
 
@@ -56,22 +50,31 @@ testData2 = new Uint16Array([
 ])
 
 //  버텍스버퍼생성
-console.log(testGL.createArrayBuffer(
+console.log(testGL.createArrayBufferInfo(
 	'testBuffer',
 	'aVertexPosition',
 	testData,
 	3, 24, testGL.gl.FLOAT
 ))
 // 인덱스 버퍼생성
-console.log(testGL.createIndexBuffer(
+console.log(testGL.createIndexBufferInfo(
 	'testIndexBuffer',
 	testData2,
 	1, testData2.length, testGL.gl.UNSIGNED_SHORT
 ))
-// 지오메트리생성
-console.log(testGL.createGeometryInfo('testGeo', testGL.getArrayBuffer('testBuffer'), testGL.getIndexBuffer('testIndexBuffer')))
+// 쉐이더생성
+console.log(testGL.createShaderInfo('basic', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('shader-vs')))
+console.log(testGL.createShaderInfo('basic', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('shader-fs')))
 // 프로그램생성
-console.log(testGL.createProgram('basic'))
+testGL.createProgramInfo(
+	'basic',
+	testGL.createShaderInfo('basic', RedShaderInfo.VERTEX_SHADER),
+	testGL.createShaderInfo('basic', RedShaderInfo.FRAGMENT_SHADER)
+)
+// 지오메트리생성
+console.log(testGL.createGeometryInfo('testGeo', testGL.getArrayBufferInfo('testBuffer'), testGL.getIndexBufferInfo('testIndexBuffer')))
+// 프로그램생성
+console.log(testGL.getProgramInfo('basic'))
 // 재질정의
 var testMatDefine = RedMaterialDefine(testGL, testGL.getProgramInfo('basic'))
 // 재질생성
@@ -79,7 +82,7 @@ var testMat = RedMaterialInfo(testGL, 'basic')
 console.log(testMat)
 console.log(testMatDefine)
 // 메쉬 생성 테스트
-console.log(testGL.createMesh('testMesh', testGL.getGeometryInfo('testGeo'), testMat))
+console.log(testGL.createMeshInfo('testMesh', testGL.getGeometryInfo('testGeo'), testMat))
 // Scene 생성
 var testScene = RedSceneInfo(testGL, 'testScene')
 console.log(testScene)
@@ -87,7 +90,7 @@ console.log(testScene)
 // 데모
 var i = 100, i2,i3;
 while (i--) {
-	var tMesh = testGL.createMesh('testMesh' + i, testGL.getGeometryInfo('testGeo'), RedMaterialInfo(testGL, 'basic'))
+	var tMesh = testGL.createMeshInfo('testMesh' + i, testGL.getGeometryInfo('testGeo'), RedMaterialInfo(testGL, 'basic'))
 	tMesh.position[0] = Math.random() * 80 - 40
 	tMesh.position[1] = Math.random() * 80 - 40
 	tMesh.position[2] = -55 - Math.random()*30
@@ -96,7 +99,7 @@ while (i--) {
 	tMesh.rotation[2] = Math.random()*Math.PI*2
 	i2 = 6
 	while (i2--) {		
-		var tSub = testGL.createMesh('testMesh_' + i + '_' + i2, testGL.getGeometryInfo('testGeo'), RedMaterialInfo(testGL, 'basic'))
+		var tSub = testGL.createMeshInfo('testMesh_' + i + '_' + i2, testGL.getGeometryInfo('testGeo'), RedMaterialInfo(testGL, 'basic'))
 		tSub.position[0] = Math.random()*20-10
 		tSub.position[1] = Math.random()*20-10
 		tSub.position[2] = Math.random()*20-10
@@ -107,7 +110,7 @@ while (i--) {
 		tMesh.children.push(tSub)
 		i3 = 5
 		while (i3--) {		
-			var tSub = testGL.createMesh('testMesh_' + i + '_' + i2+'_'+i3, testGL.getGeometryInfo('testGeo'), RedMaterialInfo(testGL, 'basic'))
+			var tSub = testGL.createMeshInfo('testMesh_' + i + '_' + i2+'_'+i3, testGL.getGeometryInfo('testGeo'), RedMaterialInfo(testGL, 'basic'))
 			tSub.position[0] = Math.random()*20-10
 			tSub.position[1] = Math.random()*20-10
 			tSub.position[2] = Math.random()*20-10
@@ -153,6 +156,6 @@ var renderer = RedRender(testGL, testScene, function (time) {
 			}
 		}
 	}
-	checkCall.innerHTML = 'numDrawCall : '+testGL.numDrawCall
+	checkCall.innerHTML = 'numDrawCall : '+renderer.numDrawCall
 })
 renderer.start()

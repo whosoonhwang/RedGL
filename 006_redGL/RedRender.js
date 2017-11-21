@@ -1,6 +1,35 @@
 "use strict";
 var RedRender;
-//TODO: 작성중
+/**DOC:
+    {
+        constructorYn : true,
+        title :`RedMeshInfo`,
+        description : `
+            <h2>렌더러이고..현재 구현중</h2>
+            - <span style="color:red"><b>입력하지않으면 그냥 UUID를 생성해버릴까..</b></span>
+        `,
+        params : {
+            redGL : [
+                {type:'RedGL Instance'},
+                '- redGL 인스턴스'
+            ],
+            redScene : [
+                {type:'RedSceneInfo'},
+                '- RedSceneInfo을 일단 최초 렌더 그룹으로 본다.',
+                '- <span style="color:red"><b>월드는 어찌할지 고민중</b></span>'
+            ],
+            callback : [
+                {type:'Function'},
+                '- 루프시 사전에 돌릴 콜백등록',
+                '- <span style="color:red"><b>이놈은 누중에 루프관리자가 먹겠군</b></span>'
+            ]
+        },
+        example : `
+            //TODO
+        `,
+        return : 'RedRender Instance'
+    }
+:DOC*/
 (function () {
     var tDatas;
     var SIN, COS;
@@ -15,6 +44,7 @@ var RedRender;
         this['callback'] = callback
         this['targetScene'] = redScene
         this['__UUID'] = REDGL_UUID++
+        this['numDrawCall'] = 0
         //
         var k; //루프변수
         var tScene; // 대상 RedScene
@@ -51,12 +81,12 @@ var RedRender;
         ///////////////////////////////////////////////////////////////////
         var pMatrix;
         var aspect;
-        var numDrawCall; //드로우콜수
+
         cacheAttrUUID = {}
         
         this.render = function(time){
-            numDrawCall = 0
             self['callback'] ? self['callback'](time) : 0
+            self['numDrawCall'] = 0
             tGL = redGL.gl
             //////////////////////////////////////////////////////////////////
             // 프로그램마다.....pMatrix업데이트
@@ -73,14 +103,13 @@ var RedRender;
             tGL.clear(tGL.COLOR_BUFFER_BIT | tGL.DEPTH_BUFFER_BIT);
             tScene = self['targetScene']
             self.draw(tScene['children'],time)
-            redGL.numDrawCall = numDrawCall
             requestAnimationFrame(self.render)
         }
         this.draw = function (renderList,time,parentMTX) {
             var i,i2; // 루프변수
             i = renderList.length
             while (i--) {
-                numDrawCall++
+                self['numDrawCall']++
                 tMesh = renderList[i]
                 tMVMatrix = tMesh['uMVMatrix']
                 // 매트릭스 초기화
@@ -236,8 +265,7 @@ var RedRender;
                     cacheDrawBufferUUID = tVertexPositionBuffer['__UUID']
                 }
                 if (tMesh['children'].length) self.draw(tMesh['children'], time, tMVMatrix)
-            }
-            
+            }            
         }
     }
     RedRender.prototype = {
