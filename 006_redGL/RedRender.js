@@ -15,6 +15,7 @@ var RedRender;
         this['callback'] = callback
         this['targetScene'] = redScene
         this['__UUID'] = REDGL_UUID++
+        this['numDrawCall'] = 0
         //
         var k; //루프변수
         var tScene; // 대상 RedScene
@@ -51,12 +52,12 @@ var RedRender;
         ///////////////////////////////////////////////////////////////////
         var pMatrix;
         var aspect;
-        var numDrawCall; //드로우콜수
+
         cacheAttrUUID = {}
         
         this.render = function(time){
-            numDrawCall = 0
             self['callback'] ? self['callback'](time) : 0
+            self['numDrawCall'] = 0
             tGL = redGL.gl
             //////////////////////////////////////////////////////////////////
             // 프로그램마다.....pMatrix업데이트
@@ -73,14 +74,13 @@ var RedRender;
             tGL.clear(tGL.COLOR_BUFFER_BIT | tGL.DEPTH_BUFFER_BIT);
             tScene = self['targetScene']
             self.draw(tScene['children'],time)
-            redGL.numDrawCall = numDrawCall
             requestAnimationFrame(self.render)
         }
         this.draw = function (renderList,time,parentMTX) {
             var i,i2; // 루프변수
             i = renderList.length
             while (i--) {
-                numDrawCall++
+                self['numDrawCall']++
                 tMesh = renderList[i]
                 tMVMatrix = tMesh['uMVMatrix']
                 // 매트릭스 초기화
@@ -236,8 +236,7 @@ var RedRender;
                     cacheDrawBufferUUID = tVertexPositionBuffer['__UUID']
                 }
                 if (tMesh['children'].length) self.draw(tMesh['children'], time, tMVMatrix)
-            }
-            
+            }            
         }
     }
     RedRender.prototype = {

@@ -1,13 +1,7 @@
 "use strict";
 var testGL
 testGL = RedGL(document.getElementById('test'), true)
-console.log(testGL.createShader('basic', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('shader-vs')))
-console.log(testGL.createShader('basic', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('shader-fs')))
-testGL.createProgram(
-	'basic',
-	testGL.createShader('basic', RedShaderInfo.VERTEX_SHADER),
-	testGL.createShader('basic', RedShaderInfo.FRAGMENT_SHADER)
-)
+
 var testData, testData2;
 testData = new Float32Array([
 
@@ -56,22 +50,31 @@ testData2 = new Uint16Array([
 ])
 
 //  버텍스버퍼생성
-console.log(testGL.createArrayBuffer(
+console.log(testGL.createArrayBufferInfo(
 	'testBuffer',
 	'aVertexPosition',
 	testData,
 	3, 24, testGL.gl.FLOAT
 ))
 // 인덱스 버퍼생성
-console.log(testGL.createIndexBuffer(
+console.log(testGL.createIndexBufferInfo(
 	'testIndexBuffer',
 	testData2,
 	1, testData2.length, testGL.gl.UNSIGNED_SHORT
 ))
-// 지오메트리생성
-console.log(testGL.createGeometryInfo('testGeo', testGL.getArrayBuffer('testBuffer'), testGL.getIndexBuffer('testIndexBuffer')))
+// 쉐이더생성
+console.log(testGL.createShaderInfo('basic', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('shader-vs')))
+console.log(testGL.createShaderInfo('basic', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('shader-fs')))
 // 프로그램생성
-console.log(testGL.createProgram('basic'))
+testGL.createProgramInfo(
+	'basic',
+	testGL.createShaderInfo('basic', RedShaderInfo.VERTEX_SHADER),
+	testGL.createShaderInfo('basic', RedShaderInfo.FRAGMENT_SHADER)
+)
+// 지오메트리생성
+console.log(testGL.createGeometryInfo('testGeo', testGL.getArrayBufferInfo('testBuffer'), testGL.getIndexBufferInfo('testIndexBuffer')))
+// 프로그램생성
+console.log(testGL.getProgramInfo('basic'))
 // 재질정의
 var testMatDefine = RedMaterialDefine(testGL, testGL.getProgramInfo('basic'))
 // 재질생성
@@ -153,6 +156,6 @@ var renderer = RedRender(testGL, testScene, function (time) {
 			}
 		}
 	}
-	checkCall.innerHTML = 'numDrawCall : '+testGL.numDrawCall
+	checkCall.innerHTML = 'numDrawCall : '+renderer.numDrawCall
 })
 renderer.start()

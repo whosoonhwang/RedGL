@@ -32,7 +32,7 @@
             var test;
             test = RedGL(Canvas Element)
             // basic이라는 이름으로 버텍스 쉐이더를 만든다. 
-            test.createShader(test,'basic', RedShaderInfo.VERTEX_SHADER, 쉐이더소스)
+            test.createShaderInfo(test,'basic', RedShaderInfo.VERTEX_SHADER, 쉐이더소스)
         `,
         return : 'RedShaderInfo Instance'
     }
