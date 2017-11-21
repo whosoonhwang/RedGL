@@ -53,6 +53,11 @@
     "description": "- TODO"
   },
   {
+    "title": "getGeometryInfo",
+    "code": "FUNCTION",
+    "description": "- TODO"
+  },
+  {
     "title": "getIndexBuffer",
     "code": "FUNCTION",
     "description": "- TODO"

@@ -41,11 +41,26 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 	:DOC*/
 	RedGL = function (canvas) {
 		if (!(this instanceof RedGL)) return new RedGL(canvas)
+		var gl;
 		this.__canvas = canvas
-		this.gl = getGL(canvas)
+		this.gl = gl = getGL(canvas)
 		this.__UUID = REDGL_UUID++
 		this.__datas = {}
 		console.log('RedGL 생성완료')
+		// 초기상태정의
+		gl.clearColor(1, 1, 1, 1);
+		gl.clear(gl.COLOR_BUFFER_BIT);
+		// Turn off rendering to alpha
+		// gl.colorMask(true, true, true, false);
+		// gl.clearColor(0.0, 0.0, 0.0, 1.0);
+		gl.enable(gl.DEPTH_TEST);
+		gl.depthFunc(gl.LESS)
+		//	
+		gl.enable(gl.CULL_FACE);
+		gl.cullFace(gl.BACK)
+		//
+		gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+		gl.enable(gl.BLEND);
 	}
 	RedGL.prototype = {
 		/**DOC:
@@ -198,8 +213,18 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		createGeometryInfo: function (key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer) {
 			return new RedGeometryInfo(this, key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer)
 		},
+		/**DOC:
+		{
+			title :`getGeometryInfo`,
+			code : 'FUNCTION',
+			description : `- TODO`
+		}
+		:DOC*/
 		getGeometryInfo : function(key){
 			return this['__datas']['RedGeometryInfo'][key]
+		},
+		createMesh: function (key, geometry, material) {
+			return new RedMeshInfo(this, key, geometry, material)
 		}
 	}
 })();

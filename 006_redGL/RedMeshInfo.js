@@ -1,4 +1,38 @@
 "use strict";
+/**DOC:
+    {
+        constructorYn : true,
+        title :`RedMeshInfo`,
+        description : `
+            - RedGL에서 사용할 재질정보를 정의
+            - 타입키에 해당하는 정의가 존재하지않을경우 에러
+        `,
+        params : {
+            redGL : [
+                {type:'RedGL Instance'},
+                '- redGL 인스턴스'
+            ],
+            key : [
+                {type:'String'},
+                '- 키'
+            ],
+            geometryInfo : [
+                {type:'RedGeometryInfo'},
+                '- 지오메트리정보'
+            ],
+            materialInfo : [
+                {type:'RedMaterialInfo'},
+                '- 재질정보'
+            ]
+        },
+        example : `
+            var test;
+            test = RedGL(Canvas Element)
+            RedMeshInfo(test, 'firstMesh',geometryInfo, materialInfo)
+        `,
+        return : 'RedMeshInfo Instance'
+    }
+:DOC*/
 var RedMeshInfo;
 (function () {
     var tGL;

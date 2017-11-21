@@ -62,7 +62,8 @@ gulp.task('make-doc', function () {
 		'redGL.js',
 		'RedBufferInfo.js',
         'RedGeometryInfo.js',
-        'RedMaterialInfo.js', // LOOPER.js 종속
+		'RedMaterialInfo.js', 
+		'RedMaterialDefine.js',
         'RedMeshInfo.js',
         'RedProgramInfo.js',
         'RedRender.js',

@@ -71,9 +71,27 @@ console.log(test.createGeometryInfo('testGeo', test.getArrayBuffer('testBuffer')
 console.log(test.createProgram('basic'))
 console.log(test)
 console.log(test2)
-var testMat = RedMaterialInfo(test,test.getProgramInfo('basic'))
+
+var testMat2 = RedMaterialDefine(test, test.getProgramInfo('basic'))
+console.log(testMat2)
+var testMat = RedMaterialInfo(test, 'basic')
 console.log(testMat)
-console.log(RedMeshInfo(test, 'testMesh', test.getGeometryInfo('testGeo'), testMat))
+
+console.log(test.createMesh('testMesh', test.getGeometryInfo('testGeo'), testMat))
 
 
 console.log(test.gl == test2.gl)
+
+var testScene = RedSceneInfo(test,'testScene')
+console.log(testScene)
+var i = 100
+while(i--){
+	var tMesh = test.createMesh('testMesh'+i, test.getGeometryInfo('testGeo'), testMat)
+	tMesh.position[0] = Math.random()
+	tMesh.position[1] = Math.random()
+	tMesh.position[2] = Math.random()
+	testScene.children.push(tMesh)
+}
+
+var renderer = RedRender(test,testScene)
+renderer.start()
