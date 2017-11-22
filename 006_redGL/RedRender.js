@@ -79,6 +79,7 @@ var RedRender;
         var cacheAttrUUID; // 어트리뷰트 캐싱정보
         var cacheDrawBufferUUID; // draw버퍼 캐싱정보
         var cacheTexture1_UUID; //   1번텍스쳐 캐싱정보
+        var cacheAtlasTexture1_UUID // 아틀라스 텍스쳐 캐싱정보
         ///////////////////////////////////////////////////////////////////
         var pMatrix;
         var aspect;
@@ -256,13 +257,29 @@ var RedRender;
                             ? tGL[tUniformValue['__uniformMethod']](tLocation, false, tUniformGroup[tUniformKey])
                             : tGL[tUniformValue['__uniformMethod']](tLocation, tUniformGroup[tUniformKey])
                     }
+                    else if (tUniformValue['__webglAtlasTexture']) {
+                        // console.log(tUniformValue)
+                        // 아틀라스텍스쳐이고, 로딩이 되었으며, 캐싱정보와 일치하지 않으면 업데이트
+                        var tTexture;
+                        tTexture = tUniformValue['targetAtlasInfo']['textureInfo']
+                        // console.log(tTexture)
+                        if (tTexture['loaded'] && cacheAtlasTexture1_UUID!=  tTexture['__UUID']) {
+                            console.log('오냐')
+                            tTexture['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
+                            tTexture['actived'] = 1
+                            tGL.bindTexture(tGL.TEXTURE_2D, tTexture['texture'])
+                            tGL.uniform1i(tLocation, tTexture['__targetIndex'])
+                            cacheAtlasTexture1_UUID = tTexture['__UUID']
+                        }
+                    }
                     else if (tUniformValue['__webglTexture']) {
+                        console.log('오냐')
                         // 일반텍스쳐이고, 로딩이 되었으며, 캐싱정보와 일치하지 않으면 업데이트
                         if (tUniformValue['loaded'] && cacheTexture1_UUID != tUniformValue['__UUID']) {
-                            tUniformValue['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tUniformGroup['__targetIndex'])
+                            tUniformValue['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
                             tUniformValue['actived'] = 1
                             tGL.bindTexture(tGL.TEXTURE_2D, tUniformValue['texture'])
-                            tGL.uniform1i(tLocation, +tUniformGroup['__targetIndex'])
+                            tGL.uniform1i(tLocation, tUniformValue['__targetIndex'])
                             cacheTexture1_UUID = tUniformValue['__UUID']
                         }
                         if(cacheTexture1_UUID ==undefined) bitmapRenderable = false

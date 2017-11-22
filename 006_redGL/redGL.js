@@ -10,8 +10,12 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		var option; // 기본초기화 옵션
 		var t0, i;
 		option = {
+			alpha: false,
+			depth : true,
+			failIfMajorPerformanceCaveat :false,
 			premultipliedAlpha: false,
-			alpha: false
+			preserveDrawingBuffer : false,
+			stencil:false
 		}
 		checkList = 'experimental-webgl,webgl,webkit-3d,moz-webgl,3d'.split(',')
 		return function (cvs) {
@@ -65,13 +69,13 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 
 		// set the depthTest
 		tGL.enable(tGL.DEPTH_TEST);
-		tGL.depthFunc(tGL.LESS)
+		tGL.depthFunc(tGL.LEQUAL)
 		// set the cullFace
 		tGL.enable(tGL.CULL_FACE);
 		tGL.cullFace(tGL.BACK)
 		// set the blendMode
-		tGL.blendFunc(tGL.SRC_ALPHA, tGL.ONE_MINUS_SRC_ALPHA);
 		tGL.enable(tGL.BLEND);
+		tGL.blendFunc(tGL.SRC_ALPHA, tGL.ONE_MINUS_SRC_ALPHA);
 		// set the scissor rectangle
 		tGL.enable(tGL.SCISSOR_TEST);
 		tGL.scissor(0, 0, tGL.drawingBufferWidth, tGL.drawingBufferHeight);

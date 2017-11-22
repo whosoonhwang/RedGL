@@ -68,11 +68,12 @@ var RedTextureInfo;
 			// 로딩상태 플래그를 완료로 설정
 			self['loaded'] = 1
 			// 타겟인덱스를 설정함
+		
 			self['__targetIndex'] = targetIndex
 			tGL.bindTexture(tGL.TEXTURE_2D, self['texture'])
 			tGL.texImage2D(tGL.TEXTURE_2D, 0, tGL.RGBA, tGL.RGBA, tGL.UNSIGNED_BYTE, self['__img'])
-			tGL.texParameterf(tGL.TEXTURE_2D, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR)
-			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_MIN_FILTER, tGL.LINEAR_MIPMAP_NEAREST)
+			tGL.texParameterf(tGL.TEXTURE_2D, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR_MIPMAP_NEAREST)
+			// tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_MIN_FILTER, tGL.LINEAR)
 			// tGL.pixelStorei(tGL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 			tGL.generateMipmap(tGL.TEXTURE_2D)
 			tGL.bindTexture(tGL.TEXTURE_2D, null)
