@@ -60,12 +60,14 @@ gulp.task('make-doc', function () {
 	console.log('시작!');
 	return gulp.src([
 		'redGL.js',
+		'RedGLDetect.js',
 		'RedBufferInfo.js',
         'RedGeometryInfo.js',
 		'RedMaterialInfo.js', 
 		'RedMaterialDefine.js',
         'RedMeshInfo.js',
-        'RedProgramInfo.js',
+		'RedProgramInfo.js',
+		'RedTextureInfo.js',
         'RedRender.js',
         'RedSceneInfo.js',
         'RedShaderInfo.js'

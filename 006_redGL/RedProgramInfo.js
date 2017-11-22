@@ -48,8 +48,8 @@ var RedProgramInfo;
     var self;
     var tList;
     tList = []
-    RedProgramInfo = function (redGL, key, vShaderInfo, fShaderInfo) {
-        if (!(this instanceof RedProgramInfo)) return new RedProgramInfo(redGL, key, vShaderInfo, fShaderInfo)
+    RedProgramInfo = function (redGL, key, vShaderInfo, fShaderInfo, makeUniformValue) {
+        if (!(this instanceof RedProgramInfo)) return new RedProgramInfo(redGL, key, vShaderInfo, fShaderInfo,makeUniformValue)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
         if (typeof key != 'string') throw 'key - 문자열만 허용됩니다.'
         if (!vShaderInfo instanceof RedShaderInfo) throw 'vShaderInfo - RedShaderInfo만 허용됩니다.'
@@ -152,9 +152,7 @@ var RedProgramInfo;
 			return : 'Object'
 		}
 	    :DOC*/
-        this['makeUniformValue'] = function(target){
-            target.uniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random()])
-        }
+        this['makeUniformValue'] = makeUniformValue
         // 캐싱
         tDatas[key] = this
         Object.freeze(this)

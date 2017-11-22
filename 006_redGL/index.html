@@ -8,13 +8,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, target-densitydpi=device-dpi"
     />
     <style>
-        body{
-            margin:0;
-            padding:0;
+        body {
+            margin: 0;
+            padding: 0;
             overflow: hidden
         }
     </style>
-
+    <script id="shader-fs-bitmap" type="x-shader/x-fragment">
+        precision lowp float;
+        varying vec2 vTexcoord;
+        uniform sampler2D uTexture;
+        void main(void) {
+            gl_FragColor = texture2D(uTexture, vTexcoord);
+        }
+    </script>
+        <script id="shader-vs-bitmap" type="x-shader/x-vertex">
+        attribute vec3 aVertexPosition;
+        attribute vec2 aTexcoord;
+        uniform mat4 uMVMatrix;
+        uniform mat4 uPMatrix;
+        varying vec2 vTexcoord;  
+        void main(void) {
+            gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+            vTexcoord = aTexcoord;
+        }
+    </script>
     <script id="shader-fs" type="x-shader/x-fragment">
             precision lowp float;
             uniform vec3 uColor;
@@ -28,7 +46,6 @@
             uniform mat4 uPMatrix;         
             void main(void) {
                 gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-             
             }
     </script>
     <script type="text/javascript" src="lib/gl-matrix-min.js"></script>
@@ -40,9 +57,11 @@
     <script src="RedMaterialInfo.js"></script>
     <script src="RedMaterialDefine.js"></script>
     <script src="RedSceneInfo.js"></script>
+    <script src="RedTextureInfo.js"></script>
     <script src="RedRender.js"></script>
+    <script src="redGLDetect.js"></script>
     <script src="redGL.js"></script>
-    
+
 </head>
 
 <body>

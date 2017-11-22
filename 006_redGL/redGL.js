@@ -48,12 +48,13 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 	RedGL = function (canvas, fullMode) {
 		if (!(this instanceof RedGL)) return new RedGL(canvas, fullMode)
 		var tGL;
-		this.__canvas = canvas
-		this.gl = tGL = getGL(canvas)
+		this['__canvas'] = canvas
+		this['gl'] = tGL = getGL(canvas)
 		fullMode ? this.setSize() : 0 // 풀모드일경우....처음 확장
-		this.fullMode = fullMode
-		this.__UUID = REDGL_UUID++
-		this.__datas = {}
+		this['fullMode'] = fullMode
+		this['__UUID'] = REDGL_UUID++
+		this['__datas'] = {}
+		this['detect'] = redGLDetect(this)
 		console.log('RedGL 생성완료')
 		// 초기상태정의
 		tGL.clearColor(0, 0, 0, 1);
@@ -214,8 +215,8 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			description : `- TODO`
 		}
 		:DOC*/
-		createProgramInfo: function (key, vShaderInfo, fShaderInfo) {
-			return new RedProgramInfo(this, key, vShaderInfo, fShaderInfo)
+		createProgramInfo: function (key, vShaderInfo, fShaderInfo, makeUniformValue) {
+			return new RedProgramInfo(this, key, vShaderInfo, fShaderInfo, makeUniformValue)
 		},
 		/**DOC:
 		{
@@ -316,8 +317,8 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			`
 		}
 		:DOC*/
-		createMaterialInfo : function (typeName) {
-			return new RedMaterialInfo(this, typeName)
+		createMaterialInfo: function (typeName, diffuseInfo) {
+			return new RedMaterialInfo(this, typeName, diffuseInfo)
 		}
 	}
 })();
