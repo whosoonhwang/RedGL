@@ -80,7 +80,8 @@ var RedRender;
         var cacheDrawBufferUUID; // draw버퍼 캐싱정보
         var cacheTexture1_UUID; //텍스쳐 캐싱정보
         var cacheTextureAtlas_UUID; // 텍스쳐 아틀라스 캐싱정보
-        var cacheTextureLocation;
+        var cacheActiveTextureIndex;
+    
         ///////////////////////////////////////////////////////////////////
         var pMatrix;
         var aspect;
@@ -88,6 +89,7 @@ var RedRender;
         cacheAttrUUID = {}
 
         this.render = function (time) {
+            //TODO: 재질 소팅을 도입해야곘음 -_-;;
             self['callback'] ? self['callback'](time) : 0
             self['numDrawCall'] = 0
             tGL = redGL.gl
@@ -269,16 +271,14 @@ var RedRender;
                             if (cacheTextureAtlas_UUID != tTexture['__UUID']) {
                                 tTexture['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
                                 tTexture['actived'] = 1
+                                tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
                                 tGL.bindTexture(tGL.TEXTURE_2D, tTexture['texture'])
                                 cacheTextureAtlas_UUID = tTexture['__UUID']
                             }
-                            
+                            if(cacheActiveTextureIndex!=tTexture['__targetIndex']) tGL.uniform1i(tLocation, tTexture['__targetIndex'])
+                            cacheActiveTextureIndex = tTexture['__targetIndex']
                         }
-                        if(tTexture['__targetIndex']!=cacheTextureLocation) {
-                            tGL.uniform1i(tLocation, tTexture['__targetIndex'])
-                        }
-                        cacheTextureLocation = tTexture['__targetIndex']
-
+                        
                     }
                     else if (tUniformValue['__webglTexture']) {
                         // console.log('오냐')
@@ -288,12 +288,13 @@ var RedRender;
                             if (cacheTexture1_UUID != tUniformValue['__UUID']) {
                                 tUniformValue['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
                                 tUniformValue['actived'] = 1
+                                tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
                                 tGL.bindTexture(tGL.TEXTURE_2D, tUniformValue['texture'])
                                 cacheTexture1_UUID = tUniformValue['__UUID']
                             }
+                            if(cacheActiveTextureIndex!=tUniformValue['__targetIndex']) tGL.uniform1i(tLocation, tUniformValue['__targetIndex'])
+                            cacheActiveTextureIndex = tUniformValue['__targetIndex']
                         }
-                        if (tUniformValue['__targetIndex'] != cacheTextureLocation) tGL.uniform1i(tLocation, tUniformValue['__targetIndex'])
-                        cacheTextureLocation = tUniformValue['__targetIndex']
                     }
                     else throw '안되는 나쁜 타입인거야!!'
                 }
