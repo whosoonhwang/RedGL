@@ -170,7 +170,7 @@ testAtlas = RedAtlasTextureManager(testGL, [
 	var testMatBitmap8 = RedMaterialInfo(testGL, 'bitmap', testAtlas['atlasKeyMap']['atlasImage_asset/draft5.png'])
 	///////////////////////////////////////////////////////////////////////////////////////////
 	// 데모
-	var i = 70, i2, i3;
+	var i = 90, i2, i3;
 	while (i--) {
 		var tMesh = testGL.createMeshInfo('testMesh' + i, testGL.getGeometryInfo('testGeo'), Math.random()>0.5 ? testMatBitmap : RedMaterialInfo(testGL, 'color'))
 		tMesh.position[0] = Math.random() * 80 - 40
@@ -179,9 +179,10 @@ testAtlas = RedAtlasTextureManager(testGL, [
 		tMesh.rotation[0] = Math.random() * Math.PI * 2
 		tMesh.rotation[1] = Math.random() * Math.PI * 2
 		tMesh.rotation[2] = Math.random() * Math.PI * 2
-		i2 = 7
+		i2 = 6
+		var tt =Math.random()>0.5 ? testMatBitmap5 : testMatBitmap6
 		while (i2--) {
-			var tSub = testGL.createMeshInfo('testMesh_' + i + '_' + i2, testGL.getGeometryInfo('testGeo'), Math.random()>0.5 ? testMatBitmap5 : testMatBitmap6)
+			var tSub = testGL.createMeshInfo('testMesh_' + i + '_' + i2, testGL.getGeometryInfo('testGeo'), tt)
 			tSub.position[0] = Math.random() * 20 - 10
 			tSub.position[1] = Math.random() * 20 - 10
 			tSub.position[2] = Math.random() * 20 - 10
@@ -191,8 +192,9 @@ testAtlas = RedAtlasTextureManager(testGL, [
 			tSub.scale[2] = tScale
 			tMesh.children.push(tSub)
 			i3 = 5
+			var tt =Math.random()>0.5 ? testMatBitmap7 : testMatBitmap8
 			while (i3--) {
-				var tSub2 = testGL.createMeshInfo('testMesh_' + i + '_' + i2 + '_' + i3, testGL.getGeometryInfo('testGeo'), Math.random()>0.5 ? testMatBitmap7 : testMatBitmap8)
+				var tSub2 = testGL.createMeshInfo('testMesh_' + i + '_' + i2 + '_' + i3, testGL.getGeometryInfo('testGeo'), tt)
 				tSub2.position[0] = Math.random() * 20 - 10
 				tSub2.position[1] = Math.random() * 20 - 10
 				tSub2.position[2] = Math.random() * 20 - 10
