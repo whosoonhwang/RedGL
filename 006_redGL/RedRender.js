@@ -264,7 +264,7 @@ var RedRender;
                         tTexture = tUniformValue['targetAtlasInfo']['textureInfo']
                         // console.log(tTexture)
                         if (tTexture['loaded'] && cacheAtlasTexture1_UUID!=  tTexture['__UUID']) {
-                            console.log('오냐')
+                            // console.log('오냐')
                             tTexture['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
                             tTexture['actived'] = 1
                             tGL.bindTexture(tGL.TEXTURE_2D, tTexture['texture'])
@@ -273,7 +273,7 @@ var RedRender;
                         }
                     }
                     else if (tUniformValue['__webglTexture']) {
-                        console.log('오냐')
+                        // console.log('오냐')
                         // 일반텍스쳐이고, 로딩이 되었으며, 캐싱정보와 일치하지 않으면 업데이트
                         if (tUniformValue['loaded'] && cacheTexture1_UUID != tUniformValue['__UUID']) {
                             tUniformValue['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])

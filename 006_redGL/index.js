@@ -172,7 +172,7 @@ testAtlas = RedAtlasTextureManager(testGL, [
 	// 데모
 	var i = 80, i2, i3;
 	while (i--) {
-		var tMesh = testGL.createMeshInfo('testMesh' + i, testGL.getGeometryInfo('testGeo'), Math.random()>0.5 ? testMatBitmap3 : testMatBitmap4)
+		var tMesh = testGL.createMeshInfo('testMesh' + i, testGL.getGeometryInfo('testGeo'), Math.random()>0.5 ? testMatBitmap : RedMaterialInfo(testGL, 'color'))
 		tMesh.position[0] = Math.random() * 80 - 40
 		tMesh.position[1] = Math.random() * 80 - 40
 		tMesh.position[2] = -55 - Math.random() * 30
