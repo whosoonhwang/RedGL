@@ -27,10 +27,11 @@
         attribute vec2 aTexcoord;
         uniform mat4 uMVMatrix;
         uniform mat4 uPMatrix;
+        uniform vec4 uAtlascoord;
         varying vec2 vTexcoord;  
         void main(void) {
             gl_Position = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-            vTexcoord = aTexcoord;
+            vTexcoord = uAtlascoord.xy + aTexcoord*uAtlascoord.zw;
         }
     </script>
     <script id="shader-fs" type="x-shader/x-fragment">
@@ -58,9 +59,11 @@
     <script src="RedMaterialDefine.js"></script>
     <script src="RedSceneInfo.js"></script>
     <script src="RedTextureInfo.js"></script>
+    <script src="RedAtlasTextureManager.js"></script>
     <script src="RedRender.js"></script>
     <script src="RedGLDetect.js"></script>
     <script src="redGL.js"></script>
+    <script src="Atlas.js"></script>
 
 </head>
 

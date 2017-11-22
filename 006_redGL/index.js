@@ -2,7 +2,7 @@
 var testGL
 testGL = RedGL(document.getElementById('test'), true)
 
-var testData, testData2,testData3
+var testData, testData2, testData3
 testData = new Float32Array([
 
 	-1.0, -1.0, 1.0,
@@ -68,12 +68,12 @@ testData3 = new Float32Array([
 	0.0, 1.0,
 	0.0, 0.0,
 	1.0, 0.0,
-   
+
 	1.0, 0.0,
 	1.0, 1.0,
 	0.0, 1.0,
 	0.0, 0.0,
-   
+
 	0.0, 0.0,
 	1.0, 0.0,
 	1.0, 1.0,
@@ -91,7 +91,7 @@ console.log(testGL.createArrayBufferInfo(
 	'testUv',
 	'aTexcoord',
 	testData3,
-	2, testData3.length/2, testGL.gl.FLOAT
+	2, testData3.length / 2, testGL.gl.FLOAT
 ))
 // 인덱스 버퍼생성
 console.log(testGL.createIndexBufferInfo(
@@ -119,14 +119,15 @@ testGL.createProgramInfo(
 	testGL.createShaderInfo('bitmap', RedShaderInfo.FRAGMENT_SHADER),
 	function (target) {
 		target.uniforms.uTexture = target['diffuseInfo']
+		target.uniforms.uAtlascoord = new Float32Array([0,0,1,1])
 	}
 )
 // 지오메트리생성
 console.log(testGL.createGeometryInfo(
 	'testGeo',
 	testGL.getArrayBufferInfo('testBuffer'),
-	testGL.getIndexBufferInfo('testIndexBuffer'),
-	testGL.getIndexBufferInfo('testUv')
+	testGL.getIndexBufferInfo('testIndexBuffer')
+	,testGL.getArrayBufferInfo('testUv')
 ))
 // 프로그램조회
 console.log(testGL.getProgramInfo('color'))
@@ -150,31 +151,41 @@ console.log(testGL.createMeshInfo('testMesh', testGL.getGeometryInfo('testGeo'),
 // Scene 생성
 var testScene = RedSceneInfo(testGL, 'testScene')
 console.log(testScene)
-///////////////////////////////////////////////////////////////////////////////////////////
-// 데모
-var i = 75, i2, i3;
-while (i--) {
-	var tMesh = testGL.createMeshInfo('testMesh' + i, testGL.getGeometryInfo('testGeo'), testColorMat)
-	tMesh.position[0] = Math.random() * 80 - 40
-	tMesh.position[1] = Math.random() * 80 - 40
-	tMesh.position[2] = -55 - Math.random() * 30
-	tMesh.rotation[0] = Math.random() * Math.PI * 2
-	tMesh.rotation[1] = Math.random() * Math.PI * 2
-	tMesh.rotation[2] = Math.random() * Math.PI * 2
-	i2 = 6
-	while (i2--) {
-		var tSub = testGL.createMeshInfo('testMesh_' + i + '_' + i2, testGL.getGeometryInfo('testGeo'), testMatBitmap2)
-		tSub.position[0] = Math.random() * 20 - 10
-		tSub.position[1] = Math.random() * 20 - 10
-		tSub.position[2] = Math.random() * 20 - 10
-		var tScale = Math.random() + 0.1
-		tSub.scale[0] = tScale
-		tSub.scale[1] = tScale
-		tSub.scale[2] = tScale
-		tMesh.children.push(tSub)
-		i3 = 5
-		while (i3--) {
-			var tSub = testGL.createMeshInfo('testMesh_' + i + '_' + i2 + '_' + i3, testGL.getGeometryInfo('testGeo'), testMatBitmap)
+// 아틀라스테스트
+var testAtlas;
+testAtlas = RedAtlasTextureManager(testGL, [
+	'asset/crate.png',
+	'asset/draft1.png',
+	'asset/draft2.png',
+	'asset/draft3.png',
+	'asset/draft4.png',
+	'asset/draft5.png',
+	'asset/test.png',
+])
+
+
+setTimeout(function () {
+	console.log(testAtlas)
+	var testMatBitmap3 = RedMaterialInfo(testGL, 'bitmap', testAtlas['atlasKeyMap']['atlasImage_asset/test.png'])
+	var testMatBitmap4 = RedMaterialInfo(testGL, 'bitmap', testAtlas['atlasKeyMap']['atlasImage_asset/draft1.png'])
+	var testMatBitmap5 = RedMaterialInfo(testGL, 'bitmap', testAtlas['atlasKeyMap']['atlasImage_asset/draft2.png'])
+	var testMatBitmap6 = RedMaterialInfo(testGL, 'bitmap', testAtlas['atlasKeyMap']['atlasImage_asset/draft3.png'])
+	var testMatBitmap7 = RedMaterialInfo(testGL, 'bitmap', testAtlas['atlasKeyMap']['atlasImage_asset/draft4.png'])
+	var testMatBitmap8 = RedMaterialInfo(testGL, 'bitmap', testAtlas['atlasKeyMap']['atlasImage_asset/draft5.png'])
+	///////////////////////////////////////////////////////////////////////////////////////////
+	// 데모
+	var i = 80, i2, i3;
+	while (i--) {
+		var tMesh = testGL.createMeshInfo('testMesh' + i, testGL.getGeometryInfo('testGeo'), Math.random()>0.5 ? testMatBitmap3 : testMatBitmap4)
+		tMesh.position[0] = Math.random() * 80 - 40
+		tMesh.position[1] = Math.random() * 80 - 40
+		tMesh.position[2] = -55 - Math.random() * 30
+		tMesh.rotation[0] = Math.random() * Math.PI * 2
+		tMesh.rotation[1] = Math.random() * Math.PI * 2
+		tMesh.rotation[2] = Math.random() * Math.PI * 2
+		i2 = 6
+		while (i2--) {
+			var tSub = testGL.createMeshInfo('testMesh_' + i + '_' + i2, testGL.getGeometryInfo('testGeo'), Math.random()>0.5 ? testMatBitmap5 : testMatBitmap6)
 			tSub.position[0] = Math.random() * 20 - 10
 			tSub.position[1] = Math.random() * 20 - 10
 			tSub.position[2] = Math.random() * 20 - 10
@@ -183,43 +194,56 @@ while (i--) {
 			tSub.scale[1] = tScale
 			tSub.scale[2] = tScale
 			tMesh.children.push(tSub)
-		}
-	}
-	testScene.children.push(tMesh)
-}
-var checkCall = document.createElement('div')
-document.body.appendChild(checkCall)
-checkCall.style.position = 'absolute'
-checkCall.style.left = '10px'
-checkCall.style.top = '10px'
-checkCall.style.color = '#fff'
-var renderer = RedRender(testGL, testScene, function (time) {
-	i = testScene.children.length
-	var tMesh, tMesh2, tMesh3
-	var SIN, COS
-	SIN = Math.sin
-	COS = Math.cos
-	while (i--) {
-		tMesh = testScene.children[i]
-		tMesh.rotation[0] += 0.01
-		tMesh.rotation[1] += 0.01
-		tMesh.rotation[2] += 0.01
-		i2 = tMesh.children.length
-		while (i2--) {
-			tMesh2 = tMesh.children[i2]
-			tMesh2.rotation[0] += 0.03
-			tMesh2.rotation[1] += 0.03
-			tMesh2.rotation[2] += 0.03
-			i3 = tMesh2.children.length
+			i3 = 5
 			while (i3--) {
-				tMesh3 = tMesh2.children[i3]
-
-				tMesh3.rotation[0] += 0.03
-				tMesh3.rotation[1] += 0.03
-				tMesh3.rotation[2] += 0.03
+				var tSub = testGL.createMeshInfo('testMesh_' + i + '_' + i2 + '_' + i3, testGL.getGeometryInfo('testGeo'), Math.random()>0.5 ? testMatBitmap7 : testMatBitmap8)
+				tSub.position[0] = Math.random() * 20 - 10
+				tSub.position[1] = Math.random() * 20 - 10
+				tSub.position[2] = Math.random() * 20 - 10
+				var tScale = Math.random() + 0.1
+				tSub.scale[0] = tScale
+				tSub.scale[1] = tScale
+				tSub.scale[2] = tScale
+				tMesh.children.push(tSub)
 			}
 		}
+		testScene.children.push(tMesh)
 	}
-	checkCall.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
-})
-renderer.start()
+	var checkCall = document.createElement('div')
+	document.body.appendChild(checkCall)
+	checkCall.style.position = 'absolute'
+	checkCall.style.left = '10px'
+	checkCall.style.top = '10px'
+	checkCall.style.color = '#fff'
+	var renderer = RedRender(testGL, testScene, function (time) {
+		i = testScene.children.length
+		var tMesh, tMesh2, tMesh3
+		var SIN, COS
+		SIN = Math.sin
+		COS = Math.cos
+		while (i--) {
+			tMesh = testScene.children[i]
+			tMesh.rotation[0] += 0.01
+			tMesh.rotation[1] += 0.01
+			tMesh.rotation[2] += 0.01
+			i2 = tMesh.children.length
+			while (i2--) {
+				tMesh2 = tMesh.children[i2]
+				tMesh2.rotation[0] += 0.03
+				tMesh2.rotation[1] += 0.03
+				tMesh2.rotation[2] += 0.03
+				i3 = tMesh2.children.length
+				while (i3--) {
+					tMesh3 = tMesh2.children[i3]
+
+					tMesh3.rotation[0] += 0.03
+					tMesh3.rotation[1] += 0.03
+					tMesh3.rotation[2] += 0.03
+				}
+			}
+		}
+		checkCall.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
+	})
+	renderer.start()
+
+}, 2000)
