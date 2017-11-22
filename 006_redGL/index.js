@@ -170,7 +170,7 @@ testAtlas = RedAtlasTextureManager(testGL, [
 	var testMatBitmap8 = RedMaterialInfo(testGL, 'bitmap', testAtlas['atlasKeyMap']['atlasImage_asset/draft5.png'])
 	///////////////////////////////////////////////////////////////////////////////////////////
 	// 데모
-	var i = 80, i2, i3;
+	var i = 70, i2, i3;
 	while (i--) {
 		var tMesh = testGL.createMeshInfo('testMesh' + i, testGL.getGeometryInfo('testGeo'), Math.random()>0.5 ? testMatBitmap : RedMaterialInfo(testGL, 'color'))
 		tMesh.position[0] = Math.random() * 80 - 40
@@ -179,7 +179,7 @@ testAtlas = RedAtlasTextureManager(testGL, [
 		tMesh.rotation[0] = Math.random() * Math.PI * 2
 		tMesh.rotation[1] = Math.random() * Math.PI * 2
 		tMesh.rotation[2] = Math.random() * Math.PI * 2
-		i2 = 6
+		i2 = 7
 		while (i2--) {
 			var tSub = testGL.createMeshInfo('testMesh_' + i + '_' + i2, testGL.getGeometryInfo('testGeo'), Math.random()>0.5 ? testMatBitmap5 : testMatBitmap6)
 			tSub.position[0] = Math.random() * 20 - 10
@@ -192,15 +192,15 @@ testAtlas = RedAtlasTextureManager(testGL, [
 			tMesh.children.push(tSub)
 			i3 = 5
 			while (i3--) {
-				var tSub = testGL.createMeshInfo('testMesh_' + i + '_' + i2 + '_' + i3, testGL.getGeometryInfo('testGeo'), Math.random()>0.5 ? testMatBitmap7 : testMatBitmap8)
-				tSub.position[0] = Math.random() * 20 - 10
-				tSub.position[1] = Math.random() * 20 - 10
-				tSub.position[2] = Math.random() * 20 - 10
+				var tSub2 = testGL.createMeshInfo('testMesh_' + i + '_' + i2 + '_' + i3, testGL.getGeometryInfo('testGeo'), Math.random()>0.5 ? testMatBitmap7 : testMatBitmap8)
+				tSub2.position[0] = Math.random() * 20 - 10
+				tSub2.position[1] = Math.random() * 20 - 10
+				tSub2.position[2] = Math.random() * 20 - 10
 				var tScale = Math.random() + 0.1
-				tSub.scale[0] = tScale
-				tSub.scale[1] = tScale
-				tSub.scale[2] = tScale
-				tMesh.children.push(tSub)
+				tSub2.scale[0] = tScale
+				tSub2.scale[1] = tScale
+				tSub2.scale[2] = tScale
+				tSub.children.push(tSub2)
 			}
 		}
 		testScene.children.push(tMesh)
@@ -225,16 +225,16 @@ testAtlas = RedAtlasTextureManager(testGL, [
 			i2 = tMesh.children.length
 			while (i2--) {
 				tMesh2 = tMesh.children[i2]
-				tMesh2.rotation[0] += 0.03
-				tMesh2.rotation[1] += 0.03
-				tMesh2.rotation[2] += 0.03
+				tMesh2.rotation[0] += 0.01
+				tMesh2.rotation[1] += 0.01
+				tMesh2.rotation[2] += 0.01
 				i3 = tMesh2.children.length
 				while (i3--) {
 					tMesh3 = tMesh2.children[i3]
 
-					tMesh3.rotation[0] += 0.03
-					tMesh3.rotation[1] += 0.03
-					tMesh3.rotation[2] += 0.03
+					tMesh3.rotation[0] += 0.01
+					tMesh3.rotation[1] += 0.01
+					tMesh3.rotation[2] += 0.01
 				}
 			}
 		}

@@ -78,8 +78,9 @@ var RedRender;
         var cacheProgram; // 이전 대상 프로그램        
         var cacheAttrUUID; // 어트리뷰트 캐싱정보
         var cacheDrawBufferUUID; // draw버퍼 캐싱정보
-        var cacheTexture1_UUID; //   1번텍스쳐 캐싱정보
-        var cacheAtlasTexture1_UUID // 아틀라스 텍스쳐 캐싱정보
+        var cacheTexture1_UUID; //텍스쳐 캐싱정보
+        var cacheTextureAtlas_UUID; // 텍스쳐 아틀라스 캐싱정보
+        var cacheTextureLocation;
         ///////////////////////////////////////////////////////////////////
         var pMatrix;
         var aspect;
@@ -263,26 +264,36 @@ var RedRender;
                         var tTexture;
                         tTexture = tUniformValue['targetAtlasInfo']['textureInfo']
                         // console.log(tTexture)
-                        if (tTexture['loaded'] && cacheAtlasTexture1_UUID!=  tTexture['__UUID']) {
-                            // console.log('오냐')
-                            tTexture['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
-                            tTexture['actived'] = 1
-                            tGL.bindTexture(tGL.TEXTURE_2D, tTexture['texture'])
-                            tGL.uniform1i(tLocation, tTexture['__targetIndex'])
-                            cacheAtlasTexture1_UUID = tTexture['__UUID']
+                        if(cacheTextureAtlas_UUID ==undefined) bitmapRenderable = false
+                        if (tTexture['loaded']) {
+                            if (cacheTextureAtlas_UUID != tTexture['__UUID']) {
+                                tTexture['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
+                                tTexture['actived'] = 1
+                                tGL.bindTexture(tGL.TEXTURE_2D, tTexture['texture'])
+                                cacheTextureAtlas_UUID = tTexture['__UUID']
+                            }
+                            
                         }
+                        if(tTexture['__targetIndex']!=cacheTextureLocation) {
+                            tGL.uniform1i(tLocation, tTexture['__targetIndex'])
+                        }
+                        cacheTextureLocation = tTexture['__targetIndex']
+
                     }
                     else if (tUniformValue['__webglTexture']) {
                         // console.log('오냐')
                         // 일반텍스쳐이고, 로딩이 되었으며, 캐싱정보와 일치하지 않으면 업데이트
-                        if (tUniformValue['loaded'] && cacheTexture1_UUID != tUniformValue['__UUID']) {
-                            tUniformValue['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
-                            tUniformValue['actived'] = 1
-                            tGL.bindTexture(tGL.TEXTURE_2D, tUniformValue['texture'])
-                            tGL.uniform1i(tLocation, tUniformValue['__targetIndex'])
-                            cacheTexture1_UUID = tUniformValue['__UUID']
+                        if (cacheTexture1_UUID == undefined) bitmapRenderable = false
+                        if (tUniformValue['loaded']) {
+                            if (cacheTexture1_UUID != tUniformValue['__UUID']) {
+                                tUniformValue['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
+                                tUniformValue['actived'] = 1
+                                tGL.bindTexture(tGL.TEXTURE_2D, tUniformValue['texture'])
+                                cacheTexture1_UUID = tUniformValue['__UUID']
+                            }
                         }
-                        if(cacheTexture1_UUID ==undefined) bitmapRenderable = false
+                        if (tUniformValue['__targetIndex'] != cacheTextureLocation) tGL.uniform1i(tLocation, tUniformValue['__targetIndex'])
+                        cacheTextureLocation = tUniformValue['__targetIndex']
                     }
                     else throw '안되는 나쁜 타입인거야!!'
                 }
