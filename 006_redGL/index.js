@@ -161,11 +161,7 @@ testAtlas = RedAtlasTextureManager(testGL, [
 	'asset/draft4.png',
 	'asset/draft5.png',
 	'asset/test.png',
-])
-
-
-setTimeout(function () {
-	console.log(testAtlas)
+],function(){
 	var testMatBitmap3 = RedMaterialInfo(testGL, 'bitmap', testAtlas['atlasKeyMap']['atlasImage_asset/test.png'])
 	var testMatBitmap4 = RedMaterialInfo(testGL, 'bitmap', testAtlas['atlasKeyMap']['atlasImage_asset/draft1.png'])
 	var testMatBitmap5 = RedMaterialInfo(testGL, 'bitmap', testAtlas['atlasKeyMap']['atlasImage_asset/draft2.png'])
@@ -245,5 +241,5 @@ setTimeout(function () {
 		checkCall.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
 	})
 	renderer.start()
+})
 
-}, 2000)

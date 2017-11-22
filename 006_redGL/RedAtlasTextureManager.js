@@ -89,8 +89,8 @@ var RedAtlasTextureManager;
 			return : 'RedAtlasTextureManager Instance'
 		}
 	:DOC*/
-	RedAtlasTextureManager = function (redGL, srcList) {
-		if (!(this instanceof RedAtlasTextureManager)) return new RedAtlasTextureManager(redGL, srcList)
+	RedAtlasTextureManager = function (redGL, srcList,callback) {
+		if (!(this instanceof RedAtlasTextureManager)) return new RedAtlasTextureManager(redGL, srcList,callback)
 		if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
 		if (!(srcList instanceof Array)) srcList = [srcList]
 		tRedGL = redGL
@@ -121,6 +121,8 @@ var RedAtlasTextureManager;
 					atlasInfoList.forEach(function (v) {
 						v['textureInfo'] = RedTextureInfo(redGL, v['atlas']['canvas'],2)
 					})
+					console.log('~~~~~~~~~~~',callback)
+					if(callback ) callback()
 				}
 			};
 		})
