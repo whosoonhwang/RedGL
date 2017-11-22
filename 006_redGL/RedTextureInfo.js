@@ -42,7 +42,7 @@ var RedTextureInfo;
 		type = type ? type : tGL.UNSIGNED_BYTE;
 		targetIndex = targetIndex ? targetIndex : 1
 		texture = tGL.createTexture()
-		tGL.activeTexture(tGL.TEXTURE1)
+		tGL.activeTexture(tGL.TEXTURE0)
 		tGL.bindTexture(tGL.TEXTURE_2D, texture)
 		// 초기이미지 설정
 		tGL.texImage2D(
@@ -70,6 +70,8 @@ var RedTextureInfo;
 			// 타겟인덱스를 설정함
 		
 			self['__targetIndex'] = targetIndex
+			// tGL.activeTexture(tGL.TEXTURE_2D, tGL.TEXTURE0)
+			tGL.activeTexture(tGL.TEXTURE0)
 			tGL.bindTexture(tGL.TEXTURE_2D, self['texture'])
 			tGL.texImage2D(tGL.TEXTURE_2D, 0, tGL.RGBA, tGL.RGBA, tGL.UNSIGNED_BYTE, self['__img'])
 			// tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_MIN_FILTER, tGL.LINEAR)
@@ -77,13 +79,12 @@ var RedTextureInfo;
 			
 			// tGL.pixelStorei(tGL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 			tGL.generateMipmap(tGL.TEXTURE_2D)
-			tGL.bindTexture(tGL.TEXTURE_2D, null)
 			img.onload = null
 		});
 		// tGL.bindTexture(tGL.TEXTURE_2D, null)
 		this['__img'] = img
 		// 인덱스 번호 지정 - 초기생성전담은 0번 인덱스를 사용함
-		this['__targetIndex'] = 0
+		this['__targetIndex'] = tGL.TEXTURE0
 		// 로딩이 다되었는지
 		this['loaded'] = 0
 		// 액티브된적이있는지
