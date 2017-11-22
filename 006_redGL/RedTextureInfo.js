@@ -42,7 +42,7 @@ var RedTextureInfo;
 		type = type ? type : tGL.UNSIGNED_BYTE;
 		targetIndex = targetIndex ? targetIndex : 1
 		texture = tGL.createTexture()
-		tGL.activeTexture(tGL.TEXTURE0)
+		tGL.activeTexture(tGL.TEXTURE1)
 		tGL.bindTexture(tGL.TEXTURE_2D, texture)
 		// 초기이미지 설정
 		tGL.texImage2D(
@@ -72,8 +72,9 @@ var RedTextureInfo;
 			self['__targetIndex'] = targetIndex
 			tGL.bindTexture(tGL.TEXTURE_2D, self['texture'])
 			tGL.texImage2D(tGL.TEXTURE_2D, 0, tGL.RGBA, tGL.RGBA, tGL.UNSIGNED_BYTE, self['__img'])
-			tGL.texParameterf(tGL.TEXTURE_2D, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR_MIPMAP_NEAREST)
 			// tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_MIN_FILTER, tGL.LINEAR)
+			// tGL.texParameterf(tGL.TEXTURE_2D, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR_MIPMAP_NEAREST)
+			
 			// tGL.pixelStorei(tGL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 			tGL.generateMipmap(tGL.TEXTURE_2D)
 			tGL.bindTexture(tGL.TEXTURE_2D, null)
