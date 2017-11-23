@@ -1,0 +1,17 @@
+[
+  {
+    "constructorYn": true,
+    "title": "RedAtlasUVInfo",
+    "description": "\n    <h2>주석 작성해야함</h2>\n    아틀라스 UV전용이라고 보면되겟당...\n",
+    "params": {
+      "redGL": [
+        {
+          "type": "Array"
+        },
+        "- redGL Instance"
+      ]
+    },
+    "example": "\n    //TODO\n",
+    "return": "RedAtlasUVInfo OBJECT"
+  }
+]

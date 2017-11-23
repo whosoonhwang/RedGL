@@ -65,7 +65,7 @@ var RedMaterialInfo;
         }
     }
     RedMaterialInfo = function (redGL, typeName, diffuseInfo) {
-        if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName,diffuseInfo)
+        if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseInfo)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
         if (typeof typeName != 'string') throw 'type은 문자열만 허용됩니다.'
         // 디파인더에서 재질정의를 찾고
@@ -120,7 +120,6 @@ var RedMaterialInfo;
         // 유니폼을 업데이트할 glMethod를 찾는다. 
         for (k in tUniform) {
             t0 = tUniform[k]
-          
             if (t0 instanceof Float32Array || t0 instanceof Float64Array) {
                 t0['__uniformMethod'] = typeMAP['f'][t0.length]
                 t0['__isMatrix'] = t0['__uniformMethod'].length > 11
@@ -134,11 +133,12 @@ var RedMaterialInfo;
             ) {
                 t0['__uniformMethod'] = typeMAP['i'][t0.length]
                 t0['__isMatrix'] = t0['__uniformMethod'].length > 11
-            } else if(t0 instanceof RedTextureInfo) {
-            }else if (t0 instanceof RedAtlasTextureInfo){
-                this['uniforms']['uAtlascoord'] = t0['atlasUV']
+            } else if (t0 instanceof RedAtlasUVInfo) {
+            } else if (t0 instanceof RedTextureInfo) {
+            } else if (t0 instanceof RedAtlasTextureInfo) {
+                this['uniforms']['uAtlascoord'] = t0['atlasUVInfo']['value']
                 // console.log('RedAtlasTextureInfo',t0,this)
-            }else throw k + '는 올바르지 않은 타입입니다.'
+            } else throw k + '는 올바르지 않은 타입입니다.'
         }
         this['__UUID'] = REDGL_UUID++
     }

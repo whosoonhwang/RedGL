@@ -4,7 +4,7 @@
     "title": "RedAtlasTextureInfo",
     "description": "\n    <h2>주석 작성해야함</h2>\n",
     "params": {
-      "atlasUV": [
+      "aAtalsUVInfo": [
         {
           "type": "Array"
         },

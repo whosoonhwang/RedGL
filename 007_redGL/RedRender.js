@@ -80,8 +80,8 @@ var RedRender;
         var cacheDrawBufferUUID; // draw버퍼 캐싱정보
         var cacheTexture1_UUID; //텍스쳐 캐싱정보
         var cacheTextureAtlas_UUID; // 텍스쳐 아틀라스 캐싱정보
-        var cacheActiveTextureIndex;
-    
+        var cacheActiveTextureIndex; // 액티브된 텍스쳐정보
+        var cacheUAtlascoord_UUID; // 아틀라스 UV텍스쳐 정보
         ///////////////////////////////////////////////////////////////////
         var pMatrix;
         var aspect;
@@ -254,7 +254,11 @@ var RedRender;
                     tUniformKey = tUniformGroupList[i2]['key'],
                     tUniformValue = tUniformGroupList[i2]['value'],
                     tLocation = tUniformGroupList[i2]['location']
-                    if (tUniformValue['__uniformMethod']) {
+                    if(tUniformKey == 'uAtlascoord'){
+                        // console.log(tUniformGroup[tUniformKey])
+                        cacheUAtlascoord_UUID == tUniformGroup[tUniformKey]['__UUID'] ? 0 : tGL.uniform4fv(tLocation, tUniformGroup[tUniformKey])
+                        cacheUAtlascoord_UUID = tUniformGroup[tUniformKey]['__UUID']
+                    }else  if (tUniformValue['__uniformMethod']) {
                         tUniformValue['__isMatrix'] // 매트릭스형태인지 아닌지 파악
                             ? tGL[tUniformValue['__uniformMethod']](tLocation, false, tUniformGroup[tUniformKey])
                             : tGL[tUniformValue['__uniformMethod']](tLocation, tUniformGroup[tUniformKey])
