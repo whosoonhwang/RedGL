@@ -64,6 +64,7 @@ var RedTextureInfo;
 		img = new Image();
 		// 캔버스 일경우 캔버스이미지데이터를 활용함
 		img.src = src instanceof Element ? src.toDataURL() : src
+		img.crossOrigin = 'anonymous'
 		img.addEventListener('load', function () {
 			// 로딩상태 플래그를 완료로 설정
 			self['loaded'] = 1
@@ -78,7 +79,7 @@ var RedTextureInfo;
 			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_MIN_FILTER, tGL.LINEAR_MIPMAP_NEAREST);
 			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_S, tGL.CLAMP_TO_EDGE);
 			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_T, tGL.CLAMP_TO_EDGE);
-			// tGL.pixelStorei(tGL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+			tGL.pixelStorei(tGL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 			tGL.generateMipmap(tGL.TEXTURE_2D)
 			// img.onload = null
 		});

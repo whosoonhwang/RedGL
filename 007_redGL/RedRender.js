@@ -275,7 +275,6 @@ var RedRender;
                             cacheActiveTextureIndex != tTexture['__targetIndex'] ?  tGL.uniform1i(tLocation, tTexture['__targetIndex']) : 0
                             cacheActiveTextureIndex = tTexture['__targetIndex']
                         }
-
                     }
                     else if (tUniformValue['__webglTexture']) {
                         if (cacheTexture1_UUID == undefined) bitmapRenderable = false

@@ -67,12 +67,14 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		// set the depthTest
 		tGL.enable(tGL.DEPTH_TEST);
 		tGL.depthFunc(tGL.LEQUAL)
+		// tGL.depthMask(false)
 		// set the cullFace
 		tGL.enable(tGL.CULL_FACE);
 		tGL.cullFace(tGL.BACK)
 		// set the blendMode
 		tGL.enable(tGL.BLEND);
-		tGL.blendFunc(tGL.SRC_ALPHA, tGL.ONE_MINUS_SRC_ALPHA);
+		tGL.blendFunc(tGL.ONE, tGL.ONE_MINUS_SRC_ALPHA);
+		// tGL.blendFuncSeparate(tGL.SRC_ALPHA, tGL.ONE_MINUS_SRC_ALPHA,tGL.ZERO, tGL.ONE);
 		// set the scissor rectangle
 		tGL.enable(tGL.SCISSOR_TEST);
 		tGL.scissor(0, 0, tGL.drawingBufferWidth, tGL.drawingBufferHeight);
