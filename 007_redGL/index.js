@@ -152,9 +152,7 @@ console.log(testGL.createMeshInfo('testMesh', testGL.getGeometryInfo('testGeo'),
 var testScene = RedSceneInfo(testGL, 'testScene')
 console.log(testScene)
 // 아틀라스테스트
-var testAtlas;
-testAtlas = RedAtlasTextureManager(testGL, [
-	'asset/crate.png',
+ RedAtlasTextureManager(testGL, [
 	'asset/draft1.png',
 	'asset/draft2.png',
 	'asset/draft3.png',
@@ -162,15 +160,33 @@ testAtlas = RedAtlasTextureManager(testGL, [
 	'asset/draft5.png',
 	'asset/test.png',
 ],function(){
-	var testMatBitmap3 = RedMaterialInfo(testGL, 'bitmap', testAtlas['atlasKeyMap']['atlasImage_asset/test.png'])
-	var testMatBitmap4 = RedMaterialInfo(testGL, 'bitmap', testAtlas['atlasKeyMap']['atlasImage_asset/draft1.png'])
-	var testMatBitmap5 = RedMaterialInfo(testGL, 'bitmap', testAtlas['atlasKeyMap']['atlasImage_asset/draft2.png'])
-	var testMatBitmap6 = RedMaterialInfo(testGL, 'bitmap', testAtlas['atlasKeyMap']['atlasImage_asset/draft3.png'])
-	var testMatBitmap7 = RedMaterialInfo(testGL, 'bitmap', testAtlas['atlasKeyMap']['atlasImage_asset/draft4.png'])
-	var testMatBitmap8 = RedMaterialInfo(testGL, 'bitmap', testAtlas['atlasKeyMap']['atlasImage_asset/draft5.png'])
+	var testMatBitmap3 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager.getByKey('asset/test.png'))
+	var testMatBitmap4 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager.getByKey('asset/draft1.png'))
+	var testMatBitmap5 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager.getByKey('asset/draft2.png'))
+	var testMatBitmap6 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager.getByKey('asset/draft3.png'))
+	var testMatBitmap7 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager.getByKey('asset/draft4.png'))
+	var testMatBitmap8 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager.getByKey('asset/draft5.png'))
+	setTimeout(function(){
+		var testAtlas2 =RedAtlasTextureManager(testGL, 'asset/addTest.png',function(){
+			console.log('아틀라스 추가!되었음!')
+			var i = 90, i2, i3;
+			while (i--) {
+				var testMatBitmap9 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager.getByKey('asset/addTest.png'))
+				var tMesh = testGL.createMeshInfo('testMeshAdd' + i, testGL.getGeometryInfo('testGeo'), testMatBitmap9)
+				tMesh.position[0] = Math.random() * 80 - 40
+				tMesh.position[1] = Math.random() * 80 - 40
+				tMesh.position[2] = -55 - Math.random() * 30
+				tMesh.rotation[0] = Math.random() * Math.PI * 2
+				tMesh.rotation[1] = Math.random() * Math.PI * 2
+				tMesh.rotation[2] = Math.random() * Math.PI * 2
+				
+				testScene.children.push(tMesh)
+			}
+		})
+	},3000)
 	///////////////////////////////////////////////////////////////////////////////////////////
 	// 데모
-	var i = 90, i2, i3;
+	var i = 85, i2, i3;
 	while (i--) {
 		var tMesh = testGL.createMeshInfo('testMesh' + i, testGL.getGeometryInfo('testGeo'), Math.random()>0.5 ? testMatBitmap : testMatBitmap5)
 		tMesh.position[0] = Math.random() * 80 - 40

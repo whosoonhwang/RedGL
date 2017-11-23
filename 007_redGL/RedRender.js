@@ -87,6 +87,7 @@ var RedRender;
         var aspect;
 
         cacheAttrUUID = {}
+        cacheTextureAtlas_UUID = {}
 
         this.render = function (time) {
             //TODO: 재질 소팅을 도입해야곘음 -_-;;
@@ -108,8 +109,11 @@ var RedRender;
             //////////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////
             tGL.clear(tGL.COLOR_BUFFER_BIT | tGL.DEPTH_BUFFER_BIT);
+            
+       
             tScene = self['targetScene']
             self.draw(tScene['children'], time)
+            // Set the backbuffer's alpha to 1.0
             requestAnimationFrame(self.render)
         }
         this.draw = function (renderList, time, parentMTX) {
@@ -135,21 +139,21 @@ var RedRender;
                 // xyz축 회전 
                 tRx = tMesh['rotation'][0], tRy = tMesh['rotation'][1], tRz = tMesh['rotation'][2]
                 aSx = SIN(tRx), aCx = COS(tRx), aSy = SIN(tRy), aCy = COS(tRy), aSz = SIN(tRz), aCz = COS(tRz),
-                    a00 = a[0], a01 = a[1], a02 = a[2],
-                    a10 = a[4], a11 = a[5], a12 = a[6],
-                    a20 = a[8], a21 = a[9], a22 = a[10],
-                    b00 = aCy * aCz, b01 = aSx * aSy * aCz - aCx * aSz, b02 = aCx * aSy * aCz + aSx * aSz,
-                    b10 = aCy * aSz, b11 = aSx * aSy * aSz + aCx * aCz, b12 = aCx * aSy * aSz - aSx * aCz,
-                    b20 = -aSy, b21 = aSx * aCy, b22 = aCx * aCy,
-                    a[0] = a00 * b00 + a10 * b01 + a20 * b02, a[1] = a01 * b00 + a11 * b01 + a21 * b02, a[2] = a02 * b00 + a12 * b01 + a22 * b02,
-                    a[4] = a00 * b10 + a10 * b11 + a20 * b12, a[5] = a01 * b10 + a11 * b11 + a21 * b12, a[6] = a02 * b10 + a12 * b11 + a22 * b12,
-                    a[8] = a00 * b20 + a10 * b21 + a20 * b22, a[9] = a01 * b20 + a11 * b21 + a21 * b22, a[10] = a02 * b20 + a12 * b21 + a22 * b22;
+                a00 = a[0], a01 = a[1], a02 = a[2],
+                a10 = a[4], a11 = a[5], a12 = a[6],
+                a20 = a[8], a21 = a[9], a22 = a[10],
+                b00 = aCy * aCz, b01 = aSx * aSy * aCz - aCx * aSz, b02 = aCx * aSy * aCz + aSx * aSz,
+                b10 = aCy * aSz, b11 = aSx * aSy * aSz + aCx * aCz, b12 = aCx * aSy * aSz - aSx * aCz,
+                b20 = -aSy, b21 = aSx * aCy, b22 = aCx * aCy,
+                a[0] = a00 * b00 + a10 * b01 + a20 * b02, a[1] = a01 * b00 + a11 * b01 + a21 * b02, a[2] = a02 * b00 + a12 * b01 + a22 * b02,
+                a[4] = a00 * b10 + a10 * b11 + a20 * b12, a[5] = a01 * b10 + a11 * b11 + a21 * b12, a[6] = a02 * b10 + a12 * b11 + a22 * b12,
+                a[8] = a00 * b20 + a10 * b21 + a20 * b22, a[9] = a01 * b20 + a11 * b21 + a21 * b22, a[10] = a02 * b20 + a12 * b21 + a22 * b22;
                 // 스케일
                 aX = tMesh['scale'][0], aY = tMesh['scale'][1], aZ = tMesh['scale'][2]
                 a[0] = a[0] * aX, a[1] = a[1] * aX, a[2] = a[2] * aX, a[3] = a[3] * aX;
                 a[4] = a[4] * aY, a[5] = a[5] * aY, a[6] = a[6] * aY, a[7] = a[7] * aY,
-                    a[8] = a[8] * aZ, a[9] = a[9] * aZ, a[10] = a[10] * aZ, a[11] = a[11] * aZ,
-                    a[12] = a[12], a[13] = a[13], a[14] = a[14], a[15] = a[15]
+                a[8] = a[8] * aZ, a[9] = a[9] * aZ, a[10] = a[10] * aZ, a[11] = a[11] * aZ,
+                a[12] = a[12], a[13] = a[13], a[14] = a[14], a[15] = a[15]
                 // 부모가있으면 곱함
                 if (parentMTX) {
                     // 부모매트릭스 복사
@@ -207,8 +211,7 @@ var RedRender;
                 i2 = tAttrGroupList.length
                 while (i2--) {
                     tAttrBufferInfo = tAttrGroupList[i2], // 대상버퍼구하고
-                        tAttrPointer = tAttrBufferInfo['shaderPointerKey'] // 바인딩할 쉐이더 변수키를 알아낸다.
-                    // console.log(tProgramInfo['key'],tAttrPointer)
+                    tAttrPointer = tAttrBufferInfo['shaderPointerKey'] // 바인딩할 쉐이더 변수키를 알아낸다.
                     if (tAttrLocationGroup[tAttrPointer]) { // 정보매칭이 안되는 녀석은 무시한다 
                         tLocation = tAttrLocationGroup[tAttrPointer]['location'] // 로케이션도 알아낸다.
                         // 캐싱된 attribute정보과 현재 대상정보가 같다면 무시
@@ -217,7 +220,6 @@ var RedRender;
                             : (
                                 tGL.bindBuffer(tGL.ARRAY_BUFFER, tAttrBufferInfo['buffer']), // 실제 버퍼 바인딩하고
                                 tAttrBufferInfo['enabled'] ? 0 : (tGL.enableVertexAttribArray(tLocation), tAttrBufferInfo['enabled'] = 1), // 해당로케이션을 활성화 시킨다
-                                // console.log(tAttrBufferInfo),
                                 tGL.vertexAttribPointer(
                                     tLocation,
                                     tAttrBufferInfo['pointSize'],
@@ -227,7 +229,6 @@ var RedRender;
                                     tAttrBufferInfo['offset']
                                 ),
                                 cacheAttrUUID[tLocation] = tAttrBufferInfo['__UUID'] // 상태 캐싱
-                                // ,console.log('한번만되는지확인')
                             )
                     }
                 }
@@ -250,8 +251,8 @@ var RedRender;
                 i2 = tUniformGroupList.length
                 var bitmapRenderable = true
                 while (i2--) {
-                    tUniformKey = tUniformGroupList[i2]['key']
-                    tUniformValue = tUniformGroupList[i2]['value']
+                    tUniformKey = tUniformGroupList[i2]['key'],
+                    tUniformValue = tUniformGroupList[i2]['value'],
                     tLocation = tUniformGroupList[i2]['location']
                     if (tUniformValue['__uniformMethod']) {
                         tUniformValue['__isMatrix'] // 매트릭스형태인지 아닌지 파악
@@ -261,20 +262,19 @@ var RedRender;
                     else if (tUniformValue['__webglAtlasTexture']) {
                         var tTexture;
                         tTexture = tUniformValue['targetAtlasInfo']['textureInfo']
-                        //TODO: 여길또 인덱스 기반으로 바꿔야하는구만...
-                        if(cacheTextureAtlas_UUID ==undefined) bitmapRenderable = false
+                        if (cacheTextureAtlas_UUID[tTexture['__targetIndex']] == undefined) bitmapRenderable = false
                         if (tTexture['loaded']) {
-                            if (cacheTextureAtlas_UUID != tTexture['__UUID']) {
+                            if (cacheTextureAtlas_UUID[tTexture['__targetIndex']] != tTexture['__UUID']) {
+                                console.log('오남')
                                 tTexture['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
                                 tTexture['actived'] = 1
                                 tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
                                 tGL.bindTexture(tGL.TEXTURE_2D, tTexture['texture'])
-                                cacheTextureAtlas_UUID = tTexture['__UUID']
+                                cacheTextureAtlas_UUID[tTexture['__targetIndex']] = tTexture['__UUID']
                             }
-                            if(cacheActiveTextureIndex!=tTexture['__targetIndex']) tGL.uniform1i(tLocation, tTexture['__targetIndex'])
+                            cacheActiveTextureIndex != tTexture['__targetIndex'] ?  tGL.uniform1i(tLocation, tTexture['__targetIndex']) : 0
                             cacheActiveTextureIndex = tTexture['__targetIndex']
                         }
-                        
                     }
                     else if (tUniformValue['__webglTexture']) {
                         if (cacheTexture1_UUID == undefined) bitmapRenderable = false
@@ -286,7 +286,7 @@ var RedRender;
                                 tGL.bindTexture(tGL.TEXTURE_2D, tUniformValue['texture'])
                                 cacheTexture1_UUID = tUniformValue['__UUID']
                             }
-                            if(cacheActiveTextureIndex!=tUniformValue['__targetIndex']) tGL.uniform1i(tLocation, tUniformValue['__targetIndex'])
+                            cacheActiveTextureIndex != tUniformValue['__targetIndex'] ?  tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
                             cacheActiveTextureIndex = tUniformValue['__targetIndex']
                         }
                     }
@@ -305,7 +305,7 @@ var RedRender;
                     cacheDrawBufferUUID = tVertexPositionBuffer['__UUID']
                 }
                 // 자식을 콜
-                if (tMesh['children'].length) self.draw(tMesh['children'], time, tMVMatrix)
+                tMesh['children'].length ? self.draw(tMesh['children'], time, tMVMatrix) : 0
             }
         }
     }
