@@ -160,19 +160,19 @@ console.log(testScene)
 	'asset/draft5.png',
 	'asset/test.png',
 ],function(){
-	console.log(RedAtlasTextureManager['atlasKeyMap'])
-	var testMatBitmap3 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager['atlasKeyMap']['atlasImage_asset/test.png'])
-	var testMatBitmap4 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager['atlasKeyMap']['atlasImage_asset/draft1.png'])
-	var testMatBitmap5 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager['atlasKeyMap']['atlasImage_asset/draft2.png'])
-	var testMatBitmap6 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager['atlasKeyMap']['atlasImage_asset/draft3.png'])
-	var testMatBitmap7 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager['atlasKeyMap']['atlasImage_asset/draft4.png'])
-	var testMatBitmap8 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager['atlasKeyMap']['atlasImage_asset/draft5.png'])
+	console.log(RedAtlasTextureManager)
+	var testMatBitmap3 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager.getByKey('asset/test.png'))
+	var testMatBitmap4 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager.getByKey('asset/draft1.png'))
+	var testMatBitmap5 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager.getByKey('asset/draft2.png'))
+	var testMatBitmap6 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager.getByKey('asset/draft3.png'))
+	var testMatBitmap7 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager.getByKey('asset/draft4.png'))
+	var testMatBitmap8 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager.getByKey('asset/draft5.png'))
 	setTimeout(function(){
 		var testAtlas2 =RedAtlasTextureManager(testGL, 'asset/addTest.png',function(){
 			console.log('아틀라스 추가!되었음!')
 			var i = 90, i2, i3;
 			while (i--) {
-				var testMatBitmap9 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager['atlasKeyMap']['atlasImage_asset/addTest.png'])
+				var testMatBitmap9 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager.getByKey('asset/addTest.png'))
 				var tMesh = testGL.createMeshInfo('testMeshAdd' + i, testGL.getGeometryInfo('testGeo'), testMatBitmap9)
 				tMesh.position[0] = Math.random() * 80 - 40
 				tMesh.position[1] = Math.random() * 80 - 40

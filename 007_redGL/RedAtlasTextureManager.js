@@ -1,17 +1,4 @@
 "use strict";
-var RedAtlasTextureInfo
-RedAtlasTextureInfo = function(atlasUV,targetAtlasInfo){
-	console.log(atlasUV)
-	atlasUV = new Float32Array([
-		atlasUV[0][0],
-		atlasUV[0][1],
-		(atlasUV[1][0] - atlasUV[0][0]) ,
-		(atlasUV[2][1] - atlasUV[0][1]) 
-	])
-	this['atlasUV'] = atlasUV
-	this['targetAtlasInfo'] = targetAtlasInfo
-	this['__webglAtlasTexture'] = 1
-}
 var RedAtlasTextureManager;
 (function () {
 	var tRedGL;
@@ -24,7 +11,7 @@ var RedAtlasTextureManager;
 	var atlasKeyMap; // 아틀라스에 등록된 이미지 맵정보
 	var createAtlas; // 아틀라스 캔버스 생성기
 	var atlasPack; // 아틀라스에 이미지를 실제로 업로드하는 녀석
-	
+
 	atlasKeyMap = {}
 	atlasInfoList = []
 	var RedAtlasInfo;
@@ -41,14 +28,14 @@ var RedAtlasTextureManager;
 		canvas = document.createElement('canvas');
 		canvas.width = MAX_TEXTURE_SIZE, canvas.height = MAX_TEXTURE_SIZE;
 		canvas.style.background = 'transparent', canvas.style.margin = '3px', canvas.style.display = 'inline-block'
-		
+
 		// document.body.appendChild(canvas)
 		// 아틀라스 생성
 		tAtlas = new Atlas(canvas);
 		tAtlas['atalasInfo'] = RedAtlasInfo(tRedGL, tAtlas)
 		currentTextureUnit++
 		if (currentTextureUnit == MAX_COMBINED_TEXTURE_IMAGE_UNITS) currentTextureUnit = 10
-		tAtlas['__targetIndex'] =currentTextureUnit
+		tAtlas['__targetIndex'] = currentTextureUnit
 		console.log(tAtlas)
 		atlasInfoList.push(tAtlas['atalasInfo'])
 
@@ -97,8 +84,8 @@ var RedAtlasTextureManager;
 			return : 'RedAtlasTextureManager Instance'
 		}
 	:DOC*/
-	RedAtlasTextureManager = function (redGL, srcList,callback) {
-		if (!(this instanceof RedAtlasTextureManager)) return new RedAtlasTextureManager(redGL, srcList,callback)
+	RedAtlasTextureManager = function (redGL, srcList, callback) {
+		if (!(this instanceof RedAtlasTextureManager)) return new RedAtlasTextureManager(redGL, srcList, callback)
 		if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
 		if (!(srcList instanceof Array)) srcList = [srcList]
 		tRedGL = redGL
@@ -114,32 +101,35 @@ var RedAtlasTextureManager;
 		targetNum = srcList.length
 		srcList.forEach(function (src) {
 			var img = new Image();
-			var id = 'atlasImage_' + src
+			var id = src
 			if (atlasKeyMap[id]) return // 이미존재하면 나가리..
 			img.id = id
 			img.src = src
 			img.onload = function () {
 				var node = atlasPack(this)
-				//  존재하는지 여부만 입력함
 				// console.log(node)
 				// console.log(tAtlas.uv()[node.rect['name']])
 				// console.log(atlasKeyMap)
 				// console.log(this.id)
 				loaded++
-				console.log(loaded,targetNum)
+				console.log(loaded, targetNum)
 				if (targetNum == loaded) {
-					console.log('atlasInfoList',atlasInfoList)
-					console.log('atlasKeyMap',atlasKeyMap)
+					console.log('atlasInfoList', atlasInfoList)
+					console.log('atlasKeyMap', atlasKeyMap)
 					atlasInfoList.forEach(function (v) {
 						if (!v['textureInfo']) v['textureInfo'] = RedTextureInfo(redGL, v['atlas']['canvas'], v['atlas']['__targetIndex'])
 						else v['textureInfo'].updateTexture(v['atlas']['canvas'])
 					})
-					console.log('~~~~~~~~~~~',callback)
-					if(callback ) callback()
+					console.log('~~~~~~~~~~~', callback)
+					if (callback) callback()
 				}
 			};
 		})
 	}
 	RedAtlasTextureManager['atlasKeyMap'] = atlasKeyMap
 	RedAtlasTextureManager['atlasInfoList'] = atlasInfoList
+	RedAtlasTextureManager.getByKey = function(key){
+		return RedAtlasTextureManager['atlasKeyMap'][key]
+	}
+	Object.freeze(RedAtlasTextureManager)
 })();
