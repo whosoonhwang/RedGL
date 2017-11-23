@@ -1,0 +1,22 @@
+[
+  {
+    "constructorYn": true,
+    "title": "RedAtlasTextureInfo",
+    "description": "\n    <h2>주석 작성해야함</h2>\n",
+    "params": {
+      "atlasUV": [
+        {
+          "type": "Array"
+        },
+        "- 아틀라스상의 UV"
+      ],
+      "targetAtlasInfo": [
+        {
+          "type": "Atlas instance"
+        }
+      ]
+    },
+    "example": "\n    //TODO\n",
+    "return": "RedAtlasTextureInfo Instance"
+  }
+]

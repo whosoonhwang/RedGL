@@ -59,18 +59,20 @@ gulp.task('make-doc', function () {
 	console.log('-------------------------------------------');
 	console.log('시작!');
 	return gulp.src([
-		'redGL.js',
-		'RedGLDetect.js',
-		'RedBufferInfo.js',
-        'RedGeometryInfo.js',
-		'RedMaterialInfo.js', 
-		'RedMaterialDefine.js',
-        'RedMeshInfo.js',
-		'RedProgramInfo.js',
-		'RedTextureInfo.js',
-        'RedRender.js',
-        'RedSceneInfo.js',
-        'RedShaderInfo.js'
+		"RedAtlasTextureInfo.js",
+		"RedAtlasTextureManager.js",
+		"RedBufferInfo.js",
+		"RedGeometryInfo.js",
+		"redGL.js",
+		"RedGLDetect.js",			
+		"RedMaterialDefine.js",
+		"RedMaterialInfo.js",
+		"RedMeshInfo.js",
+		"RedProgramInfo.js",	
+		"RedRender.js",
+		"RedSceneInfo.js",
+		"RedShaderInfo.js",			
+		"RedTextureInfo.js"
 	])
 		.pipe(myTransformation()) // 병합한다.
 		.pipe(rename(function(path){

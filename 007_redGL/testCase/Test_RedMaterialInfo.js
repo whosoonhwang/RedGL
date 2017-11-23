@@ -9,7 +9,10 @@ fShaderInfo = testGL.getShaderInfo('basic', RedShaderInfo.FRAGMENT_SHADER)
 testGL.createProgramInfo(
     'basic',
     vShaderInfo,
-    fShaderInfo
+    fShaderInfo,
+    function(target){
+        target.uniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random()])
+    }
 )
 RedMaterialDefine(testGL, testGL.getProgramInfo('basic'))
 redSuite(
@@ -61,6 +64,7 @@ redSuite(
         redTest("RedMaterialInfo - 유니폼정보가 잘들어오는지확인", function (unit) {
             var t0;
             t0 = testGL.createMaterialInfo('basic')
+            console.log(t0)
             unit.run(t0['uniforms'].hasOwnProperty('uColor'))
         }, true)
     )

@@ -1,4 +1,31 @@
 "use strict";
+/**DOC:
+    {
+        constructorYn : true,
+        title :`RedAtlasTextureManager`,
+        description : `
+            <h2>주석 작성해야함</h2>
+        `,
+        params : {
+            redGL : [
+                {type:'RedGL'},
+                '- redGL Instance'
+            ],
+            srcList : [
+				{type:'String or Array'},
+				'단일 문자열로 들어오면 알아서 배열로 바꿈'
+			],
+			callback : [
+				 {type:'Function'},
+				 '아틀라스 완성후 실행할 콜백'
+			]
+        },
+        example : `
+            //TODO
+        `,
+        return : 'RedAtlasTextureManager OBJECT'
+    }
+:DOC*/
 var RedAtlasTextureManager;
 (function () {
 	var tRedGL;
@@ -14,7 +41,7 @@ var RedAtlasTextureManager;
 	var RedAtlasInfo;
 	atlasKeyMap = {}
 	atlasInfoList = []
-	
+
 	// 아틀라스 개별 객체정보
 	RedAtlasInfo = function (redGL, targetAtlas) {
 		if (!(this instanceof RedAtlasInfo)) return new RedAtlasInfo(redGL, targetAtlas)
@@ -34,7 +61,7 @@ var RedAtlasTextureManager;
 		tAtlas = new Atlas(canvas);
 		tAtlas['atalasInfo'] = RedAtlasInfo(tRedGL, tAtlas)
 		tTextureUnit++
-		if (tTextureUnit == MAX_COMBINED_TEXTURE_IMAGE_UNITS) tTextureUnit = MAX_COMBINED_TEXTURE_IMAGE_UNITS-parseInt(MAX_COMBINED_TEXTURE_IMAGE_UNITS/2)
+		if (tTextureUnit == MAX_COMBINED_TEXTURE_IMAGE_UNITS) tTextureUnit = MAX_COMBINED_TEXTURE_IMAGE_UNITS - parseInt(MAX_COMBINED_TEXTURE_IMAGE_UNITS / 2)
 		tAtlas['__targetIndex'] = tTextureUnit // console.log(tAtlas)
 		atlasInfoList.push(tAtlas['atalasInfo'])
 
@@ -90,7 +117,7 @@ var RedAtlasTextureManager;
 		tRedGL = redGL
 		MAX_TEXTURE_SIZE = redGL['detect']['MAX_TEXTURE_SIZE']
 		MAX_COMBINED_TEXTURE_IMAGE_UNITS = redGL['detect']['MAX_COMBINED_TEXTURE_IMAGE_UNITS']
-		if(tTextureUnit==undefined) tTextureUnit = MAX_COMBINED_TEXTURE_IMAGE_UNITS-parseInt(MAX_COMBINED_TEXTURE_IMAGE_UNITS/2)
+		if (tTextureUnit == undefined) tTextureUnit = MAX_COMBINED_TEXTURE_IMAGE_UNITS - parseInt(MAX_COMBINED_TEXTURE_IMAGE_UNITS / 2)
 		if (MAX_TEXTURE_SIZE > 4096) MAX_TEXTURE_SIZE = 4096
 		console.log('MAX_TEXTURE_SIZE', MAX_TEXTURE_SIZE)
 		console.log('MAX_COMBINED_TEXTURE_IMAGE_UNITS', MAX_COMBINED_TEXTURE_IMAGE_UNITS)

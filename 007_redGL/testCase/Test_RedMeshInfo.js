@@ -57,7 +57,10 @@ fShaderInfo = testGL.getShaderInfo('basic', RedShaderInfo.FRAGMENT_SHADER)
 testGL.createProgramInfo(
     'basic',
     vShaderInfo,
-    fShaderInfo
+    fShaderInfo,
+    function(target){
+        target.uniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random()])
+    }
 )
 // 재질정의
 RedMaterialDefine(testGL, testGL.getProgramInfo('basic'))
