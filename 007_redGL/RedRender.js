@@ -255,6 +255,7 @@ var RedRender;
                     tUniformValue = tUniformGroupList[i2]['value'],
                     tLocation = tUniformGroupList[i2]['location']
                     if(tUniformKey == 'uAtlascoord'){
+                        //TODO: 고정유니폼을 태울 방법을 고민해야겠어...
                         // console.log(tUniformGroup[tUniformKey])               
                         // console.log(tLocation)   
                         cacheUAtlascoord_UUID == tUniformGroup[tUniformKey]['__UUID'] ? 0 : tGL.uniform4fv(tLocation, tUniformGroup[tUniformKey]['value'])
