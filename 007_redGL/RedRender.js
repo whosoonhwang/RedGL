@@ -87,6 +87,7 @@ var RedRender;
         var aspect;
 
         cacheAttrUUID = {}
+        cacheTextureAtlas_UUID = {}
 
         this.render = function (time) {
             //TODO: 재질 소팅을 도입해야곘음 -_-;;
@@ -261,15 +262,15 @@ var RedRender;
                     else if (tUniformValue['__webglAtlasTexture']) {
                         var tTexture;
                         tTexture = tUniformValue['targetAtlasInfo']['textureInfo']
-                        //TODO: 여길또 인덱스 기반으로 바꿔야하는구만...
-                        if (cacheTextureAtlas_UUID == undefined) bitmapRenderable = false
+                        if (cacheTextureAtlas_UUID[tTexture['__targetIndex']] == undefined) bitmapRenderable = false
                         if (tTexture['loaded']) {
-                            if (cacheTextureAtlas_UUID != tTexture['__UUID']) {
+                            if (cacheTextureAtlas_UUID[tTexture['__targetIndex']] != tTexture['__UUID']) {
+                                console.log('오남')
                                 tTexture['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
                                 tTexture['actived'] = 1
                                 tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
                                 tGL.bindTexture(tGL.TEXTURE_2D, tTexture['texture'])
-                                cacheTextureAtlas_UUID = tTexture['__UUID']
+                                cacheTextureAtlas_UUID[tTexture['__targetIndex']] = tTexture['__UUID']
                             }
                             cacheActiveTextureIndex != tTexture['__targetIndex'] ?  tGL.uniform1i(tLocation, tTexture['__targetIndex']) : 0
                             cacheActiveTextureIndex = tTexture['__targetIndex']

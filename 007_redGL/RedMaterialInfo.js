@@ -137,7 +137,7 @@ var RedMaterialInfo;
             } else if(t0 instanceof RedTextureInfo) {
             }else if (t0 instanceof RedAtlasTextureInfo){
                 this['uniforms']['uAtlascoord'] = t0['atlasUV']
-                console.log('RedAtlasTextureInfo',t0,this)
+                // console.log('RedAtlasTextureInfo',t0,this)
             }else throw k + '는 올바르지 않은 타입입니다.'
         }
         this['__UUID'] = REDGL_UUID++
