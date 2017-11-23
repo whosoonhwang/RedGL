@@ -270,10 +270,10 @@ var RedRender;
                         if (cacheTextureAtlas_UUID[tTexture['__targetIndex']] == undefined) bitmapRenderable = false
                         if (tTexture['loaded']) {
                             if (cacheTextureAtlas_UUID[tTexture['__targetIndex']] != tTexture['__UUID']) {
-                                console.log('오남')
+                                // console.log('오남')
                                 tTexture['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
                                 tTexture['actived'] = 1
-                                tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
+                                // tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
                                 tGL.bindTexture(tGL.TEXTURE_2D, tTexture['texture'])
                                 cacheTextureAtlas_UUID[tTexture['__targetIndex']] = tTexture['__UUID']
                             }
@@ -287,7 +287,7 @@ var RedRender;
                             if (cacheTexture1_UUID != tUniformValue['__UUID']) {
                                 tUniformValue['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
                                 tUniformValue['actived'] = 1
-                                tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
+                                // tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
                                 tGL.bindTexture(tGL.TEXTURE_2D, tUniformValue['texture'])
                                 cacheTexture1_UUID = tUniformValue['__UUID']
                             }
