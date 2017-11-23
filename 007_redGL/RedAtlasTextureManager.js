@@ -59,11 +59,11 @@ var RedAtlasTextureManager;
 		// document.body.appendChild(canvas)
 		// 아틀라스 생성
 		tAtlas = new Atlas(canvas);
-		tAtlas['atalasInfo'] = RedAtlasInfo(tRedGL, tAtlas)
+		tAtlas['atlasInfo'] = RedAtlasInfo(tRedGL, tAtlas)
 		tTextureUnit++
 		if (tTextureUnit == MAX_COMBINED_TEXTURE_IMAGE_UNITS) tTextureUnit = MAX_COMBINED_TEXTURE_IMAGE_UNITS - parseInt(MAX_COMBINED_TEXTURE_IMAGE_UNITS / 2)
 		tAtlas['__targetIndex'] = tTextureUnit // console.log(tAtlas)
-		atlasInfoList.push(tAtlas['atalasInfo'])
+		atlasInfoList.push(tAtlas['atlasInfo'])
 
 	}
 	atlasPack = function (targetImage) {
@@ -88,7 +88,7 @@ var RedAtlasTextureManager;
 		// RedAtlasTextureInfo를 생성하고 맵에 담아둠
 		atlasKeyMap[targetImage.id] = new RedAtlasTextureInfo(
 			tAtlas.uv()[targetImage.id],
-			tAtlas['atalasInfo']
+			tAtlas['atlasInfo']
 		)
 		return node
 	}
