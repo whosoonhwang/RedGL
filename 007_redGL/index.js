@@ -119,7 +119,7 @@ testGL.createProgramInfo(
 	testGL.createShaderInfo('bitmap', RedShaderInfo.FRAGMENT_SHADER),
 	function (target) {
 		target.uniforms.uTexture = target['diffuseInfo']
-		target.uniforms.uAtlascoord = new Float32Array([0,0,1,1])
+		target.uniforms.uAtlascoord = RedAtlasUVInfo([0,0,1,1])
 	}
 )
 // 지오메트리생성

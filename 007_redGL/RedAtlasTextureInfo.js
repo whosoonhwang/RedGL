@@ -37,7 +37,7 @@ var RedAtlasTextureInfo;
         ]
         tKey = t0.toString()
         if (checkMap[tKey]) aAtlasUVInfo = checkMap[tKey]
-        else aAtlasUVInfo = checkMap[tKey] = new RedAtlasUVInfo(t0)
+        else aAtlasUVInfo = checkMap[tKey] =  RedAtlasUVInfo(t0)
         console.log(aAtlasUVInfo)
 
         this['atlasUVInfo'] = aAtlasUVInfo

@@ -21,6 +21,7 @@
 :DOC*/
 var RedAtlasUVInfo;
 RedAtlasUVInfo = function (v) {
+    if (!(this instanceof RedAtlasUVInfo)) return new RedAtlasUVInfo(v)
     this['value'] = new Float32Array(v)
     this['__UUID'] = REDGL_UUID++
     this['value']['__UUID'] = this['__UUID']
