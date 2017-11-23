@@ -2,7 +2,7 @@
 var testGL
 testGL = RedGL(document.getElementById('test'), true)
 
-var testData, testData2, testData3
+var testData, testData2, testData3,testData4
 testData = new Float32Array([
 
 	-1.0, -1.0, 1.0,
@@ -79,13 +79,57 @@ testData3 = new Float32Array([
 	1.0, 1.0,
 	0.0, 1.0
 ])
+testData4 = new Float32Array([
+	// Front face
+	0.0,  0.0,  1.0,
+	0.0,  0.0,  1.0,
+	0.0,  0.0,  1.0,
+	0.0,  0.0,  1.0,
+
+   // Back face
+	0.0,  0.0, -1.0,
+	0.0,  0.0, -1.0,
+	0.0,  0.0, -1.0,
+	0.0,  0.0, -1.0,
+
+   // Top face
+	0.0,  1.0,  0.0,
+	0.0,  1.0,  0.0,
+	0.0,  1.0,  0.0,
+	0.0,  1.0,  0.0,
+
+   // Bottom face
+	0.0, -1.0,  0.0,
+	0.0, -1.0,  0.0,
+	0.0, -1.0,  0.0,
+	0.0, -1.0,  0.0,
+
+   // Right face
+	1.0,  0.0,  0.0,
+	1.0,  0.0,  0.0,
+	1.0,  0.0,  0.0,
+	1.0,  0.0,  0.0,
+
+   // Left face
+   -1.0,  0.0,  0.0,
+   -1.0,  0.0,  0.0,
+   -1.0,  0.0,  0.0,
+   -1.0,  0.0,  0.0
+])
 
 //  버텍스버퍼생성
 console.log(testGL.createArrayBufferInfo(
 	'testBuffer',
 	'aVertexPosition',
 	testData,
-	3, 24, testGL.gl.FLOAT
+	3, testData.length/3, testGL.gl.FLOAT
+))
+//  너말버퍼생성
+console.log(testGL.createArrayBufferInfo(
+	'testNormalBuffer',
+	'aVertexNormal',
+	testData4,
+	3, testData4.length/3, testGL.gl.FLOAT
 ))
 console.log(testGL.createArrayBufferInfo(
 	'testUv',
@@ -104,6 +148,9 @@ console.log(testGL.createShaderInfo('color', RedShaderInfo.VERTEX_SHADER, testGL
 console.log(testGL.createShaderInfo('color', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('shader-fs')))
 console.log(testGL.createShaderInfo('bitmap', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('shader-vs-bitmap')))
 console.log(testGL.createShaderInfo('bitmap', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('shader-fs-bitmap')))
+
+console.log(testGL.createShaderInfo('bitmapLite', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('shader-vs-bitmap-light')))
+console.log(testGL.createShaderInfo('bitmapLite', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('shader-fs-bitmap-light')))
 // 프로그램생성
 testGL.createProgramInfo(
 	'color',
@@ -122,12 +169,24 @@ testGL.createProgramInfo(
 		target.uniforms.uAtlascoord = RedAtlasUVInfo([0,0,1,1])
 	}
 )
+
+
+testGL.createProgramInfo(
+	'bitmapLite',
+	testGL.createShaderInfo('bitmapLite', RedShaderInfo.VERTEX_SHADER),
+	testGL.createShaderInfo('bitmapLite', RedShaderInfo.FRAGMENT_SHADER),
+	function (target) {
+		target.uniforms.uTexture = target['diffuseInfo']
+		target.uniforms.uAtlascoord =  RedAtlasUVInfo([0, 0, 1, 1])
+	}
+)
 // 지오메트리생성
 console.log(testGL.createGeometryInfo(
 	'testGeo',
 	testGL.getArrayBufferInfo('testBuffer'),
-	testGL.getIndexBufferInfo('testIndexBuffer')
-	,testGL.getArrayBufferInfo('testUv')
+	testGL.getIndexBufferInfo('testIndexBuffer'),
+	testGL.getArrayBufferInfo('testUv'),
+	testGL.getArrayBufferInfo('testNormalBuffer')
 ))
 // 프로그램조회
 console.log(testGL.getProgramInfo('color'))
@@ -135,13 +194,14 @@ console.log(testGL.getProgramInfo('bitmap'))
 // 재질정의
 var testMatDefine = RedMaterialDefine(testGL, testGL.getProgramInfo('color'))
 RedMaterialDefine(testGL, testGL.getProgramInfo('bitmap'))
+RedMaterialDefine(testGL, testGL.getProgramInfo('bitmapLite'))
 // 재질생성
 var testColorMat = RedMaterialInfo(testGL, 'color')
 var testTexture = RedTextureInfo(testGL, 'asset/crate.png')
 var testTexture2 = RedTextureInfo(testGL, 'asset/test.png')
 console.log(testTexture)
-var testMatBitmap = RedMaterialInfo(testGL, 'bitmap', testTexture)
-var testMatBitmap2 = RedMaterialInfo(testGL, 'bitmap', testTexture2)
+var testMatBitmap = RedMaterialInfo(testGL, 'bitmapLite', testTexture)
+var testMatBitmap2 = RedMaterialInfo(testGL, 'bitmapLite', testTexture2)
 
 console.log(testColorMat)
 console.log(testMatBitmap)
@@ -160,18 +220,18 @@ console.log(testScene)
 	'asset/draft5.png',
 	'asset/test.png',
 ],function(){
-	var testMatBitmap3 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager.getByKey('asset/test.png'))
-	var testMatBitmap4 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager.getByKey('asset/draft1.png'))
-	var testMatBitmap5 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager.getByKey('asset/draft2.png'))
-	var testMatBitmap6 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager.getByKey('asset/draft3.png'))
-	var testMatBitmap7 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager.getByKey('asset/draft4.png'))
-	var testMatBitmap8 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager.getByKey('asset/draft5.png'))
+	var testMatBitmap3 = RedMaterialInfo(testGL, 'bitmapLite', RedAtlasTextureManager.getByKey('asset/test.png'))
+	var testMatBitmap4 = RedMaterialInfo(testGL, 'bitmapLite', RedAtlasTextureManager.getByKey('asset/draft1.png'))
+	var testMatBitmap5 = RedMaterialInfo(testGL, 'bitmapLite', RedAtlasTextureManager.getByKey('asset/draft2.png'))
+	var testMatBitmap6 = RedMaterialInfo(testGL, 'bitmapLite', RedAtlasTextureManager.getByKey('asset/draft3.png'))
+	var testMatBitmap7 = RedMaterialInfo(testGL, 'bitmapLite', RedAtlasTextureManager.getByKey('asset/draft4.png'))
+	var testMatBitmap8 = RedMaterialInfo(testGL, 'bitmapLite', RedAtlasTextureManager.getByKey('asset/draft5.png'))
 	setTimeout(function(){
 		var testAtlas2 =RedAtlasTextureManager(testGL, 'asset/addTest.png',function(){
 			console.log('아틀라스 추가!되었음!')
 			var i = 90, i2, i3;
 			while (i--) {
-				var testMatBitmap9 = RedMaterialInfo(testGL, 'bitmap', RedAtlasTextureManager.getByKey('asset/addTest.png'))
+				var testMatBitmap9 = RedMaterialInfo(testGL, 'bitmapLite', RedAtlasTextureManager.getByKey('asset/addTest.png'))
 				var tMesh = testGL.createMeshInfo('testMeshAdd' + i, testGL.getGeometryInfo('testGeo'), testMatBitmap9)
 				tMesh.position[0] = Math.random() * 80 - 40
 				tMesh.position[1] = Math.random() * 80 - 40
@@ -191,7 +251,7 @@ console.log(testScene)
 		var tMesh = testGL.createMeshInfo('testMesh' + i, testGL.getGeometryInfo('testGeo'), Math.random()>0.5 ? testMatBitmap : testMatBitmap5)
 		tMesh.position[0] = Math.random() * 80 - 40
 		tMesh.position[1] = Math.random() * 80 - 40
-		tMesh.position[2] = -55 - Math.random() * 30
+		tMesh.position[2] = -35 - Math.random() * 30
 		tMesh.rotation[0] = Math.random() * Math.PI * 2
 		tMesh.rotation[1] = Math.random() * Math.PI * 2
 		tMesh.rotation[2] = Math.random() * Math.PI * 2
