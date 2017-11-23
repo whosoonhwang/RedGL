@@ -255,8 +255,9 @@ var RedRender;
                     tUniformValue = tUniformGroupList[i2]['value'],
                     tLocation = tUniformGroupList[i2]['location']
                     if(tUniformKey == 'uAtlascoord'){
-                        // console.log(tUniformGroup[tUniformKey])
-                        cacheUAtlascoord_UUID == tUniformGroup[tUniformKey]['__UUID'] ? 0 : tGL.uniform4fv(tLocation, tUniformGroup[tUniformKey])
+                        // console.log(tUniformGroup[tUniformKey])               
+                        // console.log(tLocation)   
+                        cacheUAtlascoord_UUID == tUniformGroup[tUniformKey]['__UUID'] ? 0 : tGL.uniform4fv(tLocation, tUniformGroup[tUniformKey]['value'])
                         cacheUAtlascoord_UUID = tUniformGroup[tUniformKey]['__UUID']
                     }else  if (tUniformValue['__uniformMethod']) {
                         tUniformValue['__isMatrix'] // 매트릭스형태인지 아닌지 파악

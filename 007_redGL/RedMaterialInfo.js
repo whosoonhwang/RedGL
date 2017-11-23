@@ -136,7 +136,7 @@ var RedMaterialInfo;
             } else if (t0 instanceof RedAtlasUVInfo) {
             } else if (t0 instanceof RedTextureInfo) {
             } else if (t0 instanceof RedAtlasTextureInfo) {
-                this['uniforms']['uAtlascoord'] = t0['atlasUVInfo']['value']
+                this['uniforms']['uAtlascoord'] = t0['atlasUVInfo']
                 // console.log('RedAtlasTextureInfo',t0,this)
             } else throw k + '는 올바르지 않은 타입입니다.'
         }
