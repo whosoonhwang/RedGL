@@ -1,33 +1,54 @@
 [
   {
+    "title": "calcNormal",
+    "code": "FUNCTION",
+    "description": "\n- 버텍스 정보와 인덱스정보를 토대로 노말데이터(Float32Array생성.\n- <span style=\"color:red\">이놈음 다른곳으로 옮겨야할듯</span>\n",
+    "params": {
+      "pos": [
+        {
+          "type": "Float32Array"
+        },
+        "버덱스 데이터 정보"
+      ],
+      "idx": [
+        {
+          "type": "Uint16Array"
+        },
+        "인덱스 데이터 정보"
+      ]
+    },
+    "example": "\nvar vs = new Float32Array(10)\nvar is = new Uint16Array(10)\nRedGL인스턴스.calcNormal(vs,is)\n",
+    "return": "Float32Array Instance"
+  },
+  {
     "title": "createArrayBufferInfo",
     "code": "FUNCTION",
-    "description": "- TODO"
+    "description": "Array버퍼 생성 단축 매서드"
   },
   {
     "title": "createGeometryInfo",
     "code": "FUNCTION",
-    "description": "- TODO"
+    "description": "지오메트리정보 생성 단축 매서드"
   },
   {
     "title": "createIndexBufferInfo",
     "code": "FUNCTION",
-    "description": "- TODO"
+    "description": "ElementArray버퍼 생성 단축 매서드"
   },
   {
     "title": "createMaterialInfo",
     "code": "FUNCTION",
-    "description": "\n- 재질정보생성\n"
+    "description": "재질정보 생성 단축 매서드"
   },
   {
     "title": "createMeshInfo",
     "code": "FUNCTION",
-    "description": "- TODO"
+    "description": "매시정보 단축 생성 매서드"
   },
   {
     "title": "createProgram",
     "code": "FUNCTION",
-    "description": "- TODO"
+    "description": "프로그램 생성 단축 매서드"
   },
   {
     "title": "createShaderInfo",
@@ -60,27 +81,67 @@
   {
     "title": "getArrayBufferInfo",
     "code": "FUNCTION",
-    "description": "- TODO"
+    "description": "Array버퍼 조회 매서드",
+    "parmas": {
+      "key": [
+        {
+          "type": "String"
+        },
+        "키로 등록된 Array버퍼를 조회함"
+      ]
+    }
   },
   {
     "title": "getGeometryInfo",
     "code": "FUNCTION",
-    "description": "- TODO"
+    "description": "지오메트리정보 조회 매서드.",
+    "parmas": {
+      "key": [
+        {
+          "type": "String"
+        },
+        "키로 등록된 지오메트리정보를 조회함"
+      ]
+    }
   },
   {
     "title": "getIndexBufferInfo",
     "code": "FUNCTION",
-    "description": "- TODO"
+    "description": "ElementArray버퍼 조회 매서드",
+    "parmas": {
+      "key": [
+        {
+          "type": "String"
+        },
+        "키로 등록된 ElementArray버퍼를 조회함"
+      ]
+    }
   },
   {
     "title": "getMeshInfo",
     "code": "FUNCTION",
-    "description": "- TODO"
+    "description": "매시정보 조회 단축 매서드",
+    "parmas": {
+      "key": [
+        {
+          "type": "String"
+        },
+        "키로 등록된 매쉬를 조회함"
+      ]
+    }
   },
   {
     "title": "getProgramInfo",
     "code": "FUNCTION",
-    "description": "- TODO"
+    "description": "프로그램 조회",
+    "parmas": {
+      "key": [
+        {
+          "type": "String"
+        },
+        "키로 등록된 프로그램을 조회함"
+      ]
+    }
   },
   {
     "title": "getShaderInfo",

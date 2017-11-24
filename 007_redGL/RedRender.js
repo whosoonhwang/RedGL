@@ -5,8 +5,7 @@ var RedRender;
         constructorYn : true,
         title :`RedMeshInfo`,
         description : `
-            <h2>렌더러이고..현재 구현중</h2>
-            - <span style="color:red"><b>입력하지않으면 그냥 UUID를 생성해버릴까..</b></span>
+           - 렌더러
         `,
         params : {
             redGL : [
@@ -16,16 +15,22 @@ var RedRender;
             redScene : [
                 {type:'RedSceneInfo'},
                 '- RedSceneInfo을 일단 최초 렌더 그룹으로 본다.',
-                '- <span style="color:red"><b>월드는 어찌할지 고민중</b></span>'
+                `- <span style="color:red"><b>
+                   - 월드는 과연필요한가 -_-?
+                   - 씬이 카메라는 먹으면 어짜피 같은효과가 아닌가?
+                 </b></span>
+                `
             ],
             callback : [
                 {type:'Function'},
-                '- 루프시 사전에 돌릴 콜백등록',
-                '- <span style="color:red"><b>이놈은 누중에 루프관리자가 먹겠군</b></span>'
+                '- 루프시 사전에 돌릴 콜백등록'
             ]
         },
         example : `
-            //TODO
+            var renderer = RedRender(RedGL Instance, RedSceneInfo Instance, function (time) {
+                // 렌더링시 사전호출될 콜백
+            })
+            renderer.start()
         `,
         return : 'RedRender Instance'
     }
@@ -109,8 +114,8 @@ var RedRender;
             //////////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////
             tGL.clear(tGL.COLOR_BUFFER_BIT | tGL.DEPTH_BUFFER_BIT);
-            
-       
+
+
             tScene = self['targetScene']
             self.draw(tScene['children'], time)
             // Set the backbuffer's alpha to 1.0
@@ -125,9 +130,9 @@ var RedRender;
                 tMVMatrix = tMesh['uMVMatrix']
                 // 매트릭스 초기화
                 tMVMatrix[0] = 1, tMVMatrix[1] = 0, tMVMatrix[2] = 0, tMVMatrix[3] = 0,
-                tMVMatrix[4] = 0, tMVMatrix[5] = 1, tMVMatrix[6] = 0, tMVMatrix[7] = 0,
-                tMVMatrix[8] = 0, tMVMatrix[9] = 0, tMVMatrix[10] = 1, tMVMatrix[11] = 0,
-                tMVMatrix[12] = 0, tMVMatrix[13] = 0, tMVMatrix[14] = 0, tMVMatrix[15] = 1
+                    tMVMatrix[4] = 0, tMVMatrix[5] = 1, tMVMatrix[6] = 0, tMVMatrix[7] = 0,
+                    tMVMatrix[8] = 0, tMVMatrix[9] = 0, tMVMatrix[10] = 1, tMVMatrix[11] = 0,
+                    tMVMatrix[12] = 0, tMVMatrix[13] = 0, tMVMatrix[14] = 0, tMVMatrix[15] = 1
                 // 기본 변환
                 a = tMVMatrix
                 // 이동
@@ -139,56 +144,56 @@ var RedRender;
                 // xyz축 회전 
                 tRx = tMesh['rotation'][0], tRy = tMesh['rotation'][1], tRz = tMesh['rotation'][2]
                 aSx = SIN(tRx), aCx = COS(tRx), aSy = SIN(tRy), aCy = COS(tRy), aSz = SIN(tRz), aCz = COS(tRz),
-                a00 = a[0], a01 = a[1], a02 = a[2],
-                a10 = a[4], a11 = a[5], a12 = a[6],
-                a20 = a[8], a21 = a[9], a22 = a[10],
-                b00 = aCy * aCz, b01 = aSx * aSy * aCz - aCx * aSz, b02 = aCx * aSy * aCz + aSx * aSz,
-                b10 = aCy * aSz, b11 = aSx * aSy * aSz + aCx * aCz, b12 = aCx * aSy * aSz - aSx * aCz,
-                b20 = -aSy, b21 = aSx * aCy, b22 = aCx * aCy,
-                a[0] = a00 * b00 + a10 * b01 + a20 * b02, a[1] = a01 * b00 + a11 * b01 + a21 * b02, a[2] = a02 * b00 + a12 * b01 + a22 * b02,
-                a[4] = a00 * b10 + a10 * b11 + a20 * b12, a[5] = a01 * b10 + a11 * b11 + a21 * b12, a[6] = a02 * b10 + a12 * b11 + a22 * b12,
-                a[8] = a00 * b20 + a10 * b21 + a20 * b22, a[9] = a01 * b20 + a11 * b21 + a21 * b22, a[10] = a02 * b20 + a12 * b21 + a22 * b22;
+                    a00 = a[0], a01 = a[1], a02 = a[2],
+                    a10 = a[4], a11 = a[5], a12 = a[6],
+                    a20 = a[8], a21 = a[9], a22 = a[10],
+                    b00 = aCy * aCz, b01 = aSx * aSy * aCz - aCx * aSz, b02 = aCx * aSy * aCz + aSx * aSz,
+                    b10 = aCy * aSz, b11 = aSx * aSy * aSz + aCx * aCz, b12 = aCx * aSy * aSz - aSx * aCz,
+                    b20 = -aSy, b21 = aSx * aCy, b22 = aCx * aCy,
+                    a[0] = a00 * b00 + a10 * b01 + a20 * b02, a[1] = a01 * b00 + a11 * b01 + a21 * b02, a[2] = a02 * b00 + a12 * b01 + a22 * b02,
+                    a[4] = a00 * b10 + a10 * b11 + a20 * b12, a[5] = a01 * b10 + a11 * b11 + a21 * b12, a[6] = a02 * b10 + a12 * b11 + a22 * b12,
+                    a[8] = a00 * b20 + a10 * b21 + a20 * b22, a[9] = a01 * b20 + a11 * b21 + a21 * b22, a[10] = a02 * b20 + a12 * b21 + a22 * b22;
                 // 스케일
                 aX = tMesh['scale'][0], aY = tMesh['scale'][1], aZ = tMesh['scale'][2]
                 a[0] = a[0] * aX, a[1] = a[1] * aX, a[2] = a[2] * aX, a[3] = a[3] * aX;
                 a[4] = a[4] * aY, a[5] = a[5] * aY, a[6] = a[6] * aY, a[7] = a[7] * aY,
-                a[8] = a[8] * aZ, a[9] = a[9] * aZ, a[10] = a[10] * aZ, a[11] = a[11] * aZ,
-                a[12] = a[12], a[13] = a[13], a[14] = a[14], a[15] = a[15]
+                    a[8] = a[8] * aZ, a[9] = a[9] * aZ, a[10] = a[10] * aZ, a[11] = a[11] * aZ,
+                    a[12] = a[12], a[13] = a[13], a[14] = a[14], a[15] = a[15]
                 // 부모가있으면 곱함
                 if (parentMTX) {
                     // 부모매트릭스 복사
                     var parentClone = new glMatrix.ARRAY_TYPE(16);
                     parentClone[0] = parentMTX[0], parentClone[1] = parentMTX[1], parentClone[2] = parentMTX[2], parentClone[3] = parentMTX[3],
-                    parentClone[4] = parentMTX[4], parentClone[5] = parentMTX[5], parentClone[6] = parentMTX[6], parentClone[7] = parentMTX[7],
-                    parentClone[8] = parentMTX[8], parentClone[9] = parentMTX[9], parentClone[10] = parentMTX[10], parentClone[11] = parentMTX[11],
-                    parentClone[12] = parentMTX[12], parentClone[13] = parentMTX[13], parentClone[14] = parentMTX[14], parentClone[15] = parentMTX[15]
+                        parentClone[4] = parentMTX[4], parentClone[5] = parentMTX[5], parentClone[6] = parentMTX[6], parentClone[7] = parentMTX[7],
+                        parentClone[8] = parentMTX[8], parentClone[9] = parentMTX[9], parentClone[10] = parentMTX[10], parentClone[11] = parentMTX[11],
+                        parentClone[12] = parentMTX[12], parentClone[13] = parentMTX[13], parentClone[14] = parentMTX[14], parentClone[15] = parentMTX[15]
                     /////////////////////////////////////////////////////////////////////////////////////////////
                     // 매트립스 곱
                     a00 = parentClone[0], a01 = parentClone[1], a02 = parentClone[2], a03 = parentClone[3],
-                    a10 = parentClone[4], a11 = parentClone[5], a12 = parentClone[6], a13 = parentClone[7],
-                    a20 = parentClone[8], a21 = parentClone[9], a22 = parentClone[10], a23 = parentClone[11],
-                    a30 = parentClone[12], a31 = parentClone[13], a32 = parentClone[14], a33 = parentClone[15],
-                    // Cache only the current line of the second matrix
-                    b0 = tMVMatrix[0], b1 = tMVMatrix[1], b2 = tMVMatrix[2], b3 = tMVMatrix[3],
-                    tMVMatrix[0] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30,
-                    tMVMatrix[1] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31,
-                    tMVMatrix[2] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32,
-                    tMVMatrix[3] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33,
-                    b0 = tMVMatrix[4], b1 = tMVMatrix[5], b2 = tMVMatrix[6], b3 = tMVMatrix[7],
-                    tMVMatrix[4] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30,
-                    tMVMatrix[5] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31,
-                    tMVMatrix[6] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32,
-                    tMVMatrix[7] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33,
-                    b0 = tMVMatrix[8], b1 = tMVMatrix[9], b2 = tMVMatrix[10], b3 = tMVMatrix[11],
-                    tMVMatrix[8] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30,
-                    tMVMatrix[9] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31,
-                    tMVMatrix[10] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32,
-                    tMVMatrix[11] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33,
-                    b0 = tMVMatrix[12], b1 = tMVMatrix[13], b2 = tMVMatrix[14], b3 = tMVMatrix[15],
-                    tMVMatrix[12] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30,
-                    tMVMatrix[13] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31,
-                    tMVMatrix[14] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32,
-                    tMVMatrix[15] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33
+                        a10 = parentClone[4], a11 = parentClone[5], a12 = parentClone[6], a13 = parentClone[7],
+                        a20 = parentClone[8], a21 = parentClone[9], a22 = parentClone[10], a23 = parentClone[11],
+                        a30 = parentClone[12], a31 = parentClone[13], a32 = parentClone[14], a33 = parentClone[15],
+                        // Cache only the current line of the second matrix
+                        b0 = tMVMatrix[0], b1 = tMVMatrix[1], b2 = tMVMatrix[2], b3 = tMVMatrix[3],
+                        tMVMatrix[0] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30,
+                        tMVMatrix[1] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31,
+                        tMVMatrix[2] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32,
+                        tMVMatrix[3] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33,
+                        b0 = tMVMatrix[4], b1 = tMVMatrix[5], b2 = tMVMatrix[6], b3 = tMVMatrix[7],
+                        tMVMatrix[4] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30,
+                        tMVMatrix[5] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31,
+                        tMVMatrix[6] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32,
+                        tMVMatrix[7] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33,
+                        b0 = tMVMatrix[8], b1 = tMVMatrix[9], b2 = tMVMatrix[10], b3 = tMVMatrix[11],
+                        tMVMatrix[8] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30,
+                        tMVMatrix[9] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31,
+                        tMVMatrix[10] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32,
+                        tMVMatrix[11] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33,
+                        b0 = tMVMatrix[12], b1 = tMVMatrix[13], b2 = tMVMatrix[14], b3 = tMVMatrix[15],
+                        tMVMatrix[12] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30,
+                        tMVMatrix[13] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31,
+                        tMVMatrix[14] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32,
+                        tMVMatrix[15] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33
                     /////////////////////////////////////////////////////////////////////////////////////////////
                 }
                 // 정보세팅
@@ -211,7 +216,7 @@ var RedRender;
                 i2 = tAttrGroupList.length
                 while (i2--) {
                     tAttrBufferInfo = tAttrGroupList[i2], // 대상버퍼구하고
-                    tAttrPointer = tAttrBufferInfo['shaderPointerKey'] // 바인딩할 쉐이더 변수키를 알아낸다.
+                        tAttrPointer = tAttrBufferInfo['shaderPointerKey'] // 바인딩할 쉐이더 변수키를 알아낸다.
                     if (tAttrLocationGroup[tAttrPointer]) { // 정보매칭이 안되는 녀석은 무시한다 
                         tLocation = tAttrLocationGroup[tAttrPointer]['location'] // 로케이션도 알아낸다.
                         // 캐싱된 attribute정보과 현재 대상정보가 같다면 무시
@@ -252,22 +257,22 @@ var RedRender;
                 var bitmapRenderable = true
                 while (i2--) {
                     tUniformKey = tUniformGroupList[i2]['key'],
-                    tUniformValue = tUniformGroupList[i2]['value'],
-                    tLocation = tUniformGroupList[i2]['location']
-                    if(tUniformKey == 'uAtlascoord'){
+                        tUniformValue = tUniformGroupList[i2]['value'],
+                        tLocation = tUniformGroupList[i2]['location']
+                    if (tUniformKey == 'uAtlascoord') {
                         //TODO: 고정유니폼을 태울 방법을 고민해야겠어...
                         // console.log(tUniformGroup[tUniformKey])               
                         // console.log(tLocation)   
                         cacheUAtlascoord_UUID == tUniformGroup[tUniformKey]['__UUID'] ? 0 : tGL.uniform4fv(tLocation, tUniformGroup[tUniformKey]['value'])
                         cacheUAtlascoord_UUID = tUniformGroup[tUniformKey]['__UUID']
-                    }else  if (tUniformValue['__uniformMethod']) {
+                    } else if (tUniformValue['__uniformMethod']) {
                         tUniformValue['__isMatrix'] // 매트릭스형태인지 아닌지 파악
                             ? tGL[tUniformValue['__uniformMethod']](tLocation, false, tUniformGroup[tUniformKey])
                             : tGL[tUniformValue['__uniformMethod']](tLocation, tUniformGroup[tUniformKey])
                     }
                     else if (tUniformValue['__webglAtlasTexture']) {
                         var tTexture;
-                        tTexture = tUniformValue['targetAtlasInfo']['textureInfo']
+                        tTexture = tUniformValue['parentAtlasInfo']['textureInfo']
                         if (cacheTextureAtlas_UUID[tTexture['__targetIndex']] == undefined) bitmapRenderable = false
                         if (tTexture['loaded']) {
                             if (cacheTextureAtlas_UUID[tTexture['__targetIndex']] != tTexture['__UUID']) {
@@ -278,7 +283,7 @@ var RedRender;
                                 tGL.bindTexture(tGL.TEXTURE_2D, tTexture['texture'])
                                 cacheTextureAtlas_UUID[tTexture['__targetIndex']] = tTexture['__UUID']
                             }
-                            cacheActiveTextureIndex != tTexture['__targetIndex'] ?  tGL.uniform1i(tLocation, tTexture['__targetIndex']) : 0
+                            cacheActiveTextureIndex != tTexture['__targetIndex'] ? tGL.uniform1i(tLocation, tTexture['__targetIndex']) : 0
                             cacheActiveTextureIndex = tTexture['__targetIndex']
                         }
                     }
@@ -292,7 +297,7 @@ var RedRender;
                                 tGL.bindTexture(tGL.TEXTURE_2D, tUniformValue['texture'])
                                 cacheTexture1_UUID = tUniformValue['__UUID']
                             }
-                            cacheActiveTextureIndex != tUniformValue['__targetIndex'] ?  tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
+                            cacheActiveTextureIndex != tUniformValue['__targetIndex'] ? tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
                             cacheActiveTextureIndex = tUniformValue['__targetIndex']
                         }
                     }
@@ -315,9 +320,31 @@ var RedRender;
             }
         }
     }
+    /**DOC:
+        {
+            title :`RedMeshInfo`,
+            code : `PROPERTY`,
+            description : `
+                - 렌더러 시작 매서드
+            `,
+            example : `
+                var renderer = RedRender(RedGL Instance, RedSceneInfo Instance, function (time) {
+                    // 렌더링시 사전호출될 콜백
+                })
+                renderer.start()
+            `,
+            return : `RedRender Instance`
+        }
+    :DOC*/
     RedRender.prototype = {
         start: function () {
             requestAnimationFrame(this.render)
+        },
+        pause: function () {
+            //TODO:
+        },
+        resume: function () {
+            //TODO:
         }
     }
     Object.freeze(RedRender)

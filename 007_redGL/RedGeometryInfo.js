@@ -74,7 +74,7 @@ var RedGeometryInfo;
             title :`attributes`,
             description : `
                 - attribute Buffer 정보들
-                - vertexPosition,texcoord,normal 키는 고정키이다.
+                - vertexPosition,texcoord,normal 정보를 가진다.(존재하지 않을경우 키 자체가 없다.)
             `,
 			example : `인스턴스.attributes`,
 			return : 'Object'
@@ -106,17 +106,16 @@ var RedGeometryInfo;
         if (verticesBufferInfo) this['attributes']['vertexPosition'] = verticesBufferInfo // 버텍스버퍼
         if (texcoordBufferInfo) this['attributes']['texcoord'] = texcoordBufferInfo // 코디네이트버퍼
         if (normalBufferInfo) this['attributes']['normal'] = normalBufferInfo // 노말버퍼
-        
+        //
         this['__attributeList'] = []
         for (k in this['attributes']) {
             this['__attributeList'].push(this['attributes'][k])
         }
-
+        //
         this['indices'] = indicesBufferInfo
         this['__UUID'] = REDGL_UUID++
         // 캐싱
         tDatas[key] = this
-        // console.log(this)
     }
     Object.freeze(RedGeometryInfo)
 })();

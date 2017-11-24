@@ -15,12 +15,16 @@ var RedTextureInfo;
 				],
 				targetIndex : [
 					{type:'Integer'},
-					'타겟 인덱스를 지정한다.',
-					'기본인덱스는 1번을 사용함'
+					'- 타겟 인덱스를 지정한다.',
+					'- 기본값 : 1 (기본인덱스는 1번을 사용함)',
+					'- 아틀라스텍스쳐의 경우 하드웨어 지원 텍스쳐수의 절반을 parseInt한 값을 시작으로 끝까지 시스템에서 자동으로 부여함.'
+
 				]
 			},
 			example : `
-				TODO:
+				var testGL
+				testGL = RedGL(document.getElementById('test'), true)
+				RedTextureInfo(testGL, 'asset/crate.png')
 			`,
 			return : 'RedTextureInfo Instance'
 		}

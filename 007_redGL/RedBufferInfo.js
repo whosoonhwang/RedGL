@@ -39,6 +39,10 @@
                 '포인트 갯수',
                 '입력하지않으면 rawData/pointSize로 자동입력'
             ],
+            arrayType : [
+                {type:'glConst'},
+                'ex) gl.FLOAT'
+            ],
             normalize : [
                 {type:'Boolean'},
                 '기본값 : false'
@@ -52,7 +56,7 @@
                 '기본값 : 0'
             ],
             drawMode : [
-                {type:'Integer'},
+                {type:'glConst'},
                 '기본값 : gl.STATIC_DRAW'
             ]
         },
@@ -60,12 +64,12 @@
             var test;
             test = RedGL(Canvas Element)
             // basic이라는 이름으로 버텍스 쉐이더를 만든다. 
-            test.createShaderInfo(test,'basic', RedBufferInfo.VERTEX_SHADER, 쉐이더소스)
-            test.createShaderInfo(test,'basic', RedBufferInfo.FRAGMENT_SHADER, 쉐이더소스)
-            test.createProgram(
-                test,'basic',
-                test.createShaderInfo(test,'basic', RedBufferInfo.VERTEX_SHADER),
-                test.createShaderInfo(test,'basic', RedBufferInfo.FRAGMENT_SHADER)
+            test.createShaderInfo('basic', RedBufferInfo.VERTEX_SHADER, 쉐이더소스)
+            test.createShaderInfo('basic', RedBufferInfo.FRAGMENT_SHADER, 쉐이더소스)
+            test.createProgramInfo(
+                'basic',
+                test.createShaderInfo('basic', RedBufferInfo.VERTEX_SHADER),
+                test.createShaderInfo('basic', RedBufferInfo.FRAGMENT_SHADER)
             )
         `,
         return : 'RedBufferInfo Instance'
@@ -99,7 +103,7 @@ var RedBufferInfo;
             case RedBufferInfo.ARRAY_BUFFER:
                 bufferType = tGL.ARRAY_BUFFER
                 if (!(arrayData instanceof Float32Array || arrayData instanceof Float64Array)) {
-                     throw 'TypedArray형식을 사용해야합니다.'
+                    throw 'TypedArray형식을 사용해야합니다.'
                 }
                 break
             case RedBufferInfo.ELEMENT_ARRAY_BUFFER:
@@ -131,12 +135,26 @@ var RedBufferInfo;
         /**DOC:
 		{
             title :`arrayType`,
-			description : `버퍼적용시 전달할 타입드 어레이 타입`,
+            description : `
+                - 버퍼적용시 전달할 타입드 어레이 타입
+                - 입력된 arrayData와 맞지않은 형식일경우..에러방출
+            `,
 			example : `인스턴스.arrayType`,
 			return : 'glConst'
         }
         :DOC*/
-        if (arrayType) this['arrayType'] = arrayType
+        if (arrayType) {
+            var passed = false
+            if (arrayData instanceof Int8Array) { passed = arrayType == tGL.BYTE }
+            else if (arrayData instanceof Uint8Array) { passed = arrayType == tGL.UNSIGNED_BYTE }
+            else if (arrayData instanceof Int16Array) { passed = arrayType == tGL.SHORT }
+            else if (arrayData instanceof Uint16Array) { passed = arrayType == tGL.UNSIGNED_SHORT }
+            else if (arrayData instanceof Int32Array) { passed = arrayType == tGL.INT }
+            else if (arrayData instanceof Uint32Array) { passed = arrayType == tGL.UNSIGNED_INT }
+            else if (arrayData instanceof Float32Array) { passed = arrayType == tGL.FLOAT }
+            if (!passed) throw "arrayData 형식과 arrayType이 맞지않습니다.";
+            this['arrayType'] = arrayType
+        }
         else throw '버퍼데이터의 형식을 지정해주세요'
         /**DOC:
 		{

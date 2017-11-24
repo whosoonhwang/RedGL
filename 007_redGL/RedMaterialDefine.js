@@ -4,8 +4,8 @@
         constructorYn : true,
         title :`RedMaterialDefine`,
         description : `
-            - RedGL에서 사용할 재질정보를 정의
-            - <b>유일키</b>만 지원하며 키 중복일경우 에러발생         
+            - RedGL에서 사용할 재질정보를 정의.
+            - <b>유일키</b>만 지원하며 키 중복일경우 에러발생.
             - <b>Object.freeze</b> 상태로 반환됨.
         `,
         params : {
@@ -22,13 +22,13 @@
             var test;
             test = RedGL(Canvas Element)
             // basic이라는 이름으로 버텍스 쉐이더를 만든다. 
-            test.createShaderInfo(test,'basic', RedProgramInfo.VERTEX_SHADER, 쉐이더소스)
-            test.createShaderInfo(test,'basic', RedProgramInfo.FRAGMENT_SHADER, 쉐이더소스)
+            test.createShaderInfo('basic', RedProgramInfo.VERTEX_SHADER, 쉐이더소스)
+            test.createShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER, 쉐이더소스)
             // basic이라는 이름으로 프로그램을 만든다. 
-            test.createProgram(
-                test,'basic',
-                test.createShaderInfo(test,'basic', RedProgramInfo.VERTEX_SHADER),
-                test.createShaderInfo(test,'basic', RedProgramInfo.FRAGMENT_SHADER)
+            test.createProgramInfo(
+                'basic',
+                test.getShaderInfo('basic', RedProgramInfo.VERTEX_SHADER),
+                test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER)
             )
             // basic이라는 타입의 재질을 만든다.
             RedMaterialDefine(test, test.getProgramInfo('basic'))

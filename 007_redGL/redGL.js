@@ -11,11 +11,11 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		var t0, i;
 		option = {
 			alpha: false,
-			depth : true,
-			failIfMajorPerformanceCaveat :false,
+			depth: true,
+			failIfMajorPerformanceCaveat: false,
 			premultipliedAlpha: false,
-			preserveDrawingBuffer : false,
-			stencil:false
+			preserveDrawingBuffer: false,
+			stencil: false
 		}
 		checkList = 'experimental-webgl,webgl,webkit-3d,moz-webgl,3d'.split(',')
 		return function (cvs) {
@@ -61,8 +61,6 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		this['detect'] = redGLDetect(this)
 		console.log('RedGL 생성완료')
 		// 초기상태정의
-
-
 		// tGL.clearColor(0,0,0,0)
 		// set the depthTest
 		tGL.enable(tGL.DEPTH_TEST);
@@ -119,10 +117,10 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			W = width ? width : (document.documentElement ? document.documentElement.clientWidth : document.body.clientWidth)
 			H = height ? height : (document.documentElement ? document.documentElement.clientHeight : document.body.clientHeight)
 			gl = this.gl
-			W = W 
-			H = H 
-			this.__canvas.width = W* window.devicePixelRatio
-			this.__canvas.height = H* window.devicePixelRatio
+			W = W
+			H = H
+			this.__canvas.width = W * window.devicePixelRatio
+			this.__canvas.height = H * window.devicePixelRatio
 			this.__canvas.style.width = W
 			this.__canvas.style.height = H
 			gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
@@ -135,53 +133,60 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			title :`calcNormal`,
 			code: 'FUNCTION',
 			description : `
-				노말데이터생성
+				- 버텍스 정보와 인덱스정보를 토대로 노말데이터(Float32Array생성.
+				- <span style="color:red">이놈음 다른곳으로 옮겨야할듯</span>
 			`,
 			params : {
-				id : [
-					{type:'String'},
-					'아이디'
+				pos : [
+					{type:'Float32Array'},
+					'버덱스 데이터 정보'
+				],
+				idx : [
+					{type:'Uint16Array'},
+					'인덱스 데이터 정보'
 				]
 			},
 			example : `
-				RedShaderInfo.getSourceFromScript(id)
+				var vs = new Float32Array(10)
+				var is = new Uint16Array(10)
+				RedGL인스턴스.calcNormal(vs,is)
 			`,
-			return : 'String'
+			return : 'Float32Array Instance'
 		}
 		:DOC*/
-		calcNormal : (function () {
+		calcNormal: (function () {
 			var sqrt, v1, v2;
 			sqrt = Math.sqrt,
-			v1 = {x: 0, y: 0, z: 0}, v2 = {x: 0, y: 0, z: 0};
+				v1 = { x: 0, y: 0, z: 0 }, v2 = { x: 0, y: 0, z: 0 };
 			return function calcNormal(pos, idx) {
 				var i, j, k, l;
 				var ns = new Float32Array(pos.length)
-				for ( i = 0, j = pos.length; i < j; i++) ns[i] = 0.0;
+				for (i = 0, j = pos.length; i < j; i++) ns[i] = 0.0;
 				for (i = 0, j = idx.length; i < j; i += 3) {
 					k = 3 * idx[i + 1],
-					l = 3 * idx[i],
-					v1.x = pos[k] - pos[l],
-					v1.y = pos[k + 1] - pos[l + 1],
-					v1.z = pos[k + 2] - pos[l + 2],
-					l = 3 * idx[i + 2],
-					v2.x = pos[l] - pos[k],
-					v2.y = pos[l + 1] - pos[k + 1],
-					v2.z = pos[l + 2] - pos[k + 2];
+						l = 3 * idx[i],
+						v1.x = pos[k] - pos[l],
+						v1.y = pos[k + 1] - pos[l + 1],
+						v1.z = pos[k + 2] - pos[l + 2],
+						l = 3 * idx[i + 2],
+						v2.x = pos[l] - pos[k],
+						v2.y = pos[l + 1] - pos[k + 1],
+						v2.z = pos[l + 2] - pos[k + 2];
 					for (k = 0; k < 3; k++) {
 						l = 3 * idx[i + k],
-						ns[l] += v1.y * v2.z - v1.z * v2.y,
-						ns[l + 1] += v1.z * v2.x - v1.x * v2.z,
-						ns[l + 2] += v1.x * v2.y - v1.y * v2.x;
+							ns[l] += v1.y * v2.z - v1.z * v2.y,
+							ns[l + 1] += v1.z * v2.x - v1.x * v2.z,
+							ns[l + 2] += v1.x * v2.y - v1.y * v2.x;
 					}
 				}
 				for (i = 0, j = pos.length; i < j; i += 3) {
 					v1.x = ns[i],
-					v1.y = ns[i + 1],
-					v1.z = ns[i + 2],
-					k = sqrt(v1.x * v1.x + v1.y * v1.y + v1.z * v1.z) || 0.00001,
-					ns[i] = v1.x / k,
-					ns[i + 1] = v1.y / k,
-					ns[i + 2] = v1.z / k;
+						v1.y = ns[i + 1],
+						v1.z = ns[i + 2],
+						k = sqrt(v1.x * v1.x + v1.y * v1.y + v1.z * v1.z) || 0.00001,
+						ns[i] = v1.x / k,
+						ns[i + 1] = v1.y / k,
+						ns[i + 2] = v1.z / k;
 				}
 				return ns;
 			};
@@ -272,7 +277,7 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		{
 			title :`createProgram`,
 			code : 'FUNCTION',
-			description : `- TODO`
+			description : `프로그램 생성 단축 매서드`
 		}
 		:DOC*/
 		createProgramInfo: function (key, vShaderInfo, fShaderInfo, makeUniformValue) {
@@ -282,7 +287,13 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		{
 			title :`getProgramInfo`,
 			code : 'FUNCTION',
-			description : `- TODO`
+			description : `프로그램 조회`,
+			parmas : {
+				key :[
+					{type:'String'},
+					'키로 등록된 프로그램을 조회함'
+				]
+			}
 		}
 		:DOC*/
 		getProgramInfo: function (key) {
@@ -292,7 +303,7 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		{
 			title :`createArrayBufferInfo`,
 			code : 'FUNCTION',
-			description : `- TODO`
+			description : `Array버퍼 생성 단축 매서드`
 		}
 		:DOC*/
 		createArrayBufferInfo: function (key, pointer, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode) {
@@ -302,7 +313,7 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		{
 			title :`createIndexBufferInfo`,
 			code : 'FUNCTION',
-			description : `- TODO`
+			description : `ElementArray버퍼 생성 단축 매서드`
 		}
 		:DOC*/
 		createIndexBufferInfo: function (key, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode) {
@@ -312,7 +323,13 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		{
 			title :`getArrayBufferInfo`,
 			code : 'FUNCTION',
-			description : `- TODO`
+			description : `Array버퍼 조회 매서드`,
+			parmas : {
+				key :[
+					{type:'String'},
+					'키로 등록된 Array버퍼를 조회함'
+				]
+			}
 		}
 		:DOC*/
 		getArrayBufferInfo: function (key) {
@@ -322,7 +339,13 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		{
 			title :`getIndexBufferInfo`,
 			code : 'FUNCTION',
-			description : `- TODO`
+			description : `ElementArray버퍼 조회 매서드`,
+			parmas : {
+				key :[
+					{type:'String'},
+					'키로 등록된 ElementArray버퍼를 조회함'
+				]
+			}
 		}
 		:DOC*/
 		getIndexBufferInfo: function (key) {
@@ -332,17 +355,24 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		{
 			title :`createGeometryInfo`,
 			code : 'FUNCTION',
-			description : `- TODO`
+			description : `지오메트리정보 생성 단축 매서드`
 		}
 		:DOC*/
 		createGeometryInfo: function (key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer) {
+			//TODO: texcoordBuffer, normalBuffer 이없으면 자동생성할수있게!
 			return new RedGeometryInfo(this, key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer)
 		},
 		/**DOC:
 		{
 			title :`getGeometryInfo`,
 			code : 'FUNCTION',
-			description : `- TODO`
+			description : `지오메트리정보 조회 매서드.`,
+			parmas : {
+				key :[
+					{type:'String'},
+					'키로 등록된 지오메트리정보를 조회함'
+				]
+			}
 		}
 		:DOC*/
 		getGeometryInfo: function (key) {
@@ -352,7 +382,7 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		{
 			title :`createMeshInfo`,
 			code : 'FUNCTION',
-			description : `- TODO`
+			description : `매시정보 단축 생성 매서드`
 		}
 		:DOC*/
 		createMeshInfo: function (key, geometry, material) {
@@ -362,7 +392,13 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		{
 			title :`getMeshInfo`,
 			code : 'FUNCTION',
-			description : `- TODO`
+			description : `매시정보 조회 단축 매서드`,
+			parmas : {
+				key :[
+					{type:'String'},
+					'키로 등록된 매쉬를 조회함'
+				]
+			}
 		}
 		:DOC*/
 		getMeshInfo: function (key) {
@@ -372,9 +408,7 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		{
 			title :`createMaterialInfo`,
 			code : 'FUNCTION',
-			description : `
-				- 재질정보생성
-			`
+			description : `재질정보 생성 단축 매서드`
 		}
 		:DOC*/
 		createMaterialInfo: function (typeName, diffuseInfo) {
