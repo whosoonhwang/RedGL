@@ -69,6 +69,7 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		tGL.depthFunc(tGL.LEQUAL)
 		// tGL.depthMask(false)
 		// set the cullFace
+		tGL.frontFace(tGL.CCW)
 		tGL.enable(tGL.CULL_FACE);
 		tGL.cullFace(tGL.BACK)
 		// set the blendMode
