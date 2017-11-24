@@ -15,6 +15,20 @@
     "return": "Number"
   },
   {
+    "title": "lookAt",
+    "code": "FUNCTION",
+    "description": "\n    - 카메라가 targetPosition을 바라보게 설정함.\n",
+    "params": {
+      "targetPosition": [
+        {
+          "type": "position vec3(Float32Array)"
+        },
+        "바라볼 포지션"
+      ]
+    },
+    "return": "RedBaseCamera Instance"
+  },
+  {
     "title": "near",
     "description": "\n    - 카메라 near\n    - 기본값 0.1\n",
     "return": "Number"
@@ -26,15 +40,15 @@
     "return": "RedBaseCamera Instance"
   },
   {
-    "title": "RedBaseCamera",
-    "code": "FUNCTION",
-    "description": "\n    - 카메라 매트릭스 업데이터\n",
-    "return": "RedBaseCamera Instance"
-  },
-  {
     "title": "uCameraMatrix",
     "description": "\n    - 카메라 매트릭스\n    - 고정유니폼으로서 쉐이더내에 uCameraMatrix 유니폼과 연동된다.\n",
     "return": "mat4(Float32Arrat)"
+  },
+  {
+    "title": "update",
+    "code": "FUNCTION",
+    "description": "\n    - 퍼스팩티브업데이트\n",
+    "return": "RedBaseCamera Instance"
   },
   {
     "title": "uPMatrix",

@@ -87,7 +87,8 @@ var RedBaseCamera;
         :DOC*/
         this['far'] = 1000.0
         this['position'] = new Float32Array([0, 0, 0])
-        this['rotation'] = new Float32Array([0, 0, 0])
+        this['__quat'] = quat.create()
+        console.log(this['__quat'])
         this['__UUID'] = REDGL_UUID++
         this['__canvas'] = redGL.__canvas
         this.update()
@@ -96,17 +97,45 @@ var RedBaseCamera;
     }
 
     RedBaseCamera.prototype = {
-        lookAt : function(v){
-            var up = [0, 1, 0];
-            //out, eye, center, up
-            mat4.lookAt(this['uCameraMatrix'],this['position'], v, up);
+        /**DOC:
+            {
+                title :`lookAt`,
+                code : 'FUNCTION',
+                description : `
+                    - 카메라가 targetPosition을 바라보게 설정함.
+                `,
+                params : {
+                    targetPosition : [
+                        {type:'position vec3(Float32Array)'},
+                        `바라볼 포지션`
+                    ]
+                },
+                return : 'RedBaseCamera Instance'
+            }
+        :DOC*/
+        lookAt: (function () {
+            var up = new Float32Array([0, 1, 0]);
+            return function (targetPosition) {
+                //out, eye, center, up
+                mat4.lookAt(this['uCameraMatrix'], this['position'], targetPosition, up);
+                // mat4.getRotation(this['__quat'], this['uCameraMatrix'])
+                // TODO: 쿼터니언에서...뽑아내자...아님 쿼터니언만 사용하기엔 좀 부담이긴한데..
+                this['__quat'][0] = 0
+                this['__quat'][1] = 0
+                this['__quat'][2] = 0
+                this['__quat'][3] = 1
+            }
+        })(),
+        identity: function () {
+            mat4.identity(this['uCameraMatrix'])
+            this['position'][0] = 0, this['position'][1] = 0, this['position'][2] = 0
         },
         /**DOC:
             {
-                title :`RedBaseCamera`,
+                title :`update`,
                 code : 'FUNCTION',
                 description : `
-                    - 카메라 매트릭스 업데이터
+                    - 퍼스팩티브업데이트
                 `,
                 return : 'RedBaseCamera Instance'
             }
@@ -115,13 +144,11 @@ var RedBaseCamera;
             // 퍼스펙티브만 관여
             this['aspect'] = this['__canvas'].clientWidth / this['__canvas'].clientHeight
             mat4.identity(this['uPMatrix'])
+
             mat4.perspective(this['uPMatrix'], this['fov'], this['aspect'], this['near'], this['far'])
-            // 개별 카메라 매트릭스는 또 새로 계산함
+
             // mat4.identity(this['uCameraMatrix'])
-            // mat4.fromTranslation(this['uCameraMatrix'], this.position)
-            // mat4.rotateX(this['uCameraMatrix'], this['uCameraMatrix'], this['rotation'][0])
-            // mat4.rotateY(this['uCameraMatrix'], this['uCameraMatrix'], this['rotation'][1])
-            // mat4.rotateZ(this['uCameraMatrix'], this['uCameraMatrix'], this['rotation'][2])
+            // mat4.fromTranslation(this['uCameraMatrix'], this['position'])
             // console.log(this)
             return this
         }
