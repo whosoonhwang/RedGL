@@ -13,13 +13,17 @@ var RedTextureInfo;
 				redGL : [
 					{type:'RedGL Instance'}
 				],
-				targetIndex : [
-					{type:'Integer'},
-					'- 타겟 인덱스를 지정한다.',
-					'- 기본값 : 1 (기본인덱스는 1번을 사용함)',
-					'- 아틀라스텍스쳐의 경우 하드웨어 지원 텍스쳐수의 절반을 parseInt한 값을 시작으로 끝까지 시스템에서 자동으로 부여함.'
-
+				src : [
+					{type:'String or CanvasElement'},
+					'텍스쳐경로나 캔버스 오브젝트만 사용가능'
 				]
+				// targetIndex : [
+				// 	{type:'Integer'},
+				// 	'- 타겟 인덱스를 지정한다.',
+				// 	'- 기본값 : 1 (기본인덱스는 1번을 사용함)',
+				// 	'- 아틀라스텍스쳐의 경우 하드웨어 지원 텍스쳐수의 절반을 parseInt한 값을 시작으로 끝까지 시스템에서 자동으로 부여함.'
+
+				// ]
 			},
 			example : `
 				var testGL
@@ -32,6 +36,7 @@ var RedTextureInfo;
 	RedTextureInfo = function (redGL, src, targetIndex, internalFormat, format, type) {
 		if (!(this instanceof RedTextureInfo)) return new RedTextureInfo(redGL, src, targetIndex, internalFormat, format, type)
 		if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+		if (typeof src !='string' && !(src instanceof Element && src.nodeName == 'CANVAS')) throw 'src는 문자열과 캔버스 오브젝트만 허용됩니다.'
 		var texture;
 		var img;
 		var level = 0;

@@ -94,24 +94,24 @@ console.log(testGL.createGeometryInfo(
 	testGL.getArrayBufferInfo('testNormalBuffer')
 ))
 // 재질정의
-var testMatDefine = RedMaterialDefine(testGL, testGL.getProgramInfo('color'))
-RedMaterialDefine(testGL, testGL.getProgramInfo('bitmap'))
-RedMaterialDefine(testGL, testGL.getProgramInfo('bitmapLite'))
+var testMatDefine = testGL.createMaterialDefine(testGL.getProgramInfo('color'))
+testGL.createMaterialDefine(testGL.getProgramInfo('bitmap'))
+testGL.createMaterialDefine(testGL.getProgramInfo('bitmapLite'))
 console.log(testMatDefine)
 // 재질생성 
-var testColorMat = RedMaterialInfo(testGL, 'color')
+var testColorMat = testGL.createMaterialInfo('color')
 // 텍스쳐생성! //TODO: testGL.createTextureInfo/getTextureInfo를 만들어야겠군...
-var testTexture = RedTextureInfo(testGL, 'asset/crate.png')
-var testTexture2 = RedTextureInfo(testGL, 'asset/test.png')
+var testTexture = testGL.createTextureInfo('asset/crate.png')
+var testTexture2 = testGL.createTextureInfo('asset/test.png')
 console.log(testTexture)
-var testMatBitmap = RedMaterialInfo(testGL, 'bitmapLite', testTexture)
-var testMatBitmap2 = RedMaterialInfo(testGL, 'bitmapLite', testTexture2)
+var testMatBitmap = testGL.createMaterialInfo('bitmapLite', testTexture)
+var testMatBitmap2 = testGL.createMaterialInfo('bitmapLite', testTexture2)
 console.log(testColorMat)
 console.log(testMatBitmap)
 // 메쉬 생성 테스트
 console.log(testGL.createMeshInfo('testMesh', testGL.getGeometryInfo('testGeo'), testColorMat))
 // Scene 생성 테스트
-var testScene = RedSceneInfo(testGL, 'testScene')
+var testScene = testGL.createSceneInfo('testScene')
 console.log(testScene)
 // 아틀라스테스트
 RedAtlasTextureManager(testGL, [
@@ -122,18 +122,18 @@ RedAtlasTextureManager(testGL, [
 	'asset/draft5.png',
 	'asset/test.png',
 ], function () {
-	var testMatBitmap3 = RedMaterialInfo(testGL, 'bitmapLite', RedAtlasTextureManager.getByKey('asset/test.png'))
-	var testMatBitmap4 = RedMaterialInfo(testGL, 'bitmapLite', RedAtlasTextureManager.getByKey('asset/draft1.png'))
-	var testMatBitmap5 = RedMaterialInfo(testGL, 'bitmapLite', RedAtlasTextureManager.getByKey('asset/draft2.png'))
-	var testMatBitmap6 = RedMaterialInfo(testGL, 'bitmapLite', RedAtlasTextureManager.getByKey('asset/draft3.png'))
-	var testMatBitmap7 = RedMaterialInfo(testGL, 'bitmapLite', RedAtlasTextureManager.getByKey('asset/draft4.png'))
-	var testMatBitmap8 = RedMaterialInfo(testGL, 'bitmapLite', RedAtlasTextureManager.getByKey('asset/draft5.png'))
+	var testMatBitmap3 = testGL.createMaterialInfo('bitmapLite', RedAtlasTextureManager.getByKey('asset/test.png'))
+	var testMatBitmap4 = testGL.createMaterialInfo('bitmapLite', RedAtlasTextureManager.getByKey('asset/draft1.png'))
+	var testMatBitmap5 = testGL.createMaterialInfo('bitmapLite', RedAtlasTextureManager.getByKey('asset/draft2.png'))
+	var testMatBitmap6 = testGL.createMaterialInfo('bitmapLite', RedAtlasTextureManager.getByKey('asset/draft3.png'))
+	var testMatBitmap7 = testGL.createMaterialInfo('bitmapLite', RedAtlasTextureManager.getByKey('asset/draft4.png'))
+	var testMatBitmap8 = testGL.createMaterialInfo('bitmapLite', RedAtlasTextureManager.getByKey('asset/draft5.png'))
 	setTimeout(function () {
 		var testAtlas2 = RedAtlasTextureManager(testGL, 'asset/addTest.png', function () {
 			console.log('아틀라스 추가!되었음!')
 			var i = 90, i2, i3;
 			while (i--) {
-				var testMatBitmap9 = RedMaterialInfo(testGL, 'bitmapLite', RedAtlasTextureManager.getByKey('asset/addTest.png'))
+				var testMatBitmap9 = testGL.createMaterialInfo('bitmapLite', RedAtlasTextureManager.getByKey('asset/addTest.png'))
 				var tMesh = testGL.createMeshInfo('testMeshAdd' + i, testGL.getGeometryInfo('testGeo'), testMatBitmap9)
 				tMesh.position[0] = Math.random() * 80 - 40
 				tMesh.position[1] = Math.random() * 80 - 40

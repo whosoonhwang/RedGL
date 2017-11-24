@@ -382,6 +382,36 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		},
 		/**DOC:
 		{
+			title :`createMaterialDefine`,
+			code : 'FUNCTION',
+			description : `재질정의정보 생성 단축 매서드`
+		}
+		:DOC*/
+		createMaterialDefine: function (programInfo) {
+			return new RedMaterialDefine(this, programInfo)
+		},
+		/**DOC:
+		{
+			title :`createMaterialInfo`,
+			code : 'FUNCTION',
+			description : `재질정보 생성 단축 매서드`
+		}
+		:DOC*/
+		createMaterialInfo: function (typeName, diffuseInfo) {
+			return new RedMaterialInfo(this, typeName, diffuseInfo)
+		},
+		/**DOC:
+		{
+			title :`createTextureInfo`,
+			code : 'FUNCTION',
+			description : `텍스쳐정보 생성 단축 매서드`
+		}
+		:DOC*/
+		createTextureInfo: function (src, targetIndex, internalFormat, format, type) {
+			return new RedTextureInfo(this, src, targetIndex, internalFormat, format, type)
+		},
+		/**DOC:
+		{
 			title :`createMeshInfo`,
 			code : 'FUNCTION',
 			description : `매시정보 단축 생성 매서드`
@@ -408,13 +438,13 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		},
 		/**DOC:
 		{
-			title :`createMaterialInfo`,
+			title :`createSceneInfo`,
 			code : 'FUNCTION',
-			description : `재질정보 생성 단축 매서드`
+			description : `씬정보 단축 생성 매서드`
 		}
 		:DOC*/
-		createMaterialInfo: function (typeName, diffuseInfo) {
-			return new RedMaterialInfo(this, typeName, diffuseInfo)
+		createSceneInfo: function (key) {
+			return new RedSceneInfo(this, key)
 		}
 	}
 })();
