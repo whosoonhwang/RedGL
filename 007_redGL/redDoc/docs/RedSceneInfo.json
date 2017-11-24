@@ -8,7 +8,7 @@
   {
     "constructorYn": true,
     "title": "RedSceneInfo",
-    "description": "\n    - RedGL에서 사용할 재질정보를 정의\n    - 타입키에 해당하는 정의가 존재하지않을경우 에러\n",
+    "description": "\n    - RedGL에서 사용할 Scene정보를 생성\n",
     "params": {
       "redGL": [
         {
@@ -20,7 +20,7 @@
         {
           "type": "String"
         },
-        "- 키"
+        "- 존재하는 키일경우 에러."
       ]
     },
     "example": "\n    var test;\n    test = RedGL(Canvas Element)\n    // firstScene 키로 Scene생성\n    RedSceneInfo(test,'firstScene')\n",

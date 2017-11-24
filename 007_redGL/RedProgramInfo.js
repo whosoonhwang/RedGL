@@ -28,12 +28,12 @@
             var test;
             test = RedGL(Canvas Element)
             // basic이라는 이름으로 버텍스 쉐이더를 만든다. 
-            test.createShaderInfo(test,'basic', RedProgramInfo.VERTEX_SHADER, 쉐이더소스)
-            test.createShaderInfo(test,'basic', RedProgramInfo.FRAGMENT_SHADER, 쉐이더소스)
-            test.createProgram(
-                test,'basic',
-                test.createShaderInfo(test,'basic', RedProgramInfo.VERTEX_SHADER),
-                test.createShaderInfo(test,'basic', RedProgramInfo.FRAGMENT_SHADER)
+            test.createShaderInfo('basic', RedProgramInfo.VERTEX_SHADER, 쉐이더소스)
+            test.createShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER, 쉐이더소스)
+            test.createProgramInfo(
+                'basic',
+                test.getShaderInfo('basic', RedProgramInfo.VERTEX_SHADER),
+                test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER)
             )
         `,
         return : 'RedProgramInfo Instance'
@@ -49,9 +49,10 @@ var RedProgramInfo;
     var tList;
     tList = []
     RedProgramInfo = function (redGL, key, vShaderInfo, fShaderInfo, makeUniformValue) {
-        if (!(this instanceof RedProgramInfo)) return new RedProgramInfo(redGL, key, vShaderInfo, fShaderInfo,makeUniformValue)
+        if (!(this instanceof RedProgramInfo)) return new RedProgramInfo(redGL, key, vShaderInfo, fShaderInfo, makeUniformValue)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
         if (typeof key != 'string') throw 'key - 문자열만 허용됩니다.'
+        if( !makeUniformValue) throw 'makeUniformValue - 반드시 정의해야합니다.'
         if (!vShaderInfo instanceof RedShaderInfo) throw 'vShaderInfo - RedShaderInfo만 허용됩니다.'
         if (!fShaderInfo instanceof RedShaderInfo) throw 'fShaderInfo - RedShaderInfo만 허용됩니다.'
         // 저장할 공간확보하고
@@ -121,7 +122,7 @@ var RedProgramInfo;
 		{
             title :`program`,
 			description : `실제 프로그램`,
-			example : `인스턴스.uniforms`,
+			example : `인스턴스.program`,
 			return : 'WebGLProgram'
 		}
 	    :DOC*/
@@ -139,16 +140,14 @@ var RedProgramInfo;
             fShaderInfo: fShaderInfo
         }
         this['__UUID'] = REDGL_UUID++
-         /**DOC:
+        /**DOC:
 		{
-            title :`shaderInfos`,
+            title :`makeUniformValue`,
             description : `
-             //TODO: 이놈을 외부에서 주입해야하는구만..
-             아마도 재질마다...필요한 유니폼들이 있을것이고..
-             해당하는 경우만 본인이 따로 재징등에...적용해 줄수있어야한다.
-             결국 프로그램이 유니폼에대한 정의를 내린다.
+             - 재질마다 필요한 유니폼에대한 정의를 내리는 함수.
+             - RedMaterialDefine에 의해 재질을 정의할때 이 함수가 호출되어 재질이 알고있어야 할 유니폼정보가 추가된다. 
             `,
-			example : `인스턴스.shaderInfos`,
+			example : `인스턴스.makeUniformValue`,
 			return : 'Object'
 		}
 	    :DOC*/

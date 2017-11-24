@@ -4,25 +4,25 @@
         constructorYn : true,
         title :`RedAtlasUVInfo`,
         description : `
-            <h2>주석 작성해야함</h2>
-            아틀라스 UV전용이라고 보면되겟당...
+            - <b>RedAtlasTextureManager</b>에 의해 자동 생성된 <b>RedAtlasUVInfo</b>.
+            - <span style="color:red">렌더링시 고정 유니폼인 <b>uAtlascoord</b>에 사용된다.</span>
+            - 사용자 생성은 금지한다.
+            - Object.freeze 상태로 반환.
         `,
         params : {
-            redGL : [
+            uvArray : [
                 {type:'Array'},
-                '- redGL Instance'
+                '- 생성초기값'
             ]
         },
-        example : `
-            //TODO
-        `,
-        return : 'RedAtlasUVInfo OBJECT'
+        return : 'RedAtlasUVInfo instance'
     }
 :DOC*/
 var RedAtlasUVInfo;
-RedAtlasUVInfo = function (v) {
-    if (!(this instanceof RedAtlasUVInfo)) return new RedAtlasUVInfo(v)
-    this['value'] = new Float32Array(v)
-    this['__UUID'] = REDGL_UUID++
-    this['value']['__UUID'] = this['__UUID']
+RedAtlasUVInfo = function (uvArray) {
+    if (!(this instanceof RedAtlasUVInfo)) return new RedAtlasUVInfo(uvArray)
+    if (!(uvArray instanceof Array)) throw 'uvArray는 Array만 허용합니다.'
+    this['value'] = new Float32Array(uvArray)
+    this['value']['__UUID'] = this['__UUID'] = REDGL_UUID++
+    Object.freeze(this)
 }

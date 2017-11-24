@@ -64,7 +64,10 @@ var RedMeshInfo;
 			return : 'mat4(Float32Array)'
         }
         :DOC*/
-        this['uMVMatrix'] = mat4.create()
+        Object.defineProperty(this,'uMVMatrix',{
+            value : mat4.create(),
+            enumerable : true
+        })
         /**DOC:
 		{
             title :`position`,

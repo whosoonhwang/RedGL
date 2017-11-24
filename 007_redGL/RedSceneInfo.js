@@ -5,8 +5,7 @@ var RedSceneInfo;
         constructorYn : true,
         title :`RedSceneInfo`,
         description : `
-            - RedGL에서 사용할 재질정보를 정의
-            - 타입키에 해당하는 정의가 존재하지않을경우 에러
+            - RedGL에서 사용할 Scene정보를 생성
         `,
         params : {
             redGL : [
@@ -15,7 +14,7 @@ var RedSceneInfo;
             ],
             key : [
                 {type:'String'},
-                '- 키'
+                '- 존재하는 키일경우 에러.'
             ]
         },
         example : `

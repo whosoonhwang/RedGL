@@ -5,7 +5,7 @@
         title :`RedShaderInfo`,
         description : `
             - RedShaderInfo 인스턴스 생성자
-            - <b>유일키</b>만 지원하며 키 중복일경우 기존 캐싱된 쉐이더정보를 반환함.
+            - <b>유일키</b>만 지원.
             - <b>단 프레그먼트/버텍스의 키는 따로 관리함.</b>
             - 쉐이더정보는 <b>Object.freeze</b> 상태로 반환됨.
         `,
@@ -32,7 +32,7 @@
             var test;
             test = RedGL(Canvas Element)
             // basic이라는 이름으로 버텍스 쉐이더를 만든다. 
-            test.createShaderInfo(test,'basic', RedShaderInfo.VERTEX_SHADER, 쉐이더소스)
+            test.createShaderInfo('basic', RedShaderInfo.VERTEX_SHADER, 쉐이더소스)
         `,
         return : 'RedShaderInfo Instance'
     }
@@ -55,8 +55,8 @@ var RedShaderInfo;
             redGL['__datas']['shaderInfo'][RedShaderInfo.VERTEX_SHADER] = {}
         }
         tDatas = redGL['__datas']['shaderInfo']
-        // 기존에 등록된 녀석이면 기존 데이터 리턴
-        if (tDatas[type][key]) return console.log('캐싱쉐이더 리턴!', key), tDatas[type][key]
+        // 기존에 등록된 녀석이면 퐈이어!
+        if (tDatas[type][key]) throw key + '는 '+type+'정보에 이미 존재하는 RedShaderInfo 입니다.'
         if (typeof source != 'string') throw 'source - 문자열만 허용됩니다.'
         tGL = redGL.gl
         // 쉐이더생성

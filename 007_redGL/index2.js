@@ -266,16 +266,16 @@ console.log(testGL.createShaderInfo('bitmapLite', RedShaderInfo.FRAGMENT_SHADER,
 // 프로그램생성
 testGL.createProgramInfo(
 	'color',
-	testGL.createShaderInfo('color', RedShaderInfo.VERTEX_SHADER),
-	testGL.createShaderInfo('color', RedShaderInfo.FRAGMENT_SHADER),
+	testGL.getShaderInfo('color', RedShaderInfo.VERTEX_SHADER),
+	testGL.getShaderInfo('color', RedShaderInfo.FRAGMENT_SHADER),
 	function (target) {
 		target.uniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random()])
 	}
 )
 testGL.createProgramInfo(
 	'bitmap',
-	testGL.createShaderInfo('bitmap', RedShaderInfo.VERTEX_SHADER),
-	testGL.createShaderInfo('bitmap', RedShaderInfo.FRAGMENT_SHADER),
+	testGL.getShaderInfo('bitmap', RedShaderInfo.VERTEX_SHADER),
+	testGL.getShaderInfo('bitmap', RedShaderInfo.FRAGMENT_SHADER),
 	function (target) {
 		target.uniforms.uTexture = target['diffuseInfo']
 		target.uniforms.uAtlascoord = RedAtlasUVInfo([0,0,1,1])
@@ -284,8 +284,8 @@ testGL.createProgramInfo(
 
 testGL.createProgramInfo(
 	'bitmapLite',
-	testGL.createShaderInfo('bitmapLite', RedShaderInfo.VERTEX_SHADER),
-	testGL.createShaderInfo('bitmapLite', RedShaderInfo.FRAGMENT_SHADER),
+	testGL.getShaderInfo('bitmapLite', RedShaderInfo.VERTEX_SHADER),
+	testGL.getShaderInfo('bitmapLite', RedShaderInfo.FRAGMENT_SHADER),
 	function (target) {
 		target.uniforms.uTexture = target['diffuseInfo']
 		target.uniforms.uAtlascoord =  RedAtlasUVInfo([0, 0, 1, 1])

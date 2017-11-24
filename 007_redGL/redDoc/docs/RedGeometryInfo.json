@@ -1,7 +1,7 @@
 [
   {
     "title": "attributes",
-    "description": "\n    - attribute Buffer 정보들\n    - vertexPosition,texcoord,normal 키는 고정키이다.\n",
+    "description": "\n    - attribute Buffer 정보들\n    - vertexPosition,texcoord,normal 정보를 가진다.(존재하지 않을경우 키 자체가 없다.)\n",
     "example": "인스턴스.attributes",
     "return": "Object"
   },

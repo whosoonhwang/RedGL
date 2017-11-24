@@ -21,13 +21,13 @@
             var test;
             test = RedGL(Canvas Element)
             // basic이라는 이름으로 버텍스 쉐이더를 만든다. 
-            test.createShaderInfo(test,'basic', RedProgramInfo.VERTEX_SHADER, 쉐이더소스)
-            test.createShaderInfo(test,'basic', RedProgramInfo.FRAGMENT_SHADER, 쉐이더소스)
+            test.createShaderInfo('basic', RedProgramInfo.VERTEX_SHADER, 쉐이더소스)
+            test.createShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER, 쉐이더소스)
             // basic이라는 이름으로 프로그램을 만든다. 
-            test.createProgram(
-                test,'basic',
-                test.createShaderInfo(test,'basic', RedProgramInfo.VERTEX_SHADER),
-                test.createShaderInfo(test,'basic', RedProgramInfo.FRAGMENT_SHADER)
+            test.createProgramInfo(
+                'basic',
+                test.getShaderInfo('basic', RedProgramInfo.VERTEX_SHADER),
+                test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER)
             )
             // basic이라는 타입의 재질 정의한다.
             RedMaterialDefine(test, test.getProgramInfo('basic'))

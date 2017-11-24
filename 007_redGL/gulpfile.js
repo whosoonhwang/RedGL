@@ -59,6 +59,7 @@ gulp.task('make-doc', function () {
 	console.log('-------------------------------------------');
 	console.log('시작!');
 	return gulp.src([
+		"RedAtlasInfo.js",
 		"RedAtlasTextureInfo.js",
 		"RedAtlasTextureManager.js",
 		'RedAtlasUVInfo.js',
