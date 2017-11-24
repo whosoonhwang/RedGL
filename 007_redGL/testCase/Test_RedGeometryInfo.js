@@ -60,7 +60,7 @@ testIndexBufferInfo = RedBufferInfo(
     testData_indexBuffer, // arrayData
     1, // pointSize
     36, // pointNum
-    testGL.gl.FLOAT, //arrayType
+    testGL.gl.UNSIGNED_SHORT, //arrayType
 )
 redSuite(
     "RedGeometryInfo Test",

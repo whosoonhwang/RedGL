@@ -1,5 +1,6 @@
 "use strict";
 var testGL = RedGL(Recard.Dom('canvas').S('width', 1000, 'height', 1000).__dom__)
+var testMakeUniformValue = function(){}
 testGL.createShaderInfo('basic', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('shader-vs'))
 testGL.createShaderInfo('basic', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('shader-fs'))
 var vShaderInfo, fShaderInfo
@@ -10,7 +11,8 @@ fShaderInfo = testGL.getShaderInfo('basic', RedShaderInfo.FRAGMENT_SHADER)
 testGL.createProgramInfo(
     'basic',
     vShaderInfo,
-    fShaderInfo
+    fShaderInfo,
+    testMakeUniformValue
 )
 redSuite(
     "RedMaterialDefine Test",
@@ -40,7 +42,8 @@ redSuite(
             testGL.createProgramInfo(
                 'test1',
                 vShaderInfo,
-                fShaderInfo
+                fShaderInfo,
+                testMakeUniformValue
             )
             try {
                 RedMaterialDefine(1, testGL.getProgramInfo('test1'))
@@ -55,7 +58,8 @@ redSuite(
             testGL.createProgramInfo(
                 'test2',
                 vShaderInfo,
-                fShaderInfo
+                fShaderInfo,
+                testMakeUniformValue
             )
             try {
                 RedMaterialDefine(testGL, {})
@@ -72,7 +76,8 @@ redSuite(
             testGL.createProgramInfo(
                 'test3',
                 vShaderInfo,
-                fShaderInfo
+                fShaderInfo,
+                testMakeUniformValue
             )
             t0 = RedMaterialDefine(testGL, testGL.getProgramInfo('test3'))
             t1 = true

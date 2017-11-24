@@ -290,6 +290,24 @@ console.log(testScene)
 	checkCall.style.left = '10px'
 	checkCall.style.top = '10px'
 	checkCall.style.color = '#fff'
+	var testCaseDoc = document.createElement('a')
+	document.body.appendChild(testCaseDoc)
+	testCaseDoc.style.position = 'absolute'
+	testCaseDoc.style.left = '10px'
+	testCaseDoc.style.bottom = '25px'
+	testCaseDoc.style.color = '#fff'
+	testCaseDoc.style.fontSize = '11px'
+	testCaseDoc.href = 'https://redcamel.github.io/studyWebGL3/007_redGL/testCase/index.html'
+	testCaseDoc.innerHTML = 'RedGL TestCase'
+	var doc = document.createElement('a')
+	document.body.appendChild(doc)
+	doc.style.position = 'absolute'
+	doc.style.left = '10px'
+	doc.style.bottom = '10px'
+	doc.style.color = '#fff'
+	doc.style.fontSize = '11px'
+	doc.href = 'http://redcamel.github.io/studyWebGL3/007_redGL/redDoc/redDoc.html'
+	doc.innerHTML = 'RedGL Document'
 	var renderer = RedRender(testGL, testScene, function (time) {
 		i = testScene.children.length
 		var tMesh, tMesh2, tMesh3
