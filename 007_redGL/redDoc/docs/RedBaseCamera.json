@@ -1,0 +1,45 @@
+[
+  {
+    "title": "aspect",
+    "description": "- 카메라 aspect",
+    "return": "Number"
+  },
+  {
+    "title": "far",
+    "description": "\n    - 카메라 far\n    - 기본값 1000.0\n",
+    "return": "Number"
+  },
+  {
+    "title": "fov",
+    "description": "\n    - 카메라 fov\n    - 기본값 45\n",
+    "return": "Number"
+  },
+  {
+    "title": "near",
+    "description": "\n    - 카메라 near\n    - 기본값 0.1\n",
+    "return": "Number"
+  },
+  {
+    "constructorYn": true,
+    "title": "RedBaseCamera",
+    "description": "\n    - RedBaseCamera 가장 기본적인 카메라 생성기\n",
+    "return": "RedBaseCamera Instance"
+  },
+  {
+    "title": "RedBaseCamera",
+    "code": "FUNCTION",
+    "description": "\n    - 카메라 매트릭스 업데이터\n",
+    "return": "RedBaseCamera Instance"
+  },
+  {
+    "title": "uCameraMatrix",
+    "description": "\n    - 카메라 매트릭스\n    - 고정유니폼으로서 쉐이더내에 uCameraMatrix 유니폼과 연동된다.\n",
+    "return": "mat4(Float32Arrat)"
+  },
+  {
+    "title": "uPMatrix",
+    "code": "PROPERTY",
+    "description": "\n    - 퍼스펙티브 매트릭스\n    - 고정유니폼으로서 쉐이더내에 uPMatrix 유니폼과 연동된다.\n",
+    "return": "mat4(Float32Arrat)"
+  }
+]

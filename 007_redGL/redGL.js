@@ -443,8 +443,8 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			description : `씬정보 단축 생성 매서드`
 		}
 		:DOC*/
-		createSceneInfo: function (key) {
-			return new RedSceneInfo(this, key)
+		createSceneInfo: function (key, camera) {
+			return new RedSceneInfo(this, key, camera)
 		}
 	}
 })();

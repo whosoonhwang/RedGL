@@ -15,6 +15,10 @@ var RedSceneInfo;
             key : [
                 {type:'String'},
                 '- 존재하는 키일경우 에러.'
+            ],
+            camera : [
+                {type:'RedBaseCamera'},
+                '- 사용할 카메라 객체등록'
             ]
         },
         example : `
@@ -28,10 +32,11 @@ var RedSceneInfo;
 :DOC*/
 (function () {
     var tDatas;
-    RedSceneInfo = function (redGL, key) {
-        if (!(this instanceof RedSceneInfo)) return new RedSceneInfo(redGL, key)
+    RedSceneInfo = function (redGL, key, camera) {
+        if (!(this instanceof RedSceneInfo)) return new RedSceneInfo(redGL, key, camera)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof key != 'string') throw 'key는 문자열만 허용됩니다.'
+        if (typeof key != 'string') throw 'key는 문자열만 허용됩니다.'        
+        if (!(camera instanceof RedBaseCamera)) throw 'camera는 RedBaseCamera 인스턴스만 허용됩니다.'
         // 저장할 공간확보하고
         if (!redGL['__datas']['RedSceneInfo']) redGL['__datas']['RedSceneInfo'] = {}
         tDatas = redGL['__datas']['RedSceneInfo']
@@ -46,6 +51,15 @@ var RedSceneInfo;
         }
         :DOC*/
         this['children'] = []
+        /**DOC:
+		{
+            title :`camera`,
+			description : `씬이 가지고있는 카메라`,
+			example : `인스턴스.camera`,
+			return : 'RedBaseCamera'
+        }
+        :DOC*/
+        this['camera'] = camera
         this['__UUID'] = REDGL_UUID++
         // 캐싱
         tDatas[key] = this
