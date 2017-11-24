@@ -131,6 +131,62 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		},
 		/**DOC:
 		{
+			title :`calcNormal`,
+			code: 'FUNCTION',
+			description : `
+				노말데이터생성
+			`,
+			params : {
+				id : [
+					{type:'String'},
+					'아이디'
+				]
+			},
+			example : `
+				RedShaderInfo.getSourceFromScript(id)
+			`,
+			return : 'String'
+		}
+		:DOC*/
+		calcNormal : (function () {
+			var sqrt, v1, v2;
+			sqrt = Math.sqrt,
+			v1 = {x: 0, y: 0, z: 0}, v2 = {x: 0, y: 0, z: 0};
+			return function calcNormal(pos, idx) {
+				var i, j, k, l;
+				var ns = new Float32Array(pos.length)
+				for ( i = 0, j = pos.length; i < j; i++) ns[i] = 0.0;
+				for (i = 0, j = idx.length; i < j; i += 3) {
+					k = 3 * idx[i + 1],
+					l = 3 * idx[i],
+					v1.x = pos[k] - pos[l],
+					v1.y = pos[k + 1] - pos[l + 1],
+					v1.z = pos[k + 2] - pos[l + 2],
+					l = 3 * idx[i + 2],
+					v2.x = pos[l] - pos[k],
+					v2.y = pos[l + 1] - pos[k + 1],
+					v2.z = pos[l + 2] - pos[k + 2];
+					for (k = 0; k < 3; k++) {
+						l = 3 * idx[i + k],
+						ns[l] += v1.y * v2.z - v1.z * v2.y,
+						ns[l + 1] += v1.z * v2.x - v1.x * v2.z,
+						ns[l + 2] += v1.x * v2.y - v1.y * v2.x;
+					}
+				}
+				for (i = 0, j = pos.length; i < j; i += 3) {
+					v1.x = ns[i],
+					v1.y = ns[i + 1],
+					v1.z = ns[i + 2],
+					k = sqrt(v1.x * v1.x + v1.y * v1.y + v1.z * v1.z) || 0.00001,
+					ns[i] = v1.x / k,
+					ns[i + 1] = v1.y / k,
+					ns[i + 2] = v1.z / k;
+				}
+				return ns;
+			};
+		})(),
+		/**DOC:
+		{
 			title :`getSourceFromScript`,
 			code: 'FUNCTION',
 			description : `

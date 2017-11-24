@@ -239,7 +239,7 @@ console.log(testScene)
 				tMesh.rotation[0] = Math.random() * Math.PI * 2
 				tMesh.rotation[1] = Math.random() * Math.PI * 2
 				tMesh.rotation[2] = Math.random() * Math.PI * 2
-			
+				
 				testScene.children.push(tMesh)
 			}
 		})
@@ -255,6 +255,7 @@ console.log(testScene)
 		tMesh.rotation[0] = Math.random() * Math.PI * 2
 		tMesh.rotation[1] = Math.random() * Math.PI * 2
 		tMesh.rotation[2] = Math.random() * Math.PI * 2
+		tMesh.drawMode = testGL.gl.LINE_STRIP
 		i2 = 6
 		var tt =Math.random()>0.5 ? testMatBitmap5 : testMatBitmap6
 		while (i2--) {
@@ -279,8 +280,6 @@ console.log(testScene)
 				tSub2.scale[1] = tScale
 				tSub2.scale[2] = tScale
 				tSub.children.push(tSub2)
-				
-				tSub2.drawMode = testGL.gl.LINE_STRIP
 			}
 		}
 		testScene.children.push(tMesh)
