@@ -1,46 +1,16 @@
 "use strict";
 var testGL
 testGL = RedGL(document.getElementById('test'), true)
-
-var testData, testData2, testData3,testData4
-testData = new Float32Array([
-
-	-1.0, -1.0, 1.0,
-	1.0, -1.0, 1.0,
-	1.0, 1.0, 1.0,
-	-1.0, 1.0, 1.0,
-
-
-	-1.0, -1.0, -1.0,
-	-1.0, 1.0, -1.0,
-	1.0, 1.0, -1.0,
-	1.0, -1.0, -1.0,
-
-
-	-1.0, 1.0, -1.0,
-	-1.0, 1.0, 1.0,
-	1.0, 1.0, 1.0,
-	1.0, 1.0, -1.0,
-
-
-	-1.0, -1.0, -1.0,
-	1.0, -1.0, -1.0,
-	1.0, -1.0, 1.0,
-	-1.0, -1.0, 1.0,
-
-
-	1.0, -1.0, -1.0,
-	1.0, 1.0, -1.0,
-	1.0, 1.0, 1.0,
-	1.0, -1.0, 1.0,
-
-
-	-1.0, -1.0, -1.0,
-	-1.0, -1.0, 1.0,
-	-1.0, 1.0, 1.0,
-	-1.0, 1.0, -1.0
+var vertexData, indexData, normalData, uvData
+vertexData = new Float32Array([
+	-1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0,
+	-1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0,
+	-1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0,
+	-1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0,
+	1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0,
+	-1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0
 ])
-testData2 = new Uint16Array([
+indexData = new Uint16Array([
 	0, 1, 2, 0, 2, 3,
 	4, 5, 6, 4, 6, 7,
 	8, 9, 10, 8, 10, 11,
@@ -48,107 +18,41 @@ testData2 = new Uint16Array([
 	16, 17, 18, 16, 18, 19,
 	20, 21, 22, 20, 22, 23
 ])
-testData3 = new Float32Array([
-	0.0, 0.0,
-	1.0, 0.0,
-	1.0, 1.0,
-	0.0, 1.0,
-
-	1.0, 0.0,
-	1.0, 1.0,
-	0.0, 1.0,
-	0.0, 0.0,
-
-	0.0, 1.0,
-	0.0, 0.0,
-	1.0, 0.0,
-	1.0, 1.0,
-
-	1.0, 1.0,
-	0.0, 1.0,
-	0.0, 0.0,
-	1.0, 0.0,
-
-	1.0, 0.0,
-	1.0, 1.0,
-	0.0, 1.0,
-	0.0, 0.0,
-
-	0.0, 0.0,
-	1.0, 0.0,
-	1.0, 1.0,
-	0.0, 1.0
+normalData = new Float32Array([
+	0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
+	1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0,
+	0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0,
+	1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
+	1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0,
+	0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0
 ])
-testData4 = new Float32Array([
+uvData = new Float32Array([
 	// Front face
-	0.0,  0.0,  1.0,
-	0.0,  0.0,  1.0,
-	0.0,  0.0,  1.0,
-	0.0,  0.0,  1.0,
-
-   // Back face
-	0.0,  0.0, -1.0,
-	0.0,  0.0, -1.0,
-	0.0,  0.0, -1.0,
-	0.0,  0.0, -1.0,
-
-   // Top face
-	0.0,  1.0,  0.0,
-	0.0,  1.0,  0.0,
-	0.0,  1.0,  0.0,
-	0.0,  1.0,  0.0,
-
-   // Bottom face
-	0.0, -1.0,  0.0,
-	0.0, -1.0,  0.0,
-	0.0, -1.0,  0.0,
-	0.0, -1.0,  0.0,
-
-   // Right face
-	1.0,  0.0,  0.0,
-	1.0,  0.0,  0.0,
-	1.0,  0.0,  0.0,
-	1.0,  0.0,  0.0,
-
-   // Left face
-   -1.0,  0.0,  0.0,
-   -1.0,  0.0,  0.0,
-   -1.0,  0.0,  0.0,
-   -1.0,  0.0,  0.0
+	0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,
+	// Back face
+	0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0,
+	// Top face
+	0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
+	// Bottom face
+	0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0,
+	// Right face
+	1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,
+	// Left face
+	-1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0
 ])
-
-//  버텍스버퍼생성
-console.log(testGL.createArrayBufferInfo(
-	'testBuffer',
-	'aVertexPosition',
-	testData,
-	3, testData.length/3, testGL.gl.FLOAT
-))
-//  너말버퍼생성
-console.log(testGL.createArrayBufferInfo(
-	'testNormalBuffer',
-	'aVertexNormal',
-	testData4,
-	3, testData4.length/3, testGL.gl.FLOAT
-))
-console.log(testGL.createArrayBufferInfo(
-	'testUv',
-	'aTexcoord',
-	testData3,
-	2, testData3.length / 2, testGL.gl.FLOAT
-))
+// 버텍스버퍼생성
+console.log(testGL.createArrayBufferInfo('testBuffer', 'aVertexPosition', vertexData, 3, vertexData.length / 3, testGL.gl.FLOAT))
+// 노말버퍼생성
+console.log(testGL.createArrayBufferInfo('testNormalBuffer', 'aVertexNormal', uvData, 3, uvData.length / 3, testGL.gl.FLOAT))
+// UV버퍼생성
+console.log(testGL.createArrayBufferInfo('testUv', 'aTexcoord', normalData, 2, normalData.length / 2, testGL.gl.FLOAT))
 // 인덱스 버퍼생성
-console.log(testGL.createIndexBufferInfo(
-	'testIndexBuffer',
-	testData2,
-	1, testData2.length, testGL.gl.UNSIGNED_SHORT
-))
+console.log(testGL.createIndexBufferInfo('testIndexBuffer', indexData, 1, indexData.length, testGL.gl.UNSIGNED_SHORT))
 // 쉐이더생성
 console.log(testGL.createShaderInfo('color', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('shader-vs')))
 console.log(testGL.createShaderInfo('color', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('shader-fs')))
 console.log(testGL.createShaderInfo('bitmap', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('shader-vs-bitmap')))
 console.log(testGL.createShaderInfo('bitmap', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('shader-fs-bitmap')))
-
 console.log(testGL.createShaderInfo('bitmapLite', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('shader-vs-bitmap-light')))
 console.log(testGL.createShaderInfo('bitmapLite', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('shader-fs-bitmap-light')))
 // 프로그램생성
@@ -166,20 +70,21 @@ testGL.createProgramInfo(
 	testGL.getShaderInfo('bitmap', RedShaderInfo.FRAGMENT_SHADER),
 	function (target) {
 		target.uniforms.uTexture = target['diffuseInfo']
-		target.uniforms.uAtlascoord = RedAtlasUVInfo([0,0,1,1])
+		target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
 	}
 )
-
-
 testGL.createProgramInfo(
 	'bitmapLite',
 	testGL.getShaderInfo('bitmapLite', RedShaderInfo.VERTEX_SHADER),
 	testGL.getShaderInfo('bitmapLite', RedShaderInfo.FRAGMENT_SHADER),
 	function (target) {
 		target.uniforms.uTexture = target['diffuseInfo']
-		target.uniforms.uAtlascoord =  RedAtlasUVInfo([0, 0, 1, 1])
+		target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
 	}
 )
+// 프로그램조회
+console.log(testGL.getProgramInfo('color'))
+console.log(testGL.getProgramInfo('bitmap'))
 // 지오메트리생성
 console.log(testGL.createGeometryInfo(
 	'testGeo',
@@ -188,46 +93,43 @@ console.log(testGL.createGeometryInfo(
 	testGL.getArrayBufferInfo('testUv'),
 	testGL.getArrayBufferInfo('testNormalBuffer')
 ))
-// 프로그램조회
-console.log(testGL.getProgramInfo('color'))
-console.log(testGL.getProgramInfo('bitmap'))
 // 재질정의
 var testMatDefine = RedMaterialDefine(testGL, testGL.getProgramInfo('color'))
 RedMaterialDefine(testGL, testGL.getProgramInfo('bitmap'))
 RedMaterialDefine(testGL, testGL.getProgramInfo('bitmapLite'))
-// 재질생성
+console.log(testMatDefine)
+// 재질생성 
 var testColorMat = RedMaterialInfo(testGL, 'color')
+// 텍스쳐생성! //TODO: testGL.createTextureInfo/getTextureInfo를 만들어야겠군...
 var testTexture = RedTextureInfo(testGL, 'asset/crate.png')
 var testTexture2 = RedTextureInfo(testGL, 'asset/test.png')
 console.log(testTexture)
 var testMatBitmap = RedMaterialInfo(testGL, 'bitmapLite', testTexture)
 var testMatBitmap2 = RedMaterialInfo(testGL, 'bitmapLite', testTexture2)
-
 console.log(testColorMat)
 console.log(testMatBitmap)
-console.log(testMatDefine)
 // 메쉬 생성 테스트
 console.log(testGL.createMeshInfo('testMesh', testGL.getGeometryInfo('testGeo'), testColorMat))
-// Scene 생성
+// Scene 생성 테스트
 var testScene = RedSceneInfo(testGL, 'testScene')
 console.log(testScene)
 // 아틀라스테스트
- RedAtlasTextureManager(testGL, [
+RedAtlasTextureManager(testGL, [
 	'asset/draft1.png',
 	'asset/draft2.png',
 	'asset/draft3.png',
 	'asset/draft4.png',
 	'asset/draft5.png',
 	'asset/test.png',
-],function(){
+], function () {
 	var testMatBitmap3 = RedMaterialInfo(testGL, 'bitmapLite', RedAtlasTextureManager.getByKey('asset/test.png'))
 	var testMatBitmap4 = RedMaterialInfo(testGL, 'bitmapLite', RedAtlasTextureManager.getByKey('asset/draft1.png'))
 	var testMatBitmap5 = RedMaterialInfo(testGL, 'bitmapLite', RedAtlasTextureManager.getByKey('asset/draft2.png'))
 	var testMatBitmap6 = RedMaterialInfo(testGL, 'bitmapLite', RedAtlasTextureManager.getByKey('asset/draft3.png'))
 	var testMatBitmap7 = RedMaterialInfo(testGL, 'bitmapLite', RedAtlasTextureManager.getByKey('asset/draft4.png'))
 	var testMatBitmap8 = RedMaterialInfo(testGL, 'bitmapLite', RedAtlasTextureManager.getByKey('asset/draft5.png'))
-	setTimeout(function(){
-		var testAtlas2 =RedAtlasTextureManager(testGL, 'asset/addTest.png',function(){
+	setTimeout(function () {
+		var testAtlas2 = RedAtlasTextureManager(testGL, 'asset/addTest.png', function () {
 			console.log('아틀라스 추가!되었음!')
 			var i = 90, i2, i3;
 			while (i--) {
@@ -239,16 +141,15 @@ console.log(testScene)
 				tMesh.rotation[0] = Math.random() * Math.PI * 2
 				tMesh.rotation[1] = Math.random() * Math.PI * 2
 				tMesh.rotation[2] = Math.random() * Math.PI * 2
-				
 				testScene.children.push(tMesh)
 			}
 		})
-	},3000)
+	}, 3000)
 	///////////////////////////////////////////////////////////////////////////////////////////
 	// 데모
 	var i = 85, i2, i3;
 	while (i--) {
-		var tMesh = testGL.createMeshInfo('testMesh' + i, testGL.getGeometryInfo('testGeo'), Math.random()>0.5 ? testMatBitmap : testMatBitmap5)
+		var tMesh = testGL.createMeshInfo('testMesh' + i, testGL.getGeometryInfo('testGeo'), Math.random() > 0.5 ? testMatBitmap : testMatBitmap5)
 		tMesh.position[0] = Math.random() * 80 - 40
 		tMesh.position[1] = Math.random() * 80 - 40
 		tMesh.position[2] = -35 - Math.random() * 30
@@ -257,7 +158,7 @@ console.log(testScene)
 		tMesh.rotation[2] = Math.random() * Math.PI * 2
 		tMesh.drawMode = testGL.gl.LINE_STRIP
 		i2 = 6
-		var tt =Math.random()>0.5 ? testMatBitmap5 : testMatBitmap6
+		var tt = Math.random() > 0.5 ? testMatBitmap5 : testMatBitmap6
 		while (i2--) {
 			var tSub = testGL.createMeshInfo('testMesh_' + i + '_' + i2, testGL.getGeometryInfo('testGeo'), tt)
 			tSub.position[0] = Math.random() * 20 - 10
@@ -269,7 +170,7 @@ console.log(testScene)
 			tSub.scale[2] = tScale
 			tMesh.children.push(tSub)
 			i3 = 5
-			var tt =Math.random()>0.5 ? testMatBitmap7 : testMatBitmap8
+			var tt = Math.random() > 0.5 ? testMatBitmap7 : testMatBitmap8
 			while (i3--) {
 				var tSub2 = testGL.createMeshInfo('testMesh_' + i + '_' + i2 + '_' + i3, testGL.getGeometryInfo('testGeo'), tt)
 				tSub2.position[0] = Math.random() * 20 - 10
@@ -297,7 +198,7 @@ console.log(testScene)
 	testCaseDoc.style.bottom = '25px'
 	testCaseDoc.style.color = '#fff'
 	testCaseDoc.style.fontSize = '11px'
-	testCaseDoc.href = 'https://redcamel.github.io/studyWebGL3/007_redGL/testCase/index.html'
+	testCaseDoc.href = 'testCase/index.html'
 	testCaseDoc.innerHTML = 'RedGL TestCase'
 	var doc = document.createElement('a')
 	document.body.appendChild(doc)
@@ -306,7 +207,7 @@ console.log(testScene)
 	doc.style.bottom = '10px'
 	doc.style.color = '#fff'
 	doc.style.fontSize = '11px'
-	doc.href = 'http://redcamel.github.io/studyWebGL3/007_redGL/redDoc/redDoc.html'
+	doc.href = 'redDoc/redDoc.html'
 	doc.innerHTML = 'RedGL Document'
 	var renderer = RedRender(testGL, testScene, function (time) {
 		i = testScene.children.length
