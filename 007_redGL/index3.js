@@ -118,9 +118,9 @@ doc.style.fontSize = '11px'
 doc.href = 'redDoc/redDoc.html'
 doc.innerHTML = 'RedGL Document'
 var renderer = RedRender(testGL, testScene, function (time) {
-	testCamera.position[0]  = Math.sin(time/1000)*30
-	testCamera.position[1]  = Math.cos(time/1000)*30
-	testCamera.position[2]  = Math.cos(time/1000)*30
+	testCamera.position[0]  = Math.sin(time/100)*30
+	testCamera.position[1]  = Math.cos(time/100)*30
+	testCamera.position[2]  = Math.cos(time/100)*30
 	testCamera.lookAt(tMesh.position)
 	checkCall.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
 })
