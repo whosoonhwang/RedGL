@@ -282,7 +282,6 @@ testGL.createProgramInfo(
 	}
 )
 
-
 testGL.createProgramInfo(
 	'bitmapLite',
 	testGL.createShaderInfo('bitmapLite', RedShaderInfo.VERTEX_SHADER),
@@ -345,9 +344,9 @@ console.log(testScene)
 			while (i--) {
 				var testMatBitmap9 = RedMaterialInfo(testGL, 'bitmapLite', RedAtlasTextureManager.getByKey('asset/addTest.png'))
 				var tMesh = testGL.createMeshInfo('testMeshAdd' + i, testGL.getGeometryInfo('cube'), testMatBitmap9)
-				tMesh.position[0] = Math.random() * 80 - 40
-				tMesh.position[1] = Math.random() * 80 - 40
-				tMesh.position[2] = -55 - Math.random() * 30
+				tMesh.position[0] = Math.random() * 40 -20
+				tMesh.position[1] = Math.random() * 40 -20
+				tMesh.position[2] = -15 - Math.random() * 10
 				tMesh.rotation[0] = Math.random() * Math.PI * 2
 				tMesh.rotation[1] = Math.random() * Math.PI * 2
 				tMesh.rotation[2] = Math.random() * Math.PI * 2
@@ -361,8 +360,8 @@ console.log(testScene)
 	var i = 85, i2, i3;
 	while (i--) {
 		var tMesh = testGL.createMeshInfo('testMesh' + i, testGL.getGeometryInfo('cube'), Math.random()>0.5 ? testMatBitmap : testMatBitmap5)
-		tMesh.position[0] = Math.random() * 80 - 40
-		tMesh.position[1] = Math.random() * 80 - 40
+		tMesh.position[0] = Math.random() * 40 -20
+		tMesh.position[1] = Math.random() * 40 -20
 		tMesh.position[2] = -35 - Math.random() * 30
 		tMesh.rotation[0] = Math.random() * Math.PI * 2
 		tMesh.rotation[1] = Math.random() * Math.PI * 2
