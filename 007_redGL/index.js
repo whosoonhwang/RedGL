@@ -110,8 +110,10 @@ console.log(testColorMat)
 console.log(testMatBitmap)
 // 메쉬 생성 테스트
 console.log(testGL.createMeshInfo('testMesh', testGL.getGeometryInfo('testGeo'), testColorMat))
-// Scene 생성 테스트
-var testScene = testGL.createSceneInfo('testScene')
+// 카메라생성
+var testCamera = RedBaseCamera(testGL,'testCamera')
+// Scene 생성
+var testScene = testGL.createSceneInfo('testScene',testCamera)
 console.log(testScene)
 // 아틀라스테스트
 RedAtlasTextureManager(testGL, [
@@ -137,7 +139,7 @@ RedAtlasTextureManager(testGL, [
 				var tMesh = testGL.createMeshInfo('testMeshAdd' + i, testGL.getGeometryInfo('testGeo'), testMatBitmap9)
 				tMesh.position[0] = Math.random() * 80 - 40
 				tMesh.position[1] = Math.random() * 80 - 40
-				tMesh.position[2] = -55 - Math.random() * 30
+				tMesh.position[2] = Math.random() * 80 - 40
 				tMesh.rotation[0] = Math.random() * Math.PI * 2
 				tMesh.rotation[1] = Math.random() * Math.PI * 2
 				tMesh.rotation[2] = Math.random() * Math.PI * 2
@@ -152,7 +154,7 @@ RedAtlasTextureManager(testGL, [
 		var tMesh = testGL.createMeshInfo('testMesh' + i, testGL.getGeometryInfo('testGeo'), Math.random() > 0.5 ? testMatBitmap : testMatBitmap5)
 		tMesh.position[0] = Math.random() * 80 - 40
 		tMesh.position[1] = Math.random() * 80 - 40
-		tMesh.position[2] = -35 - Math.random() * 30
+		tMesh.position[2] = Math.random() * 80 - 40
 		tMesh.rotation[0] = Math.random() * Math.PI * 2
 		tMesh.rotation[1] = Math.random() * Math.PI * 2
 		tMesh.rotation[2] = Math.random() * Math.PI * 2
@@ -217,15 +219,15 @@ RedAtlasTextureManager(testGL, [
 		COS = Math.cos
 		while (i--) {
 			tMesh = testScene.children[i]
-			tMesh.rotation[0] += 0.01
-			tMesh.rotation[1] += 0.01
-			tMesh.rotation[2] += 0.01
+			tMesh.rotation[0] += 0.005
+			tMesh.rotation[1] += 0.005
+			tMesh.rotation[2] += 0.005
 			i2 = tMesh.children.length
 			while (i2--) {
 				tMesh2 = tMesh.children[i2]
-				tMesh2.rotation[0] += 0.01
-				tMesh2.rotation[1] += 0.01
-				tMesh2.rotation[2] += 0.01
+				tMesh2.rotation[0] += 0.005
+				tMesh2.rotation[1] += 0.005
+				tMesh2.rotation[2] += 0.005
 				i3 = tMesh2.children.length
 				while (i3--) {
 					tMesh3 = tMesh2.children[i3]
@@ -236,6 +238,10 @@ RedAtlasTextureManager(testGL, [
 				}
 			}
 		}
+		testCamera.position[0]  = Math.sin(time/5000)*80
+		testCamera.position[1]  = Math.cos(time/5000)*80
+		testCamera.position[2]  = Math.sin(time/3000)*40 + Math.cos(time/5000)*40
+		testCamera.lookAt([0,0,0])
 		checkCall.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
 	})
 	renderer.start()

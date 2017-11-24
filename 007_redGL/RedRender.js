@@ -88,7 +88,7 @@ var RedRender;
         var cacheActiveTextureIndex; // 액티브된 텍스쳐정보
         var cacheUAtlascoord_UUID; // 아틀라스 UV텍스쳐 정보
         ///////////////////////////////////////////////////////////////////
-        var pMatrix;
+  
         var aspect;
 
         cacheAttrUUID = {}
@@ -100,15 +100,17 @@ var RedRender;
             self['numDrawCall'] = 0
             tGL = redGL.gl
             //////////////////////////////////////////////////////////////////
-            // 프로그램마다.....pMatrix업데이트
-            // TODO: 이부분은 리사이저이벤트로 날릴수 있을듯
-            pMatrix = mat4.create()
-            aspect = redGL.__canvas.clientWidth / redGL.__canvas.clientHeight;
-            mat4.perspective(pMatrix, 45, aspect, 0.1, 1000.0);
+            tScene = self['targetScene']
+            // TODO: 이부분은 리사이저이벤트로 날릴수 있을듯        ... 흠 프로그램 변경때문에 안되남...   
+            tScene['camera'].update()
             for (k in redGL['__datas']['RedProgramInfo']) {
-                tLocation = redGL['__datas']['RedProgramInfo'][k]['uniforms']['uPMatrix']['location']
                 tGL.useProgram(redGL['__datas']['RedProgramInfo'][k]['program'])
-                tGL.uniformMatrix4fv(tLocation, false, pMatrix)
+                // 파스팩티브 갱신
+                tLocation = redGL['__datas']['RedProgramInfo'][k]['uniforms']['uPMatrix']['location']                
+                tGL.uniformMatrix4fv(tLocation, false, tScene['camera']['uPMatrix'])
+                // 카메라갱신
+                tLocation = redGL['__datas']['RedProgramInfo'][k]['uniforms']['uCameraMatrix']['location']                
+                tGL.uniformMatrix4fv(tLocation, false, tScene['camera']['uCameraMatrix'])
                 cacheProgram = null // 캐쉬된 프로그램을 삭제
             }
             //////////////////////////////////////////////////////////////////
@@ -116,7 +118,7 @@ var RedRender;
             tGL.clear(tGL.COLOR_BUFFER_BIT | tGL.DEPTH_BUFFER_BIT);
 
 
-            tScene = self['targetScene']
+           
             self.draw(tScene['children'], time)
             // Set the backbuffer's alpha to 1.0
             requestAnimationFrame(self.render)
@@ -144,15 +146,15 @@ var RedRender;
                 // xyz축 회전 
                 tRx = tMesh['rotation'][0], tRy = tMesh['rotation'][1], tRz = tMesh['rotation'][2]
                 aSx = SIN(tRx), aCx = COS(tRx), aSy = SIN(tRy), aCy = COS(tRy), aSz = SIN(tRz), aCz = COS(tRz),
-                    a00 = a[0], a01 = a[1], a02 = a[2],
-                    a10 = a[4], a11 = a[5], a12 = a[6],
-                    a20 = a[8], a21 = a[9], a22 = a[10],
-                    b00 = aCy * aCz, b01 = aSx * aSy * aCz - aCx * aSz, b02 = aCx * aSy * aCz + aSx * aSz,
-                    b10 = aCy * aSz, b11 = aSx * aSy * aSz + aCx * aCz, b12 = aCx * aSy * aSz - aSx * aCz,
-                    b20 = -aSy, b21 = aSx * aCy, b22 = aCx * aCy,
-                    a[0] = a00 * b00 + a10 * b01 + a20 * b02, a[1] = a01 * b00 + a11 * b01 + a21 * b02, a[2] = a02 * b00 + a12 * b01 + a22 * b02,
-                    a[4] = a00 * b10 + a10 * b11 + a20 * b12, a[5] = a01 * b10 + a11 * b11 + a21 * b12, a[6] = a02 * b10 + a12 * b11 + a22 * b12,
-                    a[8] = a00 * b20 + a10 * b21 + a20 * b22, a[9] = a01 * b20 + a11 * b21 + a21 * b22, a[10] = a02 * b20 + a12 * b21 + a22 * b22;
+                a00 = a[0], a01 = a[1], a02 = a[2],
+                a10 = a[4], a11 = a[5], a12 = a[6],
+                a20 = a[8], a21 = a[9], a22 = a[10],
+                b00 = aCy * aCz, b01 = aSx * aSy * aCz - aCx * aSz, b02 = aCx * aSy * aCz + aSx * aSz,
+                b10 = aCy * aSz, b11 = aSx * aSy * aSz + aCx * aCz, b12 = aCx * aSy * aSz - aSx * aCz,
+                b20 = -aSy, b21 = aSx * aCy, b22 = aCx * aCy,
+                a[0] = a00 * b00 + a10 * b01 + a20 * b02, a[1] = a01 * b00 + a11 * b01 + a21 * b02, a[2] = a02 * b00 + a12 * b01 + a22 * b02,
+                a[4] = a00 * b10 + a10 * b11 + a20 * b12, a[5] = a01 * b10 + a11 * b11 + a21 * b12, a[6] = a02 * b10 + a12 * b11 + a22 * b12,
+                a[8] = a00 * b20 + a10 * b21 + a20 * b22, a[9] = a01 * b20 + a11 * b21 + a21 * b22, a[10] = a02 * b20 + a12 * b21 + a22 * b22;
                 // 스케일
                 aX = tMesh['scale'][0], aY = tMesh['scale'][1], aZ = tMesh['scale'][2]
                 a[0] = a[0] * aX, a[1] = a[1] * aX, a[2] = a[2] * aX, a[3] = a[3] * aX;

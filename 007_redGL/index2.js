@@ -319,8 +319,10 @@ console.log(testMatBitmap)
 console.log(testMatDefine)
 // 메쉬 생성 테스트
 console.log(testGL.createMeshInfo('testMesh', testGL.getGeometryInfo('testGeo'), testColorMat))
+// 카메라생성
+var testCamera = RedBaseCamera(testGL,'testCamera')
 // Scene 생성
-var testScene = RedSceneInfo(testGL, 'testScene')
+var testScene = testGL.createSceneInfo('testScene',testCamera)
 console.log(testScene)
 // 아틀라스테스트
  RedAtlasTextureManager(testGL, [
