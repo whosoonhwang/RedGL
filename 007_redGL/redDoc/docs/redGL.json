@@ -36,6 +36,11 @@
     "description": "ElementArray버퍼 생성 단축 매서드"
   },
   {
+    "title": "createMaterialDefine",
+    "code": "FUNCTION",
+    "description": "재질정의정보 생성 단축 매서드"
+  },
+  {
     "title": "createMaterialInfo",
     "code": "FUNCTION",
     "description": "재질정보 생성 단축 매서드"
@@ -49,6 +54,11 @@
     "title": "createProgram",
     "code": "FUNCTION",
     "description": "프로그램 생성 단축 매서드"
+  },
+  {
+    "title": "createSceneInfo",
+    "code": "FUNCTION",
+    "description": "씬정보 단축 생성 매서드"
   },
   {
     "title": "createShaderInfo",
@@ -77,6 +87,11 @@
     },
     "example": "\nvar test;\ntest = RedGL(Canvas Element)\n// basic이라는 이름으로 버텍스 쉐이더를 만든다. \ntest.createShaderInfo('basic', RedShaderInfo.VERTEX_SHADER, 쉐이더소스)\n",
     "return": "RedShaderInfo Instance"
+  },
+  {
+    "title": "createTextureInfo",
+    "code": "FUNCTION",
+    "description": "텍스쳐정보 생성 단축 매서드"
   },
   {
     "title": "getArrayBufferInfo",
