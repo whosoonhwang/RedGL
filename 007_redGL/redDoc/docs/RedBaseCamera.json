@@ -29,6 +29,42 @@
     "return": "RedBaseCamera Instance"
   },
   {
+    "title": "moveBack",
+    "code": "FUNCTION",
+    "description": "\n    - TODO: 카메라 시점에서 뒤로 이동\n",
+    "return": "RedBaseCamera Instance"
+  },
+  {
+    "title": "moveDown",
+    "code": "FUNCTION",
+    "description": "\n    - TODO: 카메라 시점에서 아래로 이동\n",
+    "return": "RedBaseCamera Instance"
+  },
+  {
+    "title": "moveForward",
+    "code": "FUNCTION",
+    "description": "\n    - TODO: 카메라 시점에서 앞으로 이동\n",
+    "return": "RedBaseCamera Instance"
+  },
+  {
+    "title": "moveLeft",
+    "code": "FUNCTION",
+    "description": "\n    - TODO: 카메라 시점에서 왼쪽으로 이동\n",
+    "return": "RedBaseCamera Instance"
+  },
+  {
+    "title": "moveRight",
+    "code": "FUNCTION",
+    "description": "\n    - TODO: 카메라 시점에서 오른쪽으로 이동\n",
+    "return": "RedBaseCamera Instance"
+  },
+  {
+    "title": "moveUp",
+    "code": "FUNCTION",
+    "description": "\n    - TODO: 카메라 시점에서 위로 이동\n",
+    "return": "RedBaseCamera Instance"
+  },
+  {
     "title": "near",
     "description": "\n    - 카메라 near\n    - 기본값 0.1\n",
     "return": "Number"
@@ -37,6 +73,32 @@
     "constructorYn": true,
     "title": "RedBaseCamera",
     "description": "\n    - RedBaseCamera 가장 기본적인 카메라 생성기\n",
+    "return": "RedBaseCamera Instance"
+  },
+  {
+    "title": "setPosition",
+    "code": "FUNCTION",
+    "description": "\n    - 포지션 설정매서드.\n",
+    "params": {
+      "x": [
+        {
+          "type": "Number"
+        },
+        "x포지션"
+      ],
+      "y": [
+        {
+          "type": "Number"
+        },
+        "y포지션"
+      ],
+      "z": [
+        {
+          "type": "Number"
+        },
+        "z포지션"
+      ]
+    },
     "return": "RedBaseCamera Instance"
   },
   {

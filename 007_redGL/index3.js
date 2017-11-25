@@ -40,9 +40,9 @@ uvData = new Float32Array([
 	// Left face
 	-1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0
 ])
-console.log(testGL.createArrayBufferInfo('testBuffer', 'aVertexPosition', vertexData, 3, vertexData.length / 3, testGL.gl.FLOAT))
-console.log(testGL.createArrayBufferInfo('testNormalBuffer', 'aVertexNormal', uvData, 3, uvData.length / 3, testGL.gl.FLOAT))
-console.log(testGL.createArrayBufferInfo('testUv', 'aTexcoord', normalData, 2, normalData.length / 2, testGL.gl.FLOAT))
+console.log(testGL.createArrayBufferInfo('testBuffer', RedFixedAttributeKey['aVertexPosition'], vertexData, 3, vertexData.length / 3, testGL.gl.FLOAT))
+console.log(testGL.createArrayBufferInfo('testNormalBuffer', RedFixedAttributeKey['aVertexNormal'], uvData, 3, uvData.length / 3, testGL.gl.FLOAT))
+console.log(testGL.createArrayBufferInfo('testUv', RedFixedAttributeKey['aTexcoord'], normalData, 2, normalData.length / 2, testGL.gl.FLOAT))
 console.log(testGL.createIndexBufferInfo('testIndexBuffer', indexData, 1, indexData.length, testGL.gl.UNSIGNED_SHORT))
 // 쉐이더생성
 console.log(testGL.createShaderInfo('bitmapLite', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('shader-vs-bitmap-light')))
@@ -83,14 +83,19 @@ console.log(testScene)
 var tMesh 
 var i = 100
 while(i--){
-	tMesh= testGL.createMeshInfo('testMesh'+i, testGL.getGeometryInfo('testGeo'), testGL.createMaterialInfo('bitmapLite', testTexture))
+	// tMesh= testGL.createMeshInfo('testMesh'+i, testGL.getGeometryInfo('testGeo'), testGL.createMaterialInfo('bitmapLite', testTexture))
+	tMesh= testGL.createMeshInfo('testMesh'+i, RedPrimitive.plane(testGL,5,5,3,3), testGL.createMaterialInfo('bitmapLite', testTexture))
 	tMesh.position[0] = Math.random()*60-30
 	tMesh.position[1] = Math.random()*60-30
 	tMesh.position[2] = Math.random()*60-30
+	tMesh.rotation[0] = Math.PI*2*Math.random()
+	tMesh.rotation[1] = Math.PI*2*Math.random()
+	tMesh.rotation[2] = Math.PI*2*Math.random()
+	tMesh.drawMode = testGL.gl.LINE_STRIP
 	testScene.children.push(tMesh)	
 }
 tMesh= testGL.createMeshInfo('testMesh', testGL.getGeometryInfo('testGeo'), testGL.createMaterialInfo('bitmapLite', testTexture))
-tMesh.position[2] = -20
+tMesh.position[2] = 0
 testScene.children.push(tMesh)
 
 var checkCall = document.createElement('div')
@@ -117,11 +122,11 @@ doc.style.color = '#fff'
 doc.style.fontSize = '11px'
 doc.href = 'redDoc/redDoc.html'
 doc.innerHTML = 'RedGL Document'
+testCamera.lookAt(tMesh.position)
 var renderer = RedRender(testGL, testScene, function (time) {
-	testCamera.position[0]  = Math.sin(time/100)*30
-	testCamera.position[1]  = Math.cos(time/100)*30
-	testCamera.position[2]  = Math.cos(time/100)*30
+	testCamera.setPosition(30,30,Math.sin(time/1000)*60)
 	testCamera.lookAt(tMesh.position)
+	
 	checkCall.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
 })
 renderer.start()

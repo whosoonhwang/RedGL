@@ -86,17 +86,124 @@ var RedBaseCamera;
             }
         :DOC*/
         this['far'] = 1000.0
-        this['position'] = new Float32Array([0, 0, 0])
-        this['__quat'] = quat.create()
-        console.log(this['__quat'])
+        this['__desiredCoords'] = new Float32Array([0, 0, 0])
+        this['__desiredRotation'] = new Float32Array([0, 0, 0])
         this['__UUID'] = REDGL_UUID++
         this['__canvas'] = redGL.__canvas
         this.update()
         // 캐싱
         tDatas[key] = this
     }
-
+    var tempRotationMTX = mat4.create()
     RedBaseCamera.prototype = {
+        /**DOC:
+            {
+                title :`setPosition`,
+                code : 'FUNCTION',
+                description : `
+                    - 포지션 설정매서드.
+                `,
+                params : {
+                    x : [
+                        {type:'Number'},
+                        `x포지션`
+                    ],
+                    y : [
+                        {type:'Number'},
+                        `y포지션`
+                    ],
+                    z : [
+                        {type:'Number'},
+                        `z포지션`
+                    ]
+                },
+                return : 'RedBaseCamera Instance'
+            }
+        :DOC*/
+        setPosition: function (x, y, z) {
+            this['__desiredCoords'][0] = x
+            this['__desiredCoords'][1] = y
+            this['__desiredCoords'][2] = z
+            return this
+        },
+        /**DOC:
+            {
+                title :`moveForward`,
+                code : 'FUNCTION',
+                description : `
+                    - TODO: 카메라 시점에서 앞으로 이동
+                `,
+                return : 'RedBaseCamera Instance'
+            }
+        :DOC*/
+        moveForward: function (v) {
+            //TODO:
+        },
+        /**DOC:
+            {
+                title :`moveBack`,
+                code : 'FUNCTION',
+                description : `
+                    - TODO: 카메라 시점에서 뒤로 이동
+                `,
+                return : 'RedBaseCamera Instance'
+            }
+        :DOC*/
+        moveBack: function (v) {
+            //TODO:
+        },
+        /**DOC:
+            {
+                title :`moveLeft`,
+                code : 'FUNCTION',
+                description : `
+                    - TODO: 카메라 시점에서 왼쪽으로 이동
+                `,
+                return : 'RedBaseCamera Instance'
+            }
+        :DOC*/
+        moveLeft: function (v) {
+            //TODO:
+        },
+        /**DOC:
+            {
+                title :`moveRight`,
+                code : 'FUNCTION',
+                description : `
+                    - TODO: 카메라 시점에서 오른쪽으로 이동
+                `,
+                return : 'RedBaseCamera Instance'
+            }
+        :DOC*/
+        moveRight: function (v) {
+            //TODO:
+        },
+        /**DOC:
+            {
+                title :`moveUp`,
+                code : 'FUNCTION',
+                description : `
+                    - TODO: 카메라 시점에서 위로 이동
+                `,
+                return : 'RedBaseCamera Instance'
+            }
+        :DOC*/
+        moveUp: function (v) {
+            //TODO:
+        },
+        /**DOC:
+            {
+                title :`moveDown`,
+                code : 'FUNCTION',
+                description : `
+                    - TODO: 카메라 시점에서 아래로 이동
+                `,
+                return : 'RedBaseCamera Instance'
+            }
+        :DOC*/
+        moveDown: function (v) {
+            //TODO:
+        },
         /**DOC:
             {
                 title :`lookAt`,
@@ -117,18 +224,11 @@ var RedBaseCamera;
             var up = new Float32Array([0, 1, 0]);
             return function (targetPosition) {
                 //out, eye, center, up
-                mat4.lookAt(this['uCameraMatrix'], this['position'], targetPosition, up);
-                // mat4.getRotation(this['__quat'], this['uCameraMatrix'])
-                // TODO: 쿼터니언에서...뽑아내자...아님 쿼터니언만 사용하기엔 좀 부담이긴한데..
-                this['__quat'][0] = 0
-                this['__quat'][1] = 0
-                this['__quat'][2] = 0
-                this['__quat'][3] = 1
+                mat4.lookAt(this['uCameraMatrix'], this['__desiredCoords'], targetPosition, up);
             }
         })(),
         identity: function () {
             mat4.identity(this['uCameraMatrix'])
-            this['position'][0] = 0, this['position'][1] = 0, this['position'][2] = 0
         },
         /**DOC:
             {
@@ -140,18 +240,17 @@ var RedBaseCamera;
                 return : 'RedBaseCamera Instance'
             }
         :DOC*/
-        update: function () {
-            // 퍼스펙티브만 관여
-            this['aspect'] = this['__canvas'].clientWidth / this['__canvas'].clientHeight
-            mat4.identity(this['uPMatrix'])
+        update: (function () {
 
-            mat4.perspective(this['uPMatrix'], this['fov'], this['aspect'], this['near'], this['far'])
+            return function () {
+                // 퍼스펙티브만 관여
+                this['aspect'] = this['__canvas'].clientWidth / this['__canvas'].clientHeight
+                mat4.identity(this['uPMatrix'])
+                mat4.perspective(this['uPMatrix'], this['fov'], this['aspect'], this['near'], this['far'])
 
-            // mat4.identity(this['uCameraMatrix'])
-            // mat4.fromTranslation(this['uCameraMatrix'], this['position'])
-            // console.log(this)
-            return this
-        }
+                return this
+            }
+        })()
     }
     Object.freeze(RedBaseCamera)
 })();

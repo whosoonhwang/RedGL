@@ -40,7 +40,7 @@ var transformString = function (s) {
 		list = []
 	}
 	list.forEach(function (v, index) {
-		v=v.replace(/\$\{[\s\S]+\}/g,'')
+		v = v.replace(/\$\{[\s\S]+\}/g, '')
 		var docParser = new Function('v', `return ${v}`);
 		var result = docParser()
 		if (result) list[index] = result
@@ -59,26 +59,28 @@ gulp.task('make-doc', function () {
 	console.log('-------------------------------------------');
 	console.log('시작!');
 	return gulp.src([
-		"RedAtlasInfo.js",
-		"RedAtlasTextureInfo.js",
-		"RedAtlasTextureManager.js",
-		'RedAtlasUVInfo.js',
+		"RedShaderInfo.js",
+		"RedProgramInfo.js",
 		"RedBaseCamera.js",
 		"RedBufferInfo.js",
+		"RedFixedAttributeKey.js",
 		"RedGeometryInfo.js",
-		"redGL.js",
-		"RedGLDetect.js",			
-		"RedMaterialDefine.js",
-		"RedMaterialInfo.js",
 		"RedMeshInfo.js",
-		"RedProgramInfo.js",	
-		"RedRender.js",
+		"RedPrimitive.js",
+		"RedMaterialInfo.js",
+		"RedMaterialDefine.js",
 		"RedSceneInfo.js",
-		"RedShaderInfo.js",			
-		"RedTextureInfo.js"
+		"RedTextureInfo.js",
+		"RedAtlasUVInfo.js",
+		"RedAtlasInfo.js",
+		"RedAtlasTextureManager.js",
+		"RedAtlasTextureInfo.js",
+		"RedRender.js",
+		"RedGLDetect.js",
+		"redGL.js"
 	])
 		.pipe(myTransformation()) // 병합한다.
-		.pipe(rename(function(path){
+		.pipe(rename(function (path) {
 			path.extname = ".json"
 		}))
 		.pipe(gulp.dest('redDoc/docs'))

@@ -120,7 +120,7 @@ testData4 = new Float32Array([
 //  버텍스버퍼생성
 console.log(testGL.createArrayBufferInfo(
 	'testBuffer',
-	'aVertexPosition',
+	RedFixedAttributeKey['aVertexPosition'],
 	testData,
 	3, testData.length/3, testGL.gl.FLOAT
 ))
@@ -133,7 +133,7 @@ console.log(testGL.createArrayBufferInfo(
 // ))
 console.log(testGL.createArrayBufferInfo(
 	'testUv',
-	'aTexcoord',
+	RedFixedAttributeKey['aTexcoord'],
 	testData3,
 	2, testData3.length / 2, testGL.gl.FLOAT
 ))
@@ -147,7 +147,7 @@ console.log(testGL.createIndexBufferInfo(
 //  너말버퍼생성
 console.log(testGL.createArrayBufferInfo(
 	'testNormalBuffer',
-	'aVertexNormal',
+	RedFixedAttributeKey['aVertexNormal'],
 	testGL.calcNormal(
 		testData,
 		testData2
@@ -219,7 +219,7 @@ var testPrimitiveData = cube()
 console.log(testPrimitiveData)
 console.log(testGL.createArrayBufferInfo(
 	'testBuffer1',
-	'aVertexPosition',
+	RedFixedAttributeKey['aVertexPosition'],
 	testPrimitiveData[0],
 	3, testPrimitiveData[0].length / 3, testGL.gl.FLOAT
 ))
@@ -233,7 +233,7 @@ console.log(testGL.createIndexBufferInfo(
 //  너말버퍼생성
 console.log(testGL.createArrayBufferInfo(
 	'testNormalBuffer1',
-	'aVertexNormal',
+	RedFixedAttributeKey['aVertexNormal'],
 	testGL.calcNormal(
 		testPrimitiveData[0],
 		testPrimitiveData[1]
@@ -243,7 +243,7 @@ console.log(testGL.createArrayBufferInfo(
 //  uv
 console.log(testGL.createArrayBufferInfo(
 	'testUv1',
-	'aTexcoord',
+	RedFixedAttributeKey['aTexcoord'],
 	testPrimitiveData[2],
 	2, testPrimitiveData[2].length/2, testGL.gl.FLOAT
 ))

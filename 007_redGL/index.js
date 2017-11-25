@@ -18,7 +18,7 @@ indexData = new Uint16Array([
 	16, 17, 18, 16, 18, 19,
 	20, 21, 22, 20, 22, 23
 ])
-normalData = new Float32Array([
+uvData = new Float32Array([
 	0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
 	1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0,
 	0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0,
@@ -26,7 +26,7 @@ normalData = new Float32Array([
 	1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0,
 	0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0
 ])
-uvData = new Float32Array([
+normalData = new Float32Array([
 	// Front face
 	0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,
 	// Back face
@@ -41,11 +41,11 @@ uvData = new Float32Array([
 	-1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0
 ])
 // 버텍스버퍼생성
-console.log(testGL.createArrayBufferInfo('testBuffer', 'aVertexPosition', vertexData, 3, vertexData.length / 3, testGL.gl.FLOAT))
+console.log(testGL.createArrayBufferInfo('testBuffer', RedFixedAttributeKey['aVertexPosition'], vertexData, 3, vertexData.length / 3, testGL.gl.FLOAT))
 // 노말버퍼생성
-console.log(testGL.createArrayBufferInfo('testNormalBuffer', 'aVertexNormal', uvData, 3, uvData.length / 3, testGL.gl.FLOAT))
+console.log(testGL.createArrayBufferInfo('testNormalBuffer', RedFixedAttributeKey['aVertexNormal'], normalData, 3, normalData.length / 3, testGL.gl.FLOAT))
 // UV버퍼생성
-console.log(testGL.createArrayBufferInfo('testUv', 'aTexcoord', normalData, 2, normalData.length / 2, testGL.gl.FLOAT))
+console.log(testGL.createArrayBufferInfo('testUv', RedFixedAttributeKey['aTexcoord'], uvData, 2, uvData.length / 2, testGL.gl.FLOAT))
 // 인덱스 버퍼생성
 console.log(testGL.createIndexBufferInfo('testIndexBuffer', indexData, 1, indexData.length, testGL.gl.UNSIGNED_SHORT))
 // 쉐이더생성
@@ -219,9 +219,9 @@ RedAtlasTextureManager(testGL, [
 		COS = Math.cos
 		while (i--) {
 			tMesh = testScene.children[i]
-			tMesh.rotation[0] += 0.005
-			tMesh.rotation[1] += 0.005
-			tMesh.rotation[2] += 0.005
+			tMesh.rotation[0] += 0.01
+			tMesh.rotation[1] += 0.01
+			tMesh.rotation[2] += 0.01
 			i2 = tMesh.children.length
 			while (i2--) {
 				tMesh2 = tMesh.children[i2]
@@ -238,9 +238,7 @@ RedAtlasTextureManager(testGL, [
 				}
 			}
 		}
-		testCamera.position[0]  = Math.sin(time/5000)*80
-		testCamera.position[1]  = Math.cos(time/5000)*80
-		testCamera.position[2]  = Math.sin(time/3000)*40 + Math.cos(time/5000)*40
+		testCamera.setPosition(Math.sin(time/5000)*80,Math.sin(time/5000)*80,Math.sin(time/3000)*40 + Math.cos(time/5000)*40)
 		testCamera.lookAt([0,0,0])
 		checkCall.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
 	})

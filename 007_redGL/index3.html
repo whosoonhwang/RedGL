@@ -67,9 +67,9 @@
             uniform vec4 uAtlascoord;
             varying vec2 vTexcoord;  
             varying vec3 vLightWeighting;
-            const float shininess = 16.0;
+            const float shininess = 32.0;
             void main(void) {
-                vec4 vectexPositionEye4 = uCameraMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+                vec4 vectexPositionEye4 = uMVMatrix * vec4(aVertexPosition, 1.0);
                 vec3 vectexPositionEye3 = vectexPositionEye4.xyz/vectexPositionEye4.w;
                 vTexcoord = uAtlascoord.xy + aTexcoord*uAtlascoord.zw;
                 // 라이팅 간소화
@@ -78,7 +78,7 @@
                 vec3 specularLightColor = vec3(0.8, 0.8, 0.8);
                 
                 // 광원포지션
-                vec3 directionnalLightPosition = normalize(vec3(0.1,0.5,0.1));
+                vec3 directionnalLightPosition = normalize(vec3(1.0,1.0,-2.0));
 
                 // 노말을 좌표변환하고
                 vec3 normalEye = normalize(normalFromMat4(uMVMatrix) * aVertexNormal);
@@ -93,7 +93,7 @@
 
                 vLightWeighting = ambientLight + (directionalLightColor * directionalLightWeight) + (specularLightColor * specularLightWeightning);
                 // 포지션 결정
-                gl_Position = uPMatrix * vectexPositionEye4;
+                gl_Position = uPMatrix * uCameraMatrix * vectexPositionEye4;
             }
     </script>
     <script id="shader-fs-bitmap" type="x-shader/x-fragment">
@@ -139,8 +139,10 @@
     <script src="RedProgramInfo.js"></script>
     <script src="RedBaseCamera.js"></script>
     <script src="RedBufferInfo.js"></script>
+    <script src="RedFixedAttributeKey.js"></script>
     <script src="RedGeometryInfo.js"></script>
     <script src="RedMeshInfo.js"></script>
+    <script src="RedPrimitive.js"></script>    
     <script src="RedMaterialInfo.js"></script>
     <script src="RedMaterialDefine.js"></script>
     <script src="RedSceneInfo.js"></script>
