@@ -84,14 +84,18 @@ var tMesh
 var i = 100
 while(i--){
 	// tMesh= testGL.createMeshInfo('testMesh'+i, testGL.getGeometryInfo('testGeo'), testGL.createMaterialInfo('bitmapLite', testTexture))
-	tMesh= testGL.createMeshInfo('testMesh'+i, RedPrimitive.plane(testGL,5,5,3,3), testGL.createMaterialInfo('bitmapLite', testTexture))
-	tMesh.position[0] = Math.random()*60-30
-	tMesh.position[1] = Math.random()*60-30
+	tMesh = testGL.createMeshInfo(
+		'testMesh' + i,
+		i % 2 ? RedPrimitive.plane(testGL, 5, 5, 3, 3) : RedPrimitive.cube(testGL, 3, 3, 3),
+		testGL.createMaterialInfo('bitmapLite', testTexture)
+	)
+	tMesh.position[0] = Math.random() * 60 - 30
+	tMesh.position[1] = Math.random() * 60 - 30
 	tMesh.position[2] = Math.random()*60-30
 	tMesh.rotation[0] = Math.PI*2*Math.random()
 	tMesh.rotation[1] = Math.PI*2*Math.random()
 	tMesh.rotation[2] = Math.PI*2*Math.random()
-	tMesh.drawMode = testGL.gl.LINE_STRIP
+	// tMesh.drawMode = testGL.gl.LINE_STRIP
 	testScene.children.push(tMesh)	
 }
 tMesh= testGL.createMeshInfo('testMesh', testGL.getGeometryInfo('testGeo'), testGL.createMaterialInfo('bitmapLite', testTexture))

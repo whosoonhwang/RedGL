@@ -14,6 +14,11 @@ var RedPrimitive;
     var tType;
     var tDatas;;
     var createGeo;
+    var checkShareInfo;
+    checkShareInfo = function (redGL) {
+        if (!redGL['__datas']['RedPrimitive']) redGL['__datas']['RedPrimitive'] = {}
+        return redGL['__datas']['RedPrimitive']
+    }
     RedPrimitive = {}
     createGeo = function (redGL, tType, vertices, indices, uvs, normals) {
         vertices = new Float32Array(vertices)
@@ -62,8 +67,7 @@ var RedPrimitive;
             segment_width = width / gridX, segment_height = height / gridY
 
             // 저장할 공간확보하고
-            if (!redGL['__datas']['RedPrimitive']) redGL['__datas']['RedPrimitive'] = {}
-            tDatas = redGL['__datas']['RedPrimitive']
+            tDatas = checkShareInfo(redGL)
             // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
             tType = 'RedPrimitivePlane' + '_' + width + '_' + height + '_' + segmentW + '_' + segmentH
             if (tDatas[tType]) {
@@ -100,6 +104,127 @@ var RedPrimitive;
                         indices.push(a, b, d, b, c, d)
                 }
             }
+            ////////////////////////////////////////////////////////////////////////////
+            // 캐싱
+            tDatas[tType] = createGeo(redGL, tType, vertices, indices, uvs, normals)
+            // console.log(redGL['__datas']['RedPrimitive'])
+            return tDatas[tType]
+        }
+    })();
+    /**DOC:
+        {
+            code : 'FUNCTION',
+            title :`cube`,
+            description : `
+                - cube 지오메트리가 반환됨,
+                - 생성시 내부적으로 'RedPrimitiveCube' + '_' + width + '_' + height + '_' + depth + '_' + widthSegments + '_' + heightSegments + '_' + depthSegments 키로 캐싱한뒤..
+                - share되는 지오메트리를 생성한다.
+            `,
+            return : 'RedPrimitivePlane Instance'
+        }
+    :DOC*/
+    RedPrimitive.cube = (function () {
+        var numberOfVertices;
+        var groupStart;
+        var buildPlane;
+        buildPlane = function (vertices, indices, uvs, normals, u, v, w, udir, vdir, width, height, depth, gridX, gridY, materialIndex) {
+            var segmentWidth = width / gridX;
+            var segmentHeight = height / gridY;
+            var widthHalf = width / 2;
+            var heightHalf = height / 2;
+            var depthHalf = depth / 2;
+            var gridX1 = gridX + 1;
+            var gridY1 = gridY + 1;
+            var vertexCounter = 0;
+            var groupCount = 0;
+            var ix, iy;
+            var vector = []
+            // generate vertices, normals and uvs
+            for (iy = 0; iy < gridY1; iy++) {
+                var y = iy * segmentHeight - heightHalf;
+                for (ix = 0; ix < gridX1; ix++) {
+                    var x = ix * segmentWidth - widthHalf;
+                    // set values to correct vector component
+                    vector[u] = x * udir;
+                    vector[v] = y * vdir;
+                    vector[w] = depthHalf;
+                    // now apply vector to vertex buffer
+                    vertices.push(vector.x, vector.y, vector.z);
+                    // set values to correct vector component
+                    vector[u] = 0;
+                    vector[v] = 0;
+                    vector[w] = depth > 0 ? 1 : - 1;
+                    // now apply vector to normal buffer
+                    normals.push(vector.x, vector.y, vector.z);
+                    // uvs
+                    uvs.push(ix / gridX);
+                    uvs.push(1 - (iy / gridY));
+                    // counters
+                    vertexCounter += 1;
+                }
+            }
+            // indices
+            // 1. you need three indices to draw a single face
+            // 2. a single segment consists of two faces
+            // 3. so we need to generate six (2*3) indices per segment
+            for (iy = 0; iy < gridY; iy++) {
+                for (ix = 0; ix < gridX; ix++) {
+                    var a = numberOfVertices + ix + gridX1 * iy;
+                    var b = numberOfVertices + ix + gridX1 * (iy + 1);
+                    var c = numberOfVertices + (ix + 1) + gridX1 * (iy + 1);
+                    var d = numberOfVertices + (ix + 1) + gridX1 * iy;
+                    // faces
+                    indices.push(a, b, d);
+                    indices.push(b, c, d);
+                    // increase counter
+                    groupCount += 6;
+                }
+            }
+            // calculate new start value for groups
+            groupStart += groupCount;
+            // update total number of vertices
+            numberOfVertices += vertexCounter;
+
+        }
+        return function RedPrimitiveCube(redGL, width, height, depth, widthSegments, heightSegments, depthSegments) {
+            if (!(this instanceof RedPrimitiveCube)) return new RedPrimitiveCube(redGL, width, height, depth, widthSegments, heightSegments, depthSegments)
+            if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+
+            width = width || 1;
+            height = height || 1;
+            depth = depth || 1;
+            // segments
+            widthSegments = Math.floor(widthSegments) || 1;
+            heightSegments = Math.floor(heightSegments) || 1;
+            depthSegments = Math.floor(depthSegments) || 1;
+
+            // 저장할 공간확보하고
+            tDatas = checkShareInfo(redGL)
+            // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
+            tType = 'RedPrimitiveCube' + '_' + width + '_' + height + '_' + depth + '_' + widthSegments + '_' + heightSegments + '_' + depthSegments
+            if (tDatas[tType]) {
+                console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
+                return tDatas[tType]
+            }
+
+            ////////////////////////////////////////////////////////////////////////////
+            // 데이터 생성!
+
+            // buffers Data
+            var vertices = [];
+            var indices = [];
+            var uvs = [];
+            var normals = [];
+            numberOfVertices = 0;
+            groupStart = 0;
+            //TODO: 적화필요
+            buildPlane(vertices, indices, uvs, normals, 'z', 'y', 'x', - 1, - 1, depth, height, width, depthSegments, heightSegments, 0); // px
+            buildPlane(vertices, indices, uvs, normals, 'z', 'y', 'x', 1, - 1, depth, height, - width, depthSegments, heightSegments, 1); // nx
+            buildPlane(vertices, indices, uvs, normals, 'x', 'z', 'y', 1, 1, width, depth, height, widthSegments, depthSegments, 2); // py
+            buildPlane(vertices, indices, uvs, normals, 'x', 'z', 'y', 1, - 1, width, depth, - height, widthSegments, depthSegments, 3); // ny
+            buildPlane(vertices, indices, uvs, normals, 'x', 'y', 'z', 1, - 1, width, height, depth, widthSegments, heightSegments, 4); // pz
+            buildPlane(vertices, indices, uvs, normals, 'x', 'y', 'z', - 1, - 1, width, height, - depth, widthSegments, heightSegments, 5); // nz
+            console.log(vertices, indices, uvs, normals)
             ////////////////////////////////////////////////////////////////////////////
             // 캐싱
             tDatas[tType] = createGeo(redGL, tType, vertices, indices, uvs, normals)
