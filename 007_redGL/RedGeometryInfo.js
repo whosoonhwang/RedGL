@@ -103,9 +103,18 @@ var RedGeometryInfo;
 		}
 	    :DOC*/
         this['key'] = key
-        if (verticesBufferInfo) this['attributes']['vertexPosition'] = verticesBufferInfo // 버텍스버퍼
-        if (texcoordBufferInfo) this['attributes']['texcoord'] = texcoordBufferInfo // 코디네이트버퍼
-        if (normalBufferInfo) this['attributes']['normal'] = normalBufferInfo // 노말버퍼
+        if (verticesBufferInfo) {
+            if(verticesBufferInfo['shaderPointerKey'] == RedFixedAttributeKey['aVertexPosition']) this['attributes']['vertexPosition'] = verticesBufferInfo // 버텍스버퍼
+            else throw 'verticesBufferInfo의 shaderPointerKey는 aVertexPosition만 가질수있습니다.'
+        }
+        if (texcoordBufferInfo) {
+            if(texcoordBufferInfo['shaderPointerKey'] == RedFixedAttributeKey['aTexcoord']) this['attributes']['texcoord'] = texcoordBufferInfo // 코디네이트버퍼
+            else throw 'texcoordBufferInfo의 shaderPointerKey는 aTexcoord만 가질수있습니다.'
+        }
+        if (normalBufferInfo) {
+            if(normalBufferInfo['shaderPointerKey'] == RedFixedAttributeKey['aVertexNormal']) this['attributes']['normal'] = normalBufferInfo // 노말버퍼
+            else throw 'normalBufferInfo의 shaderPointerKey는 aVertexNormal만 가질수있습니다.'
+        }
         //
         this['__attributeList'] = []
         for (k in this['attributes']) {

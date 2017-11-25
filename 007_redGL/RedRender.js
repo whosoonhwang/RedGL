@@ -93,9 +93,13 @@ var RedRender;
 
         cacheAttrUUID = {}
         cacheTextureAtlas_UUID = {}
-
         this.render = function (time) {
             //TODO: 재질 소팅을 도입해야곘음 -_-;;
+            //////////////////////////////////////////////////////////
+            // cacheDrawBufferUUID 캐시를 한번제거함
+            // 왜냐? 버퍼가 중간에 등록만되고..사용이 안될떄..대비
+            cacheDrawBufferUUID = undefined
+            //////////////////////////////////////////////////////////
             self['callback'] ? self['callback'](time) : 0
             self['numDrawCall'] = 0
             tGL = redGL.gl
@@ -116,8 +120,6 @@ var RedRender;
             //////////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////
             tGL.clear(tGL.COLOR_BUFFER_BIT | tGL.DEPTH_BUFFER_BIT);
-
-
            
             self.draw(tScene['children'], time)
             // Set the backbuffer's alpha to 1.0
