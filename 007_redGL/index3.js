@@ -68,37 +68,37 @@ testGL.createGeometryInfo(
 // 재질 정의
 testGL.createMaterialDefine(testGL.getProgramInfo('bitmapLite'))
 // 텍스쳐생성
-var testTexture = testGL.createTextureInfo('asset/crate.png')
+var testTexture = testGL.createTextureInfo('asset/grid.png')
 // 재질 생성
 var testMatBitmap = testGL.createMaterialInfo('bitmapLite', testTexture)
 // 카메라생성
-var testCamera = RedBaseCamera(testGL,'testCamera')
+var testCamera = RedBaseCamera(testGL, 'testCamera')
 // Scene 생성
-var testScene = testGL.createSceneInfo('testScene',testCamera)
+var testScene = testGL.createSceneInfo('testScene', testCamera)
 console.log(testScene)
 // 아틀라스테스트
 
 ///////////////////////////////////////////////////////////////////////////////////////////
 // 데모
-var tMesh 
+var tMesh
 var i = 100
-while(i--){
+while (i--) {
 	// tMesh= testGL.createMeshInfo('testMesh'+i, testGL.getGeometryInfo('testGeo'), testGL.createMaterialInfo('bitmapLite', testTexture))
 	tMesh = testGL.createMeshInfo(
 		'testMesh' + i,
-		i % 2 ? RedPrimitive.plane(testGL, 5, 5, 3, 3) : RedPrimitive.cube(testGL, 3, 3, 3),
+		i % 3 ? RedPrimitive.plane(testGL, 5, 5, 3, 3) : i % 2 ? RedPrimitive.cube(testGL, 3, 3, 3) : RedPrimitive.sphere(testGL, 3, 16, 16),
 		testGL.createMaterialInfo('bitmapLite', testTexture)
 	)
 	tMesh.position[0] = Math.random() * 60 - 30
 	tMesh.position[1] = Math.random() * 60 - 30
-	tMesh.position[2] = Math.random()*60-30
-	tMesh.rotation[0] = Math.PI*2*Math.random()
-	tMesh.rotation[1] = Math.PI*2*Math.random()
-	tMesh.rotation[2] = Math.PI*2*Math.random()
-	// tMesh.drawMode = testGL.gl.LINE_STRIP
-	testScene.children.push(tMesh)	
+	tMesh.position[2] = Math.random() * 60 - 30
+	tMesh.rotation[0] = Math.PI * 2 * Math.random()
+	tMesh.rotation[1] = Math.PI * 2 * Math.random()
+	tMesh.rotation[2] = Math.PI * 2 * Math.random()
+	tMesh.drawMode = Math.random() > 0.5 ? testGL.gl.LINE_STRIP : testGL.gl.TRIANGLES
+	testScene.children.push(tMesh)
 }
-tMesh= testGL.createMeshInfo('testMesh', testGL.getGeometryInfo('testGeo'), testGL.createMaterialInfo('bitmapLite', testTexture))
+tMesh = testGL.createMeshInfo('testMesh', testGL.getGeometryInfo('testGeo'), testGL.createMaterialInfo('bitmapLite', testTexture))
 tMesh.position[2] = 0
 testScene.children.push(tMesh)
 
@@ -128,9 +128,9 @@ doc.href = 'redDoc/redDoc.html'
 doc.innerHTML = 'RedGL Document'
 testCamera.lookAt(tMesh.position)
 var renderer = RedRender(testGL, testScene, function (time) {
-	testCamera.setPosition(30,30,Math.sin(time/1000)*60)
+	testCamera.setPosition(30, 30, Math.sin(time / 1000) * 60)
 	testCamera.lookAt(tMesh.position)
-	
+
 	checkCall.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
 })
 renderer.start()
