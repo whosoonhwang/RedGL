@@ -83,12 +83,14 @@ var RedRender;
         var cacheProgram; // 이전 대상 프로그램        
         var cacheAttrUUID; // 어트리뷰트 캐싱정보
         var cacheDrawBufferUUID; // draw버퍼 캐싱정보
-        var cacheTexture1_UUID; //텍스쳐 캐싱정보
+        var cacheTexture1_UUID; // 일반 텍스쳐 캐싱정보
+        var cacheTexture2_UUID; // 큐브 텍스쳐 캐싱정보
         var cacheTextureAtlas_UUID; // 텍스쳐 아틀라스 캐싱정보
         var cacheActiveTextureIndex; // 액티브된 텍스쳐정보
         var cacheUAtlascoord_UUID; // 아틀라스 UV텍스쳐 정보
         ///////////////////////////////////////////////////////////////////
-  
+        var cacheCullFace;
+        ///////////////////////////////////////////////////////////////////
         var aspect;
 
         cacheAttrUUID = {}
@@ -105,6 +107,7 @@ var RedRender;
             tGL = redGL.gl
             //////////////////////////////////////////////////////////////////
             tScene = self['targetScene']
+            
             // TODO: 이부분은 리사이저이벤트로 날릴수 있을듯        ... 흠 프로그램 변경때문에 안되남...   
             tScene['camera'].update()
             for (k in redGL['__datas']['RedProgramInfo']) {
@@ -119,11 +122,18 @@ var RedRender;
             }
             //////////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////
-            tGL.clear(tGL.COLOR_BUFFER_BIT | tGL.DEPTH_BUFFER_BIT);
-           
+            tGL.clear(tGL.COLOR_BUFFER_BIT);
+            self.drawSkyBox(tScene['skyBox'],time)
+            tGL.clear(tGL.DEPTH_BUFFER_BIT);
             self.draw(tScene['children'], time)
             // Set the backbuffer's alpha to 1.0
             requestAnimationFrame(self.render)
+        }
+        this.drawSkyBox = function(skyBox){
+            if(skyBox){
+                
+                self.draw([skyBox])
+            }
         }
         this.draw = function (renderList, time, parentMTX) {
             var i, i2; // 루프변수
@@ -213,6 +223,7 @@ var RedRender;
                 tIndicesBuffer = tGeometry['indices']
                 tVertexPositionBuffer = tAttrGroup['vertexPosition']
 
+            
                 // 프로그램 세팅 & 캐싱
                 cacheProgram != tProgram ? tGL.useProgram(tProgram) : 0
                 cacheProgram = tProgram
@@ -275,6 +286,7 @@ var RedRender;
                             : tGL[tUniformValue['__uniformMethod']](tLocation, tUniformGroup[tUniformKey])
                     }
                     else if (tUniformValue['__webglAtlasTexture']) {
+                   
                         var tTexture;
                         tTexture = tUniformValue['parentAtlasInfo']['textureInfo']
                         if (cacheTextureAtlas_UUID[tTexture['__targetIndex']] == undefined) bitmapRenderable = false
@@ -292,6 +304,7 @@ var RedRender;
                         }
                     }
                     else if (tUniformValue['__webglTexture']) {
+                      
                         if (cacheTexture1_UUID == undefined) bitmapRenderable = false
                         if (tUniformValue['loaded']) {
                             if (cacheTexture1_UUID != tUniformValue['__UUID']) {
@@ -305,10 +318,34 @@ var RedRender;
                             cacheActiveTextureIndex = tUniformValue['__targetIndex']
                         }
                     }
+                    else if (tUniformValue['__webglCubeTexture']) {
+                        if (cacheTexture2_UUID == undefined) bitmapRenderable = false
+                        if (tUniformValue['loaded']) {
+                            if (cacheTexture2_UUID != tUniformValue['__UUID']) {
+                                tUniformValue['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
+                                tUniformValue['actived'] = 1
+                                // tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
+                                tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, tUniformValue['texture'])
+                                cacheTexture2_UUID = tUniformValue['__UUID']
+                            }
+                            cacheActiveTextureIndex != tUniformValue['__targetIndex'] ? tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
+                            cacheActiveTextureIndex = tUniformValue['__targetIndex']
+                        }
+                      }
                     else throw '안되는 나쁜 타입인거야!!'
                 }
+                
                 // uMVMatrix 입력 //TODO: 이것도 자동으로 하고싶은데...
                 tGL.uniformMatrix4fv(tUniformLocationGroup['uMVMatrix']['location'], false, tMVMatrix)
+                //////////////////////////
+                // GL 드로잉상태관련 캐싱들 처리
+                if (cacheCullFace != tMesh['cullFace']) tGL.cullFace(tMesh['cullFace']), cacheCullFace = tMesh['cullFace']
+                // TODO: 뎁스테스팅 캐싱처리
+                // TODO: 뎁스테스트 사용여부 캐싱처리
+                // TODO: 컬페이스 사용여부 캐싱처리
+                // TODO: 블렌딩 사용여부 캐싱처리
+                // TODO: 블렌딩모드 캐싱처리
+                //////////////////////////
                 if (tIndicesBuffer) {
                     if (bitmapRenderable) {
                         cacheDrawBufferUUID == tIndicesBuffer['__UUID'] ? 0 : tGL.bindBuffer(tGL.ELEMENT_ARRAY_BUFFER, tIndicesBuffer['buffer'])

@@ -134,7 +134,7 @@ var RedMaterialInfo;
                 t0['__uniformMethod'] = typeMAP['i'][t0.length]
                 t0['__isMatrix'] = t0['__uniformMethod'].length > 11
             } else if (t0 instanceof RedAtlasUVInfo) {
-            } else if (t0 instanceof RedTextureInfo) {
+            } else if (t0 instanceof RedTextureInfo || t0 instanceof RedCubeTextureInfo) {
             } else if (t0 instanceof RedAtlasTextureInfo) {
                 this['uniforms']['uAtlascoord'] = t0['atlasUVInfo']
                 // console.log('RedAtlasTextureInfo',t0,this)

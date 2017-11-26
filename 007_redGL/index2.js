@@ -263,6 +263,9 @@ console.log(testGL.createShaderInfo('bitmap', RedShaderInfo.FRAGMENT_SHADER, tes
 
 console.log(testGL.createShaderInfo('bitmapLite', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('shader-vs-bitmap-light')))
 console.log(testGL.createShaderInfo('bitmapLite', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('shader-fs-bitmap-light')))
+
+console.log(testGL.createShaderInfo('skybox', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('shader-vs-skybox')))
+console.log(testGL.createShaderInfo('skybox', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('shader-fs-skybox')))
 // 프로그램생성
 testGL.createProgramInfo(
 	'color',
@@ -291,6 +294,16 @@ testGL.createProgramInfo(
 		target.uniforms.uAtlascoord =  RedAtlasUVInfo([0, 0, 1, 1])
 	}
 )
+
+testGL.createProgramInfo(
+	'skybox',
+	testGL.getShaderInfo('skybox', RedShaderInfo.VERTEX_SHADER),
+	testGL.getShaderInfo('skybox', RedShaderInfo.FRAGMENT_SHADER),
+	function (target) {
+		target.uniforms.uSkybox = target['diffuseInfo']
+		
+	}
+)
 // 지오메트리생성
 console.log(testGL.createGeometryInfo(
 	'testGeo',
@@ -304,6 +317,7 @@ console.log(testGL.getProgramInfo('color'))
 console.log(testGL.getProgramInfo('bitmap'))
 // 재질정의
 var testMatDefine = RedMaterialDefine(testGL, testGL.getProgramInfo('color'))
+testGL.createMaterialDefine(testGL.getProgramInfo('skybox'))
 RedMaterialDefine(testGL, testGL.getProgramInfo('bitmap'))
 RedMaterialDefine(testGL, testGL.getProgramInfo('bitmapLite'))
 // 재질생성
@@ -324,6 +338,16 @@ var testCamera = RedBaseCamera(testGL,'testCamera')
 // Scene 생성
 var testScene = testGL.createSceneInfo('testScene',testCamera)
 console.log(testScene)
+var testSkyBox
+testSkyBox = RedSkyBox(testGL,[
+	'asset/cubemap/posx.jpg',
+	'asset/cubemap/negx.jpg',
+	'asset/cubemap/posy.jpg',
+	'asset/cubemap/negy.jpg',
+	'asset/cubemap/posz.jpg',
+	'asset/cubemap/negz.jpg'
+])
+testScene.setSkyBox(testSkyBox)
 // 아틀라스테스트
  RedAtlasTextureManager(testGL, [
 	'asset/draft1.png',

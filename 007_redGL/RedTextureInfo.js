@@ -77,8 +77,7 @@ var RedTextureInfo;
 		img.addEventListener('load', function () {
 			// 로딩상태 플래그를 완료로 설정
 			self['loaded'] = 1
-			// 타겟인덱스를 설정함
-		
+			// 타겟인덱스를 설정함		
 			self['__targetIndex'] = targetIndex
 			// tGL.activeTexture(tGL.TEXTURE_2D, tGL.TEXTURE0)
 			tGL.activeTexture(tGL.TEXTURE0)
@@ -88,14 +87,13 @@ var RedTextureInfo;
 			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_MIN_FILTER, tGL.LINEAR_MIPMAP_NEAREST);
 			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_S, tGL.CLAMP_TO_EDGE);
 			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_T, tGL.CLAMP_TO_EDGE);
-			tGL.pixelStorei(tGL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 			tGL.generateMipmap(tGL.TEXTURE_2D)
 			// img.onload = null
 		});
 		// tGL.bindTexture(tGL.TEXTURE_2D, null)
 		this['__img'] = img
 		// 인덱스 번호 지정 - 초기생성전담은 0번 인덱스를 사용함
-		this['__targetIndex'] = tGL.TEXTURE0
+		this['__targetIndex'] = 0
 		// 로딩이 다되었는지
 		this['loaded'] = 0
 		// 액티브된적이있는지

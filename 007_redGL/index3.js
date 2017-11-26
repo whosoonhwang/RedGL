@@ -47,6 +47,8 @@ console.log(testGL.createIndexBufferInfo('testIndexBuffer', indexData, 1, indexD
 // 쉐이더생성
 console.log(testGL.createShaderInfo('bitmapLite', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('shader-vs-bitmap-light')))
 console.log(testGL.createShaderInfo('bitmapLite', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('shader-fs-bitmap-light')))
+console.log(testGL.createShaderInfo('skybox', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('shader-vs-skybox')))
+console.log(testGL.createShaderInfo('skybox', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('shader-fs-skybox')))
 // 프로그램생성
 testGL.createProgramInfo(
 	'bitmapLite',
@@ -55,6 +57,15 @@ testGL.createProgramInfo(
 	function (target) {
 		target.uniforms.uTexture = target['diffuseInfo']
 		target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
+	}
+)
+testGL.createProgramInfo(
+	'skybox',
+	testGL.getShaderInfo('skybox', RedShaderInfo.VERTEX_SHADER),
+	testGL.getShaderInfo('skybox', RedShaderInfo.FRAGMENT_SHADER),
+	function (target) {
+		target.uniforms.uSkybox = target['diffuseInfo']
+		
 	}
 )
 // 지오메트리 생성
@@ -67,6 +78,7 @@ testGL.createGeometryInfo(
 )
 // 재질 정의
 testGL.createMaterialDefine(testGL.getProgramInfo('bitmapLite'))
+testGL.createMaterialDefine(testGL.getProgramInfo('skybox'))
 // 텍스쳐생성
 var testTexture = testGL.createTextureInfo('asset/grid.png')
 // 재질 생성
@@ -81,7 +93,18 @@ console.log(testScene)
 ///////////////////////////////////////////////////////////////////////////////////////////
 // 데모
 var tMesh
-var i = 100
+var i = 10
+var testSkyBox
+testSkyBox = RedSkyBox(testGL,[
+	'asset/cubemap/posx.jpg',
+	'asset/cubemap/negx.jpg',
+	'asset/cubemap/posy.jpg',
+	'asset/cubemap/negy.jpg',
+	'asset/cubemap/posz.jpg',
+	'asset/cubemap/negz.jpg'
+])
+testScene.setSkyBox(testSkyBox)
+console.log(testSkyBox)
 while (i--) {
 	// tMesh= testGL.createMeshInfo('testMesh'+i, testGL.getGeometryInfo('testGeo'), testGL.createMaterialInfo('bitmapLite', testTexture))
 	tMesh = testGL.createMeshInfo(
@@ -97,6 +120,7 @@ while (i--) {
 	tMesh.rotation[2] = Math.PI * 2 * Math.random()
 	tMesh.drawMode = Math.random() > 0.5 ? testGL.gl.LINE_STRIP : testGL.gl.TRIANGLES
 	testScene.children.push(tMesh)
+	
 }
 tMesh = testGL.createMeshInfo('testMesh', testGL.getGeometryInfo('testGeo'), testGL.createMaterialInfo('bitmapLite', testTexture))
 tMesh.position[2] = 0
@@ -128,7 +152,7 @@ doc.href = 'redDoc/redDoc.html'
 doc.innerHTML = 'RedGL Document'
 testCamera.lookAt(tMesh.position)
 var renderer = RedRender(testGL, testScene, function (time) {
-	testCamera.setPosition(30, 30, Math.sin(time / 1000) * 60)
+	testCamera.setPosition(Math.sin(time / 1000) * 60, Math.cos(time / 1000) * 60, Math.sin(time / 1000) * 60 + Math.cos(time / 1000) * 60)
 	testCamera.lookAt(tMesh.position)
 
 	checkCall.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
