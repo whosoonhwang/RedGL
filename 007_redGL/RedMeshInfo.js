@@ -140,6 +140,18 @@ var RedMeshInfo;
         this['drawMode'] = tGL.TRIANGLES //TODO: 그리기모드는 매쉬가 가지는것이 맞는가!.. 맞을걸 같아..
         /**DOC:
 		{
+            title :`cullFace`,
+            description : `
+                - 실제 메쉬를 그릴때 cullFace를 어떤 방식으로 그릴지 결정
+                - ex) gl.BACK
+            `,
+			example : `인스턴스.cullFace`,
+			return : 'glConst'
+        }
+        :DOC*/
+        this['cullFace'] = tGL.BACK 
+        /**DOC:
+		{
             title :`children`,
             description : `
                 - 자식노드리스트

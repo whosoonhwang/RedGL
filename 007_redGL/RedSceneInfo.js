@@ -64,5 +64,8 @@ var RedSceneInfo;
         // 캐싱
         tDatas[key] = this
     }
+    RedSceneInfo.prototype.setSkyBox = function(v){
+        this['skyBox'] = v
+    }
     Object.freeze(RedSceneInfo)
 })();

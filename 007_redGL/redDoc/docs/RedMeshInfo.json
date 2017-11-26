@@ -6,6 +6,12 @@
     "return": "Array"
   },
   {
+    "title": "cullFace",
+    "description": "\n    - 실제 메쉬를 그릴때 cullFace를 어떤 방식으로 그릴지 결정\n    - ex) gl.BACK\n",
+    "example": "인스턴스.cullFace",
+    "return": "glConst"
+  },
+  {
     "title": "drawMode",
     "description": "\n    - 실제 메쉬를 그릴때 어떠한 방식으로 그릴지 결정\n    - ex) gl.TRIANGLES\n",
     "example": "인스턴스.drawMode",

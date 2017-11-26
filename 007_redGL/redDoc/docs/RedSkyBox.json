@@ -1,0 +1,8 @@
+[
+  {
+    "constructorYn": true,
+    "title": "RedMeshInfo",
+    "description": "\n   - <h2>TODO: 고민중...이걸해보니 메쉬베스라는 추상객체가 도입되어야할듯...\n",
+    "return": "RedSkyBox Instance"
+  }
+]

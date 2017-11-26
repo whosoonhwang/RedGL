@@ -55,6 +55,9 @@ console.log(testGL.createShaderInfo('bitmap', RedShaderInfo.VERTEX_SHADER, testG
 console.log(testGL.createShaderInfo('bitmap', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('shader-fs-bitmap')))
 console.log(testGL.createShaderInfo('bitmapLite', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('shader-vs-bitmap-light')))
 console.log(testGL.createShaderInfo('bitmapLite', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('shader-fs-bitmap-light')))
+
+console.log(testGL.createShaderInfo('skybox', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('shader-vs-skybox')))
+console.log(testGL.createShaderInfo('skybox', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('shader-fs-skybox')))
 // 프로그램생성
 testGL.createProgramInfo(
 	'color',
@@ -82,6 +85,16 @@ testGL.createProgramInfo(
 		target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
 	}
 )
+
+testGL.createProgramInfo(
+	'skybox',
+	testGL.getShaderInfo('skybox', RedShaderInfo.VERTEX_SHADER),
+	testGL.getShaderInfo('skybox', RedShaderInfo.FRAGMENT_SHADER),
+	function (target) {
+		target.uniforms.uSkybox = target['diffuseInfo']
+		
+	}
+)
 // 프로그램조회
 console.log(testGL.getProgramInfo('color'))
 console.log(testGL.getProgramInfo('bitmap'))
@@ -97,6 +110,7 @@ console.log(testGL.createGeometryInfo(
 var testMatDefine = testGL.createMaterialDefine(testGL.getProgramInfo('color'))
 testGL.createMaterialDefine(testGL.getProgramInfo('bitmap'))
 testGL.createMaterialDefine(testGL.getProgramInfo('bitmapLite'))
+testGL.createMaterialDefine(testGL.getProgramInfo('skybox'))
 console.log(testMatDefine)
 // 재질생성 
 var testColorMat = testGL.createMaterialInfo('color')
@@ -115,6 +129,16 @@ var testCamera = RedBaseCamera(testGL,'testCamera')
 // Scene 생성
 var testScene = testGL.createSceneInfo('testScene',testCamera)
 console.log(testScene)
+var testSkyBox
+testSkyBox = RedSkyBox(testGL,[
+	'asset/cubemap/posx.jpg',
+	'asset/cubemap/negx.jpg',
+	'asset/cubemap/posy.jpg',
+	'asset/cubemap/negy.jpg',
+	'asset/cubemap/posz.jpg',
+	'asset/cubemap/negz.jpg'
+])
+testScene.setSkyBox(testSkyBox)
 // 아틀라스테스트
 RedAtlasTextureManager(testGL, [
 	'asset/draft1.png',
@@ -134,6 +158,7 @@ RedAtlasTextureManager(testGL, [
 		var testAtlas2 = RedAtlasTextureManager(testGL, 'asset/addTest.png', function () {
 			console.log('아틀라스 추가!되었음!')
 			var i = 90, i2, i3;
+			testScene.children.reverse()
 			while (i--) {
 				var testMatBitmap9 = testGL.createMaterialInfo('bitmapLite', RedAtlasTextureManager.getByKey('asset/addTest.png'))
 				var tMesh = testGL.createMeshInfo('testMeshAdd' + i, testGL.getGeometryInfo('testGeo'), testMatBitmap9)
@@ -143,13 +168,17 @@ RedAtlasTextureManager(testGL, [
 				tMesh.rotation[0] = Math.random() * Math.PI * 2
 				tMesh.rotation[1] = Math.random() * Math.PI * 2
 				tMesh.rotation[2] = Math.random() * Math.PI * 2
+				tMesh.scale[0] = 3
+				tMesh.scale[1] = 3
+				tMesh.scale[2] = 3
 				testScene.children.push(tMesh)
 			}
+			testScene.children.reverse()
 		})
 	}, 3000)
 	///////////////////////////////////////////////////////////////////////////////////////////
 	// 데모
-	var i = 85, i2, i3;
+	var i = 80, i2, i3;
 	while (i--) {
 		var tMesh = testGL.createMeshInfo('testMesh' + i, testGL.getGeometryInfo('testGeo'), Math.random() > 0.5 ? testMatBitmap : testMatBitmap5)
 		tMesh.position[0] = Math.random() * 80 - 40
@@ -163,9 +192,9 @@ RedAtlasTextureManager(testGL, [
 		var tt = Math.random() > 0.5 ? testMatBitmap5 : testMatBitmap6
 		while (i2--) {
 			var tSub = testGL.createMeshInfo('testMesh_' + i + '_' + i2, testGL.getGeometryInfo('testGeo'), tt)
-			tSub.position[0] = Math.random() * 20 - 10
-			tSub.position[1] = Math.random() * 20 - 10
-			tSub.position[2] = Math.random() * 20 - 10
+			tSub.position[0] = Math.random() * 80 - 40
+			tSub.position[1] = Math.random() * 80 - 40
+			tSub.position[2] = Math.random() * 80 - 40
 			var tScale = Math.random() + 0.1
 			tSub.scale[0] = tScale
 			tSub.scale[1] = tScale
@@ -238,7 +267,7 @@ RedAtlasTextureManager(testGL, [
 				}
 			}
 		}
-		testCamera.setPosition(Math.sin(time/5000)*80,Math.sin(time/5000)*80,Math.sin(time/3000)*40 + Math.cos(time/5000)*40)
+		testCamera.setPosition(Math.sin(time/2500)*120,Math.sin(time/2500)*120,Math.sin(time/2500)*60 + Math.cos(time/2500)*60)
 		testCamera.lookAt([0,0,0])
 		checkCall.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
 	})

@@ -29,7 +29,7 @@
 var RedAtlasTextureManager;
 (function () {
 	var MAX_TEXTURE_SIZE;
-	var MAX_COMBINED_TEXTURE_IMAGE_UNITS; // 최대 허용 이미지유닛수
+	var MAX_TEXTURE_IMAGE_UNITS; // 최대 허용 이미지유닛수
 	var atlasInfoList; // 아틀라스 객체 리스트
 	var atlasKeyMap; // 아틀라스에 등록된 이미지 맵정보
 	var tRedGL;
@@ -51,7 +51,7 @@ var RedAtlasTextureManager;
 		tAtlas = new Atlas(canvas);
 		tAtlas['atlasInfo'] = RedAtlasInfo(tRedGL, tAtlas)
 		tTextureUnitIndex++
-		if (tTextureUnitIndex == MAX_COMBINED_TEXTURE_IMAGE_UNITS) tTextureUnitIndex = MAX_COMBINED_TEXTURE_IMAGE_UNITS - parseInt(MAX_COMBINED_TEXTURE_IMAGE_UNITS / 2)
+		if (tTextureUnitIndex == MAX_TEXTURE_IMAGE_UNITS) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 2)
 		tAtlas['__targetIndex'] = tTextureUnitIndex // console.log(tAtlas)
 		atlasInfoList.push(tAtlas['atlasInfo'])
 
@@ -76,6 +76,7 @@ var RedAtlasTextureManager;
 			}
 		}
 		// RedAtlasTextureInfo를 생성하고 맵에 담아둠
+		console.log(tAtlas.uv()[targetImage.id])
 		atlasKeyMap[targetImage.id] = new RedAtlasTextureInfo(
 			tAtlas.uv()[targetImage.id],
 			tAtlas['atlasInfo']
@@ -88,11 +89,11 @@ var RedAtlasTextureManager;
 		if (!(srcList instanceof Array)) srcList = [srcList]
 		tRedGL = redGL
 		MAX_TEXTURE_SIZE = redGL['detect']['MAX_TEXTURE_SIZE']
-		MAX_COMBINED_TEXTURE_IMAGE_UNITS = redGL['detect']['MAX_COMBINED_TEXTURE_IMAGE_UNITS']
-		if (tTextureUnitIndex == undefined) tTextureUnitIndex = MAX_COMBINED_TEXTURE_IMAGE_UNITS - parseInt(MAX_COMBINED_TEXTURE_IMAGE_UNITS / 2)
+		MAX_TEXTURE_IMAGE_UNITS = redGL['detect']['MAX_TEXTURE_IMAGE_UNITS']
+		if (tTextureUnitIndex == undefined) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 2)
 		if (MAX_TEXTURE_SIZE > 4096) MAX_TEXTURE_SIZE = 4096
 		console.log('MAX_TEXTURE_SIZE', MAX_TEXTURE_SIZE)
-		console.log('MAX_COMBINED_TEXTURE_IMAGE_UNITS', MAX_COMBINED_TEXTURE_IMAGE_UNITS)
+		console.log('MAX_TEXTURE_IMAGE_UNITS', MAX_TEXTURE_IMAGE_UNITS)
 		if (!tAtlas) createAtlas()
 		var loaded, targetNum;
 		loaded = 0

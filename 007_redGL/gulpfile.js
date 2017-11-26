@@ -63,6 +63,7 @@ gulp.task('make-doc', function () {
 		"RedProgramInfo.js",
 		"RedBaseCamera.js",
 		"RedBufferInfo.js",
+		"RedCubeTextureInfo.js",
 		"RedFixedAttributeKey.js",
 		"RedGeometryInfo.js",
 		"RedMeshInfo.js",
@@ -76,6 +77,7 @@ gulp.task('make-doc', function () {
 		"RedAtlasTextureManager.js",
 		"RedAtlasTextureInfo.js",
 		"RedRender.js",
+		"RedSkyBox.js",
 		"RedGLDetect.js",
 		"redGL.js"
 	])

@@ -50,7 +50,7 @@ var RedBaseCamera;
                 title :`fov`,
                 description : `
                     - 카메라 fov
-                    - 기본값 45
+                    - 기본값 45(실제 연산시에는 라디안으로 적용해서 계산됨)
                 `,
                 return : 'Number'
             }
@@ -246,7 +246,7 @@ var RedBaseCamera;
                 // 퍼스펙티브만 관여
                 this['aspect'] = this['__canvas'].clientWidth / this['__canvas'].clientHeight
                 mat4.identity(this['uPMatrix'])
-                mat4.perspective(this['uPMatrix'], this['fov'], this['aspect'], this['near'], this['far'])
+                mat4.perspective(this['uPMatrix'], this['fov'] * Math.PI / 180, this['aspect'], this['near'], this['far'])
 
                 return this
             }

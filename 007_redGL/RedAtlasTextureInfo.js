@@ -38,7 +38,7 @@ var RedAtlasTextureInfo;
             if (!(parentAtlasInfo instanceof RedAtlasInfo)) throw 'parentAtlasInfo는 RedAtlasInfo  인스턴스만 허용합니다.'
             t0 = [
                 atlasUVInfo[0][0],
-                atlasUVInfo[0][1],
+                1.0-atlasUVInfo[2][1],
                 (atlasUVInfo[1][0] - atlasUVInfo[0][0]),
                 (atlasUVInfo[2][1] - atlasUVInfo[0][1])
             ]

@@ -231,7 +231,92 @@ var RedPrimitive;
             // console.log(redGL['__datas']['RedPrimitive'])
             return tDatas[tType]
         }
-    })()
+    })();
+    RedPrimitive.sphere = (function () {
+        var thetaEnd;
+        var ix, iy;
+        var index
+        var grid = [];
+        var vertex = new Float32Array([0,0,0])
+        var normal = new Float32Array([0,0,0])
+        var a,b,c,d;
+        return function RedPrimitiveSphere(redGL, radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength) {
+            if (!(this instanceof RedPrimitiveSphere)) return new RedPrimitiveSphere(redGL, radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength)
+            if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
 
+            radius = radius || 1;
+            widthSegments = Math.max(3, Math.floor(widthSegments) || 8);
+            heightSegments = Math.max(2, Math.floor(heightSegments) || 6);
+            phiStart = phiStart !== undefined ? phiStart : 0;
+            phiLength = phiLength !== undefined ? phiLength : Math.PI * 2;
+            thetaStart = thetaStart !== undefined ? thetaStart : 0;
+            thetaLength = thetaLength !== undefined ? thetaLength : Math.PI;
+
+            thetaEnd = thetaStart + thetaLength;
+            ix, iy;
+            index = 0;
+            grid.length=0
+            vertex[0] = 0, vertex[1] = 0, vertex[2] = 0
+            normal[0] = 0, normal[1] = 0, normal[2] = 0
+
+            // 저장할 공간확보하고
+            tDatas = checkShareInfo(redGL)
+            // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
+            tType = 'RedPrimitiveSphere' + '_' + radius + '_' + widthSegments + '_' + heightSegments + '_' + phiStart + '_' + phiLength + '_' + thetaStart+ '_' + thetaLength
+            if (tDatas[tType]) {
+                console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
+                return tDatas[tType]
+            }
+
+            ////////////////////////////////////////////////////////////////////////////
+            // 데이터 생성!
+
+            // buffers Data
+            var vertices = [];
+            var indices = [];
+            var uvs = [];
+            var normals = [];
+            // generate vertices, normals and uvs
+            for (iy = 0; iy <= heightSegments; iy++) {
+                var verticesRow = [];
+                var v = iy / heightSegments;
+                for (ix = 0; ix <= widthSegments; ix++) {
+                    var u = ix / widthSegments;
+                    // vertex
+                    vertex.x = - radius * Math.cos(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
+                    vertex.y = radius * Math.cos(thetaStart + v * thetaLength);
+                    vertex.z = radius * Math.sin(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
+                    vertices.push(vertex.x, vertex.y, vertex.z);
+                    // normal
+                    normal[0] = vertex.x
+                    normal[1] = vertex.y
+                    normal[2] = vertex.z
+                    vec3.normalize(normal,normal)
+                    normals.push(normal[0], normal[1],normal[2]);
+                    // uv
+                    uvs.push(u, 1 - v);
+                    verticesRow.push(index++);
+                }
+                grid.push(verticesRow);
+            }
+            // indices
+            for (iy = 0; iy < heightSegments; iy++) {
+                for (ix = 0; ix < widthSegments; ix++) {
+                    a = grid[iy][ix + 1]
+                    b = grid[iy][ix]
+                    c = grid[iy + 1][ix]
+                    d = grid[iy + 1][ix + 1]
+                    if (iy !== 0 || thetaStart > 0) indices.push(a, b, d)
+                    if (iy !== heightSegments - 1 || thetaEnd < Math.PI) indices.push(b, c, d)
+                }
+            }
+            console.log(vertices, indices, uvs, normals)
+            ////////////////////////////////////////////////////////////////////////////
+            // 캐싱
+            tDatas[tType] = createGeo(redGL, tType, vertices, indices, uvs, normals)
+            // console.log(redGL['__datas']['RedPrimitive'])
+            return tDatas[tType]
+        }
+    })()
     Object.freeze(RedPrimitive)
 })();

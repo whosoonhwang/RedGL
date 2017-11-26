@@ -11,7 +11,7 @@
   },
   {
     "title": "fov",
-    "description": "\n    - 카메라 fov\n    - 기본값 45\n",
+    "description": "\n    - 카메라 fov\n    - 기본값 45(실제 연산시에는 라디안으로 적용해서 계산됨)\n",
     "return": "Number"
   },
   {

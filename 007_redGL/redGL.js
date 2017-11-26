@@ -64,21 +64,25 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		// tGL.clearColor(0,0,0,0)
 		// set the depthTest
 		tGL.enable(tGL.DEPTH_TEST);
-		tGL.depthFunc(tGL.LEQUAL)
+		tGL.depthFunc(tGL.LESS)
 		// tGL.depthMask(false)
-		// set the cullFace
+		// 컬링 페이스 설정
 		tGL.frontFace(tGL.CCW)
 		tGL.enable(tGL.CULL_FACE);
 		tGL.cullFace(tGL.BACK)
-		// set the blendMode
+		// 블렌드모드설정
 		tGL.enable(tGL.BLEND);
 		tGL.blendFunc(tGL.ONE, tGL.ONE_MINUS_SRC_ALPHA);
 		// tGL.blendFuncSeparate(tGL.SRC_ALPHA, tGL.ONE_MINUS_SRC_ALPHA,tGL.ZERO, tGL.ONE);
-		// set the scissor rectangle
+		// 픽셀 블렌딩 결정
+		tGL.pixelStorei(tGL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+		tGL.pixelStorei(tGL.UNPACK_FLIP_Y_WEBGL, true);
+		// 시저박스 설정
 		tGL.enable(tGL.SCISSOR_TEST);
 		tGL.scissor(0, 0, tGL.drawingBufferWidth, tGL.drawingBufferHeight);
 		// set the viewport rectangle
 		tGL.viewport(0, 0, tGL.drawingBufferWidth, tGL.drawingBufferHeight);
+		
 		instanceList.push(this)
 	}
 	window.addEventListener('resize', function () {
@@ -407,8 +411,8 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			description : `텍스쳐정보 생성 단축 매서드`
 		}
 		:DOC*/
-		createTextureInfo: function (src, targetIndex, internalFormat, format, type) {
-			return new RedTextureInfo(this, src, targetIndex, internalFormat, format, type)
+		createTextureInfo: function (src, targetIndex, internalFormat, format, type, callback) {
+			return new RedTextureInfo(this, src, targetIndex, internalFormat, format, type, callback)
 		},
 		/**DOC:
 		{
