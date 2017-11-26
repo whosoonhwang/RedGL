@@ -67,6 +67,7 @@ gulp.task('make-doc', function () {
 		"RedFixedAttributeKey.js",
 		"RedGeometryInfo.js",
 		"RedMeshInfo.js",
+		"RedMeshBaseInfo.js",
 		"RedPrimitive.js",
 		"RedMaterialInfo.js",
 		"RedMaterialDefine.js",

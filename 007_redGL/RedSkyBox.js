@@ -14,16 +14,11 @@ var RedSkyBox;
     RedSkyBox = function (redGL, srcList) {
         if (!(this instanceof RedSkyBox)) return new RedSkyBox(redGL,  srcList)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+        RedMeshBaseInfo.call(this,redGL)
         this['materialInfo'] = RedMaterialInfo(redGL, 'skybox', RedCubeTextureInfo(redGL, srcList))
         this['geometryInfo'] = RedPrimitive.cube(redGL)
-        this['uMVMatrix'] = mat4.create()
-        this['position'] = new Float32Array([0, 0, 0])
-        this['rotation'] = new Float32Array([0, 0, 0])
         this['scale'] =  new Float32Array([1000,1000,1000]) //TODO: 카메라꺼물어야함
-        this['drawMode'] = redGL.gl.TRIANGLES 
         this['cullFace'] = redGL.gl.FRONT 
-        this['children'] = []
-        this['__UUID'] = REDGL_UUID++
     }
     Object.freeze(RedSkyBox)
 })();
