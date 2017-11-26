@@ -87,6 +87,7 @@ var RedRender;
         var cacheTexture2_UUID; // 큐브 텍스쳐 캐싱정보
         var cacheTextureAtlas_UUID; // 텍스쳐 아틀라스 캐싱정보
         var cacheActiveTextureIndex; // 액티브된 텍스쳐정보
+        var cacheActiveCubeTextureIndex; // 액티브된 큐브특스쳐정보
         var cacheUAtlascoord_UUID; // 아틀라스 UV텍스쳐 정보
         ///////////////////////////////////////////////////////////////////
         var cacheCullFace;
@@ -328,8 +329,8 @@ var RedRender;
                                 tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, tUniformValue['texture'])
                                 cacheTexture2_UUID = tUniformValue['__UUID']
                             }
-                            cacheActiveTextureIndex != tUniformValue['__targetIndex'] ? tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
-                            cacheActiveTextureIndex = tUniformValue['__targetIndex']
+                            cacheActiveCubeTextureIndex != tUniformValue['__targetIndex'] ? tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
+                            cacheActiveCubeTextureIndex = tUniformValue['__targetIndex']
                         }
                       }
                     else throw '안되는 나쁜 타입인거야!!'
