@@ -74,24 +74,30 @@
                 vTexcoord = uAtlascoord.xy + aTexcoord*uAtlascoord.zw;
                 // 라이팅 간소화
                 vec3 ambientLight = vec3(0.2, 0.2, 0.2);
-                vec3 directionalLightColor = vec3(0.9, 0.9, 0.9);
+                vec3 directionalLightColor = vec3(0.1, 0.9, 0.9);
+                vec3 directionalLightColor2 = vec3(0.9, 0.1, 0.5);
                 vec3 specularLightColor = vec3(0.8, 0.8, 0.8);
                 
                 // 광원포지션
-                vec3 directionnalLightPosition = normalize(vec3(1.0,1.0,-2.0));
+                vec3 directionnalLightPosition = normalize(vec3(1.6,0.5,2.0));
+                vec3 directionnalLightPosition2 = normalize(vec3(1.3,0.5,-2.0));
 
                 // 노말을 좌표변환하고
                 vec3 normalEye = normalize(normalFromMat4(uMVMatrix) * aVertexNormal);
                 
                 // 직사광의 가중치를 결정!
                 float directionalLightWeight = max(dot(normalEye, directionnalLightPosition), 0.0);
+                float directionalLightWeight2 = max(dot(normalEye, directionnalLightPosition2), 0.0);
 
                 vec3 reflectionVector = normalize(reflect(-directionnalLightPosition,normalEye));
                 vec3 viewVectorEye = -normalize(vectexPositionEye3);
                 float rdotv = max(dot(reflectionVector, viewVectorEye), 0.0);
                 float specularLightWeightning = pow(rdotv, shininess);
 
-                vLightWeighting = ambientLight + (directionalLightColor * directionalLightWeight) + (specularLightColor * specularLightWeightning);
+                vLightWeighting = ambientLight + 
+                    (directionalLightColor * directionalLightWeight) + 
+                    (directionalLightColor2 * directionalLightWeight2) + 
+                (specularLightColor * specularLightWeightning);
                 // 포지션 결정
                 gl_Position = uPMatrix * uCameraMatrix *  vectexPositionEye4;
             }

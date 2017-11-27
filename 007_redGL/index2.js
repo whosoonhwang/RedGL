@@ -37,9 +37,15 @@ var testMatBitmap = RedMaterialInfo(testGL, 'bitmapLite', testTexture)
 var tMesh = testGL.createMeshInfo('testMeshAdd1', RedPrimitive.cube(testGL), testMatBitmap)
 
 var tMesh2 = testGL.createMeshInfo('testMeshAdd2', RedPrimitive.cube(testGL), testMatBitmap)
+tMesh2.rotation[0] = Math.random()*Math.PI*2
+tMesh2.rotation[1] = Math.random()*Math.PI*2
+tMesh2.rotation[2] = Math.random()*Math.PI*2
 var tMesh3 = testGL.createMeshInfo('testMeshAdd3', RedPrimitive.cube(testGL), testMatBitmap)
 tMesh2.position[0] = -2
 tMesh3.position[0] = 2
+tMesh3.rotation[0] = Math.random()*Math.PI*2
+tMesh3.rotation[1] = Math.random()*Math.PI*2
+tMesh3.rotation[2] = Math.random()*Math.PI*2
 testScene.children.push(tMesh)
 testScene.children.push(tMesh2)
 testScene.children.push(tMesh3)
@@ -49,7 +55,7 @@ checkCall.style.position = 'absolute'
 checkCall.style.left = '10px'
 checkCall.style.top = '10px'
 checkCall.style.color = '#fff'
-var grid = testGL.createMeshInfo('grid1', RedPrimitive.grid(testGL), testColorMat)
+var grid = testGL.createMeshInfo('grid1', RedPrimitive.grid(testGL), RedMaterialInfo(testGL, 'color'))
 grid.drawMode = testGL.gl.LINES
 console.log(grid)
 testScene.setGrid(grid)
