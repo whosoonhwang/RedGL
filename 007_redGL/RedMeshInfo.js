@@ -70,7 +70,6 @@ var RedMeshInfo;
             title :`position`,
             description : `
                 - positionXYZ를 Float32Array로 가진다.
-                - <span style="color:red"><b>강제로 일반 Array로 치환하지않도록 주의해야한다.</b></span>
             `,
 			example : `인스턴스.position`,
 			return : 'Float32Array(3)'
@@ -81,7 +80,6 @@ var RedMeshInfo;
             title :`rotation`,
             description : `
                 - rotationXYZ를 Float32Array로 가진다.
-                - <span style="color:red"><b>강제로 일반 Array로 치환하지않도록 주의해야한다.</b></span>
             `,
 			example : `인스턴스.rotation`,
 			return : 'Float32Array(3)'
@@ -92,7 +90,6 @@ var RedMeshInfo;
             title :`scale`,
             description : `
                 - scaleXYZ를 Float32Array로 가진다.
-                - <span style="color:red"><b>강제로 일반 Array로 치환하지않도록 주의해야한다.</b></span>
             `,
 			example : `인스턴스.rotation`,
 			return : 'Float32Array(3)'

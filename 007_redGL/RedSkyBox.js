@@ -17,7 +17,9 @@ var RedSkyBox;
         RedMeshBaseInfo.call(this,redGL)
         this['materialInfo'] = RedMaterialInfo(redGL, 'skybox', RedCubeTextureInfo(redGL, srcList))
         this['geometryInfo'] = RedPrimitive.cube(redGL)
-        this['scale'] =  new Float32Array([1000,1000,1000]) //TODO: 카메라꺼물어야함
+        this['scale'][0] = 1000//TODO: 카메라꺼물어야함
+        this['scale'][1] = 1000
+        this['scale'][2] = 1000
         this['cullFace'] = redGL.gl.FRONT 
     }
     Object.freeze(RedSkyBox)
