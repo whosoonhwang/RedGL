@@ -232,11 +232,24 @@ var RedPrimitive;
             return tDatas[tType]
         }
     })();
-    RedPrimitive.floor = (function () {
+    /**DOC:
+        {
+            code : 'FUNCTION',
+            title :`grid`,
+            description : `
+                - grid 지오메트리가 반환됨,
+                - 생성시 내부적으로 'RedPrimitiveFloor' + '_' + w + '_' + h 키로 캐싱한뒤..
+                - share되는 지오메트리를 생성한다.
+            `,
+            return : 'RedPrimitiveFloor Instance'
+        }
+    :DOC*/
+    RedPrimitive.grid = (function () {
         var dim;
         var lines;
         var inc;
         var i;
+        var t0,t1,t2,t3;
         return function RedPrimitiveFloor(redGL, w, h) {
             if (!(this instanceof RedPrimitiveFloor)) return new RedPrimitiveFloor(redGL, w, h)
             if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
@@ -245,7 +258,7 @@ var RedPrimitive;
             // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
             w= w ? w : 50
             h= h ? h : 50
-            tType = 'RedPrimitiveFloor'+'_'+w+'_'+h
+            tType = 'RedPrimitiveFloor' + '_' + w + '_' + h
             if (tDatas[tType]) {
                 console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
                 return tDatas[tType]
@@ -262,26 +275,28 @@ var RedPrimitive;
                 inc = 2 * dim / lines
 
             for (i = 0; i <= lines; i++) {
-                vertices[6 * i] = -dim,
-                    vertices[6 * i + 1] = 0,
-                    vertices[6 * i + 2] = -dim + (i * inc),
 
-                    vertices[6 * i + 3] = dim,
-                    vertices[6 * i + 4] = 0,
-                    vertices[6 * i + 5] = -dim + (i * inc),
-
-                    vertices[6 * (lines + 1) + 6 * i] = -dim + (i * inc),
-                    vertices[6 * (lines + 1) + 6 * i + 1] = 0,
-                    vertices[6 * (lines + 1) + 6 * i + 2] = -dim,
-
-                    vertices[6 * (lines + 1) + 6 * i + 3] = -dim + (i * inc),
-                    vertices[6 * (lines + 1) + 6 * i + 4] = 0,
-                    vertices[6 * (lines + 1) + 6 * i + 5] = dim,
+                t0 = i * inc
+                t1 = lines + 1
+                t2 = 6 * i
+                t3 = 6 * t1
+                vertices[t2] = -dim,
+                    vertices[t2 + 1] = 0,
+                    vertices[t2 + 2] = -dim + t0,
+                    vertices[t2 + 3] = dim,
+                    vertices[t2 + 4] = 0,
+                    vertices[t2 + 5] = -dim + t0,
+                    vertices[t3 + t2] = -dim + t0,
+                    vertices[t3 + t2 + 1] = 0,
+                    vertices[t3 + t2 + 2] = -dim,
+                    vertices[t3 + t2 + 3] = -dim + t0,
+                    vertices[t3 + t2 + 4] = 0,
+                    vertices[t3 + t2 + 5] = dim,
 
                     indices[2 * i] = 2 * i,
                     indices[2 * i + 1] = 2 * i + 1,
-                    indices[2 * (lines + 1) + 2 * i] = 2 * (lines + 1) + 2 * i,
-                    indices[2 * (lines + 1) + 2 * i + 1] = 2 * (lines + 1) + 2 * i + 1
+                    indices[2 * t1 + 2 * i] = 2 * t1 + 2 * i,
+                    indices[2 * t1 + 2 * i + 1] = 2 * t1 + 2 * i + 1
             }
 
             console.log(vertices, indices )
@@ -292,6 +307,18 @@ var RedPrimitive;
             return tDatas[tType]
         }
     })();
+    /**DOC:
+        {
+            code : 'FUNCTION',
+            title :`sphere`,
+            description : `
+                - sphere 지오메트리가 반환됨,
+                - 생성시 내부적으로 'RedPrimitiveSphere' + '_' + radius + '_' + widthSegments + '_' + heightSegments + '_' + phiStart + '_' + phiLength + '_' + thetaStart + '_' + thetaLength 키로 캐싱한뒤..
+                - share되는 지오메트리를 생성한다.
+            `,
+            return : 'RedPrimitiveSphere Instance'
+        }
+    :DOC*/
     RedPrimitive.sphere = (function () {
         var thetaEnd;
         var ix, iy;

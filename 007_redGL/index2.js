@@ -49,7 +49,7 @@ checkCall.style.position = 'absolute'
 checkCall.style.left = '10px'
 checkCall.style.top = '10px'
 checkCall.style.color = '#fff'
-var grid = testGL.createMeshInfo('grid1', RedPrimitive.floor(testGL), testColorMat)
+var grid = testGL.createMeshInfo('grid1', RedPrimitive.grid(testGL), testColorMat)
 grid.drawMode = testGL.gl.LINES
 console.log(grid)
 testScene.setGrid(grid)

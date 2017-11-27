@@ -8,7 +8,7 @@ var RedCubeTextureInfo;
 			title :`RedCubeTextureInfo`,
 			description : `
 				- Cube 텍스쳐 생성기
-				- <h1>>실험중...</h1
+				- <h1>실험중...이거하면서 프레임버퍼도 생성해봐야곘군..</h1>
 				- 큐브맵은 tGL.TEXTURE2 인덱스를 전용으로 쓴다.
 			`,
 			return : 'RedCubeTextureInfo Instance'
