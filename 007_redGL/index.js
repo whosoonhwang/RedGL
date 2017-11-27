@@ -129,6 +129,7 @@ var testCamera = RedBaseCamera(testGL,'testCamera')
 // Scene 생성
 var testScene = testGL.createSceneInfo('testScene',testCamera)
 console.log(testScene)
+
 var testSkyBox
 testSkyBox = RedSkyBoxInfo(testGL,[
 	'asset/cubemap/posx.jpg',
@@ -139,6 +140,12 @@ testSkyBox = RedSkyBoxInfo(testGL,[
 	'asset/cubemap/negz.jpg'
 ])
 testScene.setSkyBox(testSkyBox)
+var grid = testGL.createMeshInfo('grid1', RedPrimitive.floor(testGL), testColorMat)
+grid.drawMode = testGL.gl.LINES
+console.log(grid)
+testScene.setGrid(grid)
+
+/////
 // 아틀라스테스트
 RedAtlasTextureManager(testGL, [
 	'asset/draft1.png',

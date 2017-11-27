@@ -1478,8 +1478,8 @@ var RedPrimitive;
         normals = new Float32Array(normals)
         vertices = redGL.createArrayBufferInfo(tType + '_vertices', RedFixedAttributeKey['aVertexPosition'], vertices, 3, vertices.length / 3, redGL.gl.FLOAT)
         indices = redGL.createIndexBufferInfo(tType + '_indices', indices, 1, indices.length, redGL.gl.UNSIGNED_SHORT)
-        uvs = redGL.createArrayBufferInfo(tType + '_uvs', RedFixedAttributeKey['aTexcoord'], uvs, 2, uvs.length / 2, redGL.gl.FLOAT)
-        normals = redGL.createArrayBufferInfo(tType + '_normals', RedFixedAttributeKey['aVertexNormal'], normals, 3, normals.length / 3, redGL.gl.FLOAT)
+        if (uvs) uvs = redGL.createArrayBufferInfo(tType + '_uvs', RedFixedAttributeKey['aTexcoord'], uvs, 2, uvs.length / 2, redGL.gl.FLOAT)
+        if (normals) normals = redGL.createArrayBufferInfo(tType + '_normals', RedFixedAttributeKey['aVertexNormal'], normals, 3, normals.length / 3, redGL.gl.FLOAT)
         return redGL.createGeometryInfo(tType, vertices, indices, uvs, normals)
     }
     /**DOC:
@@ -1683,14 +1683,74 @@ var RedPrimitive;
             return tDatas[tType]
         }
     })();
+    RedPrimitive.floor = (function () {
+        var dim;
+        var lines;
+        var inc;
+        var i;
+        return function RedPrimitiveFloor(redGL, w, h) {
+            if (!(this instanceof RedPrimitiveFloor)) return new RedPrimitiveFloor(redGL, w, h)
+            if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+            // 저장할 공간확보하고
+            tDatas = checkShareInfo(redGL)
+            // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
+            w= w ? w : 50
+            h= h ? h : 50
+            tType = 'RedPrimitiveFloor'+'_'+w+'_'+h
+            if (tDatas[tType]) {
+                console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
+                return tDatas[tType]
+            }
+
+            ////////////////////////////////////////////////////////////////////////////
+            // 데이터 생성!
+
+            // buffers Data
+            var vertices = [];
+            var indices = [];
+            dim = w ,
+                lines = h,
+                inc = 2 * dim / lines
+
+            for (i = 0; i <= lines; i++) {
+                vertices[6 * i] = -dim,
+                    vertices[6 * i + 1] = 0,
+                    vertices[6 * i + 2] = -dim + (i * inc),
+
+                    vertices[6 * i + 3] = dim,
+                    vertices[6 * i + 4] = 0,
+                    vertices[6 * i + 5] = -dim + (i * inc),
+
+                    vertices[6 * (lines + 1) + 6 * i] = -dim + (i * inc),
+                    vertices[6 * (lines + 1) + 6 * i + 1] = 0,
+                    vertices[6 * (lines + 1) + 6 * i + 2] = -dim,
+
+                    vertices[6 * (lines + 1) + 6 * i + 3] = -dim + (i * inc),
+                    vertices[6 * (lines + 1) + 6 * i + 4] = 0,
+                    vertices[6 * (lines + 1) + 6 * i + 5] = dim,
+
+                    indices[2 * i] = 2 * i,
+                    indices[2 * i + 1] = 2 * i + 1,
+                    indices[2 * (lines + 1) + 2 * i] = 2 * (lines + 1) + 2 * i,
+                    indices[2 * (lines + 1) + 2 * i + 1] = 2 * (lines + 1) + 2 * i + 1
+            }
+
+            console.log(vertices, indices )
+            ////////////////////////////////////////////////////////////////////////////
+            // 캐싱
+            tDatas[tType] = createGeo(redGL, tType, vertices, indices)
+            // console.log(redGL['__datas']['RedPrimitive'])
+            return tDatas[tType]
+        }
+    })();
     RedPrimitive.sphere = (function () {
         var thetaEnd;
         var ix, iy;
         var index
         var grid = [];
-        var vertex = new Float32Array([0,0,0])
-        var normal = new Float32Array([0,0,0])
-        var a,b,c,d;
+        var vertex = new Float32Array([0, 0, 0])
+        var normal = new Float32Array([0, 0, 0])
+        var a, b, c, d;
         return function RedPrimitiveSphere(redGL, radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength) {
             if (!(this instanceof RedPrimitiveSphere)) return new RedPrimitiveSphere(redGL, radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength)
             if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
@@ -1706,14 +1766,14 @@ var RedPrimitive;
             thetaEnd = thetaStart + thetaLength;
             ix, iy;
             index = 0;
-            grid.length=0
+            grid.length = 0
             vertex[0] = 0, vertex[1] = 0, vertex[2] = 0
             normal[0] = 0, normal[1] = 0, normal[2] = 0
 
             // 저장할 공간확보하고
             tDatas = checkShareInfo(redGL)
             // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
-            tType = 'RedPrimitiveSphere' + '_' + radius + '_' + widthSegments + '_' + heightSegments + '_' + phiStart + '_' + phiLength + '_' + thetaStart+ '_' + thetaLength
+            tType = 'RedPrimitiveSphere' + '_' + radius + '_' + widthSegments + '_' + heightSegments + '_' + phiStart + '_' + phiLength + '_' + thetaStart + '_' + thetaLength
             if (tDatas[tType]) {
                 console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
                 return tDatas[tType]
@@ -1742,8 +1802,8 @@ var RedPrimitive;
                     normal[0] = vertex.x
                     normal[1] = vertex.y
                     normal[2] = vertex.z
-                    vec3.normalize(normal,normal)
-                    normals.push(normal[0], normal[1],normal[2]);
+                    vec3.normalize(normal, normal)
+                    normals.push(normal[0], normal[1], normal[2]);
                     // uv
                     uvs.push(u, 1 - v);
                     verticesRow.push(index++);
@@ -2021,7 +2081,7 @@ var RedSceneInfo;
     RedSceneInfo = function (redGL, key, camera) {
         if (!(this instanceof RedSceneInfo)) return new RedSceneInfo(redGL, key, camera)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof key != 'string') throw 'key는 문자열만 허용됩니다.'        
+        if (typeof key != 'string') throw 'key는 문자열만 허용됩니다.'
         if (!(camera instanceof RedBaseCamera)) throw 'camera는 RedBaseCamera 인스턴스만 허용됩니다.'
         // 저장할 공간확보하고
         if (!redGL['__datas']['RedSceneInfo']) redGL['__datas']['RedSceneInfo'] = {}
@@ -2050,8 +2110,29 @@ var RedSceneInfo;
         // 캐싱
         tDatas[key] = this
     }
-    RedSceneInfo.prototype.setSkyBox = function(v){
-        this['skyBox'] = v
+    RedSceneInfo.prototype = {
+        /**DOC:
+		{
+            title :`setSkyBox`,
+            description : `스카이박스 설정`,
+            code:'FUNCTION',
+			example : `인스턴스.setSkyBox`
+        }
+        :DOC*/
+        setSkyBox: function (v) {
+            this['skyBox'] = v
+        },
+        /**DOC:
+		{
+            title :`setGrid`,
+            description : `그리드 설정`,
+            code:'FUNCTION',
+			example : `인스턴스.setGrid`
+        }
+        :DOC*/
+        setGrid: function (v) {
+            this['grid'] = v
+        }
     }
     Object.freeze(RedSceneInfo)
 })();
@@ -2609,11 +2690,22 @@ var RedRender;
             //////////////////////////////////////////////////////////////////
             tGL.clear(tGL.COLOR_BUFFER_BIT);
             self.drawSkyBox(tScene['skyBox'], time)
+            self.drawGrid(tScene['grid'], time)
             tGL.clear(tGL.DEPTH_BUFFER_BIT);
             self.draw(tScene['children'], time)
             // Set the backbuffer's alpha to 1.0
             requestAnimationFrame(self.render)
-        }
+        };
+        this.drawGrid = (function () {
+            var list = [];
+            return function (grid) {
+                if (grid) {
+                    list.length = 0
+                    list.push(grid)
+                    self.draw(list)
+                }
+            }
+        })();
         this.drawSkyBox = (function () {
             var list = [];
             return function (skyBox) {
@@ -2625,7 +2717,7 @@ var RedRender;
                     self.draw(list)
                 }
             }
-        })()
+        })();
         this.draw = function (renderList, time, parentMTX) {
             var i, i2; // 루프변수
             i = renderList.length
@@ -2827,8 +2919,8 @@ var RedRender;
                 // GL 드로잉상태관련 캐싱들 처리
                 // TODO: CCW도먹어야하나?
                 // 컬페이스 사용여부 캐싱처리
-                if (cacheUseCullFace != tMesh['cullFace']) {
-                    (cacheUseCullFace = tMesh['cullFace']) ? tGL.enable(tGL.CULL_FACE) : tGL.disable(tGL.CULL_FACE)
+                if (cacheUseCullFace != tMesh['useCullFace']) {
+                    (cacheUseCullFace = tMesh['useCullFace']) ? tGL.enable(tGL.CULL_FACE) : tGL.disable(tGL.CULL_FACE)
                 }
                 if (cacheCullFace != tMesh['cullFace']) tGL.cullFace(tMesh['cullFace']), cacheCullFace = tMesh['cullFace']
                 // 뎁스테스트 사용여부 캐싱처리

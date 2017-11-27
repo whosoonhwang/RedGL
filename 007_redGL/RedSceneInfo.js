@@ -35,7 +35,7 @@ var RedSceneInfo;
     RedSceneInfo = function (redGL, key, camera) {
         if (!(this instanceof RedSceneInfo)) return new RedSceneInfo(redGL, key, camera)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof key != 'string') throw 'key는 문자열만 허용됩니다.'        
+        if (typeof key != 'string') throw 'key는 문자열만 허용됩니다.'
         if (!(camera instanceof RedBaseCamera)) throw 'camera는 RedBaseCamera 인스턴스만 허용됩니다.'
         // 저장할 공간확보하고
         if (!redGL['__datas']['RedSceneInfo']) redGL['__datas']['RedSceneInfo'] = {}
@@ -64,8 +64,29 @@ var RedSceneInfo;
         // 캐싱
         tDatas[key] = this
     }
-    RedSceneInfo.prototype.setSkyBox = function(v){
-        this['skyBox'] = v
+    RedSceneInfo.prototype = {
+        /**DOC:
+		{
+            title :`setSkyBox`,
+            description : `스카이박스 설정`,
+            code:'FUNCTION',
+			example : `인스턴스.setSkyBox`
+        }
+        :DOC*/
+        setSkyBox: function (v) {
+            this['skyBox'] = v
+        },
+        /**DOC:
+		{
+            title :`setGrid`,
+            description : `그리드 설정`,
+            code:'FUNCTION',
+			example : `인스턴스.setGrid`
+        }
+        :DOC*/
+        setGrid: function (v) {
+            this['grid'] = v
+        }
     }
     Object.freeze(RedSceneInfo)
 })();

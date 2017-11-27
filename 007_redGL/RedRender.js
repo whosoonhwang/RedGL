@@ -130,11 +130,22 @@ var RedRender;
             //////////////////////////////////////////////////////////////////
             tGL.clear(tGL.COLOR_BUFFER_BIT);
             self.drawSkyBox(tScene['skyBox'], time)
+            self.drawGrid(tScene['grid'], time)
             tGL.clear(tGL.DEPTH_BUFFER_BIT);
             self.draw(tScene['children'], time)
             // Set the backbuffer's alpha to 1.0
             requestAnimationFrame(self.render)
-        }
+        };
+        this.drawGrid = (function () {
+            var list = [];
+            return function (grid) {
+                if (grid) {
+                    list.length = 0
+                    list.push(grid)
+                    self.draw(list)
+                }
+            }
+        })();
         this.drawSkyBox = (function () {
             var list = [];
             return function (skyBox) {
@@ -146,7 +157,7 @@ var RedRender;
                     self.draw(list)
                 }
             }
-        })()
+        })();
         this.draw = function (renderList, time, parentMTX) {
             var i, i2; // 루프변수
             i = renderList.length
@@ -348,8 +359,8 @@ var RedRender;
                 // GL 드로잉상태관련 캐싱들 처리
                 // TODO: CCW도먹어야하나?
                 // 컬페이스 사용여부 캐싱처리
-                if (cacheUseCullFace != tMesh['cullFace']) {
-                    (cacheUseCullFace = tMesh['cullFace']) ? tGL.enable(tGL.CULL_FACE) : tGL.disable(tGL.CULL_FACE)
+                if (cacheUseCullFace != tMesh['useCullFace']) {
+                    (cacheUseCullFace = tMesh['useCullFace']) ? tGL.enable(tGL.CULL_FACE) : tGL.disable(tGL.CULL_FACE)
                 }
                 if (cacheCullFace != tMesh['cullFace']) tGL.cullFace(tMesh['cullFace']), cacheCullFace = tMesh['cullFace']
                 // 뎁스테스트 사용여부 캐싱처리
