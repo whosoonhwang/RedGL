@@ -2911,7 +2911,7 @@ var redGLDetect;
 	}
 })();
 "use strict";
-var RedSkyBox;
+var RedSkyBoxInfo;
 /**DOC:
     {
         constructorYn : true,
@@ -2937,12 +2937,12 @@ var RedSkyBox;
                 `
             ]
         },
-        return : 'RedSkyBox Instance'
+        return : 'RedSkyBoxInfo Instance'
     }
 :DOC*/
 (function () {
-    RedSkyBox = function (redGL, srcList) {
-        if (!(this instanceof RedSkyBox)) return new RedSkyBox(redGL, srcList)
+    RedSkyBoxInfo = function (redGL, srcList) {
+        if (!(this instanceof RedSkyBoxInfo)) return new RedSkyBoxInfo(redGL, srcList)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
         if (!(srcList instanceof Array)) throw 'srcList는 Array만 허용됩니다.'
         if (srcList.length != 6) throw 'srcList는 6개여야 합니다.'
@@ -2954,7 +2954,7 @@ var RedSkyBox;
         this['scale'][2] = 1000
         this['cullFace'] = redGL.gl.FRONT
     }
-    Object.freeze(RedSkyBox)
+    Object.freeze(RedSkyBoxInfo)
 })();
 "use strict";
 var RedGL;
