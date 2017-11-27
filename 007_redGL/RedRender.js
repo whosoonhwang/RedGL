@@ -132,7 +132,7 @@ var RedRender;
         }
         this.drawSkyBox = function(skyBox){
             if(skyBox){
-                
+                skyBox['scale'][0] = skyBox['scale'][1] = skyBox['scale'][2] = tScene['camera']['far']
                 self.draw([skyBox])
             }
         }
