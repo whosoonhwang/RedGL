@@ -48,6 +48,7 @@ var RedShaderInfo;
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
         if (typeof key != 'string') throw 'key - 문자열만 허용됩니다.'
         if (typeof type != 'string') throw 'type - 문자열만 허용됩니다.'
+        if (typeof source != 'string') throw 'source - 문자열만 허용됩니다.'
         // 저장할 공간확보하고
         if (!redGL['__datas']['shaderInfo']) {
             redGL['__datas']['shaderInfo'] = {}
@@ -57,7 +58,6 @@ var RedShaderInfo;
         tDatas = redGL['__datas']['shaderInfo']
         // 기존에 등록된 녀석이면 퐈이어!
         if (tDatas[type][key]) throw key + '는 '+type+'정보에 이미 존재하는 RedShaderInfo 입니다.'
-        if (typeof source != 'string') throw 'source - 문자열만 허용됩니다.'
         tGL = redGL.gl
         // 쉐이더생성
         switch (type) {

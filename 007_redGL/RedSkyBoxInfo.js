@@ -3,7 +3,7 @@ var RedSkyBoxInfo;
 /**DOC:
     {
         constructorYn : true,
-        title :`RedMeshInfo`,
+        title :`RedSkyBoxInfo`,
         description : `
            - 기본 스카이박스 생성기
         `,

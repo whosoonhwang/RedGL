@@ -105,7 +105,7 @@ redSuite(
             }
             unit.run(t0)
         }, false),
-        redTest("RedBufferInfo - raw데이터를 Array계열만만 허용하는지 : arrayData", function (unit) {
+        redTest("RedBufferInfo - raw데이터를 TypedArray계열만 허용하는지 : arrayData", function (unit) {
             var t0;
             t0 = true
             try {
@@ -128,7 +128,7 @@ redSuite(
             }
             unit.run(t0)
         }, false),
-        redTest("RedBufferInfo - raw데이터를 Array계열만만 허용하는지 : arrayData", function (unit) {
+        redTest("RedBufferInfo - raw데이터를 TypedArray계열만 허용하는지 : arrayData", function (unit) {
             var t0;
             t0 = true
             try {
@@ -140,6 +140,29 @@ redSuite(
                     1, // arrayData
                     3, // pointSize
                     24, // pointNum
+                    testGL.gl.FLOAT, //arrayType
+                    false, //normalize
+                    0, // stride
+                    0, // offset
+                    testGL.gl.STATIC_DRAW //drawMode 
+                )
+            } catch (error) {
+                t0 = false
+            }
+            unit.run(t0)
+        }, false),
+        redTest("RedBufferInfo - raw데이터를 TypedArray계열만 허용하는지 : arrayData", function (unit) {
+            var t0;
+            t0 = true
+            try {
+                RedBufferInfo(
+                    testGL, // redGL
+                    RedBufferInfo.ARRAY_BUFFER, // bufferType
+                    'valiTest2', // key
+                    'aPointer', // shaderPointerKey
+                    [1, 2, 3], // arrayData
+                    3, // pointSize
+                    1, // pointNum
                     testGL.gl.FLOAT, //arrayType
                     false, //normalize
                     0, // stride
@@ -272,7 +295,7 @@ redSuite(
                 3, // pointSize
                 24, // pointNum
                 testGL.gl.FLOAT, //arrayType
-                null, //normalize
+                false, //normalize
                 // stride
                 // offset
                 //drawMode 
@@ -290,7 +313,7 @@ redSuite(
                 3, // pointSize
                 24, // pointNum
                 testGL.gl.FLOAT, //arrayType
-                null, //normalize
+                false, //normalize
                 0,// stride
                 // offset
                 //drawMode 
@@ -308,54 +331,12 @@ redSuite(
                 3, // pointSize
                 24, // pointNum
                 testGL.gl.FLOAT, //arrayType
-                null, //normalize
+                false, //normalize
                 0,// stride
                 0// offset
                 //drawMode 
             )
             unit.run(t0.drawMode)
         }, testGL.gl.STATIC_DRAW)
-    ),
-    // redGroup(
-    //     '인스턴스확인', redTest("RedBufferInfo - 인스턴스 정보확인 : key", function (unit) {
-    //         var t0;
-    //         t0 = RedBufferInfo(testGL, 'basic')
-    //         unit.run(t0['key'])
-    //     }, 'basic'),
-    //     redTest("RedBufferInfo - 인스턴스 정보확인 : attributes", function (unit) {
-    //         var t0;
-    //         t0 = RedBufferInfo(testGL, 'basic')
-    //         unit.run(t0['attributes'].hasOwnProperty('aVertexPosition'))
-    //     }, true),
-    //     redTest("RedBufferInfo - 인스턴스 정보확인 : uniforms", function (unit) {
-    //         var t0;
-    //         t0 = RedBufferInfo(testGL, 'basic')
-    //         unit.run(t0['uniforms'].hasOwnProperty('uColor'))
-    //     }, true),
-    //     redTest("RedBufferInfo - 인스턴스 정보확인 : uniforms", function (unit) {
-    //         var t0;
-    //         t0 = RedBufferInfo(testGL, 'basic')
-    //         unit.run(t0['uniforms'].hasOwnProperty('uMVMatrix'))
-    //     }, true),
-    //     redTest("RedBufferInfo - 인스턴스 정보확인 : uniforms", function (unit) {
-    //         var t0;
-    //         t0 = RedBufferInfo(testGL, 'basic')
-    //         unit.run(t0['uniforms'].hasOwnProperty('uPMatrix'))
-    //     }, true),
-    //     redTest("RedBufferInfo - 인스턴스 정보확인 : shaderInfos.vShaderInfo", function (unit) {
-    //         var t0;
-    //         t0 = RedBufferInfo(testGL, 'basic')
-    //         unit.run(t0['shaderInfos']['vShaderInfo'] == RedShaderInfo(testGL, 'basic', RedShaderInfo.VERTEX_SHADER))
-    //     }, true),
-    //     redTest("RedBufferInfo - 인스턴스 정보확인 : shaderInfos.fShaderInfo", function (unit) {
-    //         var t0;
-    //         t0 = RedBufferInfo(testGL, 'basic')
-    //         unit.run(t0['shaderInfos']['fShaderInfo'] == RedShaderInfo(testGL, 'basic', RedShaderInfo.FRAGMENT_SHADER))
-    //     }, true),
-    //     redTest("RedBufferInfo - 인스턴스 정보확인 : program", function (unit) {
-    //         var t0;
-    //         t0 = RedBufferInfo(testGL, 'basic')
-    //         unit.run(t0['program'] instanceof WebGLProgram)
-    //     }, true),
-    // )
+    )
 )

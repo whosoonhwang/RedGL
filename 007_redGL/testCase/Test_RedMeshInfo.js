@@ -58,7 +58,7 @@ testGL.createProgramInfo(
     'basic',
     vShaderInfo,
     fShaderInfo,
-    function(target){
+    function (target) {
         target.uniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random()])
     }
 )
@@ -70,7 +70,7 @@ testGL.createArrayBufferInfo('testBuffer', 'aVertexPosition', testData, 3, 24, t
 // 인덱스 버퍼생성
 testGL.createIndexBufferInfo('testIndexBuffer', testData2, 1, testData2.length, testGL.gl.UNSIGNED_SHORT)
 // 지오메트리 생성
-testGL.createGeometryInfo('testGeo',testGL.getArrayBufferInfo('testBuffer'),testGL.getIndexBufferInfo('testIndexBuffer'))
+testGL.createGeometryInfo('testGeo', testGL.getArrayBufferInfo('testBuffer'), testGL.getIndexBufferInfo('testIndexBuffer'))
 
 redSuite(
     "RedMeshInfo Test",
@@ -78,18 +78,18 @@ redSuite(
         "RedMeshInfo Test",
         redTest("RedMeshInfo - 인스턴스 생성 테스트", function (unit) {
             var t0;
-            t0 = testGL.createMeshInfo('test',testGL.getGeometryInfo('testGeo'), testGL.createMaterialInfo('basic'))
+            t0 = testGL.createMeshInfo('test', testGL.getGeometryInfo('testGeo'), testGL.createMaterialInfo('basic'))
             console.log(t0)
             unit.run(t0 instanceof RedMeshInfo)
         }, true)
     ),
     redGroup(
         '벨리데이션 확인',
-        redTest("RedMeshInfo - 키값은 숫자만허용 : key", function (unit) {
+        redTest("RedMeshInfo - 키값은 문자만 : key", function (unit) {
             var t0;
             t0 = true
             try {
-                testGL.createMeshInfo(1,testGL.getGeometryInfo('testGeo'), testGL.createMaterialInfo('basic'))
+                testGL.createMeshInfo(1, testGL.getGeometryInfo('testGeo'), testGL.createMaterialInfo('basic'))
             } catch (error) {
                 t0 = false
             }
@@ -99,7 +99,7 @@ redSuite(
             var t0;
             t0 = true
             try {
-                testGL.createMeshInfo('test2',{}, testGL.createMaterialInfo('basic'))
+                testGL.createMeshInfo('test2', {}, 9999999)
             } catch (error) {
                 t0 = false
             }
@@ -109,7 +109,7 @@ redSuite(
             var t0;
             t0 = true
             try {
-                testGL.createMeshInfo('test3',testGL.getGeometryInfo('testGeo'), {})
+                testGL.createMeshInfo('test3', 9999999, {})
             } catch (error) {
                 t0 = false
             }

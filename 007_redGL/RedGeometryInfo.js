@@ -81,9 +81,9 @@ var RedGeometryInfo;
         }
         :DOC*/
         this.attributes = {
-            // vertexPosition: null, //이넘을 고유키값
-            // texcoord: null, //이넘을 고유키값
-            // normal : null //이넘을 고유키값
+            // vertexPosition: null, //이넘 고유키값
+            // texcoord: null, //이넘 고유키값
+            // normal : null //이넘 고유키값
         }
         /**DOC:
 		{
