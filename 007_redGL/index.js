@@ -140,7 +140,7 @@ testSkyBox = RedSkyBoxInfo(testGL,[
 	'asset/cubemap/negz.jpg'
 ])
 testScene.setSkyBox(testSkyBox)
-var grid = testGL.createMeshInfo('grid1', RedPrimitive.floor(testGL), testColorMat)
+var grid = testGL.createMeshInfo('grid1', RedPrimitive.grid(testGL), testColorMat)
 grid.drawMode = testGL.gl.LINES
 console.log(grid)
 testScene.setGrid(grid)
