@@ -5,7 +5,8 @@ var RedSkyBoxInfo;
         constructorYn : true,
         title :`RedSkyBoxInfo`,
         description : `
-           - 기본 스카이박스 생성기
+            <h2>RedMeshBaseInfo 상속객체</h2>
+            - 기본 스카이박스 생성기
         `,
         params:{
             redGL : [
