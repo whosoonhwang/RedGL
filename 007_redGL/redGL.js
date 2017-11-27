@@ -76,6 +76,7 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		// tGL.blendFuncSeparate(tGL.SRC_ALPHA, tGL.ONE_MINUS_SRC_ALPHA,tGL.ZERO, tGL.ONE);
 		// 픽셀 블렌딩 결정
 		tGL.pixelStorei(tGL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+		// 픽셀 플립 기본설정
 		tGL.pixelStorei(tGL.UNPACK_FLIP_Y_WEBGL, true);
 		// 시저박스 설정
 		tGL.enable(tGL.SCISSOR_TEST);

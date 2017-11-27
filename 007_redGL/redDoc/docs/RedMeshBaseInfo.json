@@ -1,5 +1,17 @@
 [
   {
+    "title": "blendFactor1",
+    "description": "\n    - draw시 blendFactor1\n",
+    "example": "인스턴스.blendFactor1",
+    "return": "glConst"
+  },
+  {
+    "title": "blendFactor2",
+    "description": "\n    - draw시 blendFactor2\n",
+    "example": "인스턴스.blendFactor2",
+    "return": "glConst"
+  },
+  {
     "title": "children",
     "description": "\n    - 자식노드리스트\n",
     "example": "인스턴스.children",
@@ -7,8 +19,14 @@
   },
   {
     "title": "cullFace",
-    "description": "\n    - 실제 메쉬를 그릴때 cullFace를 어떤 방식으로 그릴지 결정\n    - ex) gl.BACK\n",
+    "description": "\n    - 실제 메쉬를 그릴때 cullFace를 어떤 방식으로 그릴지 결정\n    - 기본값 : gl.BACK\n",
     "example": "인스턴스.cullFace",
+    "return": "glConst"
+  },
+  {
+    "title": "depthTestFunc",
+    "description": "\n    - depthTest 옵션\n    - 기본값 : tGL.LESS\n",
+    "example": "인스턴스.depthTestFunc",
     "return": "glConst"
   },
   {
@@ -58,5 +76,23 @@
     "description": "\n    - modelView Matrix를 반환\n    - <span style=\"color:red\"><b>uMVMatrix라는 키값은 쉐이더에서 사용되는 고정값이다.</b></span>\n",
     "example": "인스턴스.uMVMatrix",
     "return": "mat4(Float32Array)"
+  },
+  {
+    "title": "useBlendMode",
+    "description": "\n    - draw시 블렌드모드 사용여부\n    - 기본값 : true\n",
+    "example": "인스턴스.useBlendMode",
+    "return": "boolean"
+  },
+  {
+    "title": "useCullFace",
+    "description": "\n    - 실제 메쉬를 그릴때 cullFace를 사용할지 여부\n    - 기본값 : true\n",
+    "example": "인스턴스.useCullFace",
+    "return": "boolean"
+  },
+  {
+    "title": "useDepthTest",
+    "description": "\n    - draw시 depthTest 사용여부\n    - 기본값 : true\n",
+    "example": "인스턴스.useDepthTest",
+    "return": "boolean"
   }
 ]

@@ -2,7 +2,7 @@
   {
     "constructorYn": true,
     "title": "RedSkyBoxInfo",
-    "description": "\n   - 기본 스카이박스 생성기\n",
+    "description": "\n    <h2>RedMeshBaseInfo 상속객체</h2>\n    - 기본 스카이박스 생성기\n",
     "params": {
       "redGL": [
         {

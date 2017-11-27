@@ -1167,6 +1167,7 @@ var RedGeometryInfo;
         constructorYn : true,
         title :`RedMeshInfo`,
         description : `
+            <h2>RedMeshBaseInfo 상속객체</h2>
             - RedGL에서 사용할 재질정보를 정의
             - 타입키에 해당하는 정의가 존재하지않을경우 에러
         `,
@@ -1238,79 +1239,6 @@ var RedMeshInfo;
         this['materialInfo'] = materialInfo
         // 캐싱
         tDatas[key] = this
-        /**DOC:
-		{
-            title :`uMVMatrix`,
-            description : `
-                - modelView Matrix를 반환
-                - <span style="color:red"><b>uMVMatrix라는 키값은 쉐이더에서 사용되는 고정값이다.</b></span>
-            `,
-			example : `인스턴스.uMVMatrix`,
-			return : 'mat4(Float32Array)'
-        }
-        :DOC*/
-        /**DOC:
-		{
-            title :`position`,
-            description : `
-                - positionXYZ를 Float32Array로 가진다.
-            `,
-			example : `인스턴스.position`,
-			return : 'Float32Array(3)'
-        }
-        :DOC*/
-        /**DOC:
-		{
-            title :`rotation`,
-            description : `
-                - rotationXYZ를 Float32Array로 가진다.
-            `,
-			example : `인스턴스.rotation`,
-			return : 'Float32Array(3)'
-        }
-        :DOC*/
-        /**DOC:
-		{
-            title :`scale`,
-            description : `
-                - scaleXYZ를 Float32Array로 가진다.
-            `,
-			example : `인스턴스.rotation`,
-			return : 'Float32Array(3)'
-        }
-        :DOC*/
-        /**DOC:
-		{
-            title :`drawMode`,
-            description : `
-                - 실제 메쉬를 그릴때 어떠한 방식으로 그릴지 결정
-                - ex) gl.TRIANGLES
-            `,
-			example : `인스턴스.drawMode`,
-			return : 'glConst'
-        }
-        :DOC*/
-        /**DOC:
-		{
-            title :`cullFace`,
-            description : `
-                - 실제 메쉬를 그릴때 cullFace를 어떤 방식으로 그릴지 결정
-                - ex) gl.BACK
-            `,
-			example : `인스턴스.cullFace`,
-			return : 'glConst'
-        }
-        :DOC*/
-        /**DOC:
-		{
-            title :`children`,
-            description : `
-                - 자식노드리스트
-            `,
-			example : `인스턴스.children`,
-			return : 'Array'
-        }
-        :DOC*/
     }
     Object.freeze(RedMeshInfo)
 })();
@@ -1423,18 +1351,88 @@ var RedMeshBaseInfo;
         }
         :DOC*/
         this['drawMode'] = tGL.TRIANGLES
+         /**DOC:
+		{
+            title :`useCullFace`,
+            description : `
+                - 실제 메쉬를 그릴때 cullFace를 사용할지 여부
+                - 기본값 : true
+            `,
+			example : `인스턴스.useCullFace`,
+			return : 'boolean'
+        }
+        :DOC*/
+        this['useCullFace'] = true
         /**DOC:
 		{
             title :`cullFace`,
             description : `
                 - 실제 메쉬를 그릴때 cullFace를 어떤 방식으로 그릴지 결정
-                - ex) gl.BACK
+                - 기본값 : gl.BACK
             `,
 			example : `인스턴스.cullFace`,
 			return : 'glConst'
         }
         :DOC*/
         this['cullFace'] = tGL.BACK 
+        /**DOC:
+		{
+            title :`useBlendMode`,
+            description : `
+                - draw시 블렌드모드 사용여부
+                - 기본값 : true
+            `,
+			example : `인스턴스.useBlendMode`,
+			return : 'boolean'
+        }
+        :DOC*/
+        this['useBlendMode'] = true
+        /**DOC:
+		{
+            title :`blendFactor1`,
+            description : `
+                - draw시 blendFactor1
+            `,
+			example : `인스턴스.blendFactor1`,
+			return : 'glConst'
+        }
+        :DOC*/
+        this['blendFactor1'] = tGL.ONE
+        /**DOC:
+		{
+            title :`blendFactor2`,
+            description : `
+                - draw시 blendFactor2
+            `,
+			example : `인스턴스.blendFactor2`,
+			return : 'glConst'
+        }
+        :DOC*/
+        this['blendFactor2'] = tGL.ONE_MINUS_SRC_ALPHA
+        /**DOC:
+		{
+            title :`useDepthTest`,
+            description : `
+                - draw시 depthTest 사용여부
+                - 기본값 : true
+            `,
+			example : `인스턴스.useDepthTest`,
+			return : 'boolean'
+        }
+        :DOC*/
+        this['useDepthTest'] = false
+        /**DOC:
+		{
+            title :`depthTestFunc`,
+            description : `
+                - depthTest 옵션
+                - 기본값 : tGL.LESS
+            `,
+			example : `인스턴스.depthTestFunc`,
+			return : 'glConst'
+        }
+        :DOC*/
+        this['depthTestFunc'] = tGL.LESS
         /**DOC:
 		{
             title :`children`,
@@ -2571,7 +2569,12 @@ var RedRender;
         var cacheActiveCubeTextureIndex; // 액티브된 큐브특스쳐정보
         var cacheUAtlascoord_UUID; // 아틀라스 UV텍스쳐 정보
         ///////////////////////////////////////////////////////////////////
-        var cacheCullFace;
+        var cacheUseCullFace; // 컬페이스 사용여부 캐싱정보
+        var cacheCullFace; // 컬페이스 캐싱정보
+        var cacheUseBlendMode; // 블렌드모드 사용여부 캐싱정보
+        var cacheBlendModeFactor; // 블렌드팩터 캐싱정보
+        var cacheUseDepthTest; // 뎁스테스트 사용여부 캐싱정보
+        var cacheDepthTestFunc; // 뎁스테스트 팩터 캐싱정보
         ///////////////////////////////////////////////////////////////////
         var aspect;
 
@@ -2589,34 +2592,40 @@ var RedRender;
             tGL = redGL.gl
             //////////////////////////////////////////////////////////////////
             tScene = self['targetScene']
-            
+
             // TODO: 이부분은 리사이저이벤트로 날릴수 있을듯        ... 흠 프로그램 변경때문에 안되남...   
             tScene['camera'].update()
             for (k in redGL['__datas']['RedProgramInfo']) {
                 tGL.useProgram(redGL['__datas']['RedProgramInfo'][k]['program'])
                 // 파스팩티브 갱신
-                tLocation = redGL['__datas']['RedProgramInfo'][k]['uniforms']['uPMatrix']['location']                
+                tLocation = redGL['__datas']['RedProgramInfo'][k]['uniforms']['uPMatrix']['location']
                 tGL.uniformMatrix4fv(tLocation, false, tScene['camera']['uPMatrix'])
                 // 카메라갱신
-                tLocation = redGL['__datas']['RedProgramInfo'][k]['uniforms']['uCameraMatrix']['location']                
+                tLocation = redGL['__datas']['RedProgramInfo'][k]['uniforms']['uCameraMatrix']['location']
                 tGL.uniformMatrix4fv(tLocation, false, tScene['camera']['uCameraMatrix'])
                 cacheProgram = null // 캐쉬된 프로그램을 삭제
             }
             //////////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////
             tGL.clear(tGL.COLOR_BUFFER_BIT);
-            self.drawSkyBox(tScene['skyBox'],time)
+            self.drawSkyBox(tScene['skyBox'], time)
             tGL.clear(tGL.DEPTH_BUFFER_BIT);
             self.draw(tScene['children'], time)
             // Set the backbuffer's alpha to 1.0
             requestAnimationFrame(self.render)
         }
-        this.drawSkyBox = function(skyBox){
-            if(skyBox){
-                skyBox['scale'][0] = skyBox['scale'][1] = skyBox['scale'][2] = tScene['camera']['far']
-                self.draw([skyBox])
+        this.drawSkyBox = (function () {
+            var list = [];
+            return function (skyBox) {
+                if (skyBox) {
+                    // 스카이박스 스케일은 카메라 far와 연동됨
+                    skyBox['scale'][0] = skyBox['scale'][1] = skyBox['scale'][2] = tScene['camera']['far']
+                    list.length = 0
+                    list.push(skyBox)
+                    self.draw(list)
+                }
             }
-        }
+        })()
         this.draw = function (renderList, time, parentMTX) {
             var i, i2; // 루프변수
             i = renderList.length
@@ -2640,15 +2649,15 @@ var RedRender;
                 // xyz축 회전 
                 tRx = tMesh['rotation'][0], tRy = tMesh['rotation'][1], tRz = tMesh['rotation'][2]
                 aSx = SIN(tRx), aCx = COS(tRx), aSy = SIN(tRy), aCy = COS(tRy), aSz = SIN(tRz), aCz = COS(tRz),
-                a00 = a[0], a01 = a[1], a02 = a[2],
-                a10 = a[4], a11 = a[5], a12 = a[6],
-                a20 = a[8], a21 = a[9], a22 = a[10],
-                b00 = aCy * aCz, b01 = aSx * aSy * aCz - aCx * aSz, b02 = aCx * aSy * aCz + aSx * aSz,
-                b10 = aCy * aSz, b11 = aSx * aSy * aSz + aCx * aCz, b12 = aCx * aSy * aSz - aSx * aCz,
-                b20 = -aSy, b21 = aSx * aCy, b22 = aCx * aCy,
-                a[0] = a00 * b00 + a10 * b01 + a20 * b02, a[1] = a01 * b00 + a11 * b01 + a21 * b02, a[2] = a02 * b00 + a12 * b01 + a22 * b02,
-                a[4] = a00 * b10 + a10 * b11 + a20 * b12, a[5] = a01 * b10 + a11 * b11 + a21 * b12, a[6] = a02 * b10 + a12 * b11 + a22 * b12,
-                a[8] = a00 * b20 + a10 * b21 + a20 * b22, a[9] = a01 * b20 + a11 * b21 + a21 * b22, a[10] = a02 * b20 + a12 * b21 + a22 * b22;
+                    a00 = a[0], a01 = a[1], a02 = a[2],
+                    a10 = a[4], a11 = a[5], a12 = a[6],
+                    a20 = a[8], a21 = a[9], a22 = a[10],
+                    b00 = aCy * aCz, b01 = aSx * aSy * aCz - aCx * aSz, b02 = aCx * aSy * aCz + aSx * aSz,
+                    b10 = aCy * aSz, b11 = aSx * aSy * aSz + aCx * aCz, b12 = aCx * aSy * aSz - aSx * aCz,
+                    b20 = -aSy, b21 = aSx * aCy, b22 = aCx * aCy,
+                    a[0] = a00 * b00 + a10 * b01 + a20 * b02, a[1] = a01 * b00 + a11 * b01 + a21 * b02, a[2] = a02 * b00 + a12 * b01 + a22 * b02,
+                    a[4] = a00 * b10 + a10 * b11 + a20 * b12, a[5] = a01 * b10 + a11 * b11 + a21 * b12, a[6] = a02 * b10 + a12 * b11 + a22 * b12,
+                    a[8] = a00 * b20 + a10 * b21 + a20 * b22, a[9] = a01 * b20 + a11 * b21 + a21 * b22, a[10] = a02 * b20 + a12 * b21 + a22 * b22;
                 // 스케일
                 aX = tMesh['scale'][0], aY = tMesh['scale'][1], aZ = tMesh['scale'][2]
                 a[0] = a[0] * aX, a[1] = a[1] * aX, a[2] = a[2] * aX, a[3] = a[3] * aX;
@@ -2705,7 +2714,7 @@ var RedRender;
                 tIndicesBuffer = tGeometry['indices']
                 tVertexPositionBuffer = tAttrGroup['vertexPosition']
 
-            
+
                 // 프로그램 세팅 & 캐싱
                 cacheProgram != tProgram ? tGL.useProgram(tProgram) : 0
                 cacheProgram = tProgram
@@ -2717,9 +2726,9 @@ var RedRender;
                     if (tAttrLocationGroup[tAttrPointer]) { // 정보매칭이 안되는 녀석은 무시한다 
                         tLocation = tAttrLocationGroup[tAttrPointer]['location'] // 로케이션도 알아낸다.
                         // 캐싱된 attribute정보과 현재 대상정보가 같다면 무시
-                        cacheAttrUUID[tLocation] == tAttrBufferInfo['__UUID']
-                            ? 0
-                            : (
+                        cacheAttrUUID[tLocation] == tAttrBufferInfo['__UUID'] ?
+                            0 :
+                            (
                                 tGL.bindBuffer(tGL.ARRAY_BUFFER, tAttrBufferInfo['buffer']), // 실제 버퍼 바인딩하고
                                 tAttrBufferInfo['enabled'] ? 0 : (tGL.enableVertexAttribArray(tLocation), tAttrBufferInfo['enabled'] = 1), // 해당로케이션을 활성화 시킨다
                                 tGL.vertexAttribPointer(
@@ -2738,13 +2747,11 @@ var RedRender;
                 if (tMeterial['needUniformList']) {
                     tMeterial['__uniformList'] = []
                     for (k in tUniformGroup) {
-                        tMeterial['__uniformList'].push(
-                            {
-                                key: k,
-                                value: tUniformGroup[k],
-                                location: tUniformLocationGroup[k]['location']
-                            }
-                        )
+                        tMeterial['__uniformList'].push({
+                            key: k,
+                            value: tUniformGroup[k],
+                            location: tUniformLocationGroup[k]['location']
+                        })
                     }
                     tMeterial['needUniformList'] = false
                 }
@@ -2764,11 +2771,11 @@ var RedRender;
                         cacheUAtlascoord_UUID = tUniformGroup[tUniformKey]['__UUID']
                     } else if (tUniformValue['__uniformMethod']) {
                         tUniformValue['__isMatrix'] // 매트릭스형태인지 아닌지 파악
-                            ? tGL[tUniformValue['__uniformMethod']](tLocation, false, tUniformGroup[tUniformKey])
-                            : tGL[tUniformValue['__uniformMethod']](tLocation, tUniformGroup[tUniformKey])
-                    }
-                    else if (tUniformValue['__webglAtlasTexture']) {
-                   
+                            ?
+                            tGL[tUniformValue['__uniformMethod']](tLocation, false, tUniformGroup[tUniformKey]) :
+                            tGL[tUniformValue['__uniformMethod']](tLocation, tUniformGroup[tUniformKey])
+                    } else if (tUniformValue['__webglAtlasTexture']) {
+
                         var tTexture;
                         tTexture = tUniformValue['parentAtlasInfo']['textureInfo']
                         if (cacheTextureAtlas_UUID[tTexture['__targetIndex']] == undefined) bitmapRenderable = false
@@ -2784,9 +2791,8 @@ var RedRender;
                             cacheActiveTextureIndex != tTexture['__targetIndex'] ? tGL.uniform1i(tLocation, tTexture['__targetIndex']) : 0
                             cacheActiveTextureIndex = tTexture['__targetIndex']
                         }
-                    }
-                    else if (tUniformValue['__webglTexture']) {
-                      
+                    } else if (tUniformValue['__webglTexture']) {
+
                         if (cacheTexture1_UUID == undefined) bitmapRenderable = false
                         if (tUniformValue['loaded']) {
                             if (cacheTexture1_UUID != tUniformValue['__UUID']) {
@@ -2799,8 +2805,7 @@ var RedRender;
                             cacheActiveTextureIndex != tUniformValue['__targetIndex'] ? tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
                             cacheActiveTextureIndex = tUniformValue['__targetIndex']
                         }
-                    }
-                    else if (tUniformValue['__webglCubeTexture']) {
+                    } else if (tUniformValue['__webglCubeTexture']) {
                         if (cacheTexture2_UUID == undefined) bitmapRenderable = false
                         if (tUniformValue['loaded']) {
                             if (cacheTexture2_UUID != tUniformValue['__UUID']) {
@@ -2813,21 +2818,33 @@ var RedRender;
                             cacheActiveCubeTextureIndex != tUniformValue['__targetIndex'] ? tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
                             cacheActiveCubeTextureIndex = tUniformValue['__targetIndex']
                         }
-                      }
-                    else throw '안되는 나쁜 타입인거야!!'
+                    } else throw '안되는 나쁜 타입인거야!!'
                 }
-                
+
                 // uMVMatrix 입력 //TODO: 이것도 자동으로 하고싶은데...
                 tGL.uniformMatrix4fv(tUniformLocationGroup['uMVMatrix']['location'], false, tMVMatrix)
-                //////////////////////////
+                ////////////////////////////////////////////////////////////////////////////////////////////////////
                 // GL 드로잉상태관련 캐싱들 처리
+                // TODO: CCW도먹어야하나?
+                // 컬페이스 사용여부 캐싱처리
+                if (cacheUseCullFace != tMesh['cullFace']) {
+                    (cacheUseCullFace = tMesh['cullFace']) ? tGL.enable(tGL.CULL_FACE) : tGL.disable(tGL.CULL_FACE)
+                }
                 if (cacheCullFace != tMesh['cullFace']) tGL.cullFace(tMesh['cullFace']), cacheCullFace = tMesh['cullFace']
-                // TODO: 뎁스테스팅 캐싱처리
-                // TODO: 뎁스테스트 사용여부 캐싱처리
-                // TODO: 컬페이스 사용여부 캐싱처리
-                // TODO: 블렌딩 사용여부 캐싱처리
-                // TODO: 블렌딩모드 캐싱처리
-                //////////////////////////
+                // 뎁스테스트 사용여부 캐싱처리
+                if (cacheUseDepthTest != tMesh['useDepthTest']) (cacheUseDepthTest = tMesh['useDepthTest']) ? tGL.enable(tGL.DEPTH_TEST) : tGL.disable(tGL.DEPTH_TEST)
+                // 뎁스테스팅 캐싱처리
+                if (cacheDepthTestFunc != tMesh['depthTestFunc']) tGL.depthFunc(cacheDepthTestFunc = tMesh['depthTestFunc'])
+                // 블렌딩 사용여부 캐싱처리
+                if (cacheUseBlendMode != tMesh['useBlendMode']) {
+                    (cacheUseBlendMode = tMesh['useBlendMode']) ? tGL.enable(tGL.BLEND) : tGL.disable(tGL.BLEND)
+                }
+                // 블렌딩팩터 캐싱처리
+                if (cacheBlendModeFactor != (tMesh['blendFactor1'] + tMesh['blendFactor2'])) {
+                    tGL.blendFunc(tMesh['blendFactor1'], tMesh['blendFactor2'])
+                    cacheBlendModeFactor = tMesh['blendFactor1'] + tMesh['blendFactor2']
+                }
+                ////////////////////////////////////////////////////////////////////////////////////////////////////
                 if (tIndicesBuffer) {
                     if (bitmapRenderable) {
                         cacheDrawBufferUUID == tIndicesBuffer['__UUID'] ? 0 : tGL.bindBuffer(tGL.ELEMENT_ARRAY_BUFFER, tIndicesBuffer['buffer'])
@@ -2920,7 +2937,8 @@ var RedSkyBoxInfo;
         constructorYn : true,
         title :`RedSkyBoxInfo`,
         description : `
-           - 기본 스카이박스 생성기
+            <h2>RedMeshBaseInfo 상속객체</h2>
+            - 기본 스카이박스 생성기
         `,
         params:{
             redGL : [
@@ -3037,6 +3055,7 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		// tGL.blendFuncSeparate(tGL.SRC_ALPHA, tGL.ONE_MINUS_SRC_ALPHA,tGL.ZERO, tGL.ONE);
 		// 픽셀 블렌딩 결정
 		tGL.pixelStorei(tGL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+		// 픽셀 플립 기본설정
 		tGL.pixelStorei(tGL.UNPACK_FLIP_Y_WEBGL, true);
 		// 시저박스 설정
 		tGL.enable(tGL.SCISSOR_TEST);

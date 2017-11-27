@@ -4,6 +4,7 @@
         constructorYn : true,
         title :`RedMeshInfo`,
         description : `
+            <h2>RedMeshBaseInfo 상속객체</h2>
             - RedGL에서 사용할 재질정보를 정의
             - 타입키에 해당하는 정의가 존재하지않을경우 에러
         `,
@@ -75,79 +76,6 @@ var RedMeshInfo;
         this['materialInfo'] = materialInfo
         // 캐싱
         tDatas[key] = this
-        /**DOC:
-		{
-            title :`uMVMatrix`,
-            description : `
-                - modelView Matrix를 반환
-                - <span style="color:red"><b>uMVMatrix라는 키값은 쉐이더에서 사용되는 고정값이다.</b></span>
-            `,
-			example : `인스턴스.uMVMatrix`,
-			return : 'mat4(Float32Array)'
-        }
-        :DOC*/
-        /**DOC:
-		{
-            title :`position`,
-            description : `
-                - positionXYZ를 Float32Array로 가진다.
-            `,
-			example : `인스턴스.position`,
-			return : 'Float32Array(3)'
-        }
-        :DOC*/
-        /**DOC:
-		{
-            title :`rotation`,
-            description : `
-                - rotationXYZ를 Float32Array로 가진다.
-            `,
-			example : `인스턴스.rotation`,
-			return : 'Float32Array(3)'
-        }
-        :DOC*/
-        /**DOC:
-		{
-            title :`scale`,
-            description : `
-                - scaleXYZ를 Float32Array로 가진다.
-            `,
-			example : `인스턴스.rotation`,
-			return : 'Float32Array(3)'
-        }
-        :DOC*/
-        /**DOC:
-		{
-            title :`drawMode`,
-            description : `
-                - 실제 메쉬를 그릴때 어떠한 방식으로 그릴지 결정
-                - ex) gl.TRIANGLES
-            `,
-			example : `인스턴스.drawMode`,
-			return : 'glConst'
-        }
-        :DOC*/
-        /**DOC:
-		{
-            title :`cullFace`,
-            description : `
-                - 실제 메쉬를 그릴때 cullFace를 어떤 방식으로 그릴지 결정
-                - ex) gl.BACK
-            `,
-			example : `인스턴스.cullFace`,
-			return : 'glConst'
-        }
-        :DOC*/
-        /**DOC:
-		{
-            title :`children`,
-            description : `
-                - 자식노드리스트
-            `,
-			example : `인스턴스.children`,
-			return : 'Array'
-        }
-        :DOC*/
     }
     Object.freeze(RedMeshInfo)
 })();

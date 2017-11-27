@@ -107,18 +107,88 @@ var RedMeshBaseInfo;
         }
         :DOC*/
         this['drawMode'] = tGL.TRIANGLES
+         /**DOC:
+		{
+            title :`useCullFace`,
+            description : `
+                - 실제 메쉬를 그릴때 cullFace를 사용할지 여부
+                - 기본값 : true
+            `,
+			example : `인스턴스.useCullFace`,
+			return : 'boolean'
+        }
+        :DOC*/
+        this['useCullFace'] = true
         /**DOC:
 		{
             title :`cullFace`,
             description : `
                 - 실제 메쉬를 그릴때 cullFace를 어떤 방식으로 그릴지 결정
-                - ex) gl.BACK
+                - 기본값 : gl.BACK
             `,
 			example : `인스턴스.cullFace`,
 			return : 'glConst'
         }
         :DOC*/
         this['cullFace'] = tGL.BACK 
+        /**DOC:
+		{
+            title :`useBlendMode`,
+            description : `
+                - draw시 블렌드모드 사용여부
+                - 기본값 : true
+            `,
+			example : `인스턴스.useBlendMode`,
+			return : 'boolean'
+        }
+        :DOC*/
+        this['useBlendMode'] = true
+        /**DOC:
+		{
+            title :`blendFactor1`,
+            description : `
+                - draw시 blendFactor1
+            `,
+			example : `인스턴스.blendFactor1`,
+			return : 'glConst'
+        }
+        :DOC*/
+        this['blendFactor1'] = tGL.ONE
+        /**DOC:
+		{
+            title :`blendFactor2`,
+            description : `
+                - draw시 blendFactor2
+            `,
+			example : `인스턴스.blendFactor2`,
+			return : 'glConst'
+        }
+        :DOC*/
+        this['blendFactor2'] = tGL.ONE_MINUS_SRC_ALPHA
+        /**DOC:
+		{
+            title :`useDepthTest`,
+            description : `
+                - draw시 depthTest 사용여부
+                - 기본값 : true
+            `,
+			example : `인스턴스.useDepthTest`,
+			return : 'boolean'
+        }
+        :DOC*/
+        this['useDepthTest'] = false
+        /**DOC:
+		{
+            title :`depthTestFunc`,
+            description : `
+                - depthTest 옵션
+                - 기본값 : tGL.LESS
+            `,
+			example : `인스턴스.depthTestFunc`,
+			return : 'glConst'
+        }
+        :DOC*/
+        this['depthTestFunc'] = tGL.LESS
         /**DOC:
 		{
             title :`children`,
