@@ -199,6 +199,7 @@ RedAtlasTextureManager(testGL, [
 			tSub.scale[0] = tScale
 			tSub.scale[1] = tScale
 			tSub.scale[2] = tScale
+			tSub.blendFactor2= Math.random()>0.5 ? testGL.gl.ONE_MINUS_SRC_ALPHA : testGL.gl.ONE
 			tMesh.children.push(tSub)
 			i3 = 5
 			var tt = Math.random() > 0.5 ? testMatBitmap7 : testMatBitmap8
