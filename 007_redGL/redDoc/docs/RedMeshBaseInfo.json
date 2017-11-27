@@ -31,7 +31,7 @@
   },
   {
     "title": "position",
-    "description": "\n    - positionXYZ를 Float32Array로 가진다.\n    - <span style=\"color:red\"><b>강제로 일반 Array로 치환하지않도록 주의해야한다.</b></span>\n",
+    "description": "\n    - positionXYZ를 Float32Array로 가진다.\n",
     "example": "인스턴스.position",
     "return": "Float32Array(3)"
   },
@@ -43,13 +43,13 @@
   },
   {
     "title": "rotation",
-    "description": "\n    - rotationXYZ를 Float32Array로 가진다.\n    - <span style=\"color:red\"><b>강제로 일반 Array로 치환하지않도록 주의해야한다.</b></span>\n",
+    "description": "\n    - rotationXYZ를 Float32Array로 가진다.\n",
     "example": "인스턴스.rotation",
     "return": "Float32Array(3)"
   },
   {
     "title": "scale",
-    "description": "\n    - scaleXYZ를 Float32Array로 가진다.\n    - <span style=\"color:red\"><b>강제로 일반 Array로 치환하지않도록 주의해야한다.</b></span>\n",
+    "description": "\n    - scaleXYZ를 Float32Array로 가진다.\n",
     "example": "인스턴스.rotation",
     "return": "Float32Array(3)"
   },

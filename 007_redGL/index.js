@@ -130,7 +130,7 @@ var testCamera = RedBaseCamera(testGL,'testCamera')
 var testScene = testGL.createSceneInfo('testScene',testCamera)
 console.log(testScene)
 var testSkyBox
-testSkyBox = RedSkyBox(testGL,[
+testSkyBox = RedSkyBoxInfo(testGL,[
 	'asset/cubemap/posx.jpg',
 	'asset/cubemap/negx.jpg',
 	'asset/cubemap/posy.jpg',

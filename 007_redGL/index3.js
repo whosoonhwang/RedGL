@@ -95,7 +95,7 @@ console.log(testScene)
 var tMesh
 var i = 10
 var testSkyBox
-testSkyBox = RedSkyBox(testGL,[
+testSkyBox = RedSkyBoxInfo(testGL,[
 	'asset/cubemap/posx.jpg',
 	'asset/cubemap/negx.jpg',
 	'asset/cubemap/posy.jpg',

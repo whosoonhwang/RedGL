@@ -35,37 +35,44 @@ var RedMeshBaseInfo;
             title :`position`,
             description : `
                 - positionXYZ를 Float32Array로 가진다.
-                - <span style="color:red"><b>강제로 일반 Array로 치환하지않도록 주의해야한다.</b></span>
             `,
 			example : `인스턴스.position`,
 			return : 'Float32Array(3)'
         }
         :DOC*/
-        this['position'] = new Float32Array([0, 0, 0])
+        Object.defineProperty(this,'position',{
+            value : new Float32Array([0, 0, 0]),
+            enumerable : true
+        })
+        // this['position'] = new Float32Array([0, 0, 0])
         /**DOC:
 		{
             title :`rotation`,
             description : `
                 - rotationXYZ를 Float32Array로 가진다.
-                - <span style="color:red"><b>강제로 일반 Array로 치환하지않도록 주의해야한다.</b></span>
             `,
 			example : `인스턴스.rotation`,
 			return : 'Float32Array(3)'
         }
         :DOC*/
-        this['rotation'] = new Float32Array([0, 0, 0])
+        Object.defineProperty(this,'rotation',{
+            value : new Float32Array([0, 0, 0]),
+            enumerable : true
+        })
         /**DOC:
 		{
             title :`scale`,
             description : `
                 - scaleXYZ를 Float32Array로 가진다.
-                - <span style="color:red"><b>강제로 일반 Array로 치환하지않도록 주의해야한다.</b></span>
             `,
 			example : `인스턴스.rotation`,
 			return : 'Float32Array(3)'
         }
         :DOC*/
-        this['scale'] = new Float32Array([1, 1, 1])
+        Object.defineProperty(this,'scale',{
+            value : new Float32Array([1, 1, 1]),
+            enumerable : true
+        })
         /**DOC:
 		{
             title :`geometryInfo`,
