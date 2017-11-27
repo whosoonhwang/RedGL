@@ -4,15 +4,15 @@
         constructorYn : true,
         title :`RedMaterialInfo`,
         description : `
-            - RedGL에서 사용할 재질정보를 정의
-            - 타입키에 해당하는 RedMaterialDefine 정의가 존재하지않을경우 에러
+            - 재질 생성기.
+            - 타입키에 해당하는 <b>RedMaterialDefine</b> 정의가 존재하지않을경우 에러.
         `,
         params : {
             redGL : [
                 {type:'RedGL Instance'},
                 '- redGL 인스턴스'
             ],
-            type : [
+            typeName : [
                 {type:'String'},
                 '- 재질 타입 지정'
             ]
@@ -40,7 +40,7 @@
 var RedMaterialInfo;
 (function () {
     var tDefineMap
-    var tData;
+    var tDegineData;
     var tUniform;
     var typeMAP;
     var k, t0;
@@ -67,11 +67,11 @@ var RedMaterialInfo;
     RedMaterialInfo = function (redGL, typeName, diffuseInfo) {
         if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseInfo)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof typeName != 'string') throw 'type은 문자열만 허용됩니다.'
+        if (typeof typeName != 'string') throw 'typeName은 문자열만 허용됩니다.'
         // 디파인더에서 재질정의를 찾고
         tDefineMap = redGL['__datas']['RedMaterialDefine']
-        tData = tDefineMap[typeName]
-        if (!tData) throw typeName + '재질은 존재하지않습니다.'
+        tDegineData = tDefineMap[typeName]
+        if (!tDegineData) throw typeName + '재질은 존재하지않습니다.'
         /**DOC:
 		{
             title :`programInfo`,
@@ -80,7 +80,7 @@ var RedMaterialInfo;
 			return : 'RedProgramInfo'
         }
         :DOC*/
-        this['programInfo'] = tData['programInfo']
+        this['programInfo'] = tDegineData['programInfo']
         /**DOC:
 		{
             title :`diffuseInfo`,
@@ -104,7 +104,7 @@ var RedMaterialInfo;
         :DOC*/
         this['uniforms'] = tUniform = {}
         // 유니폼은 프로그램에 의하여 생성되고, 재질정보를 토대로 렌더시 참조
-        tData['programInfo'].makeUniformValue(this)
+        tDegineData['programInfo'].makeUniformValue(this)
         /**DOC:
 		{
             title :`needUniformList`,
@@ -137,7 +137,6 @@ var RedMaterialInfo;
             } else if (t0 instanceof RedTextureInfo || t0 instanceof RedCubeTextureInfo) {
             } else if (t0 instanceof RedAtlasTextureInfo) {
                 this['uniforms']['uAtlascoord'] = t0['atlasUVInfo']
-                // console.log('RedAtlasTextureInfo',t0,this)
             } else throw k + '는 올바르지 않은 타입입니다.'
         }
         this['__UUID'] = REDGL_UUID++

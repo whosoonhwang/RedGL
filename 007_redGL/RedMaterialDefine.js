@@ -6,7 +6,7 @@
         description : `
             - RedGL에서 사용할 재질정보를 정의.
             - <b>유일키</b>만 지원하며 키 중복일경우 에러발생.
-            - <b>Object.freeze</b> 상태로 반환됨.
+            - <b>Object.freeze</b> 상태로 정의됨.
         `,
         params : {
             redGL : [
@@ -45,9 +45,7 @@ var RedMaterialDefine;
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
         if (!(programInfo instanceof RedProgramInfo)) throw 'RedProgramInfo 인스턴스만 허용됩니다.'
         // 저장할 공간확보하고
-        if (!redGL['__datas']['RedMaterialDefine']) {
-            redGL['__datas']['RedMaterialDefine'] = {}
-        }
+        if (!redGL['__datas']['RedMaterialDefine']) redGL['__datas']['RedMaterialDefine'] = {}
         tKey = programInfo['key']
         tDatas = redGL['__datas']['RedMaterialDefine']
         // 기존에 등록된 녀석이면 에러

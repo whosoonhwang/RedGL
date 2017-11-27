@@ -20,7 +20,7 @@
   {
     "constructorYn": true,
     "title": "RedMaterialInfo",
-    "description": "\n    - RedGL에서 사용할 재질정보를 정의\n    - 타입키에 해당하는 RedMaterialDefine 정의가 존재하지않을경우 에러\n",
+    "description": "\n    - 재질 생성기.\n    - 타입키에 해당하는 <b>RedMaterialDefine</b> 정의가 존재하지않을경우 에러.\n",
     "params": {
       "redGL": [
         {
@@ -28,7 +28,7 @@
         },
         "- redGL 인스턴스"
       ],
-      "type": [
+      "typeName": [
         {
           "type": "String"
         },

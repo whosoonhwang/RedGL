@@ -106,7 +106,17 @@ redSuite(
             var t0;
             t0 = RedGeometryInfo(testGL, 'test4', testArrayBufferInfo, testIndexBufferInfo, testUVBufferInfo, testNormalBufferInfo)
             unit.run(t0.attributes.normal == testNormalBufferInfo)
-        }, true)
+        }, true),
+        redTest("RedGeometryInfo - 생성 테스트 : 중복방지", function (unit) {
+            var t0;
+            t0 = true
+            try {
+                RedGeometryInfo(testGL, 'test4', testArrayBufferInfo, testIndexBufferInfo, testUVBufferInfo, testNormalBufferInfo)
+            } catch (error) {
+                t0 = false
+            }
+            unit.run(t0)
+        }, false)
     ),
     redGroup(
         "RedGeometryInfo 버퍼 밸리데이션",
