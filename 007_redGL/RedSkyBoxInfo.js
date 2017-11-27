@@ -37,7 +37,7 @@ var RedSkyBoxInfo;
         RedMeshBaseInfo.call(this, redGL)
         this['materialInfo'] = RedMaterialInfo(redGL, 'skybox', RedCubeTextureInfo(redGL, srcList))
         this['geometryInfo'] = RedPrimitive.cube(redGL)
-        this['scale'][0] = 1000//TODO: 카메라꺼물어야함
+        this['scale'][0] = 1000//TODO: 카메라 far 물어야함
         this['scale'][1] = 1000
         this['scale'][2] = 1000
         this['cullFace'] = redGL.gl.FRONT

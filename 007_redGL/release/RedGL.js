@@ -76,6 +76,7 @@ var RedShaderInfo;
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
         if (typeof key != 'string') throw 'key - 문자열만 허용됩니다.'
         if (typeof type != 'string') throw 'type - 문자열만 허용됩니다.'
+        if (typeof source != 'string') throw 'source - 문자열만 허용됩니다.'
         // 저장할 공간확보하고
         if (!redGL['__datas']['shaderInfo']) {
             redGL['__datas']['shaderInfo'] = {}
@@ -85,7 +86,6 @@ var RedShaderInfo;
         tDatas = redGL['__datas']['shaderInfo']
         // 기존에 등록된 녀석이면 퐈이어!
         if (tDatas[type][key]) throw key + '는 '+type+'정보에 이미 존재하는 RedShaderInfo 입니다.'
-        if (typeof source != 'string') throw 'source - 문자열만 허용됩니다.'
         tGL = redGL.gl
         // 쉐이더생성
         switch (type) {
@@ -378,7 +378,10 @@ var RedBaseCamera;
                 return : 'mat4(Float32Arrat)'
             }
         :DOC*/
-        this['uPMatrix'] = mat4.create()
+        Object.defineProperty(this,'uPMatrix',{
+            value : mat4.create(),
+            enumerable : true
+        })
         /**DOC:
             {
                 title :`uCameraMatrix`,
@@ -389,7 +392,10 @@ var RedBaseCamera;
                 return : 'mat4(Float32Arrat)'
             }
         :DOC*/
-        this['uCameraMatrix'] = mat4.create()
+        Object.defineProperty(this,'uCameraMatrix',{
+            value : mat4.create(),
+            enumerable : true
+        })
         /**DOC:
             {
                 title :`fov`,
@@ -431,8 +437,14 @@ var RedBaseCamera;
             }
         :DOC*/
         this['far'] = 1000.0
-        this['__desiredCoords'] = new Float32Array([0, 0, 0])
-        this['__desiredRotation'] = new Float32Array([0, 0, 0])
+        Object.defineProperty(this,'__desiredCoords',{
+            value : new Float32Array([0, 0, 0]),
+            enumerable : true
+        })
+        Object.defineProperty(this,'__desiredRotation',{
+            value : new Float32Array([0, 0, 0]),
+            enumerable : true
+        })
         this['__UUID'] = REDGL_UUID++
         this['__canvas'] = redGL.__canvas
         this.update()
@@ -586,13 +598,11 @@ var RedBaseCamera;
             }
         :DOC*/
         update: (function () {
-
             return function () {
                 // 퍼스펙티브만 관여
                 this['aspect'] = this['__canvas'].clientWidth / this['__canvas'].clientHeight
                 mat4.identity(this['uPMatrix'])
                 mat4.perspective(this['uPMatrix'], this['fov'] * Math.PI / 180, this['aspect'], this['near'], this['far'])
-
                 return this
             }
         })()
@@ -1104,9 +1114,9 @@ var RedGeometryInfo;
         }
         :DOC*/
         this.attributes = {
-            // vertexPosition: null, //이넘을 고유키값
-            // texcoord: null, //이넘을 고유키값
-            // normal : null //이넘을 고유키값
+            // vertexPosition: null, //이넘 고유키값
+            // texcoord: null, //이넘 고유키값
+            // normal : null //이넘 고유키값
         }
         /**DOC:
 		{
@@ -1916,7 +1926,7 @@ var RedMaterialInfo;
         description : `
             - RedGL에서 사용할 재질정보를 정의.
             - <b>유일키</b>만 지원하며 키 중복일경우 에러발생.
-            - <b>Object.freeze</b> 상태로 반환됨.
+            - <b>Object.freeze</b> 상태로 정의됨.
         `,
         params : {
             redGL : [
@@ -1955,9 +1965,7 @@ var RedMaterialDefine;
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
         if (!(programInfo instanceof RedProgramInfo)) throw 'RedProgramInfo 인스턴스만 허용됩니다.'
         // 저장할 공간확보하고
-        if (!redGL['__datas']['RedMaterialDefine']) {
-            redGL['__datas']['RedMaterialDefine'] = {}
-        }
+        if (!redGL['__datas']['RedMaterialDefine']) redGL['__datas']['RedMaterialDefine'] = {}
         tKey = programInfo['key']
         tDatas = redGL['__datas']['RedMaterialDefine']
         // 기존에 등록된 녀석이면 에러
@@ -2605,7 +2613,7 @@ var RedRender;
         }
         this.drawSkyBox = function(skyBox){
             if(skyBox){
-                
+                skyBox['scale'][0] = skyBox['scale'][1] = skyBox['scale'][2] = tScene['camera']['far']
                 self.draw([skyBox])
             }
         }
@@ -2944,7 +2952,7 @@ var RedSkyBoxInfo;
         RedMeshBaseInfo.call(this, redGL)
         this['materialInfo'] = RedMaterialInfo(redGL, 'skybox', RedCubeTextureInfo(redGL, srcList))
         this['geometryInfo'] = RedPrimitive.cube(redGL)
-        this['scale'][0] = 1000//TODO: 카메라꺼물어야함
+        this['scale'][0] = 1000//TODO: 카메라 far 물어야함
         this['scale'][1] = 1000
         this['scale'][2] = 1000
         this['cullFace'] = redGL.gl.FRONT

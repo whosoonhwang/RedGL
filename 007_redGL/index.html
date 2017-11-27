@@ -112,7 +112,7 @@
         varying vec3 vCubeCoord;  
         void main(void) {
             gl_Position = uPMatrix * uCameraMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-            vec4 cubeNormal =  uPMatrix * uMVMatrix *vec4(-aVertexPosition, 0.0);
+            vec4 cubeNormal =  uMVMatrix *vec4(-aVertexPosition, 0.0);
             vCubeCoord = cubeNormal.xyz;
         }
 </script>

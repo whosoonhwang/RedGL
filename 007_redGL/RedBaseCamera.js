@@ -33,7 +33,10 @@ var RedBaseCamera;
                 return : 'mat4(Float32Arrat)'
             }
         :DOC*/
-        this['uPMatrix'] = mat4.create()
+        Object.defineProperty(this,'uPMatrix',{
+            value : mat4.create(),
+            enumerable : true
+        })
         /**DOC:
             {
                 title :`uCameraMatrix`,
@@ -44,7 +47,10 @@ var RedBaseCamera;
                 return : 'mat4(Float32Arrat)'
             }
         :DOC*/
-        this['uCameraMatrix'] = mat4.create()
+        Object.defineProperty(this,'uCameraMatrix',{
+            value : mat4.create(),
+            enumerable : true
+        })
         /**DOC:
             {
                 title :`fov`,
@@ -86,8 +92,14 @@ var RedBaseCamera;
             }
         :DOC*/
         this['far'] = 1000.0
-        this['__desiredCoords'] = new Float32Array([0, 0, 0])
-        this['__desiredRotation'] = new Float32Array([0, 0, 0])
+        Object.defineProperty(this,'__desiredCoords',{
+            value : new Float32Array([0, 0, 0]),
+            enumerable : true
+        })
+        Object.defineProperty(this,'__desiredRotation',{
+            value : new Float32Array([0, 0, 0]),
+            enumerable : true
+        })
         this['__UUID'] = REDGL_UUID++
         this['__canvas'] = redGL.__canvas
         this.update()
@@ -241,13 +253,11 @@ var RedBaseCamera;
             }
         :DOC*/
         update: (function () {
-
             return function () {
                 // 퍼스펙티브만 관여
                 this['aspect'] = this['__canvas'].clientWidth / this['__canvas'].clientHeight
                 mat4.identity(this['uPMatrix'])
                 mat4.perspective(this['uPMatrix'], this['fov'] * Math.PI / 180, this['aspect'], this['near'], this['far'])
-
                 return this
             }
         })()
