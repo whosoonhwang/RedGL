@@ -37,5 +37,17 @@
     },
     "example": "\n    var test;\n    test = RedGL(Canvas Element)\n    // firstScene 키로 Scene생성\n    RedSceneInfo(test,'firstScene')\n",
     "return": "RedSceneInfo Instance"
+  },
+  {
+    "title": "setGrid",
+    "description": "그리드 설정",
+    "code": "FUNCTION",
+    "example": "인스턴스.setGrid"
+  },
+  {
+    "title": "setSkyBox",
+    "description": "스카이박스 설정",
+    "code": "FUNCTION",
+    "example": "인스턴스.setSkyBox"
   }
 ]
