@@ -4,6 +4,12 @@
     "title": "RedMeshInfo",
     "description": "\n   - 기본 스카이박스 생성기\n",
     "params": {
+      "redGL": [
+        {
+          "type": "Red Instance"
+        },
+        "redGL 인스턴스"
+      ],
       "srcList": [
         {
           "type": "Array"

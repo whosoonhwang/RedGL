@@ -3,6 +3,7 @@ var uglify = require('gulp-uglify-es').default;
 var concat = require('gulp-concat');
 var gap = require('gulp-append-prepend');
 var stripDebug = require('gulp-strip-debug');
+var insert = require('gulp-insert');
 var textTransformation = require('gulp-text-simple');
 var dt = new Date();
 require('date-utils');
@@ -78,7 +79,7 @@ gulp.task('make-doc', function () {
 		"RedAtlasTextureManager.js",
 		"RedAtlasTextureInfo.js",
 		"RedRender.js",
-		"RedSkyBox.js",
+		"RedSkyBoxInfo.js",
 		"RedGLDetect.js",
 		"redGL.js"
 	])
@@ -88,7 +89,48 @@ gulp.task('make-doc', function () {
 		}))
 		.pipe(gulp.dest('redDoc/docs'))
 });
-gulp.task('default', ['make-doc'], function () {
+gulp.task('combine-js', function () {
+	console.log('-------------------------------------------');
+	console.log('파일 병합 시작!');
+	var name = "RedGL"
+	return gulp.src([
+		"lib/gl-matrix-min.js",
+		"RedShaderInfo.js",
+		"RedProgramInfo.js",
+		"RedBaseCamera.js",
+		"RedCubeTextureInfo.js",    
+		"RedBufferInfo.js",
+		"RedFixedAttributeKey.js",
+		"RedGeometryInfo.js",
+		"RedMeshInfo.js",
+		"RedMeshBaseInfo.js",    
+		"RedPrimitive.js",    
+		"RedMaterialInfo.js",
+		"RedMaterialDefine.js",
+		"RedSceneInfo.js",
+		"RedTextureInfo.js",
+		"RedAtlasUVInfo.js",
+		"RedAtlasInfo.js",
+		"RedAtlasTextureManager.js",
+		"RedAtlasTextureInfo.js",
+		"RedRender.js",
+		"RedGLDetect.js",
+		"RedSkyBoxInfo.js",
+		"redGL.js",
+		"Atlas.js"
+	])
+		.pipe(concat(name + '.js')) // 병합한다.
+		.pipe(gulp.dest('release')) //
+		.pipe(concat(name + '.min.js')) // 병합한다.
+		//.pipe(stripComment())
+		.pipe(stripDebug())
+		.pipe(uglify({
+			//mangle: true // 알파벳 한 글자 압축 과정 설정 
+		}))
+		.pipe(insert.append("console.log('" + 'LOGIN' + " Release. last update(" + d + ")'" + ");"))
+		.pipe(gulp.dest('release'));
+});
+gulp.task('default', ['make-doc','combine-js'], function () {
 	console.log('-------------------------------------------');
 	console.log('성공!');
 	console.log('-------------------------------------------');
