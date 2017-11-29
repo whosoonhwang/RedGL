@@ -107,7 +107,7 @@ var RedShaderInfo;
         }
         parseData = source.match(/.attribute[\s\S]+?\;|.uniform[\s\S]+?\;/g)
         parseData.forEach(function (v, index) {
-            parseData[index] = v.trim().replace(';', '')
+            parseData[index] = v.trim().replace(';', '').split('[')[0]
         })
         /**DOC:
 		{
@@ -280,7 +280,7 @@ var RedProgramInfo;
         tGL.attachShader(tProgram, fShaderInfo['shader'])
         tGL.linkProgram(tProgram)
         // 프로그램 링크 확인
-        if (!tGL.getProgramParameter(tProgram, tGL.LINK_STATUS)) throw "프로그램을 초기화 할 수 없습니다."
+        if (!tGL.getProgramParameter(tProgram, tGL.LINK_STATUS)) throw "프로그램을 초기화 할 수 없습니다." +
         tGL.useProgram(tProgram);
         info = {}
         tList.length = 0
@@ -984,6 +984,73 @@ var RedBufferInfo;
     Object.freeze(RedBufferInfo)
 })();
 "use strict";
+var RedDirectionalLightInfo;
+/**DOC:
+    {
+        constructorYn : true,
+        title :`RedDirectionalLightInfo`,
+        description : `
+            - RedDirectionalLightInfo 생성
+        `,
+        params : {
+            redGL : [
+                {type:'RedGL Instance'},
+                '- redGL 인스턴스'
+            ]
+        },
+        example : `
+            var test;
+            test = RedGL(Canvas Element)
+            // firstScene 키로 Scene생성
+            RedDirectionalLightInfo(test,RedDirectionalLightInfo.DIRECTIONAL)
+        `,
+        return : 'RedDirectionalLightInfo Instance'
+    }
+:DOC*/
+(function () {
+    var tDatas;
+    RedDirectionalLightInfo = function (redGL) {
+        if (!(this instanceof RedDirectionalLightInfo)) return new RedDirectionalLightInfo(redGL)
+        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+        // 저장할 공간확보하고
+        if (!redGL['__datas']['RedDirectionalLightInfo']) redGL['__datas']['RedDirectionalLightInfo'] = {}
+        tDatas = redGL['__datas']['RedDirectionalLightInfo']
+        /**DOC:
+		{
+            title :`type`,
+            description : `라이트 타입`,
+            code:'PROPERTY',
+            example : `인스턴스.type`,
+            return : 'String'
+        }
+        :DOC*/
+        this['type'] = RedDirectionalLightInfo['TYPE']
+        /**DOC:
+		{
+            title :`color`,
+            description : `라이트 컬러`,
+            code:'PROPERTY',
+            example : `인스턴스.color`,
+            return : 'Float32'
+        }
+        :DOC*/
+        this['color'] = new Float32Array([255, 255, 255, 255])
+         /**DOC:
+		{
+            title :`direction`,
+            description : `라이트 포지션`,
+            code:'PROPERTY',
+            example : `인스턴스.color`,
+            return : 'Float32'
+        }
+        :DOC*/
+        this['direction'] = new Float32Array([0, 0, 0])
+       
+    }
+    RedDirectionalLightInfo['TYPE'] = 'directional'
+    Object.freeze(RedDirectionalLightInfo)
+})();
+"use strict";
 /**DOC:
     {
         constructorYn : true,
@@ -1274,6 +1341,21 @@ var RedMeshBaseInfo;
             value : mat4.create(),
             enumerable : true
         })
+         /**DOC:
+		{
+            title :`uNMatrix`,
+            description : `
+                - modelView 노멀 Matrix를 반환
+                - <span style="color:red"><b>uNMatrix라는 키값은 쉐이더에서 사용되는 고정값이다.</b></span>
+            `,
+			example : `인스턴스.uNMatrix`,
+			return : 'mat4(Float32Array)'
+        }
+        :DOC*/
+        Object.defineProperty(this,'uNMatrix',{
+            value : mat4.create(),
+            enumerable : true
+        })
         /**DOC:
 		{
             title :`position`,
@@ -1420,7 +1502,7 @@ var RedMeshBaseInfo;
 			return : 'boolean'
         }
         :DOC*/
-        this['useDepthTest'] = false
+        this['useDepthTest'] = true
         /**DOC:
 		{
             title :`depthTestFunc`,
@@ -1466,6 +1548,62 @@ var RedPrimitive;
     var tDatas;;
     var createGeo;
     var checkShareInfo;
+    var calculateNormals = function(vs, ind){
+        var x=0; 
+        var y=1;
+        var z=2;
+        
+        var ns = [];
+        for(var i=0;i<vs.length;i=i+3){ //for each vertex, initialize normal x, normal y, normal z
+            ns[i+x]=0.0;
+            ns[i+y]=0.0;
+            ns[i+z]=0.0;
+        }
+        
+        for(var i=0;i<ind.length;i=i+3){ //we work on triads of vertices to calculate normals so i = i+3 (i = indices index)
+            var v1 = [];
+            var v2 = [];
+            var normal = [];	
+            //p2 - p1
+            v1[x] = vs[3*ind[i+2]+x] - vs[3*ind[i+1]+x];
+            v1[y] = vs[3*ind[i+2]+y] - vs[3*ind[i+1]+y];
+            v1[z] = vs[3*ind[i+2]+z] - vs[3*ind[i+1]+z];
+            //p0 - p1
+            v2[x] = vs[3*ind[i]+x] - vs[3*ind[i+1]+x];
+            v2[y] = vs[3*ind[i]+y] - vs[3*ind[i+1]+y];
+            v2[z] = vs[3*ind[i]+z] - vs[3*ind[i+1]+z];
+            //cross product by Sarrus Rule
+            normal[x] = v1[y]*v2[z] - v1[z]*v2[y];
+            normal[y] = v1[z]*v2[x] - v1[x]*v2[z];
+            normal[z] = v1[x]*v2[y] - v1[y]*v2[x];
+            for(j=0;j<3;j++){ //update the normals of that triangle: sum of vectors
+                ns[3*ind[i+j]+x] =  ns[3*ind[i+j]+x] + normal[x];
+                ns[3*ind[i+j]+y] =  ns[3*ind[i+j]+y] + normal[y];
+                ns[3*ind[i+j]+z] =  ns[3*ind[i+j]+z] + normal[z];
+            }
+        }
+        //normalize the result
+        for(var i=0;i<vs.length;i=i+3){ //the increment here is because each vertex occurs with an offset of 3 in the array (due to x, y, z contiguous values)
+        
+            var nn=[];
+            nn[x] = ns[i+x];
+            nn[y] = ns[i+y];
+            nn[z] = ns[i+z];
+            
+            var len = Math.sqrt((nn[x]*nn[x])+(nn[y]*nn[y])+(nn[z]*nn[z]));
+            if (len == 0) len = 1.0;
+            
+            nn[x] = nn[x]/len;
+            nn[y] = nn[y]/len;
+            nn[z] = nn[z]/len;
+            
+            ns[i+x] = nn[x];
+            ns[i+y] = nn[y];
+            ns[i+z] = nn[z];
+        }
+        
+        return ns;
+    }
     checkShareInfo = function (redGL) {
         if (!redGL['__datas']['RedPrimitive']) redGL['__datas']['RedPrimitive'] = {}
         return redGL['__datas']['RedPrimitive']
@@ -2133,9 +2271,16 @@ var RedSceneInfo;
         }
         :DOC*/
         this['camera'] = camera
+        this['lights'] = {
+            ambient : [],
+            directional : [],
+            point : [],
+            spot : []
+        }
         this['__UUID'] = REDGL_UUID++
         // 캐싱
         tDatas[key] = this
+        Object.seal(RedSceneInfo)
     }
     RedSceneInfo.prototype = {
         /**DOC:
@@ -2159,7 +2304,25 @@ var RedSceneInfo;
         :DOC*/
         setGrid: function (v) {
             this['grid'] = v
+        },
+          /**DOC:
+		{
+            title :`addLight`,
+            description : `라이트 설정`,
+            code:'FUNCTION',
+			example : `인스턴스.addLight`
         }
+        :DOC*/
+        addLight: (function () {
+            var tDatas;
+            return function (v) {
+                if (v instanceof RedDirectionalLightInfo) {
+                    tDatas = this['lights'][RedDirectionalLightInfo.TYPE]
+                    if (tDatas.length == 16) throw '직사광 최대갯수는 16개입니다.'
+                    else tDatas.push(v)
+                } else throw '등록할수 없는 타입입니다.'
+            }
+        })()
     }
     Object.freeze(RedSceneInfo)
 })();
@@ -2626,12 +2789,15 @@ var RedRender;
     var tDatas;
     var SIN, COS;
     SIN = Math.sin, COS = Math.cos
+    var mat4Inverse = function (a, b) {
+        b || (b = a); var c = a[0], d = a[1], e = a[2], g = a[3], f = a[4], h = a[5], i = a[6], j = a[7], k = a[8], l = a[9], n = a[10], o = a[11], m = a[12], p = a[13], r = a[14], s = a[15], A = c * h - d * f, B = c * i - e * f, t = c * j - g * f, u = d * i - e * h, v = d * j - g * h, w = e * j - g * i, x = k * p - l * m, y = k * r - n * m, z = k * s - o * m, C = l * r - n * p, D = l * s - o * p, E = n * s - o * r, q = A * E - B * D + t * C + u * z - v * y + w * x; if (!q) return null; q = 1 / q; b[0] = (h * E - i * D + j * C) * q; b[1] = (-d * E + e * D - g * C) * q; b[2] = (p * w - r * v + s * u) * q; b[3] = (-l * w + n * v - o * u) * q; b[4] = (-f * E + i * z - j * y) * q; b[5] = (c * E - e * z + g * y) * q; b[6] = (-m * w + r * t - s * B) * q; b[7] = (k * w - n * t + o * B) * q; b[8] =
+            (f * D - h * z + j * x) * q; b[9] = (-c * D + d * z - g * x) * q; b[10] = (m * v - p * t + s * A) * q; b[11] = (-k * v + l * t - o * A) * q; b[12] = (-f * C + h * y - i * x) * q; b[13] = (c * C - d * y + e * x) * q; b[14] = (-m * u + p * B - r * A) * q; b[15] = (k * u - l * B + n * A) * q; return b
+    }
     RedRender = function (redGL, redScene, callback) {
         if (!(this instanceof RedRender)) return new RedRender(redGL, redScene, callback)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
         var self;
         self = this
-
         // 씬생성!!
         this['callback'] = callback
         this['targetScene'] = redScene
@@ -2642,6 +2808,7 @@ var RedRender;
         var tScene; // 대상 RedScene
         var tMesh; // 대상 메쉬
         var tMVMatrix; // 대상 메쉬의 매트릭스 
+        var tNMatrix; // 대상 메쉬의 노멀매트릭스
         ///////////////////////////////////////////////////////////////////
         var a, aSx, aSy, aSz, aCx, aCy, aCz, tRx, tRy, tRz;
         var a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, a30, a31, a32, a33;
@@ -2704,15 +2871,21 @@ var RedRender;
             // TODO: 이부분은 리사이저이벤트로 날릴수 있을듯        ... 흠 프로그램 변경때문에 안되남...   
             tScene['camera'].update()
             for (k in redGL['__datas']['RedProgramInfo']) {
-                tGL.useProgram(redGL['__datas']['RedProgramInfo'][k]['program'])
+                var tempProgramInfo;
+                tempProgramInfo = redGL['__datas']['RedProgramInfo'][k]
+                tGL.useProgram(tempProgramInfo['program'])
                 // 파스팩티브 갱신
-                tLocation = redGL['__datas']['RedProgramInfo'][k]['uniforms']['uPMatrix']['location']
+                tLocation = tempProgramInfo['uniforms']['uPMatrix']['location']
                 tGL.uniformMatrix4fv(tLocation, false, tScene['camera']['uPMatrix'])
                 // 카메라갱신
-                tLocation = redGL['__datas']['RedProgramInfo'][k]['uniforms']['uCameraMatrix']['location']
+                tLocation = tempProgramInfo['uniforms']['uCameraMatrix']['location']
                 tGL.uniformMatrix4fv(tLocation, false, tScene['camera']['uCameraMatrix'])
-                cacheProgram = null // 캐쉬된 프로그램을 삭제
+                // 라이트갱신
+                // console.log(tScene['lights'])
+                self.setDirectional(tempProgramInfo)
+               
             }
+            cacheProgram = null // 캐쉬된 프로그램을 삭제
             //////////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////
             tGL.clear(tGL.COLOR_BUFFER_BIT);
@@ -2723,6 +2896,30 @@ var RedRender;
             // Set the backbuffer's alpha to 1.0
             requestAnimationFrame(self.render)
         };
+        this.setDirectional = (function(){
+            var tDirectionList = [],tColorList = []
+            return function(programInfo){
+                if (programInfo['uniforms']['uDirectionnalLightDirection']) {
+                    tDirectionList.length = 0
+                    tColorList.length = 0
+                    tScene['lights']['directional'].forEach(function (v, i) {
+                        tDirectionList[i * 3 + 0] = v['direction'][0]
+                        tDirectionList[i * 3 + 1] = v['direction'][1]
+                        tDirectionList[i * 3 + 2] = v['direction'][2]
+                        tColorList[i * 4 + 0] = v['color'][0]/255
+                        tColorList[i * 4 + 1] = v['color'][1]/255
+                        tColorList[i * 4 + 2] = v['color'][2]/255
+                        tColorList[i * 4 + 3] = v['color'][3]/255
+                    })
+                    tLocation = programInfo['uniforms']['uDirectionnalLightDirection']['location']
+                    tGL.uniform3fv(tLocation, new Float32Array(tDirectionList))
+                    tLocation = programInfo['uniforms']['uDirectionnalLightColor']['location']
+                    tGL.uniform4fv(tLocation, new Float32Array(tColorList))
+                    tLocation = programInfo['uniforms']['uDirectionalNum']['location']
+                    tGL.uniform1i(tLocation, tScene['lights']['directional'].length)
+                }
+            }
+        })()
         this.drawGrid = (function () {
             var list = [];
             return function (grid) {
@@ -2752,6 +2949,7 @@ var RedRender;
                 self['numDrawCall']++
                 tMesh = renderList[i]
                 tMVMatrix = tMesh['uMVMatrix']
+                
                 // 매트릭스 초기화
                 tMVMatrix[0] = 1, tMVMatrix[1] = 0, tMVMatrix[2] = 0, tMVMatrix[3] = 0,
                     tMVMatrix[4] = 0, tMVMatrix[5] = 1, tMVMatrix[6] = 0, tMVMatrix[7] = 0,
@@ -2940,6 +3138,14 @@ var RedRender;
                     } else throw '안되는 나쁜 타입인거야!!'
                 }
 
+                
+                // TODO: 이건 상태봐서 업데이트 할지말지 결정하자
+                if(tUniformLocationGroup['uNMatrix']){
+                    tNMatrix =  mat4.clone(tMVMatrix)
+                    mat4Inverse(tNMatrix,tNMatrix)
+                    mat4.transpose(tNMatrix,tNMatrix)
+                    tGL.uniformMatrix4fv(tUniformLocationGroup['uNMatrix']['location'], false, tNMatrix )
+                }
                 // uMVMatrix 입력 //TODO: 이것도 자동으로 하고싶은데...
                 tGL.uniformMatrix4fv(tUniformLocationGroup['uMVMatrix']['location'], false, tMVMatrix)
                 ////////////////////////////////////////////////////////////////////////////////////////////////////

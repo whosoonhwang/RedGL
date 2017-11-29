@@ -35,20 +35,20 @@ RedMaterialDefine(testGL, testGL.getProgramInfo('bitmapLite'))
 // 재질생성
 var testTexture = RedTextureInfo(testGL, 'asset/crate.png')
 var testMatBitmap = RedMaterialInfo(testGL, 'bitmapLite', testTexture)
-var tMesh = testGL.createMeshInfo('testMeshAdd1', RedPrimitive.cube(testGL,2,2,2,6,6,6), testMatBitmap)
-var tMesh2 = testGL.createMeshInfo('testMeshAdd2', RedPrimitive.cube(testGL,2,2,2,6,6,6), testMatBitmap)
-tMesh2.rotation[0] = Math.random() * Math.PI * 2
-// tMesh2.rotation[1] = Math.random() * Math.PI * 2
-tMesh2.rotation[2] = Math.random() * Math.PI * 2
-var tMesh3 = testGL.createMeshInfo('testMeshAdd3', RedPrimitive.cube(testGL,2,2,2,6,6,6), testMatBitmap)
-tMesh2.position[0] = -3
-tMesh3.position[0] = 3
-tMesh3.rotation[0] = Math.random() * Math.PI * 2
-// tMesh3.rotation[1] = Math.random() * Math.PI * 2
-tMesh3.rotation[2] = Math.random() * Math.PI * 2
-testScene.children.push(tMesh)
-testScene.children.push(tMesh2)
-testScene.children.push(tMesh3)
+
+var i = 1000
+while(i-- ){
+	var tMesh = testGL.createMeshInfo('testMeshAdd1'+i, RedPrimitive.sphere(testGL,1,32,32,32), testMatBitmap)
+	// var tMesh = testGL.createMeshInfo('testMeshAdd1'+i, RedPrimitive.cube(testGL,1,1,1,32,32,32), testMatBitmap)
+	tMesh.position[0] = Math.sin(Math.PI*2 *Math.random())*20
+	tMesh.position[1] = Math.sin(Math.PI*2 *Math.random() )*20
+	tMesh.position[2] = Math.cos(Math.PI*2 *Math.random() )*20
+	testMatBitmap.uniforms.uShininess[0]=Math.random()*64
+	testScene.children.push(tMesh)
+}
+
+
+
 var checkCall = document.createElement('div')
 document.body.appendChild(checkCall)
 checkCall.style.position = 'absolute'
@@ -62,10 +62,10 @@ testScene.setGrid(grid)
 
 
 
-var i = 3
+var i = 5
 while (i--) {
 
-	var testLight = RedLightInfo(testGL, RedLightInfo.DIRECTIONAL)
+	var testLight = RedDirectionalLightInfo(testGL, RedDirectionalLightInfo.DIRECTIONAL)
 	testLight.direction[0] = Math.random() * 10 - 5
 	testLight.direction[1] = Math.random() * 10 - 5
 	testLight.direction[2] = Math.random() * 10 - 5
@@ -77,11 +77,13 @@ while (i--) {
 }
 
 var renderer = RedRender(testGL, testScene, function (time) {
-	testCamera.setPosition(Math.sin(time / 1000) * 20, 20, Math.cos(time / 1000) * 20)
-	testCamera.lookAt(tMesh.position)
+	testCamera.setPosition(Math.sin(time / 2000) * 40, 40, Math.cos(time / 2000) * 40)
+	testCamera.lookAt([0,0,0])
 	i = testScene['lights']['directional'].length
 	while(i--){
-		testScene['lights']['directional'][i].setPosition(Math.sin(time / 700) * 20, Math.cos(time / 700) * 20, Math.cos(time / 700) * 20)
+		testScene['lights']['directional'][i].direction[0] = Math.sin(time / 700+i) * 20
+		testScene['lights']['directional'][i].direction[1] = Math.cos(time / 400+i) * 20+Math.sin(time / 700+i) * 20
+		testScene['lights']['directional'][i].direction[2] = Math.sin(time / 200+i) * 20 + Math.cos(time / 700+i) * 20
 	}
 	checkCall.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
 })

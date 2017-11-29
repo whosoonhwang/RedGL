@@ -21,33 +21,34 @@
 
         varying vec3 vEyeVec;
         varying vec3 vNormal;
+
         //디렉셔널 리스트
-        const int MAX = 16;
-        uniform vec3 uDirectionnalLightDirection[MAX];
-        uniform vec4 uDirectionnalLightColor[MAX];
+        const int DIRETIONAL_MAX = 16;
+        uniform vec3 uDirectionnalLightDirection[DIRETIONAL_MAX];
+        uniform vec4 uDirectionnalLightColor[DIRETIONAL_MAX];
         uniform int uDirectionalNum;
         uniform float uShininess;
-        void main(void) {
+        
 
-            vec4 ambientLightColor = vec4(0.01, 0.01, 0.01, 1.0);
-            vec4 la = ambientLightColor;
+        void main(void) {
+            vec4 la = vec4(0.03, 0.03, 0.03, 1.0);
             vec4 ld = vec4(0.0, 0.0, 0.0, 1.0);
             vec4 ls = vec4(0.0, 0.0, 0.0, 1.0);
             vec4 texelColor = texture2D(uTexture, vTexcoord);
-            for(int i=0;i<MAX;i++){
+            vec3 N = normalize(vNormal);
+            vec3 L;
+            vec3 R;
+            float lambertTerm;
+            float specular;
+            vec4 specularLightColor = vec4(1.0, 1.0, 1.0, 1.0);
+            for(int i=0;i<DIRETIONAL_MAX;i++){
                 if(i== uDirectionalNum) break;
-                vec3 L = normalize(uDirectionnalLightDirection[i]);
-                vec3 N = normalize(vNormal);
-
-                float lambertTerm = dot(N,-L);
+                L = normalize(uDirectionnalLightDirection[i]);
+                lambertTerm = dot(N,-L);
                 if(lambertTerm > 0.0){
                     ld += uDirectionnalLightColor[i] * texelColor * lambertTerm;
-
-                    vec3 E = normalize(vEyeVec);
-                    vec3 R = reflect(L, N);
-                    float specular = pow( max(dot(R, E), 0.0), uShininess);
-
-                    vec4 specularLightColor = vec4(0.8, 0.8, 0.8, 1.0);
+                    R = reflect(L, N);
+                    specular = pow( max(dot(R, -L), 0.0), uShininess);
                     ls +=  specularLightColor * specular;
                 }
             }
@@ -109,8 +110,7 @@
             <script src="RedMeshInfo.js"></script>
             <script src="RedMeshBaseInfo.js"></script>    
             <script src="RedPrimitive.js"></script>    
-            <script src="RedLightInfo.js"></script>    
-            
+            <script src="RedDirectionalLightInfo.js"></script>                
             <script src="RedMaterialInfo.js"></script>
             <script src="RedMaterialDefine.js"></script>
             <script src="RedSceneInfo.js"></script>
