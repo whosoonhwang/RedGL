@@ -79,7 +79,7 @@ var RedShaderInfo;
         }
         parseData = source.match(/.attribute[\s\S]+?\;|.uniform[\s\S]+?\;/g)
         parseData.forEach(function (v, index) {
-            parseData[index] = v.trim().replace(';', '')
+            parseData[index] = v.trim().replace(';', '').split('[')[0]
         })
         /**DOC:
 		{

@@ -97,7 +97,7 @@ var RedProgramInfo;
         tGL.attachShader(tProgram, fShaderInfo['shader'])
         tGL.linkProgram(tProgram)
         // 프로그램 링크 확인
-        if (!tGL.getProgramParameter(tProgram, tGL.LINK_STATUS)) throw "프로그램을 초기화 할 수 없습니다."
+        if (!tGL.getProgramParameter(tProgram, tGL.LINK_STATUS)) throw "프로그램을 초기화 할 수 없습니다." +
         tGL.useProgram(tProgram);
         info = {}
         tList.length = 0

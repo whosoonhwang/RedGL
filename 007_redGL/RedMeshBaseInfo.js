@@ -30,6 +30,21 @@ var RedMeshBaseInfo;
             value : mat4.create(),
             enumerable : true
         })
+         /**DOC:
+		{
+            title :`uNMatrix`,
+            description : `
+                - modelView 노멀 Matrix를 반환
+                - <span style="color:red"><b>uNMatrix라는 키값은 쉐이더에서 사용되는 고정값이다.</b></span>
+            `,
+			example : `인스턴스.uNMatrix`,
+			return : 'mat4(Float32Array)'
+        }
+        :DOC*/
+        Object.defineProperty(this,'uNMatrix',{
+            value : mat4.create(),
+            enumerable : true
+        })
         /**DOC:
 		{
             title :`position`,
@@ -176,7 +191,7 @@ var RedMeshBaseInfo;
 			return : 'boolean'
         }
         :DOC*/
-        this['useDepthTest'] = false
+        this['useDepthTest'] = true
         /**DOC:
 		{
             title :`depthTestFunc`,
