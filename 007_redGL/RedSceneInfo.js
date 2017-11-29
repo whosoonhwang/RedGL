@@ -94,17 +94,24 @@ var RedSceneInfo;
         setGrid: function (v) {
             this['grid'] = v
         },
-        addLight: function (v) {
-            if(this['lights'].hasOwnProperty(v['type'])){
-                switch(v['type']){
-                    case RedLightInfo.DIRECTIONAL :
-                    if(this['lights'].length==16) throw '직사광 최대갯수는 16개입니다.'
-                    else this['lights'][v['type']].push(v)
-                    break
-                }
-                
-            }else throw '등록할수 없는 타입입니다.'
+          /**DOC:
+		{
+            title :`addLight`,
+            description : `라이트 설정`,
+            code:'FUNCTION',
+			example : `인스턴스.addLight`
         }
+        :DOC*/
+        addLight: (function () {
+            var tDatas;
+            return function (v) {
+                if (v instanceof RedDirectionalLightInfo) {
+                    tDatas = this['lights'][RedDirectionalLightInfo.TYPE]
+                    if (tDatas.length == 16) throw '직사광 최대갯수는 16개입니다.'
+                    else tDatas.push(v)
+                } else throw '등록할수 없는 타입입니다.'
+            }
+        })()
     }
     Object.freeze(RedSceneInfo)
 })();

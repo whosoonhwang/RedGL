@@ -78,6 +78,12 @@
     "return": "mat4(Float32Array)"
   },
   {
+    "title": "uNMatrix",
+    "description": "\n    - modelView 노멀 Matrix를 반환\n    - <span style=\"color:red\"><b>uNMatrix라는 키값은 쉐이더에서 사용되는 고정값이다.</b></span>\n",
+    "example": "인스턴스.uNMatrix",
+    "return": "mat4(Float32Array)"
+  },
+  {
     "title": "useBlendMode",
     "description": "\n    - draw시 블렌드모드 사용여부\n    - 기본값 : true\n",
     "example": "인스턴스.useBlendMode",

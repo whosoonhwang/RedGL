@@ -1,5 +1,11 @@
 [
   {
+    "title": "addLight",
+    "description": "라이트 설정",
+    "code": "FUNCTION",
+    "example": "인스턴스.addLight"
+  },
+  {
     "title": "camera",
     "description": "씬이 가지고있는 카메라",
     "example": "인스턴스.camera",

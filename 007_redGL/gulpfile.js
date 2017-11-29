@@ -100,6 +100,7 @@ gulp.task('combine-js', function () {
 		"RedBaseCamera.js",
 		"RedCubeTextureInfo.js",    
 		"RedBufferInfo.js",
+		"RedDirectionalLightInfo.js",
 		"RedFixedAttributeKey.js",
 		"RedGeometryInfo.js",
 		"RedMeshInfo.js",
