@@ -18,131 +18,69 @@
         precision lowp float;
         varying vec2 vTexcoord;
         uniform sampler2D uTexture;
-        varying vec3 vLightWeighting;
+
+        varying vec3 vEyeVec;
+        varying vec3 vNormal;
+        //디렉셔널 리스트
+        const int MAX = 16;
+        uniform vec3 uDirectionnalLightDirection[MAX];
+        uniform vec4 uDirectionnalLightColor[MAX];
+        uniform int uDirectionalNum;
+        uniform float uShininess;
         void main(void) {
-           vec4 texelColor = texture2D(uTexture, vTexcoord);
-           gl_FragColor = vec4(texelColor.rgb * vLightWeighting , texelColor.a);   
+
+            vec4 ambientLightColor = vec4(0.01, 0.01, 0.01, 1.0);
+            vec4 la = ambientLightColor;
+            vec4 ld = vec4(0.0, 0.0, 0.0, 1.0);
+            vec4 ls = vec4(0.0, 0.0, 0.0, 1.0);
+            vec4 texelColor = texture2D(uTexture, vTexcoord);
+            for(int i=0;i<MAX;i++){
+                if(i== uDirectionalNum) break;
+                vec3 L = normalize(uDirectionnalLightDirection[i]);
+                vec3 N = normalize(vNormal);
+
+                float lambertTerm = dot(N,-L);
+                if(lambertTerm > 0.0){
+                    ld += uDirectionnalLightColor[i] * texelColor * lambertTerm;
+
+                    vec3 E = normalize(vEyeVec);
+                    vec3 R = reflect(L, N);
+                    float specular = pow( max(dot(R, E), 0.0), uShininess);
+
+                    vec4 specularLightColor = vec4(0.8, 0.8, 0.8, 1.0);
+                    ls +=  specularLightColor * specular;
+                }
+            }
+            
+            vec4 finalColor = la + ld + ls;
+            finalColor.a = 1.0;            
+            gl_FragColor = finalColor;   
         }
     </script>
     <script id="shader-vs-bitmap-light" type="x-shader/x-vertex">
-            mat3 normalFromMat4(mat4 a) {
-                float 
-                a00 = a[0][0], a01 = a[0][1], a02 = a[0][2], a03 = a[0][3],
-                a10 = a[1][0], a11 = a[1][1], a12 = a[1][2], a13 = a[1][3],
-                a20 = a[2][0], a21 = a[2][1], a22 = a[2][2], a23 = a[2][3],
-                a30 = a[3][0], a31 = a[3][1], a32 = a[3][2], a33 = a[3][3],
-                b00 = a00 * a11 - a01 * a10,
-                b01 = a00 * a12 - a02 * a10,
-                b02 = a00 * a13 - a03 * a10,
-                b03 = a01 * a12 - a02 * a11,
-                b04 = a01 * a13 - a03 * a11,
-                b05 = a02 * a13 - a03 * a12,
-                b06 = a20 * a31 - a21 * a30,
-                b07 = a20 * a32 - a22 * a30,
-                b08 = a20 * a33 - a23 * a30,
-                b09 = a21 * a32 - a22 * a31,
-                b10 = a21 * a33 - a23 * a31,
-                b11 = a22 * a33 - a23 * a32,    
-                // Calculate the determinant
-                det = b00 * b11 - b01 * b10 + b02 * b09 + b03 * b08 - b04 * b07 + b05 * b06;
-                det = 1.0 / det;
-                return mat3(
-                    a11 * b11 - a12 * b10 + a13 * b09,
-                    a12 * b08 - a10 * b11 - a13 * b07,
-                    a10 * b10 - a11 * b08 + a13 * b06,
-                    a02 * b10 - a01 * b11 - a03 * b09,
-                    a00 * b11 - a02 * b08 + a03 * b07,
-                    a01 * b08 - a00 * b10 - a03 * b06,
-                    a31 * b05 - a32 * b04 + a33 * b03,
-                    a32 * b02 - a30 * b05 - a33 * b01,
-                    a30 * b04 - a31 * b02 + a33 * b00
-                )*det;
-            }
             attribute vec3 aVertexPosition;
             attribute vec3 aVertexNormal;
             attribute vec2 aTexcoord;
+            // 기본유니폼
             uniform mat4 uMVMatrix;
+            uniform mat4 uNMatrix;
             uniform mat4 uCameraMatrix;            
             uniform mat4 uPMatrix;
             uniform vec4 uAtlascoord;
+            // 베어링들
             varying vec2 vTexcoord;  
-            varying vec3 vLightWeighting;
-            const float shininess = 16.0;
+            // 라이팅관련
+            varying vec3 vEyeVec;
+            varying vec3 vNormal;
+
             void main(void) {
                 vec4 vectexPositionEye4 = uMVMatrix * vec4(aVertexPosition, 1.0);
-                vec3 vectexPositionEye3 = vectexPositionEye4.xyz/vectexPositionEye4.w;
                 vTexcoord = uAtlascoord.xy + aTexcoord*uAtlascoord.zw;
-                // 라이팅 간소화
-                vec3 ambientLight = vec3(0.2, 0.2, 0.2);
-                vec3 directionalLightColor = vec3(0.1, 0.9, 0.9);
-                vec3 directionalLightColor2 = vec3(0.9, 0.1, 0.5);
-                vec3 specularLightColor = vec3(0.8, 0.8, 0.8);
-                
-                // 광원포지션
-                vec3 directionnalLightPosition = normalize(vec3(1.6,0.5,2.0));
-                vec3 directionnalLightPosition2 = normalize(vec3(1.3,0.5,-2.0));
-
-                // 노말을 좌표변환하고
-                vec3 normalEye = normalize(normalFromMat4(uMVMatrix) * aVertexNormal);
-                
-                // 직사광의 가중치를 결정!
-                float directionalLightWeight = max(dot(normalEye, directionnalLightPosition), 0.0);
-                float directionalLightWeight2 = max(dot(normalEye, directionnalLightPosition2), 0.0);
-
-                vec3 reflectionVector = normalize(reflect(-directionnalLightPosition,normalEye));
-                vec3 viewVectorEye = -normalize(vectexPositionEye3);
-                float rdotv = max(dot(reflectionVector, viewVectorEye), 0.0);
-                float specularLightWeightning = pow(rdotv, shininess);
-
-                vLightWeighting = ambientLight + 
-                    (directionalLightColor * directionalLightWeight) + 
-                    (directionalLightColor2 * directionalLightWeight2) + 
-                (specularLightColor * specularLightWeightning);
+                vNormal = vec3(uNMatrix * vec4(aVertexNormal,1.0)); 
+                vEyeVec = -vectexPositionEye4.xyz;
                 // 포지션 결정
                 gl_Position = uPMatrix * uCameraMatrix *  vectexPositionEye4;
             }
-    </script>
-    <script id="shader-fs-skybox" type="x-shader/x-fragment">
-        precision lowp float;
-        varying vec3 vCubeCoord;
-        uniform samplerCube uSkybox;
-        void main() {
-            gl_FragColor = textureCube(uSkybox, vCubeCoord);
-        }
-</script>
-<script id="shader-vs-skybox" type="x-shader/x-vertex">
-        attribute vec3 aVertexPosition;
-        uniform mat4 uMVMatrix;
-        uniform mat4 uCameraMatrix;   
-        uniform mat4 uPMatrix;
-        varying vec3 vCubeCoord;  
-        void main(void) {
-            gl_Position = uPMatrix * uCameraMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-            vec4 cubeNormal =  uMVMatrix *vec4(-aVertexPosition, 0.0);
-            vCubeCoord = cubeNormal.xyz;
-        }
-</script>
-    <script id="shader-fs-bitmap" type="x-shader/x-fragment">
-                precision lowp float;
-                varying vec2 vTexcoord;
-                uniform sampler2D uTexture;
-                void main(void) {
-                    gl_FragColor = texture2D(uTexture, vTexcoord);
-                    
-                }
-            </script>
-    <script id="shader-vs-bitmap" type="x-shader/x-vertex">
-                attribute vec3 aVertexPosition;
-                attribute vec2 aTexcoord;
-                uniform mat4 uMVMatrix;
-                uniform mat4 uCameraMatrix;   
-                uniform mat4 uPMatrix;
-                uniform vec4 uAtlascoord;
-                varying vec2 vTexcoord;  
-                void main(void) {
-                    gl_Position = uPMatrix * uCameraMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
-                    vTexcoord = uAtlascoord.xy + aTexcoord*uAtlascoord.zw;
-                }
     </script>
     <script id="shader-fs" type="x-shader/x-fragment">
                     precision lowp float;
@@ -171,6 +109,8 @@
             <script src="RedMeshInfo.js"></script>
             <script src="RedMeshBaseInfo.js"></script>    
             <script src="RedPrimitive.js"></script>    
+            <script src="RedLightInfo.js"></script>    
+            
             <script src="RedMaterialInfo.js"></script>
             <script src="RedMaterialDefine.js"></script>
             <script src="RedSceneInfo.js"></script>

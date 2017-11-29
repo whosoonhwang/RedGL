@@ -39,12 +39,15 @@ var RedRender;
     var tDatas;
     var SIN, COS;
     SIN = Math.sin, COS = Math.cos
+    var mat4Inverse = function (a, b) {
+        b || (b = a); var c = a[0], d = a[1], e = a[2], g = a[3], f = a[4], h = a[5], i = a[6], j = a[7], k = a[8], l = a[9], n = a[10], o = a[11], m = a[12], p = a[13], r = a[14], s = a[15], A = c * h - d * f, B = c * i - e * f, t = c * j - g * f, u = d * i - e * h, v = d * j - g * h, w = e * j - g * i, x = k * p - l * m, y = k * r - n * m, z = k * s - o * m, C = l * r - n * p, D = l * s - o * p, E = n * s - o * r, q = A * E - B * D + t * C + u * z - v * y + w * x; if (!q) return null; q = 1 / q; b[0] = (h * E - i * D + j * C) * q; b[1] = (-d * E + e * D - g * C) * q; b[2] = (p * w - r * v + s * u) * q; b[3] = (-l * w + n * v - o * u) * q; b[4] = (-f * E + i * z - j * y) * q; b[5] = (c * E - e * z + g * y) * q; b[6] = (-m * w + r * t - s * B) * q; b[7] = (k * w - n * t + o * B) * q; b[8] =
+            (f * D - h * z + j * x) * q; b[9] = (-c * D + d * z - g * x) * q; b[10] = (m * v - p * t + s * A) * q; b[11] = (-k * v + l * t - o * A) * q; b[12] = (-f * C + h * y - i * x) * q; b[13] = (c * C - d * y + e * x) * q; b[14] = (-m * u + p * B - r * A) * q; b[15] = (k * u - l * B + n * A) * q; return b
+    }
     RedRender = function (redGL, redScene, callback) {
         if (!(this instanceof RedRender)) return new RedRender(redGL, redScene, callback)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
         var self;
         self = this
-
         // 씬생성!!
         this['callback'] = callback
         this['targetScene'] = redScene
@@ -55,6 +58,7 @@ var RedRender;
         var tScene; // 대상 RedScene
         var tMesh; // 대상 메쉬
         var tMVMatrix; // 대상 메쉬의 매트릭스 
+        var tNMatrix; // 대상 메쉬의 노멀매트릭스
         ///////////////////////////////////////////////////////////////////
         var a, aSx, aSy, aSz, aCx, aCy, aCz, tRx, tRy, tRz;
         var a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, a30, a31, a32, a33;
@@ -117,15 +121,21 @@ var RedRender;
             // TODO: 이부분은 리사이저이벤트로 날릴수 있을듯        ... 흠 프로그램 변경때문에 안되남...   
             tScene['camera'].update()
             for (k in redGL['__datas']['RedProgramInfo']) {
-                tGL.useProgram(redGL['__datas']['RedProgramInfo'][k]['program'])
+                var tempProgramInfo;
+                tempProgramInfo = redGL['__datas']['RedProgramInfo'][k]
+                tGL.useProgram(tempProgramInfo['program'])
                 // 파스팩티브 갱신
-                tLocation = redGL['__datas']['RedProgramInfo'][k]['uniforms']['uPMatrix']['location']
+                tLocation = tempProgramInfo['uniforms']['uPMatrix']['location']
                 tGL.uniformMatrix4fv(tLocation, false, tScene['camera']['uPMatrix'])
                 // 카메라갱신
-                tLocation = redGL['__datas']['RedProgramInfo'][k]['uniforms']['uCameraMatrix']['location']
+                tLocation = tempProgramInfo['uniforms']['uCameraMatrix']['location']
                 tGL.uniformMatrix4fv(tLocation, false, tScene['camera']['uCameraMatrix'])
-                cacheProgram = null // 캐쉬된 프로그램을 삭제
+                // 라이트갱신
+                // console.log(tScene['lights'])
+                self.setDirectional(tempProgramInfo)
+               
             }
+            cacheProgram = null // 캐쉬된 프로그램을 삭제
             //////////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////
             tGL.clear(tGL.COLOR_BUFFER_BIT);
@@ -136,6 +146,30 @@ var RedRender;
             // Set the backbuffer's alpha to 1.0
             requestAnimationFrame(self.render)
         };
+        this.setDirectional = (function(){
+            var tDirectionList = [],tColorList = []
+            return function(programInfo){
+                if (programInfo['uniforms']['uDirectionnalLightDirection']) {
+                    tDirectionList.length = 0
+                    tColorList.length = 0
+                    tScene['lights']['directional'].forEach(function (v, i) {
+                        tDirectionList[i * 3 + 0] = v['direction'][0]
+                        tDirectionList[i * 3 + 1] = v['direction'][1]
+                        tDirectionList[i * 3 + 2] = v['direction'][2]
+                        tColorList[i * 4 + 0] = v['color'][0]/255
+                        tColorList[i * 4 + 1] = v['color'][1]/255
+                        tColorList[i * 4 + 2] = v['color'][2]/255
+                        tColorList[i * 4 + 3] = v['color'][3]/255
+                    })
+                    tLocation = programInfo['uniforms']['uDirectionnalLightDirection']['location']
+                    tGL.uniform3fv(tLocation, new Float32Array(tDirectionList))
+                    tLocation = programInfo['uniforms']['uDirectionnalLightColor']['location']
+                    tGL.uniform4fv(tLocation, new Float32Array(tColorList))
+                    tLocation = programInfo['uniforms']['uDirectionalNum']['location']
+                    tGL.uniform1i(tLocation, tScene['lights']['directional'].length)
+                }
+            }
+        })()
         this.drawGrid = (function () {
             var list = [];
             return function (grid) {
@@ -165,6 +199,7 @@ var RedRender;
                 self['numDrawCall']++
                 tMesh = renderList[i]
                 tMVMatrix = tMesh['uMVMatrix']
+                
                 // 매트릭스 초기화
                 tMVMatrix[0] = 1, tMVMatrix[1] = 0, tMVMatrix[2] = 0, tMVMatrix[3] = 0,
                     tMVMatrix[4] = 0, tMVMatrix[5] = 1, tMVMatrix[6] = 0, tMVMatrix[7] = 0,
@@ -353,6 +388,14 @@ var RedRender;
                     } else throw '안되는 나쁜 타입인거야!!'
                 }
 
+                
+                // TODO: 이건 상태봐서 업데이트 할지말지 결정하자
+                if(tUniformLocationGroup['uNMatrix']){
+                    tNMatrix =  mat4.clone(tMVMatrix)
+                    mat4Inverse(tNMatrix,tNMatrix)
+                    mat4.transpose(tNMatrix,tNMatrix)
+                    tGL.uniformMatrix4fv(tUniformLocationGroup['uNMatrix']['location'], false, tNMatrix )
+                }
                 // uMVMatrix 입력 //TODO: 이것도 자동으로 하고싶은데...
                 tGL.uniformMatrix4fv(tUniformLocationGroup['uMVMatrix']['location'], false, tMVMatrix)
                 ////////////////////////////////////////////////////////////////////////////////////////////////////
