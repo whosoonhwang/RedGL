@@ -2,7 +2,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>구조화를해보자</title>
+    <title>방향광테스트</title>
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, target-densitydpi=device-dpi"
@@ -29,7 +29,6 @@
         uniform int uDirectionalNum;
         uniform float uShininess;
         
-
         void main(void) {
             vec4 la = vec4(0.03, 0.03, 0.03, 1.0);
             vec4 ld = vec4(0.0, 0.0, 0.0, 1.0);
@@ -83,6 +82,26 @@
                 gl_Position = uPMatrix * uCameraMatrix *  vectexPositionEye4;
             }
     </script>
+    <script id="shader-fs-skybox" type="x-shader/x-fragment">
+        precision lowp float;
+        varying vec3 vCubeCoord;
+        uniform samplerCube uSkybox;
+        void main() {
+            gl_FragColor = textureCube(uSkybox, vCubeCoord);
+        }
+</script>
+<script id="shader-vs-skybox" type="x-shader/x-vertex">
+        attribute vec3 aVertexPosition;
+        uniform mat4 uMVMatrix;
+        uniform mat4 uCameraMatrix;   
+        uniform mat4 uPMatrix;
+        varying vec3 vCubeCoord;  
+        void main(void) {
+            gl_Position = uPMatrix * uCameraMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+            vec4 cubeNormal =  uMVMatrix *vec4(-aVertexPosition, 0.0);
+            vCubeCoord = cubeNormal.xyz;
+        }
+</script>
     <script id="shader-fs" type="x-shader/x-fragment">
                     precision lowp float;
                     uniform vec3 uColor;

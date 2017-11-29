@@ -132,7 +132,8 @@ var RedRender;
                 tGL.uniformMatrix4fv(tLocation, false, tScene['camera']['uCameraMatrix'])
                 // 라이트갱신
                 // console.log(tScene['lights'])
-                self.setDirectional(tempProgramInfo)
+                self.setDirectionalLight(tempProgramInfo)
+                self.setPointLight(tempProgramInfo)
                
             }
             cacheProgram = null // 캐쉬된 프로그램을 삭제
@@ -146,13 +147,41 @@ var RedRender;
             // Set the backbuffer's alpha to 1.0
             requestAnimationFrame(self.render)
         };
-        this.setDirectional = (function(){
+        this.setPointLight = (function(){
+            var tPointList = [],tColorList = []
+            return function(programInfo){
+                if (
+                    tScene['lights']['point'].length
+                    && programInfo['uniforms']['uPointLightPosition']                    
+                ) {
+                    tPointList.length = 0
+                    tColorList.length = 0
+                    tScene['lights'][RedPointLightInfo.TYPE].forEach(function (v, i) {
+                        tPointList[i * 3 + 0] = v['position'][0]
+                        tPointList[i * 3 + 1] = v['position'][1]
+                        tPointList[i * 3 + 2] = v['position'][2]
+                        tColorList[i * 4 + 0] = v['color'][0]/255
+                        tColorList[i * 4 + 1] = v['color'][1]/255
+                        tColorList[i * 4 + 2] = v['color'][2]/255
+                        tColorList[i * 4 + 3] = v['color'][3]/255
+                    })
+                    tLocation = programInfo['uniforms']['uPointLightPosition']['location']
+                    tGL.uniform3fv(tLocation, new Float32Array(tPointList))
+                    tLocation = programInfo['uniforms']['uPointLightColor']['location']
+                    tGL.uniform4fv(tLocation, new Float32Array(tColorList))
+                }
+            }
+        })()
+        this.setDirectionalLight = (function(){
             var tDirectionList = [],tColorList = []
             return function(programInfo){
-                if (programInfo['uniforms']['uDirectionnalLightDirection']) {
+                if (
+                    tScene['lights']['directional'].length
+                    && programInfo['uniforms']['uDirectionnalLightDirection']                    
+                ) {
                     tDirectionList.length = 0
                     tColorList.length = 0
-                    tScene['lights']['directional'].forEach(function (v, i) {
+                    tScene['lights'][RedDirectionalLightInfo.TYPE].forEach(function (v, i) {
                         tDirectionList[i * 3 + 0] = v['direction'][0]
                         tDirectionList[i * 3 + 1] = v['direction'][1]
                         tDirectionList[i * 3 + 2] = v['direction'][2]

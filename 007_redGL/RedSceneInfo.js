@@ -109,6 +109,10 @@ var RedSceneInfo;
                     tDatas = this['lights'][RedDirectionalLightInfo.TYPE]
                     if (tDatas.length == 16) throw '직사광 최대갯수는 16개입니다.'
                     else tDatas.push(v)
+                }else if (v instanceof RedPointLightInfo) {
+                    tDatas = this['lights'][RedPointLightInfo.TYPE]
+                    if (tDatas.length == 16) throw '포인트라이트 최대갯수는 16개입니다.'
+                    else tDatas.push(v)
                 } else throw '등록할수 없는 타입입니다.'
             }
         })()

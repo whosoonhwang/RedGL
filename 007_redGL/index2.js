@@ -6,6 +6,10 @@ console.log(testGL.createShaderInfo('color', RedShaderInfo.FRAGMENT_SHADER, test
 
 console.log(testGL.createShaderInfo('bitmapLite', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('shader-vs-bitmap-light')))
 console.log(testGL.createShaderInfo('bitmapLite', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('shader-fs-bitmap-light')))
+
+console.log(testGL.createShaderInfo('skybox', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('shader-vs-skybox')))
+console.log(testGL.createShaderInfo('skybox', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('shader-fs-skybox')))
+
 testGL.createProgramInfo(
 	'color',
 	testGL.getShaderInfo('color', RedShaderInfo.VERTEX_SHADER),
@@ -24,6 +28,17 @@ testGL.createProgramInfo(
 		target.uniforms.uShininess = new Float32Array([32])
 	}
 )
+testGL.createProgramInfo(
+	'skybox',
+	testGL.getShaderInfo('skybox', RedShaderInfo.VERTEX_SHADER),
+	testGL.getShaderInfo('skybox', RedShaderInfo.FRAGMENT_SHADER),
+	function (target) {
+		target.uniforms.uSkybox = target['diffuseInfo']
+		
+	}
+)
+
+testGL.createMaterialDefine(testGL.getProgramInfo('skybox'))
 // 카메라생성
 var testCamera = RedBaseCamera(testGL, 'testCamera')
 // Scene 생성
@@ -36,7 +51,7 @@ RedMaterialDefine(testGL, testGL.getProgramInfo('bitmapLite'))
 var testTexture = RedTextureInfo(testGL, 'asset/crate.png')
 var testMatBitmap = RedMaterialInfo(testGL, 'bitmapLite', testTexture)
 
-var i = 1000
+var i = 50
 while(i-- ){
 	var tMesh = testGL.createMeshInfo('testMeshAdd1'+i, RedPrimitive.sphere(testGL,1,32,32,32), testMatBitmap)
 	// var tMesh = testGL.createMeshInfo('testMeshAdd1'+i, RedPrimitive.cube(testGL,1,1,1,32,32,32), testMatBitmap)
@@ -61,11 +76,20 @@ console.log(grid)
 testScene.setGrid(grid)
 
 
-
+var testSkyBox
+testSkyBox = RedSkyBoxInfo(testGL,[
+	'asset/cubemap/posx.jpg',
+	'asset/cubemap/negx.jpg',
+	'asset/cubemap/posy.jpg',
+	'asset/cubemap/negy.jpg',
+	'asset/cubemap/posz.jpg',
+	'asset/cubemap/negz.jpg'
+])
+testScene.setSkyBox(testSkyBox)
 var i = 5
 while (i--) {
 
-	var testLight = RedDirectionalLightInfo(testGL, RedDirectionalLightInfo.DIRECTIONAL)
+	var testLight = RedDirectionalLightInfo(testGL)
 	testLight.direction[0] = Math.random() * 10 - 5
 	testLight.direction[1] = Math.random() * 10 - 5
 	testLight.direction[2] = Math.random() * 10 - 5
