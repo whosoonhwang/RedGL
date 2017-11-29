@@ -1,11 +1,11 @@
 "use strict";
-var RedDirectionalLightInfo;
+var RedPointLightInfo;
 /**DOC:
     {
         constructorYn : true,
-        title :`RedDirectionalLightInfo`,
+        title :`RedPointLightInfo`,
         description : `
-            - RedDirectionalLightInfo 생성
+            - RedPointLightInfo 생성
         `,
         params : {
             redGL : [
@@ -17,20 +17,19 @@ var RedDirectionalLightInfo;
             var test;
             test = RedGL(Canvas Element)
             // firstScene 키로 Scene생성
-            RedDirectionalLightInfo(test)
+            RedPointLightInfo(test)
         `,
-        return : 'RedDirectionalLightInfo Instance'
+        return : 'RedPointLightInfo Instance'
     }
 :DOC*/
 (function () {
     var tDatas;
-    RedDirectionalLightInfo = function (redGL) {
-        if (!(this instanceof RedDirectionalLightInfo)) return new RedDirectionalLightInfo(redGL)
+    RedPointLightInfo = function (redGL) {
+        if (!(this instanceof RedPointLightInfo)) return new RedPointLightInfo(redGL)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
         // 저장할 공간확보하고
-        if (!redGL['__datas']['RedDirectionalLightInfo']) redGL['__datas']['RedDirectionalLightInfo'] = {}
-        tDatas = redGL['__datas']['RedDirectionalLightInfo']
-       
+        if (!redGL['__datas']['RedPointLightInfo']) redGL['__datas']['RedPointLightInfo'] = {}
+        tDatas = redGL['__datas']['RedPointLightInfo']
         /**DOC:
 		{
             title :`color`,
@@ -43,16 +42,16 @@ var RedDirectionalLightInfo;
         this['color'] = new Float32Array([255, 255, 255, 255])
          /**DOC:
 		{
-            title :`direction`,
-            description : `라이트 디렉션`,
+            title :`position`,
+            description : `라이트 포지션`,
             code:'PROPERTY',
             example : `인스턴스.color`,
             return : 'Float32'
         }
         :DOC*/
-        this['direction'] = new Float32Array([0, 0, 0])
+        this['position'] = new Float32Array([0, 0, 0])
        
     }
-    RedDirectionalLightInfo['TYPE'] = 'directional'
-    Object.freeze(RedDirectionalLightInfo)
+    RedPointLightInfo['TYPE'] = 'point'
+    Object.freeze(RedPointLightInfo)
 })();

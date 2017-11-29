@@ -1,55 +1,23 @@
 "use strict";
 var testGL
 testGL = RedGL(document.getElementById('test'), true)
-var vertexData, indexData, normalData, uvData
-vertexData = new Float32Array([
-	-1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0, 1.0,
-	-1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0, -1.0,
-	-1.0, 1.0, -1.0, -1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, -1.0,
-	-1.0, -1.0, -1.0, 1.0, -1.0, -1.0, 1.0, -1.0, 1.0, -1.0, -1.0, 1.0,
-	1.0, -1.0, -1.0, 1.0, 1.0, -1.0, 1.0, 1.0, 1.0, 1.0, -1.0, 1.0,
-	-1.0, -1.0, -1.0, -1.0, -1.0, 1.0, -1.0, 1.0, 1.0, -1.0, 1.0, -1.0
-])
-indexData = new Uint16Array([
-	0, 1, 2, 0, 2, 3,
-	4, 5, 6, 4, 6, 7,
-	8, 9, 10, 8, 10, 11,
-	12, 13, 14, 12, 14, 15,
-	16, 17, 18, 16, 18, 19,
-	20, 21, 22, 20, 22, 23
-])
-normalData = new Float32Array([
-	0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0,
-	1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0,
-	0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0, 1.0,
-	1.0, 1.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
-	1.0, 0.0, 1.0, 1.0, 0.0, 1.0, 0.0, 0.0,
-	0.0, 0.0, 1.0, 0.0, 1.0, 1.0, 0.0, 1.0
-])
-uvData = new Float32Array([
-	// Front face
-	0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0,
-	// Back face
-	0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0,
-	// Top face
-	0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0,
-	// Bottom face
-	0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0,
-	// Right face
-	1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0,
-	// Left face
-	-1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0, -1.0, 0.0, 0.0
-])
-console.log(testGL.createArrayBufferInfo('testBuffer', RedFixedAttributeKey['aVertexPosition'], vertexData, 3, vertexData.length / 3, testGL.gl.FLOAT))
-console.log(testGL.createArrayBufferInfo('testNormalBuffer', RedFixedAttributeKey['aVertexNormal'], uvData, 3, uvData.length / 3, testGL.gl.FLOAT))
-console.log(testGL.createArrayBufferInfo('testUv', RedFixedAttributeKey['aTexcoord'], normalData, 2, normalData.length / 2, testGL.gl.FLOAT))
-console.log(testGL.createIndexBufferInfo('testIndexBuffer', indexData, 1, indexData.length, testGL.gl.UNSIGNED_SHORT))
-// 쉐이더생성
+console.log(testGL.createShaderInfo('color', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('shader-vs')))
+console.log(testGL.createShaderInfo('color', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('shader-fs')))
+
 console.log(testGL.createShaderInfo('bitmapLite', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('shader-vs-bitmap-light')))
 console.log(testGL.createShaderInfo('bitmapLite', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('shader-fs-bitmap-light')))
+
 console.log(testGL.createShaderInfo('skybox', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('shader-vs-skybox')))
 console.log(testGL.createShaderInfo('skybox', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('shader-fs-skybox')))
-// 프로그램생성
+
+testGL.createProgramInfo(
+	'color',
+	testGL.getShaderInfo('color', RedShaderInfo.VERTEX_SHADER),
+	testGL.getShaderInfo('color', RedShaderInfo.FRAGMENT_SHADER),
+	function (target) {
+		target.uniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random()])
+	}
+)
 testGL.createProgramInfo(
 	'bitmapLite',
 	testGL.getShaderInfo('bitmapLite', RedShaderInfo.VERTEX_SHADER),
@@ -57,6 +25,7 @@ testGL.createProgramInfo(
 	function (target) {
 		target.uniforms.uTexture = target['diffuseInfo']
 		target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
+		target.uniforms.uShininess = new Float32Array([32])
 	}
 )
 testGL.createProgramInfo(
@@ -68,63 +37,32 @@ testGL.createProgramInfo(
 		
 	}
 )
-// 지오메트리 생성
-testGL.createGeometryInfo(
-	'testGeo',
-	testGL.getArrayBufferInfo('testBuffer'),
-	testGL.getIndexBufferInfo('testIndexBuffer'),
-	testGL.getArrayBufferInfo('testUv'),
-	testGL.getArrayBufferInfo('testNormalBuffer')
-)
-// 재질 정의
-testGL.createMaterialDefine(testGL.getProgramInfo('bitmapLite'))
+
 testGL.createMaterialDefine(testGL.getProgramInfo('skybox'))
-// 텍스쳐생성
-var testTexture = testGL.createTextureInfo('asset/grid.png')
-// 재질 생성
-var testMatBitmap = testGL.createMaterialInfo('bitmapLite', testTexture)
 // 카메라생성
 var testCamera = RedBaseCamera(testGL, 'testCamera')
 // Scene 생성
 var testScene = testGL.createSceneInfo('testScene', testCamera)
-console.log(testScene)
-// 아틀라스테스트
+// 재질정의
+testGL.createMaterialDefine(testGL.getProgramInfo('color'))
+RedMaterialDefine(testGL, testGL.getProgramInfo('bitmapLite'))
 
-///////////////////////////////////////////////////////////////////////////////////////////
-// 데모
-var tMesh
-var i = 10
-var testSkyBox
-testSkyBox = RedSkyBoxInfo(testGL,[
-	'asset/cubemap/posx.jpg',
-	'asset/cubemap/negx.jpg',
-	'asset/cubemap/posy.jpg',
-	'asset/cubemap/negy.jpg',
-	'asset/cubemap/posz.jpg',
-	'asset/cubemap/negz.jpg'
-])
-testScene.setSkyBox(testSkyBox)
-console.log(testSkyBox)
-while (i--) {
-	// tMesh= testGL.createMeshInfo('testMesh'+i, testGL.getGeometryInfo('testGeo'), testGL.createMaterialInfo('bitmapLite', testTexture))
-	tMesh = testGL.createMeshInfo(
-		'testMesh' + i,
-		i % 3 ? RedPrimitive.plane(testGL, 5, 5, 3, 3) : i % 2 ? RedPrimitive.cube(testGL, 3, 3, 3) : RedPrimitive.sphere(testGL, 3, 16, 16),
-		testGL.createMaterialInfo('bitmapLite', testTexture)
-	)
-	tMesh.position[0] = Math.random() * 60 - 30
-	tMesh.position[1] = Math.random() * 60 - 30
-	tMesh.position[2] = Math.random() * 60 - 30
-	tMesh.rotation[0] = Math.PI * 2 * Math.random()
-	tMesh.rotation[1] = Math.PI * 2 * Math.random()
-	tMesh.rotation[2] = Math.PI * 2 * Math.random()
-	tMesh.drawMode = Math.random() > 0.5 ? testGL.gl.LINE_STRIP : testGL.gl.TRIANGLES
+// 재질생성
+var testTexture = RedTextureInfo(testGL, 'asset/crate.png')
+var testMatBitmap = RedMaterialInfo(testGL, 'bitmapLite', testTexture)
+
+var i = 50,max = 50
+while(i-- ){
+	var tMesh = testGL.createMeshInfo('testMeshAdd1'+i, RedPrimitive.sphere(testGL,0.5,32,32,32), testMatBitmap)
+	// var tMesh = testGL.createMeshInfo('testMeshAdd1'+i, RedPrimitive.cube(testGL,1,1,1,32,32,32), testMatBitmap)
+	tMesh.position[0] =  Math.sin(Math.PI*2/max*i) *10
+	tMesh.position[1] = 0
+	tMesh.position[2] = Math.cos(Math.PI*2/max*i) *10
+	testMatBitmap.uniforms.uShininess[0]=Math.random()*64
 	testScene.children.push(tMesh)
-	
 }
-tMesh = testGL.createMeshInfo('testMesh', testGL.getGeometryInfo('testGeo'), testGL.createMaterialInfo('bitmapLite', testTexture))
-tMesh.position[2] = 0
-testScene.children.push(tMesh)
+
+
 
 var checkCall = document.createElement('div')
 document.body.appendChild(checkCall)
@@ -132,29 +70,48 @@ checkCall.style.position = 'absolute'
 checkCall.style.left = '10px'
 checkCall.style.top = '10px'
 checkCall.style.color = '#fff'
-var testCaseDoc = document.createElement('a')
-document.body.appendChild(testCaseDoc)
-testCaseDoc.style.position = 'absolute'
-testCaseDoc.style.left = '10px'
-testCaseDoc.style.bottom = '25px'
-testCaseDoc.style.color = '#fff'
-testCaseDoc.style.fontSize = '11px'
-testCaseDoc.href = 'testCase/index.html'
-testCaseDoc.innerHTML = 'RedGL TestCase'
-var doc = document.createElement('a')
-document.body.appendChild(doc)
-doc.style.position = 'absolute'
-doc.style.left = '10px'
-doc.style.bottom = '10px'
-doc.style.color = '#fff'
-doc.style.fontSize = '11px'
-doc.href = 'redDoc/redDoc.html'
-doc.innerHTML = 'RedGL Document'
-testCamera.lookAt(tMesh.position)
-var renderer = RedRender(testGL, testScene, function (time) {
-	testCamera.setPosition(Math.sin(time / 1000) * 60, Math.cos(time / 1000) * 60, Math.sin(time / 1000) * 60 + Math.cos(time / 1000) * 60)
-	testCamera.lookAt(tMesh.position)
+var grid = testGL.createMeshInfo('grid1', RedPrimitive.grid(testGL), RedMaterialInfo(testGL, 'color'))
+grid.drawMode = testGL.gl.LINES
+console.log(grid)
+testScene.setGrid(grid)
 
+
+// var testSkyBox
+// testSkyBox = RedSkyBoxInfo(testGL,[
+// 	'asset/cubemap/posx.jpg',
+// 	'asset/cubemap/negx.jpg',
+// 	'asset/cubemap/posy.jpg',
+// 	'asset/cubemap/negy.jpg',
+// 	'asset/cubemap/posz.jpg',
+// 	'asset/cubemap/negz.jpg'
+// ])
+// testScene.setSkyBox(testSkyBox)
+var i = 1
+while (i--) {
+
+	var testLight = RedPointLightInfo(testGL)
+	testLight.position[0] = 0
+	testLight.position[1] = 0
+	testLight.position[2] = -10
+
+	testLight.color[0] = 255
+	testLight.color[1] = 0
+	testLight.color[2] = 0
+	console.log(testLight.color)
+	testScene.addLight(testLight)
+}
+
+var renderer = RedRender(testGL, testScene, function (time) {
+	// testCamera.setPosition(Math.sin(time / 2000) * 20, 20, Math.cos(time / 2000) *20)
+	testCamera.setPosition(0,20,20)
+	testCamera.lookAt([0,0,0])
+	i = testScene['lights']['point'].length
+	// while(i--){
+	// 	// testScene['lights']['point'][i].position[0] = Math.sin(time / 700+i) * 20
+	// 	// testScene['lights']['point'][i].position[1] = Math.cos(time / 400+i) * 20+Math.sin(time / 700+i) * 20
+	// 	testScene['lights']['point'][i].position[2] = Math.sin(time / 2000) * 10 
+	// }
 	checkCall.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
 })
 renderer.start()
+
