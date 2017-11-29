@@ -51,7 +51,8 @@ RedMaterialDefine(testGL, testGL.getProgramInfo('bitmapLite'))
 var testTexture = RedTextureInfo(testGL, 'asset/crate.png')
 var testMatBitmap = RedMaterialInfo(testGL, 'bitmapLite', testTexture)
 
-var i = 50,max = 50
+var i ,max = 50
+i = max
 while(i-- ){
 	var tMesh = testGL.createMeshInfo('testMeshAdd1'+i, RedPrimitive.sphere(testGL,0.5,32,32,32), testMatBitmap)
 	// var tMesh = testGL.createMeshInfo('testMeshAdd1'+i, RedPrimitive.cube(testGL,1,1,1,32,32,32), testMatBitmap)
@@ -76,40 +77,81 @@ console.log(grid)
 testScene.setGrid(grid)
 
 
-// var testSkyBox
-// testSkyBox = RedSkyBoxInfo(testGL,[
-// 	'asset/cubemap/posx.jpg',
-// 	'asset/cubemap/negx.jpg',
-// 	'asset/cubemap/posy.jpg',
-// 	'asset/cubemap/negy.jpg',
-// 	'asset/cubemap/posz.jpg',
-// 	'asset/cubemap/negz.jpg'
-// ])
-// testScene.setSkyBox(testSkyBox)
+var testSkyBox
+testSkyBox = RedSkyBoxInfo(testGL,[
+	'asset/cubemap/posx.jpg',
+	'asset/cubemap/negx.jpg',
+	'asset/cubemap/posy.jpg',
+	'asset/cubemap/negy.jpg',
+	'asset/cubemap/posz.jpg',
+	'asset/cubemap/negz.jpg'
+])
+testScene.setSkyBox(testSkyBox)
 var i = 1
 while (i--) {
 
-	var testLight = RedPointLightInfo(testGL)
-	testLight.position[0] = 0
-	testLight.position[1] = 0
-	testLight.position[2] = -10
-
-	testLight.color[0] = 255
-	testLight.color[1] = 0
-	testLight.color[2] = 0
+	var testLight = RedDirectionalLightInfo(testGL)
+	testLight.direction[0] = Math.random() * 10 - 5
+	testLight.direction[1] = Math.random() * 10 - 5
+	testLight.direction[2] = Math.random() * 10 - 5
+	testLight.color[0] = 255 * Math.random()
+	testLight.color[1] = 255 * Math.random()
+	testLight.color[2] = 255 * Math.random()
+	
 	console.log(testLight.color)
 	testScene.addLight(testLight)
 }
+i = 16
+while (i--) {
+	
+		var testLight = RedPointLightInfo(testGL)
+		testLight.color[0] = 255 * Math.random()
+		testLight.color[1] = 255 * Math.random()
+		testLight.color[2] = 255 * Math.random()
+		testLight.radius = 5
+		console.log(testLight.color)
+		testScene.addLight(testLight)
+	
+	}
+// 재질생성
+var testTexture = RedTextureInfo(testGL, 'asset/crate.png')
+var testMatBitmap = RedMaterialInfo(testGL, 'bitmapLite', testTexture)
+
+var tMesh = testGL.createMeshInfo('testMeshAdd2', RedPrimitive.sphere(testGL,1,32,32,32), testMatBitmap)
+tMesh.scale[0] = 3
+tMesh.scale[1] = 3
+tMesh.scale[2] = 3
+testScene.children.push(tMesh)
+var i = 40,inverse_j
+while(i-- ){
+	inverse_j=40
+	while (inverse_j--) {
+		var tMesh = testGL.createMeshInfo('testMeshAdd2' + '_' + i + '_' + inverse_j, RedPrimitive.sphere(testGL, 0.7, 16, 16, 16), testMatBitmap)
+		// var tMesh = testGL.createMeshInfo('testMeshAdd1'+i, RedPrimitive.cube(testGL,1,1,1,32,32,32), testMatBitmap)
+		tMesh.position[0] = Math.sin(Math.PI * 2 * Math.random()) * 20
+		tMesh.position[1] = Math.sin(Math.PI * 2 * Math.random()) * 20
+		tMesh.position[2] = Math.cos(Math.PI * 2 * Math.random()) * 20
+		testMatBitmap.uniforms.uShininess[0] = Math.random() * 64
+		testScene.children.push(tMesh)
+	}
+}
+
 
 var renderer = RedRender(testGL, testScene, function (time) {
-	// testCamera.setPosition(Math.sin(time / 2000) * 20, 20, Math.cos(time / 2000) *20)
-	testCamera.setPosition(0,20,20)
+	testCamera.setPosition(Math.sin(time / 2000) * 30, 40, Math.cos(time / 2000) *30)
+
 	testCamera.lookAt([0,0,0])
 	i = testScene['lights']['point'].length
+	while(i--){
+		testScene['lights']['point'][i].position[0] = Math.sin(time / 2000+Math.PI*2/testScene['lights']['point'].length*i) * 10
+		testScene['lights']['point'][i].position[1] = Math.cos(time / 2000+Math.PI*2/testScene['lights']['point'].length*i) * 10+Math.sin(time / 1000+i) * 10
+		testScene['lights']['point'][i].position[2] = Math.sin(time / 2000+Math.PI*2/testScene['lights']['point'].length*i) * 10 
+	}
+	i = testScene['lights']['directional'].length
 	// while(i--){
-	// 	// testScene['lights']['point'][i].position[0] = Math.sin(time / 700+i) * 20
-	// 	// testScene['lights']['point'][i].position[1] = Math.cos(time / 400+i) * 20+Math.sin(time / 700+i) * 20
-	// 	testScene['lights']['point'][i].position[2] = Math.sin(time / 2000) * 10 
+	// 	testScene['lights']['directional'][i].direction[0] = Math.sin(time / 2700+i) * 20
+	// 	testScene['lights']['directional'][i].direction[1] = Math.cos(time / 1400+i) * 20+Math.sin(time / 2700+i) * 20
+	// 	testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200+i) * 20
 	// }
 	checkCall.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
 })

@@ -39,10 +39,7 @@ var RedRender;
     var tDatas;
     var SIN, COS;
     SIN = Math.sin, COS = Math.cos
-    var mat4Inverse = function (a, b) {
-        b || (b = a); var c = a[0], d = a[1], e = a[2], g = a[3], f = a[4], h = a[5], i = a[6], j = a[7], k = a[8], l = a[9], n = a[10], o = a[11], m = a[12], p = a[13], r = a[14], s = a[15], A = c * h - d * f, B = c * i - e * f, t = c * j - g * f, u = d * i - e * h, v = d * j - g * h, w = e * j - g * i, x = k * p - l * m, y = k * r - n * m, z = k * s - o * m, C = l * r - n * p, D = l * s - o * p, E = n * s - o * r, q = A * E - B * D + t * C + u * z - v * y + w * x; if (!q) return null; q = 1 / q; b[0] = (h * E - i * D + j * C) * q; b[1] = (-d * E + e * D - g * C) * q; b[2] = (p * w - r * v + s * u) * q; b[3] = (-l * w + n * v - o * u) * q; b[4] = (-f * E + i * z - j * y) * q; b[5] = (c * E - e * z + g * y) * q; b[6] = (-m * w + r * t - s * B) * q; b[7] = (k * w - n * t + o * B) * q; b[8] =
-            (f * D - h * z + j * x) * q; b[9] = (-c * D + d * z - g * x) * q; b[10] = (m * v - p * t + s * A) * q; b[11] = (-k * v + l * t - o * A) * q; b[12] = (-f * C + h * y - i * x) * q; b[13] = (c * C - d * y + e * x) * q; b[14] = (-m * u + p * B - r * A) * q; b[15] = (k * u - l * B + n * A) * q; return b
-    }
+
     RedRender = function (redGL, redScene, callback) {
         if (!(this instanceof RedRender)) return new RedRender(redGL, redScene, callback)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
@@ -134,7 +131,7 @@ var RedRender;
                 // console.log(tScene['lights'])
                 self.setDirectionalLight(tempProgramInfo)
                 self.setPointLight(tempProgramInfo)
-               
+
             }
             cacheProgram = null // 캐쉬된 프로그램을 삭제
             //////////////////////////////////////////////////////////////////
@@ -147,12 +144,12 @@ var RedRender;
             // Set the backbuffer's alpha to 1.0
             requestAnimationFrame(self.render)
         };
-        this.setPointLight = (function(){
-            var tPointList = [],tColorList = []
-            return function(programInfo){
+        this.setPointLight = (function () {
+            var tPointList = [], tColorList = [], tPointRadius = new Float32Array(16)
+            return function (programInfo) {
                 if (
                     tScene['lights']['point'].length
-                    && programInfo['uniforms']['uPointLightPosition']                    
+                    && programInfo['uniforms']['uPointLightPosition']
                 ) {
                     tPointList.length = 0
                     tColorList.length = 0
@@ -160,24 +157,30 @@ var RedRender;
                         tPointList[i * 3 + 0] = v['position'][0]
                         tPointList[i * 3 + 1] = v['position'][1]
                         tPointList[i * 3 + 2] = v['position'][2]
-                        tColorList[i * 4 + 0] = v['color'][0]/255
-                        tColorList[i * 4 + 1] = v['color'][1]/255
-                        tColorList[i * 4 + 2] = v['color'][2]/255
-                        tColorList[i * 4 + 3] = v['color'][3]/255
+                        tColorList[i * 4 + 0] = v['color'][0] / 255
+                        tColorList[i * 4 + 1] = v['color'][1] / 255
+                        tColorList[i * 4 + 2] = v['color'][2] / 255
+                        tColorList[i * 4 + 3] = v['color'][3] / 255
+                        tPointRadius[i] = v['radius']
                     })
                     tLocation = programInfo['uniforms']['uPointLightPosition']['location']
                     tGL.uniform3fv(tLocation, new Float32Array(tPointList))
                     tLocation = programInfo['uniforms']['uPointLightColor']['location']
                     tGL.uniform4fv(tLocation, new Float32Array(tColorList))
+                    tLocation = programInfo['uniforms']['uPointNum']['location']
+                    tGL.uniform1i(tLocation, tScene['lights'][RedPointLightInfo.TYPE].length)
+                    tLocation = programInfo['uniforms']['uPointLightRadius']['location']
+                    tGL.uniform1fv(tLocation, tPointRadius)
+
                 }
             }
         })()
-        this.setDirectionalLight = (function(){
-            var tDirectionList = [],tColorList = []
-            return function(programInfo){
+        this.setDirectionalLight = (function () {
+            var tDirectionList = [], tColorList = []
+            return function (programInfo) {
                 if (
-                    tScene['lights']['directional'].length
-                    && programInfo['uniforms']['uDirectionnalLightDirection']                    
+                    tScene['lights'][RedDirectionalLightInfo.TYPE].length
+                    && programInfo['uniforms']['uDirectionnalLightDirection']
                 ) {
                     tDirectionList.length = 0
                     tColorList.length = 0
@@ -185,17 +188,17 @@ var RedRender;
                         tDirectionList[i * 3 + 0] = v['direction'][0]
                         tDirectionList[i * 3 + 1] = v['direction'][1]
                         tDirectionList[i * 3 + 2] = v['direction'][2]
-                        tColorList[i * 4 + 0] = v['color'][0]/255
-                        tColorList[i * 4 + 1] = v['color'][1]/255
-                        tColorList[i * 4 + 2] = v['color'][2]/255
-                        tColorList[i * 4 + 3] = v['color'][3]/255
+                        tColorList[i * 4 + 0] = v['color'][0] / 255
+                        tColorList[i * 4 + 1] = v['color'][1] / 255
+                        tColorList[i * 4 + 2] = v['color'][2] / 255
+                        tColorList[i * 4 + 3] = v['color'][3] / 255
                     })
                     tLocation = programInfo['uniforms']['uDirectionnalLightDirection']['location']
                     tGL.uniform3fv(tLocation, new Float32Array(tDirectionList))
                     tLocation = programInfo['uniforms']['uDirectionnalLightColor']['location']
                     tGL.uniform4fv(tLocation, new Float32Array(tColorList))
                     tLocation = programInfo['uniforms']['uDirectionalNum']['location']
-                    tGL.uniform1i(tLocation, tScene['lights']['directional'].length)
+                    tGL.uniform1i(tLocation, tScene['lights'][RedDirectionalLightInfo.TYPE].length)
                 }
             }
         })()
@@ -228,7 +231,7 @@ var RedRender;
                 self['numDrawCall']++
                 tMesh = renderList[i]
                 tMVMatrix = tMesh['uMVMatrix']
-                
+                tNMatrix = tMesh['uNMatrix']
                 // 매트릭스 초기화
                 tMVMatrix[0] = 1, tMVMatrix[1] = 0, tMVMatrix[2] = 0, tMVMatrix[3] = 0,
                     tMVMatrix[4] = 0, tMVMatrix[5] = 1, tMVMatrix[6] = 0, tMVMatrix[7] = 0,
@@ -417,13 +420,54 @@ var RedRender;
                     } else throw '안되는 나쁜 타입인거야!!'
                 }
 
-                
-                // TODO: 이건 상태봐서 업데이트 할지말지 결정하자
-                if(tUniformLocationGroup['uNMatrix']){
-                    tNMatrix =  mat4.clone(tMVMatrix)
-                    mat4Inverse(tNMatrix,tNMatrix)
-                    mat4.transpose(tNMatrix,tNMatrix)
-                    tGL.uniformMatrix4fv(tUniformLocationGroup['uNMatrix']['location'], false, tNMatrix )
+                if (tUniformLocationGroup['uNMatrix']) {
+                    //클론
+                    tNMatrix[0] = tMVMatrix[0], tNMatrix[1] = tMVMatrix[1], tNMatrix[2] = tMVMatrix[2], tNMatrix[3] = tMVMatrix[3],
+                    tNMatrix[4] = tMVMatrix[4], tNMatrix[5] = tMVMatrix[5], tNMatrix[6] = tMVMatrix[6], tNMatrix[7] = tMVMatrix[7],
+                    tNMatrix[8] = tMVMatrix[8], tNMatrix[9] = tMVMatrix[9], tNMatrix[10] = tMVMatrix[10], tNMatrix[11] = tMVMatrix[11],
+                    tNMatrix[12] = tMVMatrix[12], tNMatrix[13] = tMVMatrix[13], tNMatrix[14] = tMVMatrix[14], tNMatrix[15] = tMVMatrix[15];
+                    // mat4Inverse
+                    var  inverse_c = tNMatrix[0], inverse_d = tNMatrix[1], inverse_e = tNMatrix[2], inverse_g = tNMatrix[3], 
+                    inverse_f = tNMatrix[4], inverse_h = tNMatrix[5], inverse_i = tNMatrix[6], inverse_j = tNMatrix[7], 
+                    inverse_k = tNMatrix[8], inverse_l = tNMatrix[9], inverse_n = tNMatrix[10], inverse_o = tNMatrix[11],
+                    inverse_m = tNMatrix[12], inverse_p = tNMatrix[13], inverse_r = tNMatrix[14], inverse_s = tNMatrix[15],
+                    inverse_A = inverse_c * inverse_h - inverse_d * inverse_f, 
+                    inverse_B = inverse_c * inverse_i - inverse_e * inverse_f, 
+                    inverse_t = inverse_c * inverse_j - inverse_g * inverse_f, 
+                    inverse_u = inverse_d * inverse_i - inverse_e * inverse_h,
+                    inverse_v = inverse_d * inverse_j - inverse_g * inverse_h, 
+                    inverse_w = inverse_e * inverse_j - inverse_g * inverse_i, 
+                    inverse_x = inverse_k * inverse_p - inverse_l * inverse_m, 
+                    inverse_y = inverse_k * inverse_r - inverse_n * inverse_m, 
+                    inverse_z = inverse_k * inverse_s - inverse_o * inverse_m, 
+                    inverse_C = inverse_l * inverse_r - inverse_n * inverse_p, 
+                    inverse_D = inverse_l * inverse_s - inverse_o * inverse_p, 
+                    inverse_E = inverse_n * inverse_s - inverse_o * inverse_r, 
+                    inverse_q = inverse_A * inverse_E - inverse_B * inverse_D + inverse_t * inverse_C + inverse_u * inverse_z - inverse_v * inverse_y + inverse_w * inverse_x;
+                    inverse_q = 1 / inverse_q; 
+                    tNMatrix[0] = (inverse_h * inverse_E - inverse_i * inverse_D + inverse_j * inverse_C) * inverse_q,
+                    tNMatrix[1] = (-inverse_d * inverse_E + inverse_e * inverse_D - inverse_g * inverse_C) * inverse_q,
+                    tNMatrix[2] = (inverse_p * inverse_w - inverse_r * inverse_v + inverse_s * inverse_u) * inverse_q,
+                    tNMatrix[3] = (-inverse_l * inverse_w + inverse_n * inverse_v - inverse_o * inverse_u) * inverse_q, 
+                    tNMatrix[4] = (-inverse_f * inverse_E + inverse_i * inverse_z - inverse_j * inverse_y) * inverse_q, 
+                    tNMatrix[5] = (inverse_c * inverse_E - inverse_e * inverse_z + inverse_g * inverse_y) * inverse_q,
+                    tNMatrix[6] = (-inverse_m * inverse_w + inverse_r * inverse_t - inverse_s * inverse_B) * inverse_q,
+                    tNMatrix[7] = (inverse_k * inverse_w - inverse_n * inverse_t + inverse_o * inverse_B) * inverse_q,
+                    tNMatrix[8] =(inverse_f * inverse_D - inverse_h * inverse_z + inverse_j * inverse_x) * inverse_q, 
+                    tNMatrix[9] = (-inverse_c * inverse_D + inverse_d * inverse_z - inverse_g * inverse_x) * inverse_q,
+                    tNMatrix[10] = (inverse_m * inverse_v - inverse_p * inverse_t + inverse_s * inverse_A) * inverse_q,
+                    tNMatrix[11] = (-inverse_k * inverse_v + inverse_l * inverse_t - inverse_o * inverse_A) * inverse_q, 
+                    tNMatrix[12] = (-inverse_f * inverse_C + inverse_h * inverse_y - inverse_i * inverse_x) * inverse_q, 
+                    tNMatrix[13] = (inverse_c * inverse_C - inverse_d * inverse_y + inverse_e * inverse_x) * inverse_q,
+                    tNMatrix[14] = (-inverse_m * inverse_u + inverse_p * inverse_B - inverse_r * inverse_A) * inverse_q, 
+                    tNMatrix[15] = (inverse_k * inverse_u - inverse_l * inverse_B + inverse_n * inverse_A) * inverse_q;
+                    // transpose
+                    a01 = tNMatrix[1], a02 = tNMatrix[2], a03 = tNMatrix[3],
+                    a12 = tNMatrix[6], a13 = tNMatrix[7], a23 = tNMatrix[11],
+                    tNMatrix[1] = tNMatrix[4], tNMatrix[2] = tNMatrix[8], tNMatrix[3] = tNMatrix[12], tNMatrix[4] = a01, tNMatrix[6] = tNMatrix[9],
+                    tNMatrix[7] = tNMatrix[13], tNMatrix[8] = a02, tNMatrix[9] = a12, tNMatrix[11] = tNMatrix[14],
+                    tNMatrix[12] = a03, tNMatrix[13] = a13, tNMatrix[14] = a23;
+                    tGL.uniformMatrix4fv(tUniformLocationGroup['uNMatrix']['location'], false, tNMatrix)
                 }
                 // uMVMatrix 입력 //TODO: 이것도 자동으로 하고싶은데...
                 tGL.uniformMatrix4fv(tUniformLocationGroup['uMVMatrix']['location'], false, tMVMatrix)

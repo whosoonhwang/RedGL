@@ -453,7 +453,7 @@ var RedPrimitive;
                     if (iy !== heightSegments - 1 || thetaEnd < Math.PI) indices.push(b, c, d)
                 }
             }
-            console.log(vertices, indices, uvs, normals)
+            // console.log(vertices, indices, uvs, normals)
             ////////////////////////////////////////////////////////////////////////////
             // 캐싱
             tDatas[tType] = createGeo(redGL, tType, vertices, indices, uvs, normals)
