@@ -51,7 +51,7 @@ var RedDirectionalLightInfo;
         }
         :DOC*/
         this['direction'] = new Float32Array([0, 0, 0])
-       
+        this['__UUID'] = REDGL_UUID++
     }
     RedDirectionalLightInfo['TYPE'] = 'directional'
     Object.freeze(RedDirectionalLightInfo)

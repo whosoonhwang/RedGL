@@ -50,6 +50,17 @@ var RedPointLightInfo;
         }
         :DOC*/
         this['position'] = new Float32Array([0, 0, 0])
+        /**DOC:
+		{
+            title :`position`,
+            description : `라이트 포지션`,
+            code:'PROPERTY',
+            example : `인스턴스.color`,
+            return : 'Float32'
+        }
+        :DOC*/
+        this['radius'] = 1
+        this['__UUID'] = REDGL_UUID++
        
     }
     RedPointLightInfo['TYPE'] = 'point'

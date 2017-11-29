@@ -32,6 +32,8 @@
         const int POINT_MAX = 16;
         uniform vec4 uPointLightColor[POINT_MAX];      
         uniform vec3 uPointLightPosition[POINT_MAX];
+        uniform float uPointLightRadius[POINT_MAX];
+        uniform int uPointNum;
 
         uniform float uShininess;
         
@@ -61,11 +63,11 @@
                 }
             }
         
-            vec3 pointDirection; // 방향
-            
+            vec3 pointDirection; // 방향            
             float distance; // 거리
             float attenuation;  // 감쇄
             for(int i=0;i<POINT_MAX;i++){
+                if(i== uPointNum) break;
                 pointDirection = uPointLightPosition[i] -vEyeVec;
                 distance = length(pointDirection);
                 if(distance<0.0) distance = 0.0;
@@ -74,8 +76,8 @@
                 lambertTerm = dot(N,-L);
                 if(lambertTerm > 0.0){
                     ld += uPointLightColor[i] * texelColor * lambertTerm*attenuation;
-                    R = reflect(L, N);
-                    specular = pow( max(dot(R, E), 0.0), uShininess);
+                    R = reflect(L/distance * uPointLightRadius[i], N);
+                    specular = pow( max(dot(R, -L), 0.0), uShininess);
                     ls +=  specularLightColor * specular * attenuation ;
                 }
             }           
