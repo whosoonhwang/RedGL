@@ -101,16 +101,14 @@ while (i--) {
 	console.log(testLight.color)
 	testScene.addLight(testLight)
 }
-i = 16
+i = 1
 while (i--) {
 	
 		var testLight = RedPointLightInfo(testGL)
 		testLight.color[0] = 255 * Math.random()
 		testLight.color[1] = 255 * Math.random()
 		testLight.color[2] = 255 * Math.random()
-		testLight.position[1] = Math.random() * 20-10
-		testLight.radius = Math.random()*8
-		testLight.useDebugMode = true
+		testLight.radius = 5
 		console.log(testLight.color)
 		testScene.addLight(testLight)
 	
@@ -124,19 +122,19 @@ tMesh.scale[0] = 3
 tMesh.scale[1] = 3
 tMesh.scale[2] = 3
 testScene.children.push(tMesh)
-var i = 40,inverse_j
-while(i-- ){
-	inverse_j=40
-	while (inverse_j--) {
-		var tMesh = testGL.createMeshInfo('testMeshAdd2' + '_' + i + '_' + inverse_j, RedPrimitive.sphere(testGL, 0.7, 16, 16, 16), testMatBitmap)
-		// var tMesh = testGL.createMeshInfo('testMeshAdd1'+i, RedPrimitive.cube(testGL,1,1,1,32,32,32), testMatBitmap)
-		tMesh.position[0] = Math.sin(Math.PI * 2 * Math.random()) * 20
-		tMesh.position[1] = Math.sin(Math.PI * 2 * Math.random()) * 20
-		tMesh.position[2] = Math.cos(Math.PI * 2 * Math.random()) * 20
-		testMatBitmap.uniforms.uShininess[0] = Math.random() * 64
-		testScene.children.push(tMesh)
-	}
-}
+// var i = 40,inverse_j
+// while(i-- ){
+// 	inverse_j=40
+// 	while (inverse_j--) {
+// 		var tMesh = testGL.createMeshInfo('testMeshAdd2' + '_' + i + '_' + inverse_j, RedPrimitive.sphere(testGL, 0.7, 16, 16, 16), testMatBitmap)
+// 		// var tMesh = testGL.createMeshInfo('testMeshAdd1'+i, RedPrimitive.cube(testGL,1,1,1,32,32,32), testMatBitmap)
+// 		tMesh.position[0] = Math.sin(Math.PI * 2 * Math.random()) * 20
+// 		tMesh.position[1] = Math.sin(Math.PI * 2 * Math.random()) * 20
+// 		tMesh.position[2] = Math.cos(Math.PI * 2 * Math.random()) * 20
+// 		testMatBitmap.uniforms.uShininess[0] = Math.random() * 64
+// 		testScene.children.push(tMesh)
+// 	}
+// }
 
 
 var renderer = RedRender(testGL, testScene, function (time) {
@@ -147,7 +145,7 @@ var renderer = RedRender(testGL, testScene, function (time) {
 	while(i--){
 		testScene['lights']['point'][i].position[0] = Math.sin(time / 2000+Math.PI*2/testScene['lights']['point'].length*i) * 10
 		testScene['lights']['point'][i].position[1] = Math.cos(time / 2000+Math.PI*2/testScene['lights']['point'].length*i) * 10+Math.sin(time / 1000+i) * 10
-		testScene['lights']['point'][i].position[2] = Math.cos(time / 2000+Math.PI*2/testScene['lights']['point'].length*i) * 20 
+		testScene['lights']['point'][i].position[2] = Math.sin(time / 2000+Math.PI*2/testScene['lights']['point'].length*i) * 10 
 	}
 	i = testScene['lights']['directional'].length
 	// while(i--){
