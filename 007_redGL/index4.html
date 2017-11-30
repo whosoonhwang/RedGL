@@ -35,6 +35,16 @@
         uniform float uPointLightRadius[POINT_MAX];
         uniform int uPointNum;
 
+        //스팟
+        const int SPOT_MAX = 16;
+        uniform vec4 uSpotLightColor[SPOT_MAX];      
+        uniform vec3 uSpotLightPosition[SPOT_MAX];
+        uniform vec3 uSpotLightDirection[SPOT_MAX];
+        uniform int uSpotNum;
+        uniform float uSpotCosCuttoff[SPOT_MAX];  // 한계치설정
+        uniform float uSpotExponent[SPOT_MAX];// 경계면을 부드럽게
+        
+
         uniform float uShininess;
         
         void main(void) {
@@ -49,6 +59,7 @@
             float lambertTerm;
             float specular;
             vec4 specularLightColor = vec4(1.0, 1.0, 1.0, 1.0);
+            // 디렉셔널
             if(uDirectionalNum>0){
                 for(int i=0;i<DIRETIONAL_MAX;i++){
                     if(i== uDirectionalNum) break;
@@ -62,26 +73,61 @@
                     }
                 }
             }
-        
-            vec3 pointDirection; // 방향            
+            // 점광
+            vec3 pointLightDirection; // 방향            
             float distance; // 거리
             float attenuation;  // 감쇄
-            for(int i=0;i<POINT_MAX;i++){
-                if(i== uPointNum) break;
-                pointDirection = -uPointLightPosition[i] -vEyeVec;
-                distance = length(pointDirection);
-                if(distance<0.0) distance = 0.0;
-                attenuation = 1.0 / (0.01 + 0.01 * distance + 0.02 * distance * distance); 
-                L = normalize(pointDirection);
-                lambertTerm = dot(N,-L);
-                if(lambertTerm > 0.0){
-                    ld += uPointLightColor[i] * texelColor * lambertTerm*attenuation;
-                    R = reflect(L/distance * uPointLightRadius[i], N);
-                    specular = pow( max(dot(R, -L), 0.0), uShininess);
-                    ls +=  specularLightColor * specular * attenuation ;
+            if(uPointNum>0){
+                for(int i=0;i<POINT_MAX;i++){
+                    if(i== uPointNum) break;
+                    pointLightDirection = -uPointLightPosition[i] -vEyeVec;
+                    distance = length(pointLightDirection);
+                    if(distance<0.0) distance = 0.0;
+                    attenuation = 1.0 / (0.01 + 0.01 * distance + 0.02 * distance * distance); 
+                    L = normalize(pointLightDirection);
+                    lambertTerm = dot(N,-L);
+                    if(lambertTerm > 0.0){
+                        ld += uPointLightColor[i] * texelColor * lambertTerm * attenuation;
+                        R = reflect(L/distance/distance * uPointLightRadius[i], N);
+                        specular = pow( max(dot(R, -L), 0.0), uShininess);
+                        ls +=  specularLightColor * specular * attenuation ;
+                    }
+                }      
+            }
+            // 스폿
+      
+            vec3 tempDistance; // 조명과 표면사이의 거리
+            if(uSpotNum>0){
+                for(int i=0;i<SPOT_MAX;i++){
+                    if(i== uSpotNum) break;
+                    // 거리
+                    tempDistance = -uSpotLightPosition[i]-vEyeVec;
+                    distance = length(tempDistance); ;
+                    if(distance<0.0) distance = 0.0;
+                    // 감쇄 구하고            
+                    // TODO: 실제거리간의 보간을 어떻게 지정할껀지...결정해야함...
+                    attenuation = 1.0 / (0.01 + 0.01 * distance + 0.02 * distance * distance) *distance; 
+
+                    // 표면과 라이트의 방향을 구함
+                    L = normalize(tempDistance);
+                    float spotEffect = dot(normalize(uSpotLightDirection[i]),L);
+                 
+
+                    lambertTerm = dot(N,-L);
+                    if(lambertTerm > 0.0 ){
+                        if(spotEffect > uSpotCosCuttoff[i]){
+                            spotEffect = pow(spotEffect,uSpotExponent[i]);
+                            attenuation *=spotEffect;
+                            R = reflect(L, N);
+                            specular = pow( max(dot(R, -normalize(uSpotLightDirection[i])), 0.0), uShininess);
+                            ld += uSpotLightColor[i] * texelColor * lambertTerm * attenuation;
+                            ls +=  specularLightColor * specular * attenuation ;
+                        }
+                    }
                 }
-            }           
-            
+            }
+        
+            //
             vec4 finalColor = la + ld + ls;
             finalColor.a = 1.0;            
             gl_FragColor = finalColor;   
@@ -163,6 +209,7 @@
             <script src="RedPrimitive.js"></script>    
             <script src="RedDirectionalLightInfo.js"></script>       
             <script src="RedPointLightInfo.js"></script>
+            <script src="RedSpotLightInfo.js"></script>            
             <script src="RedMaterialInfo.js"></script>
             <script src="RedMaterialDefine.js"></script>
             <script src="RedSceneInfo.js"></script>

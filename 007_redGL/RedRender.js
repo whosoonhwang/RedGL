@@ -100,6 +100,7 @@ var RedRender;
         ///////////////////////////////////////////////////////////////////
         var aspect;
         var debugPointRenderList = [];
+        var debugSpotRenderList = [];
         cacheAttrUUID = {}
         cacheTextureAtlas_UUID = {}
         this.render = function (time) {
@@ -131,6 +132,7 @@ var RedRender;
                 // console.log(tScene['lights'])
                 self.setDirectionalLight(tempProgramInfo)
                 self.setPointLight(tempProgramInfo)
+                self.setSpotLight(tempProgramInfo)
 
             }
             cacheProgram = null // 캐쉬된 프로그램을 삭제
@@ -138,16 +140,71 @@ var RedRender;
             //////////////////////////////////////////////////////////////////
           
             self.drawSkyBox(tScene['skyBox'], time)
-            self.drawGrid(tScene['grid'], time)
             tGL.clear(tGL.DEPTH_BUFFER_BIT);
             self.draw(tScene['children'], time)
             self.draw(debugPointRenderList)
+            self.draw(debugSpotRenderList)
+            self.drawGrid(tScene['grid'], time)
             // Set the backbuffer's alpha to 1.0
             requestAnimationFrame(self.render)
         };
+        this.setSpotLight = (function () {
+            var tSpotPositionList = [], tSpotDirectionList = [],tColorList = []
+            var tSpotCosCuttoffList = [], tSpotExponent = []
+            return function (programInfo) {
+                if (
+                    tScene['lights']['spot'].length
+                    && programInfo['uniforms']['uSpotLightPosition']
+                ) {
+                    tSpotPositionList.length = 0
+                    tColorList.length = 0
+                    debugSpotRenderList.length = 0
+                    tSpotCosCuttoffList.length = 0
+                    tSpotExponent.length = 0
+                    tScene['lights'][RedSpotLightInfo.TYPE].forEach(function (v, i) {
+                        tSpotPositionList[i * 3 + 0] = v['position'][0]
+                        tSpotPositionList[i * 3 + 1] = v['position'][1]
+                        tSpotPositionList[i * 3 + 2] = v['position'][2]
+                        tSpotDirectionList[i * 3 + 0] = v['direction'][0]
+                        tSpotDirectionList[i * 3 + 1] = v['direction'][1]
+                        tSpotDirectionList[i * 3 + 2] = v['direction'][2]
+                        tColorList[i * 4 + 0] = v['color'][0] / 255
+                        tColorList[i * 4 + 1] = v['color'][1] / 255
+                        tColorList[i * 4 + 2] = v['color'][2] / 255
+                        tColorList[i * 4 + 3] = v['color'][3] / 255
+                        tSpotCosCuttoffList.push(v['spotCosCuttoff'])
+                        tSpotExponent.push(v['spotExponent'])
+                        if (v['useDebugMode']) {
+                            debugSpotRenderList.push(v['__debugMesh'])
+                            v['__debugMesh']['position'][0] = v.position[0]
+                            v['__debugMesh']['position'][1] = v.position[1] - v['height'] / 2
+                            v['__debugMesh']['position'][2] = v.position[2]
+                            // v['__debugMesh']['rotation'][0] = 0
+                            // v['__debugMesh']['rotation'][1] = 0
+                            // v['__debugMesh']['rotation'][2] = 0
+                            v['__debugMesh']['scale'][0] = v['radius']
+                            v['__debugMesh']['scale'][1] = -v['height']
+                            v['__debugMesh']['scale'][2] = v['radius']
+                        }
+                    })
+                    tLocation = programInfo['uniforms']['uSpotLightPosition']['location']
+                    tGL.uniform3fv(tLocation, new Float32Array(tSpotPositionList))
+                    tLocation = programInfo['uniforms']['uSpotLightDirection']['location']
+                    tGL.uniform3fv(tLocation, new Float32Array(tSpotDirectionList))
+                    tLocation = programInfo['uniforms']['uSpotLightColor']['location']
+                    tGL.uniform4fv(tLocation, new Float32Array(tColorList))
+                    tLocation = programInfo['uniforms']['uSpotCosCuttoff']['location']
+                    tGL.uniform1fv(tLocation, new Float32Array(tSpotCosCuttoffList))
+                    tLocation = programInfo['uniforms']['uSpotExponent']['location']
+                    tGL.uniform1fv(tLocation, new Float32Array(tSpotExponent))
+                    tLocation = programInfo['uniforms']['uSpotNum']['location']
+                    tGL.uniform1i(tLocation, tScene['lights'][RedSpotLightInfo.TYPE].length)
+                    
+                }
+            }
+        })();
         this.setPointLight = (function () {
             var tPointList = [], tColorList = [], tPointRadius = new Float32Array(16)
-           
             return function (programInfo) {
                 if (
                     tScene['lights']['point'].length
@@ -183,8 +240,6 @@ var RedRender;
                     tGL.uniform1i(tLocation, tScene['lights'][RedPointLightInfo.TYPE].length)
                     tLocation = programInfo['uniforms']['uPointLightRadius']['location']
                     tGL.uniform1fv(tLocation, tPointRadius)
-                  
-                   
                 }
             }
         })()

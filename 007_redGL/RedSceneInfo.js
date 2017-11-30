@@ -113,6 +113,10 @@ var RedSceneInfo;
                     tDatas = this['lights'][RedPointLightInfo.TYPE]
                     if (tDatas.length == 16) throw '포인트라이트 최대갯수는 16개입니다.'
                     else tDatas.push(v)
+                }else if (v instanceof RedSpotLightInfo) {
+                    tDatas = this['lights'][RedSpotLightInfo.TYPE]
+                    if (tDatas.length == 16) throw '스폿라이트 최대갯수는 16개입니다.'
+                    else tDatas.push(v)
                 } else throw '등록할수 없는 타입입니다.'
             }
         })()
