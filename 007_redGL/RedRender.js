@@ -99,7 +99,7 @@ var RedRender;
         var cacheDepthTestFunc; // 뎁스테스트 팩터 캐싱정보
         ///////////////////////////////////////////////////////////////////
         var aspect;
-
+        var debugPointRenderList = [];
         cacheAttrUUID = {}
         cacheTextureAtlas_UUID = {}
         this.render = function (time) {
@@ -114,7 +114,7 @@ var RedRender;
             tGL = redGL.gl
             //////////////////////////////////////////////////////////////////
             tScene = self['targetScene']
-
+            tGL.clear(tGL.COLOR_BUFFER_BIT);
             // TODO: 이부분은 리사이저이벤트로 날릴수 있을듯        ... 흠 프로그램 변경때문에 안되남...   
             tScene['camera'].update()
             for (k in redGL['__datas']['RedProgramInfo']) {
@@ -136,16 +136,18 @@ var RedRender;
             cacheProgram = null // 캐쉬된 프로그램을 삭제
             //////////////////////////////////////////////////////////////////
             //////////////////////////////////////////////////////////////////
-            tGL.clear(tGL.COLOR_BUFFER_BIT);
+          
             self.drawSkyBox(tScene['skyBox'], time)
             self.drawGrid(tScene['grid'], time)
             tGL.clear(tGL.DEPTH_BUFFER_BIT);
             self.draw(tScene['children'], time)
+            self.draw(debugPointRenderList)
             // Set the backbuffer's alpha to 1.0
             requestAnimationFrame(self.render)
         };
         this.setPointLight = (function () {
             var tPointList = [], tColorList = [], tPointRadius = new Float32Array(16)
+           
             return function (programInfo) {
                 if (
                     tScene['lights']['point'].length
@@ -153,6 +155,7 @@ var RedRender;
                 ) {
                     tPointList.length = 0
                     tColorList.length = 0
+                    debugPointRenderList.length = 0
                     tScene['lights'][RedPointLightInfo.TYPE].forEach(function (v, i) {
                         tPointList[i * 3 + 0] = v['position'][0]
                         tPointList[i * 3 + 1] = v['position'][1]
@@ -162,6 +165,15 @@ var RedRender;
                         tColorList[i * 4 + 2] = v['color'][2] / 255
                         tColorList[i * 4 + 3] = v['color'][3] / 255
                         tPointRadius[i] = v['radius']
+                        if (v['useDebugMode']) {
+                            debugPointRenderList.push(v['__debugMesh'])
+                            v['__debugMesh'].position[0] = v.position[0]
+                            v['__debugMesh'].position[1] = v.position[1]
+                            v['__debugMesh'].position[2] = v.position[2]
+                            v['__debugMesh'].scale[0] = v.radius
+                            v['__debugMesh'].scale[1] = v.radius
+                            v['__debugMesh'].scale[2] = v.radius
+                        }
                     })
                     tLocation = programInfo['uniforms']['uPointLightPosition']['location']
                     tGL.uniform3fv(tLocation, new Float32Array(tPointList))
@@ -171,7 +183,8 @@ var RedRender;
                     tGL.uniform1i(tLocation, tScene['lights'][RedPointLightInfo.TYPE].length)
                     tLocation = programInfo['uniforms']['uPointLightRadius']['location']
                     tGL.uniform1fv(tLocation, tPointRadius)
-
+                  
+                   
                 }
             }
         })()
