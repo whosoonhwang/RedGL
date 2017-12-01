@@ -35,16 +35,6 @@
         uniform float uPointLightRadius[POINT_MAX];
         uniform int uPointNum;
 
-        //스팟
-        const int SPOT_MAX = 16;
-        uniform vec4 uSpotLightColor[SPOT_MAX];      
-        uniform vec3 uSpotLightPosition[SPOT_MAX];
-        uniform vec3 uSpotLightDirection[SPOT_MAX];
-        uniform float uSpotCosCuttoff[SPOT_MAX]; 
-        uniform float uSpotExponent[SPOT_MAX];
-        uniform int uSpotNum;
-        
-
         uniform float uShininess;
         
         void main(void) {
@@ -59,7 +49,6 @@
             float lambertTerm;
             float specular;
             vec4 specularLightColor = vec4(1.0, 1.0, 1.0, 1.0);
-            // 디렉셔널
             if(uDirectionalNum>0){
                 for(int i=0;i<DIRETIONAL_MAX;i++){
                     if(i== uDirectionalNum) break;
@@ -73,61 +62,27 @@
                     }
                 }
             }
-            // 점광
-            vec3 pointLightDirection; // 방향            
+        
+            vec3 pointDirection; // 방향            
             float distance; // 거리
             float attenuation;  // 감쇄
-            if(uPointNum>0){
-                for(int i=0;i<POINT_MAX;i++){
-                    if(i== uPointNum) break;
-                    pointLightDirection = -uPointLightPosition[i] -vEyeVec;
-                    distance = length(pointLightDirection);
-                    if(distance<0.0) distance = 0.0;
+            for(int i=0;i<POINT_MAX;i++){
+                if(i== uPointNum) break;
+                pointDirection = -uPointLightPosition[i] -vEyeVec;
+                distance = length(pointDirection);
+                if(uPointLightRadius[i]> abs(distance)){
                     attenuation = 1.0 / (0.01 + 0.01 * distance + 0.02 * distance * distance); 
-                    L = normalize(pointLightDirection);
+                    L = normalize(pointDirection);
                     lambertTerm = dot(N,-L);
                     if(lambertTerm > 0.0){
-                        ld += uPointLightColor[i] * texelColor * lambertTerm * attenuation;
-                        R = reflect(L/distance/distance * uPointLightRadius[i], N);
+                        ld += uPointLightColor[i] * texelColor * lambertTerm*attenuation;
+                        R = reflect(L, N);
                         specular = pow( max(dot(R, -L), 0.0), uShininess);
-                        ls +=  specularLightColor * specular * attenuation ;
-                    }
-                }      
-            }
-            // 스폿      
-            vec3 tempDistance; // 조명과 표면사이의 거리
-            if(uSpotNum>0){
-                for(int i=0;i<SPOT_MAX;i++){
-                    if(i== uSpotNum) break;
-                    // 거리
-                    tempDistance = -uSpotLightPosition[i]-vEyeVec;
-                    distance = length(tempDistance); ;
-                    if(distance<0.0) distance = 0.0;
-                    // 감쇄 구하고            
-                    attenuation = 1.0 / (0.01 + 0.01 * distance + 0.02 * distance * distance); 
-
-                    // 표면과 라이트의 방향을 구함
-                    L = normalize(tempDistance);
-                    float spotEffect = dot(normalize(uSpotLightDirection[i]),L);
-                                   
-                    vec3 H = normalize(L + normalize(uSpotLightDirection[i]));
-                    lambertTerm = dot(N,-L);
-                    if(lambertTerm > 0.0 ){
-                    
-                            if(spotEffect > uSpotCosCuttoff[i]){
-                                spotEffect = pow(spotEffect,uSpotExponent[i]);
-                                attenuation *=spotEffect;
-                                R = reflect(L, N);
-                                specular = pow( max(dot(R, -H), 0.0), uShininess);
-                                ld += uSpotLightColor[i] * texelColor * lambertTerm * attenuation;
-                                ls +=  specularLightColor * specular * attenuation ;
-                            }
-                       
+                        ls +=  specularLightColor * specular * attenuation  ;
                     }
                 }
-            }
-        
-            //
+            }           
+            
             vec4 finalColor = la + ld + ls;
             finalColor.a = 1.0;            
             gl_FragColor = finalColor;   
@@ -168,7 +123,7 @@
             gl_FragColor = textureCube(uSkybox, vCubeCoord);
         }
 </script>
-<script id="shader-vs-skybox" type="x-shader/x-vertex">
+    <script id="shader-vs-skybox" type="x-shader/x-vertex">
         attribute vec3 aVertexPosition;
         uniform mat4 uMVMatrix;
         uniform mat4 uCameraMatrix;   
@@ -196,40 +151,37 @@
                         gl_Position = uPMatrix * uCameraMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
                     }
             </script>
-            <script type="text/javascript" src="lib/gl-matrix-min.js"></script>
-            <script src="RedShaderInfo.js"></script>
-            <script src="RedProgramInfo.js"></script>
-            <script src="RedBaseCamera.js"></script>
-            <script src="RedCubeTextureInfo.js"></script>    
-            <script src="RedBufferInfo.js"></script>
-            <script src="RedFixedAttributeKey.js"></script>
-            <script src="RedGeometryInfo.js"></script>
-            <script src="RedMeshInfo.js"></script>
-            <script src="RedMeshBaseInfo.js"></script>    
-            <script src="RedPrimitive.js"></script>    
-            <script src="RedDirectionalLightInfo.js"></script>       
-            <script src="RedPointLightInfo.js"></script>
-            <script src="RedSpotLightInfo.js"></script>            
-            <script src="RedMaterialInfo.js"></script>
-            <script src="RedMaterialDefine.js"></script>
-            <script src="RedSceneInfo.js"></script>
-            <script src="RedTextureInfo.js"></script>
-            <script src="RedAtlasUVInfo.js"></script>
-            <script src="RedAtlasInfo.js"></script>
-            <script src="RedAtlasTextureManager.js"></script>
-            <script src="RedAtlasTextureInfo.js"></script>
-            <script src="RedRender.js"></script>
-            <script src="RedGLDetect.js"></script>
-            <script src="RedSkyBoxInfo.js"></script>
-            <script src="redGL.js"></script>
-            <script src="Atlas.js"></script>
+    <script type="text/javascript" src="lib/gl-matrix-min.js"></script>
+    <script src="RedShaderInfo.js"></script>
+    <script src="RedProgramInfo.js"></script>
+    <script src="RedBaseCamera.js"></script>
+    <script src="RedCubeTextureInfo.js"></script>
+    <script src="RedBufferInfo.js"></script>
+    <script src="RedFixedAttributeKey.js"></script>
+    <script src="RedGeometryInfo.js"></script>
+    <script src="RedMeshInfo.js"></script>
+    <script src="RedMeshBaseInfo.js"></script>
+    <script src="RedPrimitive.js"></script>
+    <script src="RedDirectionalLightInfo.js"></script>
+    <script src="RedPointLightInfo.js"></script>
+    <script src="RedMaterialInfo.js"></script>
+    <script src="RedMaterialDefine.js"></script>
+    <script src="RedSceneInfo.js"></script>
+    <script src="RedTextureInfo.js"></script>
+    <script src="RedAtlasUVInfo.js"></script>
+    <script src="RedAtlasInfo.js"></script>
+    <script src="RedAtlasTextureManager.js"></script>
+    <script src="RedAtlasTextureInfo.js"></script>
+    <script src="RedRender.js"></script>
+    <script src="RedGLDetect.js"></script>
+    <script src="RedSkyBoxInfo.js"></script>
+    <script src="redGL.js"></script>
+    <script src="Atlas.js"></script>
 
 </head>
-
 <body>
-        
     <canvas id="test" style="border: none;background:red" width="1280" height="768"></canvas>
-    <script src="index4.js"></script>
+    <script src="index.js"></script>
 </body>
 
 </html>

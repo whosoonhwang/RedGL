@@ -76,7 +76,7 @@
                 lambertTerm = dot(N,-L);
                 if(lambertTerm > 0.0){
                     ld += uPointLightColor[i] * texelColor * lambertTerm*attenuation;
-                    R = reflect(L/distance * uPointLightRadius[i], N);
+                    R = reflect(L/distance/distance * uPointLightRadius[i], N);
                     specular = pow( max(dot(R, -L), 0.0), uShininess);
                     ls +=  specularLightColor * specular * attenuation ;
                 }

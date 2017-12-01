@@ -132,7 +132,6 @@ var RedRender;
                 // console.log(tScene['lights'])
                 self.setDirectionalLight(tempProgramInfo)
                 self.setPointLight(tempProgramInfo)
-                self.setSpotLight(tempProgramInfo)
 
             }
             cacheProgram = null // 캐쉬된 프로그램을 삭제
@@ -148,59 +147,6 @@ var RedRender;
             // Set the backbuffer's alpha to 1.0
             requestAnimationFrame(self.render)
         };
-        this.setSpotLight = (function () {
-            var tSpotPositionList = [], tSpotDirectionList = [], tColorList = []
-            var tSpotCosCuttoffList = new Float32Array(16), tSpotExponentList = new Float32Array(16)
-            return function (programInfo) {
-                if (
-                    tScene['lights']['spot'].length
-                    && programInfo['uniforms']['uSpotNum']
-                ) {
-                    tSpotPositionList.length = 0
-                    tColorList.length = 0
-                    debugSpotRenderList.length = 0
-                    tScene['lights'][RedSpotLightInfo.TYPE].forEach(function (v, i) {
-                        tSpotPositionList[i * 3 + 0] = v['position'][0]
-                        tSpotPositionList[i * 3 + 1] = v['position'][1]
-                        tSpotPositionList[i * 3 + 2] = v['position'][2]
-                        tSpotDirectionList[i * 3 + 0] = v['direction'][0]
-                        tSpotDirectionList[i * 3 + 1] = v['direction'][1]
-                        tSpotDirectionList[i * 3 + 2] = v['direction'][2]
-                        tColorList[i * 4 + 0] = v['color'][0] / 255
-                        tColorList[i * 4 + 1] = v['color'][1] / 255
-                        tColorList[i * 4 + 2] = v['color'][2] / 255
-                        tColorList[i * 4 + 3] = v['color'][3] / 255
-                        tSpotCosCuttoffList[i] = v['spotCosCuttoff']
-                        tSpotExponentList[i] = v['spotExponent']
-                        if (v['useDebugMode']) {
-                            debugSpotRenderList.push(v['__debugMesh'])
-                            v['__debugMesh']['position'][0] = v.position[0]
-                            v['__debugMesh']['position'][1] = v.position[1] - v['height'] / 2
-                            v['__debugMesh']['position'][2] = v.position[2]
-                            // v['__debugMesh']['rotation'][0] = 0
-                            // v['__debugMesh']['rotation'][1] = 0
-                            // v['__debugMesh']['rotation'][2] = 0
-                        }
-                    })
-                    tLocation = programInfo['uniforms']['uSpotLightPosition']['location']
-                    tGL.uniform3fv(tLocation, new Float32Array(tSpotPositionList))
-                    tLocation = programInfo['uniforms']['uSpotLightDirection']['location']
-                    tGL.uniform3fv(tLocation, new Float32Array(tSpotDirectionList))
-                    tLocation = programInfo['uniforms']['uSpotLightColor']['location']
-                    tGL.uniform4fv(tLocation, new Float32Array(tColorList))
-
-                    tLocation = programInfo['uniforms']['uSpotCosCuttoff']['location']
-                    tGL.uniform1fv(tLocation, tSpotCosCuttoffList)
-
-                    tLocation = programInfo['uniforms']['uSpotExponent']['location']
-                    tGL.uniform1fv(tLocation, tSpotExponentList)
-
-                    tLocation = programInfo['uniforms']['uSpotNum']['location']
-                    tGL.uniform1i(tLocation, tScene['lights'][RedSpotLightInfo.TYPE].length)
-
-                }
-            }
-        })();
         this.setPointLight = (function () {
             var tPointList = [], tColorList = [], tPointRadius = new Float32Array(16)
             return function (programInfo) {
@@ -225,9 +171,9 @@ var RedRender;
                             v['__debugMesh'].position[0] = v.position[0]
                             v['__debugMesh'].position[1] = v.position[1]
                             v['__debugMesh'].position[2] = v.position[2]
-                            v['__debugMesh'].scale[0] = v.radius
-                            v['__debugMesh'].scale[1] = v.radius
-                            v['__debugMesh'].scale[2] = v.radius
+                            v['__debugMesh'].scale[0] = v.radius*2
+                            v['__debugMesh'].scale[1] = v.radius*2
+                            v['__debugMesh'].scale[2] = v.radius*2
                         }
                     })
                     tLocation = programInfo['uniforms']['uPointLightPosition']['location']
@@ -237,7 +183,7 @@ var RedRender;
                     tLocation = programInfo['uniforms']['uPointNum']['location']
                     tGL.uniform1i(tLocation, tScene['lights'][RedPointLightInfo.TYPE].length)
                     tLocation = programInfo['uniforms']['uPointLightRadius']['location']
-                    tGL.uniform1f(tLocation, tPointRadius)
+                    tGL.uniform1fv(tLocation, tPointRadius)
                 }
             }
         })()
