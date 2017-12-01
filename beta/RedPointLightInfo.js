@@ -1,11 +1,11 @@
 "use strict";
-var RedSpotLightInfo;
+var RedPointLightInfo;
 /**DOC:
     {
         constructorYn : true,
-        title :`RedSpotLightInfo`,
+        title :`RedPointLightInfo`,
         description : `
-            - RedSpotLightInfo 생성
+            - RedPointLightInfo 생성
         `,
         params : {
             redGL : [
@@ -17,19 +17,19 @@ var RedSpotLightInfo;
             var test;
             test = RedGL(Canvas Element)
             // firstScene 키로 Scene생성
-            RedSpotLightInfo(test)
+            RedPointLightInfo(test)
         `,
-        return : 'RedSpotLightInfo Instance'
+        return : 'RedPointLightInfo Instance'
     }
 :DOC*/
 (function () {
     var tDatas;
-    RedSpotLightInfo = function (redGL) {
-        if (!(this instanceof RedSpotLightInfo)) return new RedSpotLightInfo(redGL)
+    RedPointLightInfo = function (redGL) {
+        if (!(this instanceof RedPointLightInfo)) return new RedPointLightInfo(redGL)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
         // 저장할 공간확보하고
-        if (!redGL['__datas']['RedSpotLightInfo']) redGL['__datas']['RedSpotLightInfo'] = {}
-        tDatas = redGL['__datas']['RedSpotLightInfo']
+        if (!redGL['__datas']['RedPointLightInfo']) redGL['__datas']['RedPointLightInfo'] = {}
+        tDatas = redGL['__datas']['RedPointLightInfo']
         /**DOC:
 		{
             title :`color`,
@@ -50,7 +50,6 @@ var RedSpotLightInfo;
         }
         :DOC*/
         this['position'] = new Float32Array([0, 0, 0])
-        this['direction'] = new Float32Array([0, 0, 0])
         /**DOC:
 		{
             title :`position`,
@@ -60,19 +59,25 @@ var RedSpotLightInfo;
             return : 'Number'
         }
         :DOC*/
-        this['spotCosCuttoff'] = 0.2
-        this['spotExponent'] = 8
-        this['useDebugMode'] = false
+        this['radius'] = 1
+        this['usedebugMode'] = false
         this['__UUID'] = REDGL_UUID++
         this['__debugMesh'] = redGL.createMeshInfo(
-            'RedSpotLightInfo__debugMesh' + this['__UUID'],
-            RedPrimitive.cone(redGL,0.5,0.00001,0.5,8,8),
+            'RedPointLightInfo__debugMesh' + this['__UUID'],
+            RedPrimitive.sphere(redGL, 0.5,16,16,16),
             redGL.createMaterialInfo('color')
+        )
+        this['__debugMesh'].children.push(
+            redGL.createMeshInfo(
+                'RedPointLightInfo__debugMesh' + this['__UUID']+'_center',
+                RedPrimitive.sphere(redGL, 0.03,16,16,16),
+                redGL.createMaterialInfo('color')
+            )
         )
         
         this['__debugMesh'].drawMode = redGL.gl.LINE_STRIP
 
     }
-    RedSpotLightInfo['TYPE'] = 'spot'
-    Object.freeze(RedSpotLightInfo)
+    RedPointLightInfo['TYPE'] = 'point'
+    Object.freeze(RedPointLightInfo)
 })();

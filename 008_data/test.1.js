@@ -104,25 +104,23 @@
                     distance = length(tempDistance); ;
                     if(distance<0.0) distance = 0.0;
                     // 감쇄 구하고            
-                    attenuation = 1.0 / (0.01 + 0.01 * distance + 0.02 * distance * distance); 
+                    attenuation = 1.0 / (0.01 + 0.01 * distance + 0.02 * distance * distance)*distance; 
 
                     // 표면과 라이트의 방향을 구함
                     L = normalize(tempDistance);
                     float spotEffect = dot(normalize(uSpotLightDirection[i]),L);
                                    
-                    vec3 H = normalize(L + normalize(uSpotLightDirection[i]));
+
                     lambertTerm = dot(N,-L);
                     if(lambertTerm > 0.0 ){
-                    
-                            if(spotEffect > uSpotCosCuttoff[i]){
-                                spotEffect = pow(spotEffect,uSpotExponent[i]);
-                                attenuation *=spotEffect;
-                                R = reflect(L, N);
-                                specular = pow( max(dot(R, -H), 0.0), uShininess);
-                                ld += uSpotLightColor[i] * texelColor * lambertTerm * attenuation;
-                                ls +=  specularLightColor * specular * attenuation ;
-                            }
-                       
+                        if(spotEffect > uSpotCosCuttoff[i]){
+                            spotEffect = pow(spotEffect,uSpotExponent[i]);
+                            attenuation *=spotEffect;
+                            R = reflect(L, N);
+                            specular = pow( max(dot(R, -L), 0.0), uShininess);
+                            ld += uSpotLightColor[i] * texelColor * lambertTerm * attenuation;
+                            //ls +=  specularLightColor * specular * attenuation ;
+                        }
                     }
                 }
             }

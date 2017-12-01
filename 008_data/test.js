@@ -39,8 +39,11 @@
         const int SPOT_MAX = 16;
         uniform vec4 uSpotLightColor[SPOT_MAX];      
         uniform vec3 uSpotLightPosition[SPOT_MAX];
-        uniform float uSpotLightRadius[SPOT_MAX];
-        uniform int uSpot;
+        uniform vec3 uSpotLightDirection[SPOT_MAX];
+        uniform int uSpotNum;
+        uniform float uSpotCosCuttoff[SPOT_MAX];  // 한계치설정
+        uniform float uSpotExponent[SPOT_MAX];// 경계면을 부드럽게
+        
 
         uniform float uShininess;
         
@@ -85,44 +88,42 @@
                     lambertTerm = dot(N,-L);
                     if(lambertTerm > 0.0){
                         ld += uPointLightColor[i] * texelColor * lambertTerm * attenuation;
-                        R = reflect(L/distance * uPointLightRadius[i], N);
+                        R = reflect(L/distance/distance * uPointLightRadius[i], N);
                         specular = pow( max(dot(R, -L), 0.0), uShininess);
                         ls +=  specularLightColor * specular * attenuation ;
                     }
                 }      
             }
             // 스폿
-            vec3 uSpotLightDirection; // 스폿라이트 자체의 방향            
-            vec3 uSpotPosition; // 진짜 스폿 포지션이고
-            vec4 uSpotColor; // 스폿컬러
+      
             vec3 tempDistance; // 조명과 표면사이의 거리
-            
-            uSpotPosition = vec3(0.0,50.0,0.0);
-            uSpotLightDirection = vec3(0.6,-1.0,0.6);
-            uSpotColor = vec4(0.0,1.0,1.0,1.0);
+            if(uSpotNum>0){
+                for(int i=0;i<SPOT_MAX;i++){
+                    if(i== uSpotNum) break;
+                    // 거리
+                    tempDistance = -uSpotLightPosition[i]-vEyeVec;
+                    distance = length(tempDistance); ;
+                    if(distance<0.0) distance = 0.0;
+                    // 감쇄 구하고            
+                    // TODO: 실제거리간의 보간을 어떻게 지정할껀지...결정해야함...
+                    attenuation = 1.0 / (0.01 + 0.01 * distance + 0.02 * distance * distance) *distance; 
 
-            // 거리
-            tempDistance = -uSpotPosition-vEyeVec;
-            distance = length(tempDistance); ;
-            // 감쇄 구하고            
-            // TODO: 실제거리간의 보간을 어떻게 지정할껀지...결정해야함...
-            attenuation = 1.0 / (0.01 + 0.01 * distance + 0.02 * distance * distance) *distance; 
+                    // 표면과 라이트의 방향을 구함
+                    L = normalize(tempDistance);
+                    float spotEffect = dot(normalize(uSpotLightDirection[i]),L);
+                 
 
-            // 표면과 라이트의 방향을 구함
-            L = normalize(tempDistance);
-            float spotEffect = dot(normalize(uSpotLightDirection),L);
-            float spotCosCuttoff = 0.6; // 한계치설정
-            float spotExponent = 2.0; // 경계면을 부드럽게
-
-            lambertTerm = dot(N,-L);
-            if(lambertTerm > 0.0 ){
-                if(spotEffect > spotCosCuttoff){
-                    spotEffect = pow(spotEffect,spotExponent);
-                    attenuation *=spotEffect;
-                    R = reflect(L, N);
-                    specular = pow( max(dot(R, -normalize(uSpotLightDirection)), 0.0), uShininess);
-                    ld += uSpotColor * texelColor * lambertTerm * attenuation;
-                    ls +=  specularLightColor * specular * attenuation ;
+                    lambertTerm = dot(N,-L);
+                    if(lambertTerm > 0.0 ){
+                        if(spotEffect > uSpotCosCuttoff[i]){
+                            spotEffect = pow(spotEffect,uSpotExponent[i]);
+                            attenuation *=spotEffect;
+                            R = reflect(L, N);
+                            specular = pow( max(dot(R, -normalize(uSpotLightDirection[i])), 0.0), uShininess);
+                            ld += uSpotLightColor[i] * texelColor * lambertTerm * attenuation;
+                            ls +=  specularLightColor * specular * attenuation ;
+                        }
+                    }
                 }
             }
         
