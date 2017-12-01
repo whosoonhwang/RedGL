@@ -26,6 +26,18 @@ var RedSkyBoxInfo;
                 `
             ]
         },
+        example : `
+            testScene.setSkyBox(
+                testGL.createSkyBoxInfo([
+                    'asset/cubemap/posx.jpg',
+                    'asset/cubemap/negx.jpg',
+                    'asset/cubemap/posy.jpg',
+                    'asset/cubemap/negy.jpg',
+                    'asset/cubemap/posz.jpg',
+                    'asset/cubemap/negz.jpg'
+                ])
+            )
+        `,
         return : 'RedSkyBoxInfo Instance'
     }
 :DOC*/

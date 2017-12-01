@@ -14,7 +14,7 @@
   {
     "constructorYn": true,
     "title": "RedMeshInfo",
-    "description": "\n    <h2>RedMeshBaseInfo 상속객체</h2>\n    - RedGL에서 사용할 재질정보를 정의\n    - 타입키에 해당하는 정의가 존재하지않을경우 에러\n",
+    "description": "\n    <h2>RedMeshBaseInfo 상속객체</h2>\n    - 타입키에 해당하는 정의가 존재하지않을경우 에러\n",
     "params": {
       "redGL": [
         {
@@ -42,7 +42,7 @@
         "- 재질정보"
       ]
     },
-    "example": "\n    var test;\n    test = RedGL(Canvas Element)\n    RedMeshInfo(test, 'firstMesh',geometryInfo, materialInfo)\n",
+    "example": "\n    var test;\n    test = RedGL(Canvas Element)\n    test.createMeshInfo('firstMesh',geometryInfo, materialInfo)\n",
     "return": "RedMeshInfo Instance"
   }
 ]

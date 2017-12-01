@@ -15,35 +15,35 @@ var RedMeshBaseInfo;
     var tGL
     RedMeshBaseInfo = function (redGL) {
         tGL = redGL.gl
-         /**DOC:
-		{
-            title :`uMVMatrix`,
-            description : `
-                - modelView Matrix를 반환
-                - <span style="color:red"><b>uMVMatrix라는 키값은 쉐이더에서 사용되는 고정값이다.</b></span>
-            `,
-			example : `인스턴스.uMVMatrix`,
-			return : 'mat4(Float32Array)'
-        }
-        :DOC*/
-        Object.defineProperty(this,'uMVMatrix',{
-            value : mat4.create(),
-            enumerable : true
+        /**DOC:
+       {
+           title :`uMVMatrix`,
+           description : `
+               - modelView Matrix를 반환
+               - <span style="color:red"><b>uMVMatrix라는 키값은 쉐이더에서 사용되는 고정값이다.</b></span>
+           `,
+           example : `인스턴스.uMVMatrix`,
+           return : 'mat4(Float32Array)'
+       }
+       :DOC*/
+        Object.defineProperty(this, 'uMVMatrix', {
+            value: mat4.create(),
+            enumerable: true
         })
-         /**DOC:
-		{
-            title :`uNMatrix`,
-            description : `
-                - modelView 노멀 Matrix를 반환
-                - <span style="color:red"><b>uNMatrix라는 키값은 쉐이더에서 사용되는 고정값이다.</b></span>
-            `,
-			example : `인스턴스.uNMatrix`,
-			return : 'mat4(Float32Array)'
-        }
-        :DOC*/
-        Object.defineProperty(this,'uNMatrix',{
-            value : mat4.create(),
-            enumerable : true
+        /**DOC:
+       {
+           title :`uNMatrix`,
+           description : `
+               - modelView 노멀 Matrix를 반환
+               - <span style="color:red"><b>uNMatrix라는 키값은 쉐이더에서 사용되는 고정값이다.</b></span>
+           `,
+           example : `인스턴스.uNMatrix`,
+           return : 'mat4(Float32Array)'
+       }
+       :DOC*/
+        Object.defineProperty(this, 'uNMatrix', {
+            value: mat4.create(),
+            enumerable: true
         })
         /**DOC:
 		{
@@ -55,9 +55,9 @@ var RedMeshBaseInfo;
 			return : 'Float32Array(3)'
         }
         :DOC*/
-        Object.defineProperty(this,'position',{
-            value : new Float32Array([0, 0, 0]),
-            enumerable : true
+        Object.defineProperty(this, 'position', {
+            value: new Float32Array([0, 0, 0]),
+            enumerable: true
         })
         // this['position'] = new Float32Array([0, 0, 0])
         /**DOC:
@@ -70,9 +70,9 @@ var RedMeshBaseInfo;
 			return : 'Float32Array(3)'
         }
         :DOC*/
-        Object.defineProperty(this,'rotation',{
-            value : new Float32Array([0, 0, 0]),
-            enumerable : true
+        Object.defineProperty(this, 'rotation', {
+            value: new Float32Array([0, 0, 0]),
+            enumerable: true
         })
         /**DOC:
 		{
@@ -84,9 +84,9 @@ var RedMeshBaseInfo;
 			return : 'Float32Array(3)'
         }
         :DOC*/
-        Object.defineProperty(this,'scale',{
-            value : new Float32Array([1, 1, 1]),
-            enumerable : true
+        Object.defineProperty(this, 'scale', {
+            value: new Float32Array([1, 1, 1]),
+            enumerable: true
         })
         /**DOC:
 		{
@@ -122,17 +122,17 @@ var RedMeshBaseInfo;
         }
         :DOC*/
         this['drawMode'] = tGL.TRIANGLES
-         /**DOC:
-		{
-            title :`useCullFace`,
-            description : `
-                - 실제 메쉬를 그릴때 cullFace를 사용할지 여부
-                - 기본값 : true
-            `,
-			example : `인스턴스.useCullFace`,
-			return : 'boolean'
-        }
-        :DOC*/
+        /**DOC:
+       {
+           title :`useCullFace`,
+           description : `
+               - 실제 메쉬를 그릴때 cullFace를 사용할지 여부
+               - 기본값 : true
+           `,
+           example : `인스턴스.useCullFace`,
+           return : 'boolean'
+       }
+       :DOC*/
         this['useCullFace'] = true
         /**DOC:
 		{
@@ -145,7 +145,7 @@ var RedMeshBaseInfo;
 			return : 'glConst'
         }
         :DOC*/
-        this['cullFace'] = tGL.BACK 
+        this['cullFace'] = tGL.BACK
         /**DOC:
 		{
             title :`useBlendMode`,

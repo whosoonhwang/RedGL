@@ -28,7 +28,7 @@ var RedTextureInfo;
 			example : `
 				var testGL
 				testGL = RedGL(document.getElementById('test'), true)
-				RedTextureInfo(testGL, 'asset/crate.png')
+				testGL.createTextureInfo('asset/crate.png')
 			`,
 			return : 'RedTextureInfo Instance'
 		}

@@ -26,6 +26,11 @@
     "description": "Array버퍼 생성 단축 매서드"
   },
   {
+    "title": "createBaseCameraInfo",
+    "code": "FUNCTION",
+    "description": "베이스카메라 단축 생성 매서드"
+  },
+  {
     "title": "createGeometryInfo",
     "code": "FUNCTION",
     "description": "지오메트리정보 생성 단축 매서드"
@@ -103,6 +108,19 @@
           "type": "String"
         },
         "키로 등록된 Array버퍼를 조회함"
+      ]
+    }
+  },
+  {
+    "title": "getBaseCameraInfo",
+    "code": "FUNCTION",
+    "description": "베이스 카메라정보 조회 단축 매서드",
+    "parmas": {
+      "key": [
+        {
+          "type": "String"
+        },
+        "키로 등록된 베이스 카메라를 조회함"
       ]
     }
   },
@@ -188,12 +206,24 @@
           "type": "Canvas Element"
         }
       ],
+      "callback": [
+        {
+          "type": "function"
+        },
+        "컨텐스트초기화이후 실행될 콜백"
+      ],
       "fullMode": [
         {
           "type": "Boolean"
         },
         "- 기본값 false",
         "- true일경우 윈도우사이즈가 변할때마다 추적함"
+      ],
+      "shaderSourceInfo": [
+        {
+          "type": "Object"
+        },
+        "미리로드할 쉐이더 소스정보"
       ]
     },
     "example": "\nRedGL(document.getElementById('test'))\n",

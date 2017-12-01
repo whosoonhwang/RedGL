@@ -14,10 +14,7 @@ var RedDirectionalLightInfo;
             ]
         },
         example : `
-            var test;
-            test = RedGL(Canvas Element)
-            // firstScene 키로 Scene생성
-            RedDirectionalLightInfo(test)
+            testGL.createDirectionalLight()
         `,
         return : 'RedDirectionalLightInfo Instance'
     }
@@ -34,20 +31,23 @@ var RedDirectionalLightInfo;
         /**DOC:
 		{
             title :`color`,
-            description : `라이트 컬러`,
+            description : `
+                - 라이트 컬러
+                - 기본값 : new Float32Array([1, 1, 1, 1])
+            `,
             code:'PROPERTY',
             example : `인스턴스.color`,
-            return : 'Float32'
+            return : 'Float32(vec4)'
         }
         :DOC*/
-        this['color'] = new Float32Array([255, 255, 255, 255])
+        this['color'] = new Float32Array([1, 1, 1, 1])
          /**DOC:
 		{
             title :`direction`,
             description : `라이트 디렉션`,
             code:'PROPERTY',
             example : `인스턴스.color`,
-            return : 'Float32'
+            return : 'Float32(vec3)'
         }
         :DOC*/
         this['direction'] = new Float32Array([0, 0, 0])

@@ -16,8 +16,7 @@ var RedPointLightInfo;
         example : `
             var test;
             test = RedGL(Canvas Element)
-            // firstScene 키로 Scene생성
-            RedPointLightInfo(test)
+            test.createPointLight()
         `,
         return : 'RedPointLightInfo Instance'
     }
@@ -33,13 +32,16 @@ var RedPointLightInfo;
         /**DOC:
 		{
             title :`color`,
-            description : `라이트 컬러`,
+            description : `
+                - 라이트 컬러
+                - 기본값 : new Float32Array([1, 1, 1, 1])
+            `,
             code:'PROPERTY',
             example : `인스턴스.color`,
             return : 'Float32Array(4)'
         }
         :DOC*/
-        this['color'] = new Float32Array([255, 255, 255, 255])
+        this['color'] = new Float32Array([1, 1, 1, 1])
          /**DOC:
 		{
             title :`position`,
@@ -52,7 +54,7 @@ var RedPointLightInfo;
         this['position'] = new Float32Array([0, 0, 0])
         /**DOC:
 		{
-            title :`position`,
+            title :`radius`,
             description : `라이트 반경`,
             code:'PROPERTY',
             example : `인스턴스.radius`,
@@ -60,6 +62,15 @@ var RedPointLightInfo;
         }
         :DOC*/
         this['radius'] = 1
+        /**DOC:
+		{
+            title :`usedebugMode`,
+            description : `디버그모드 사용여부`,
+            code:'PROPERTY',
+            example : `인스턴스.usedebugMode`,
+            return : 'Boolean'
+        }
+        :DOC*/
         this['usedebugMode'] = false
         this['__UUID'] = REDGL_UUID++
         this['__debugMesh'] = redGL.createMeshInfo(
@@ -73,8 +84,7 @@ var RedPointLightInfo;
                 RedPrimitive.sphere(redGL, 0.03,16,16,16),
                 redGL.createMaterialInfo('color')
             )
-        )
-        
+        )        
         this['__debugMesh'].drawMode = redGL.gl.LINE_STRIP
 
     }

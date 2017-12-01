@@ -2,7 +2,7 @@
 var RedPrimitive;
 /**DOC:
     {
-        var ructorYn : true,
+        constructorYn : true,
         title :`RedPrimitive`,
         description : `
             - RedPrimitive 생성기
@@ -127,7 +127,7 @@ var RedPrimitive;
             // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
             tType = 'RedPrimitivePlane' + '_' + width + '_' + height + '_' + segmentW + '_' + segmentH
             if (tDatas[tType]) {
-                console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
+                // console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
                 return tDatas[tType]
             }
 
@@ -259,7 +259,7 @@ var RedPrimitive;
             // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
             tType = 'RedPrimitiveCube' + '_' + width + '_' + height + '_' + depth + '_' + widthSegments + '_' + heightSegments + '_' + depthSegments
             if (tDatas[tType]) {
-                console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
+                // console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
                 return tDatas[tType]
             }
 
@@ -316,7 +316,7 @@ var RedPrimitive;
             h = h ? h : 50
             tType = 'RedPrimitiveFloor' + '_' + w + '_' + h
             if (tDatas[tType]) {
-                console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
+                // console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
                 return tDatas[tType]
             }
 
@@ -407,7 +407,7 @@ var RedPrimitive;
             // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
             tType = 'RedPrimitiveSphere' + '_' + radius + '_' + widthSegments + '_' + heightSegments + '_' + phiStart + '_' + phiLength + '_' + thetaStart + '_' + thetaLength
             if (tDatas[tType]) {
-                console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
+                // console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
                 return tDatas[tType]
             }
 
@@ -495,7 +495,7 @@ var RedPrimitive;
             // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
             tType = 'RedPrimitiveCone' + '_' + bottomRadius + '_' + topRadius + '_' + height + '_' + radialSubdivisions + '_' + verticalSubdivisions + '_' + opt_topCap + '_' + opt_bottomCap
             if (tDatas[tType]) {
-                console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
+                // console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
                 return tDatas[tType]
             }
             ////////////////////////////////////////////////////////////////////////////

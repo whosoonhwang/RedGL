@@ -15,6 +15,10 @@
             typeName : [
                 {type:'String'},
                 '- 재질 타입 지정'
+            ],
+            diffuseInfo : [
+                {type:'RedTextureInfo or RedCubeTextureInfo'},
+                '- 텍스쳐를 사용할경우 Diffuse맵이 들어감'
             ]
         },
         example : `
@@ -30,9 +34,9 @@
                 test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER)
             )
             // basic이라는 타입의 재질 정의한다.
-            RedMaterialDefine(test, test.getProgramInfo('basic'))
+            test.createMaterialDefine(test.getProgramInfo('basic'))
             // basic재질을 실제로 생성한다.
-            RedMaterialInfo(test,'basic')
+            test.createMaterialInfo('basic')
         `,
         return : 'RedMaterialInfo Instance'
     }
@@ -52,7 +56,7 @@ var RedMaterialInfo;
             4: 'uniform4fv',
             3: 'uniform3fv',
             2: 'uniform2fv',
-            1: 'uniform1f'
+            1: 'uniform1fv'
         },
         i: {
             16: 'uniformMatrix4iv',
@@ -88,7 +92,7 @@ var RedMaterialInfo;
                 - diffuseInfo
             `,
 			example : `인스턴스.diffuseInfo`,
-			return : 'RedTextureInfo'
+			return : 'RedTextureInfo or RedCubeTextureInfo'
         }
         :DOC*/
         this['diffuseInfo'] = diffuseInfo
@@ -133,11 +137,29 @@ var RedMaterialInfo;
             ) {
                 t0['__uniformMethod'] = typeMAP['i'][t0.length]
                 t0['__isMatrix'] = t0['__uniformMethod'].length > 11
+            } else if (typeof t0 == 'number') {
             } else if (t0 instanceof RedAtlasUVInfo) {
             } else if (t0 instanceof RedTextureInfo || t0 instanceof RedCubeTextureInfo) {
             } else if (t0 instanceof RedAtlasTextureInfo) {
                 this['uniforms']['uAtlascoord'] = t0['atlasUVInfo']
             } else throw k + '는 올바르지 않은 타입입니다.'
+        }
+        // 프로그램 정보를 처리
+        if (this['needUniformList']) {
+            this['__uniformList'] = []
+            var tUniformGroup = this['uniforms']
+            var tUniformLocationGroup = this['programInfo']['uniforms']
+            for (k in tUniformGroup) {
+                this['__uniformList'].push({
+                    key: k,
+                    type: tUniformLocationGroup[k]['type'],
+                    value: tUniformGroup[k],
+                    location: tUniformLocationGroup[k]['location']
+                })
+                // if(tMeterial.hasOwnProperty(k)) throw '유니폼이름과 재질의 프로퍼티네임이 같으면 안됩니다.'
+                this[k] = tUniformGroup[k]
+            }
+            this['needUniformList'] = false
         }
         this['__UUID'] = REDGL_UUID++
     }

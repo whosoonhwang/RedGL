@@ -108,11 +108,14 @@ var RedProgramInfo;
                     var tInfo;
                     tInfo = {}
                     v = v.split(' ')
+                    console.log(v)
                     if (v[0] == 'attribute') {
                         tInfo['location'] = tGL.getAttribLocation(tProgram, v[2]);
+                        tInfo['type'] = v[1]
                         self['attributes'][v[2]] = tInfo
                     } else {
                         tInfo['location'] = tGL.getUniformLocation(tProgram, v[2]);
+                        tInfo['type'] = v[1]
                         self['uniforms'][v[2]] = tInfo
                     }
                 })

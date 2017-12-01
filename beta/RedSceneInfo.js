@@ -17,7 +17,7 @@ var RedSceneInfo;
                 '- 존재하는 키일경우 에러.'
             ],
             camera : [
-                {type:'RedBaseCamera'},
+                {type:'RedBaseCameraInfo'},
                 '- 사용할 카메라 객체등록'
             ]
         },
@@ -25,7 +25,7 @@ var RedSceneInfo;
             var test;
             test = RedGL(Canvas Element)
             // firstScene 키로 Scene생성
-            RedSceneInfo(test,'firstScene')
+            test.createSceneInfo('firstScene')
         `,
         return : 'RedSceneInfo Instance'
     }
@@ -36,7 +36,7 @@ var RedSceneInfo;
         if (!(this instanceof RedSceneInfo)) return new RedSceneInfo(redGL, key, camera)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
         if (typeof key != 'string') throw 'key는 문자열만 허용됩니다.'
-        if (!(camera instanceof RedBaseCamera)) throw 'camera는 RedBaseCamera 인스턴스만 허용됩니다.'
+        if (!(camera instanceof RedBaseCameraInfo)) throw 'camera는 RedBaseCameraInfo 인스턴스만 허용됩니다.'
         // 저장할 공간확보하고
         if (!redGL['__datas']['RedSceneInfo']) redGL['__datas']['RedSceneInfo'] = {}
         tDatas = redGL['__datas']['RedSceneInfo']
@@ -56,10 +56,18 @@ var RedSceneInfo;
             title :`camera`,
 			description : `씬이 가지고있는 카메라`,
 			example : `인스턴스.camera`,
-			return : 'RedBaseCamera'
+			return : 'RedBaseCameraInfo'
         }
         :DOC*/
         this['camera'] = camera
+        /**DOC:
+		{
+            title :`lights`,
+			description : `씬이 가지고있는 광원정보`,
+			example : `인스턴스.lights`,
+			return : 'Object'
+        }
+        :DOC*/
         this['lights'] = {
             ambient : [],
             directional : [],
@@ -77,7 +85,7 @@ var RedSceneInfo;
             title :`setSkyBox`,
             description : `스카이박스 설정`,
             code:'FUNCTION',
-			example : `인스턴스.setSkyBox`
+			example : `인스턴스.setSkyBox(RedSkyBoxInfo Instance)`
         }
         :DOC*/
         setSkyBox: function (v) {
@@ -88,7 +96,7 @@ var RedSceneInfo;
             title :`setGrid`,
             description : `그리드 설정`,
             code:'FUNCTION',
-			example : `인스턴스.setGrid`
+			example : `인스턴스.setGrid(RedMeshInfo Instance)`
         }
         :DOC*/
         setGrid: function (v) {
@@ -113,6 +121,10 @@ var RedSceneInfo;
                     tDatas = this['lights'][RedPointLightInfo.TYPE]
                     if (tDatas.length == 16) throw '포인트라이트 최대갯수는 16개입니다.'
                     else tDatas.push(v)
+                }else if (v instanceof RedAmbientLightInfo) {
+                    tDatas = this['lights'][RedAmbientLightInfo.TYPE]
+                    // 엠비언트는 일단 무조건 갈아침
+                    tDatas[0] = v
                 }else if (v instanceof RedSpotLightInfo) {
                     tDatas = this['lights'][RedSpotLightInfo.TYPE]
                     if (tDatas.length == 16) throw '스폿라이트 최대갯수는 16개입니다.'

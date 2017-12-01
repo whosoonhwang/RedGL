@@ -5,7 +5,6 @@
         title :`RedMeshInfo`,
         description : `
             <h2>RedMeshBaseInfo 상속객체</h2>
-            - RedGL에서 사용할 재질정보를 정의
             - 타입키에 해당하는 정의가 존재하지않을경우 에러
         `,
         params : {
@@ -30,7 +29,7 @@
         example : `
             var test;
             test = RedGL(Canvas Element)
-            RedMeshInfo(test, 'firstMesh',geometryInfo, materialInfo)
+            test.createMeshInfo('firstMesh',geometryInfo, materialInfo)
         `,
         return : 'RedMeshInfo Instance'
     }
