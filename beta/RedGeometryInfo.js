@@ -38,7 +38,7 @@
             ]
         },
         example : `
-            //TODO:
+            testGL.createGeometryInfo(key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer) 
         `,
         return : 'RedGeometryInfo Instance'
     }

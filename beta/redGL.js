@@ -37,10 +37,18 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 				canvas : [
 					{type:'Canvas Element'}
 				],
+				callback :[
+					{type:'function'},
+					'컨텐스트초기화이후 실행될 콜백'
+				],
 				fullMode : [
 					{type:'Boolean'},
 					'- 기본값 false',
 					'- true일경우 윈도우사이즈가 변할때마다 추적함'
+				],
+				shaderSourceInfo : [
+					{type:'Object'},
+					'미리로드할 쉐이더 소스정보'
 				]
 			},
 			example : `
@@ -49,8 +57,8 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			return : 'RedGL Instance'
 		}
 	:DOC*/
-	RedGL = function (canvas, fullMode) {
-		if (!(this instanceof RedGL)) return new RedGL(canvas, fullMode)
+	RedGL = function (canvas, callback, fullMode, shaderSourceInfo) {
+		if (!(this instanceof RedGL)) return new RedGL(canvas, callback, fullMode, shaderSourceInfo)
 		var tGL;
 		this['__canvas'] = canvas
 		this['gl'] = tGL = getGL(canvas)
@@ -85,6 +93,10 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		tGL.viewport(0, 0, tGL.drawingBufferWidth, tGL.drawingBufferHeight);
 		
 		instanceList.push(this)
+		console.log(shaderSourceInfo, callback)
+		if (shaderSourceInfo) RedShaderLoader(shaderSourceInfo, callback)
+		else callback ? callback() : 0
+
 	}
 	window.addEventListener('resize', function () {
 		instanceList.forEach(function (v) {
@@ -450,6 +462,47 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		:DOC*/
 		createSceneInfo: function (key, camera) {
 			return new RedSceneInfo(this, key, camera)
+		},
+		createAmbientLight : function(){
+			return new RedAmbientLightInfo(this)
+		},
+		createDirectionalLight : function(){
+			return new RedDirectionalLightInfo(this)
+		},
+		createPointLight : function(){
+			return new RedPointLightInfo(this)
+		},
+		createSkyBoxInfo : function(srcList){
+			return new RedSkyBoxInfo(this,srcList)
+		},
+		/**DOC:
+		{
+			title :`createBaseCameraInfo`,
+			code : 'FUNCTION',
+			description : `베이스카메라 단축 생성 매서드`
+		}
+		:DOC*/
+		createBaseCameraInfo : function(key){
+			return new RedBaseCameraInfo(this,key)
+		},
+		/**DOC:
+		{
+			title :`getBaseCameraInfo`,
+			code : 'FUNCTION',
+			description : `베이스 카메라정보 조회 단축 매서드`,
+			parmas : {
+				key :[
+					{type:'String'},
+					'키로 등록된 베이스 카메라를 조회함'
+				]
+			}
+		}
+		:DOC*/
+		getBaseCameraInfo : function(key){
+			return this['__datas']['RedBaseCameraInfo'][key]
+		},
+		createBaseRenderInfo: function (redScene, callback) {
+			return new RedBaseRenderInfo(this, redScene, callback)
 		}
 	}
 })();

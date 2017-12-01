@@ -58,7 +58,7 @@ var RedCubeTextureInfo;
 		// 로딩상태 플래그를 완료로 설정
 		this['loaded'] = 1
 		// 타겟인덱스를 설정함		
-		this['__targetIndex'] = 2
+		this['__targetIndex'] = 2 //TODO: 이놈도 동적캐싱을 할지 결정해야하는데...
 		console.log(this)
 		tGL.activeTexture(tGL.TEXTURE0)
 		tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, this['texture'])

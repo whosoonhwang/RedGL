@@ -31,7 +31,7 @@
                 test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER)
             )
             // basic이라는 타입의 재질을 만든다.
-            RedMaterialDefine(test, test.getProgramInfo('basic'))
+            test.createMaterialDefine(test.getProgramInfo('basic'))
         `,
         return : 'RedMaterialDefine Instance'
     }

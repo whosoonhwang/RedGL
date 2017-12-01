@@ -17,7 +17,7 @@ var redGLDetect;
 				]
 			},
 			example : `
-				redGLDetect(RedGL Instance)
+				testGL.detect
 			`,
 			return : 'redGLDetect Instance'
 		}

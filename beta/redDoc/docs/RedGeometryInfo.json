@@ -63,7 +63,7 @@
         "- RedBufferInfo.ARRAY_BUFFER 타입만가능"
       ]
     },
-    "example": "\n    //TODO:\n",
+    "example": "\n    testGL.createGeometryInfo(key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer) \n",
     "return": "RedGeometryInfo Instance"
   }
 ]

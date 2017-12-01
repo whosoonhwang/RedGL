@@ -10,7 +10,7 @@
         }
       ]
     },
-    "example": "\nredGLDetect(RedGL Instance)\n",
+    "example": "\ntestGL.detect\n",
     "return": "redGLDetect Instance"
   }
 ]

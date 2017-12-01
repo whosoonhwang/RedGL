@@ -9,13 +9,19 @@
     "title": "camera",
     "description": "씬이 가지고있는 카메라",
     "example": "인스턴스.camera",
-    "return": "RedBaseCamera"
+    "return": "RedBaseCameraInfo"
   },
   {
     "title": "children",
     "description": "씬이 물고있는 Mesh리스트들",
     "example": "인스턴스.children",
     "return": "Array"
+  },
+  {
+    "title": "lights",
+    "description": "씬이 가지고있는 광원정보",
+    "example": "인스턴스.lights",
+    "return": "Object"
   },
   {
     "constructorYn": true,
@@ -36,24 +42,24 @@
       ],
       "camera": [
         {
-          "type": "RedBaseCamera"
+          "type": "RedBaseCameraInfo"
         },
         "- 사용할 카메라 객체등록"
       ]
     },
-    "example": "\n    var test;\n    test = RedGL(Canvas Element)\n    // firstScene 키로 Scene생성\n    RedSceneInfo(test,'firstScene')\n",
+    "example": "\n    var test;\n    test = RedGL(Canvas Element)\n    // firstScene 키로 Scene생성\n    test.createSceneInfo('firstScene')\n",
     "return": "RedSceneInfo Instance"
   },
   {
     "title": "setGrid",
     "description": "그리드 설정",
     "code": "FUNCTION",
-    "example": "인스턴스.setGrid"
+    "example": "인스턴스.setGrid(RedMeshInfo Instance)"
   },
   {
     "title": "setSkyBox",
     "description": "스카이박스 설정",
     "code": "FUNCTION",
-    "example": "인스턴스.setSkyBox"
+    "example": "인스턴스.setSkyBox(RedSkyBoxInfo Instance)"
   }
 ]
