@@ -58,6 +58,24 @@ start = function () {
 		checkCallBox.style.left = '10px'
 		checkCallBox.style.top = '10px'
 		checkCallBox.style.color = '#fff'
+		var testCaseDoc = document.createElement('a')
+		document.body.appendChild(testCaseDoc)
+		testCaseDoc.style.position = 'absolute'
+		testCaseDoc.style.left = '10px'
+		testCaseDoc.style.bottom = '25px'
+		testCaseDoc.style.color = '#fff'
+		testCaseDoc.style.fontSize = '11px'
+		testCaseDoc.href = 'testCase/index.html'
+		testCaseDoc.innerHTML = 'RedGL TestCase'
+		var doc = document.createElement('a')
+		document.body.appendChild(doc)
+		doc.style.position = 'absolute'
+		doc.style.left = '10px'
+		doc.style.bottom = '10px'
+		doc.style.color = '#fff'
+		doc.style.fontSize = '11px'
+		doc.href = 'redDoc/redDoc.html'
+		doc.innerHTML = 'RedGL Document'
 	}
 	console.log('이힝!')
 	/// 기반준비
