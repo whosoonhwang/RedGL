@@ -42,7 +42,7 @@ var RedCubeTextureInfo;
 		}
 	
 		// 인덱스 번호 지정 - 초기생성전담은 0번 인덱스를 사용함
-		this['__targetIndex'] = 0
+		this['__targetIndex'] = RedTextureIndex.CREATE
 		// 로딩이 다되었는지
 		this['loaded'] = 0
 		// 액티브된적이있는지
@@ -58,7 +58,7 @@ var RedCubeTextureInfo;
 		// 로딩상태 플래그를 완료로 설정
 		this['loaded'] = 1
 		// 타겟인덱스를 설정함		
-		this['__targetIndex'] = 2 //TODO: 이놈도 동적캐싱을 할지 결정해야하는데...
+		this['__targetIndex'] = RedTextureIndex.CUBE //TODO: 이놈도 동적캐싱을 할지 결정해야하는데...
 		console.log(this)
 		tGL.activeTexture(tGL.TEXTURE0)
 		tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, this['texture'])

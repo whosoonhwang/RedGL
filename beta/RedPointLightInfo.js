@@ -81,11 +81,12 @@ var RedPointLightInfo;
         this['__debugMesh'].children.push(
             redGL.createMeshInfo(
                 'RedPointLightInfo__debugMesh' + this['__UUID']+'_center',
-                RedPrimitive.sphere(redGL, 0.03,16,16,16),
+                RedPrimitive.sphere(redGL, 0.01,1,1,1),
                 redGL.createMaterialInfo('color')
             )
         )        
         this['__debugMesh'].drawMode = redGL.gl.LINE_STRIP
+        this['__debugMesh']['children'][0].drawMode = redGL.gl.LINE_STRIP
 
     }
     RedPointLightInfo['TYPE'] = 'point'

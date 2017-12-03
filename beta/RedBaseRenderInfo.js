@@ -48,7 +48,7 @@ var RedBaseRenderInfo;
         // 씬생성!!
         this['callback'] = callback
         this['targetScene'] = redScene
-        this['__UUID'] = REDGL_UUID++        
+        this['__UUID'] = REDGL_UUID++
         //
         var uniform1fiMAP = {
             float: 'uniform1f',
@@ -67,7 +67,7 @@ var RedBaseRenderInfo;
         var aX, aY, aZ;
         ///////////////////////////////////////////////////////////////////
         var tGL; // 대상 RedGL의 gl context
-        var tMeterial; // 대상 재질
+        var tMaterial; // 대상 재질
         var tProgramInfo; // 대상 프로그램 정보
         var tProgram; // 대상 프로그램
         var tGeometry; // 대상 지오메트리
@@ -136,7 +136,7 @@ var RedBaseRenderInfo;
                 self.setAmbientLight(tempProgramInfo)
                 self.setDirectionalLight(tempProgramInfo)
                 self.setPointLight(tempProgramInfo)
-              
+
 
             }
             cacheProgram = null // 캐쉬된 프로그램을 삭제
@@ -146,23 +146,23 @@ var RedBaseRenderInfo;
             self.drawSkyBox(tScene['skyBox'], time)
             tGL.clear(tGL.DEPTH_BUFFER_BIT);
             self.draw(tScene['children'], time)
-            self.draw(debugPointRenderList)            
+            self.draw(debugPointRenderList)
             self.drawGrid(tScene['grid'], time)
             // Set the backbuffer's alpha to 1.0
             requestAnimationFrame(self.render)
         };
-        this.setAmbientLight = (function(){
+        this.setAmbientLight = (function () {
             var tColorList = new Float32Array(4)
-            return function(programInfo){
+            return function (programInfo) {
                 if (
                     tScene['lights'][RedAmbientLightInfo.TYPE].length
                     && programInfo['uniforms']['uAmbientLightColor']
                 ) {
                     tScene['lights'][RedAmbientLightInfo.TYPE].forEach(function (v, i) {
-                        tColorList[i * 4 + 0] = v['color'][0] 
-                        tColorList[i * 4 + 1] = v['color'][1] 
-                        tColorList[i * 4 + 2] = v['color'][2] 
-                        tColorList[i * 4 + 3] = v['color'][3] 
+                        tColorList[i * 4 + 0] = v['color'][0]
+                        tColorList[i * 4 + 1] = v['color'][1]
+                        tColorList[i * 4 + 2] = v['color'][2]
+                        tColorList[i * 4 + 3] = v['color'][3]
                     })
                     tLocation = programInfo['uniforms']['uAmbientLightColor']['location']
                     tGL.uniform4fv(tLocation, tColorList)
@@ -182,10 +182,10 @@ var RedBaseRenderInfo;
                         tDirectionList[i * 3 + 0] = v['direction'][0]
                         tDirectionList[i * 3 + 1] = v['direction'][1]
                         tDirectionList[i * 3 + 2] = v['direction'][2]
-                        tColorList[i * 4 + 0] = v['color'][0] 
-                        tColorList[i * 4 + 1] = v['color'][1] 
-                        tColorList[i * 4 + 2] = v['color'][2] 
-                        tColorList[i * 4 + 3] = v['color'][3] 
+                        tColorList[i * 4 + 0] = v['color'][0]
+                        tColorList[i * 4 + 1] = v['color'][1]
+                        tColorList[i * 4 + 2] = v['color'][2]
+                        tColorList[i * 4 + 3] = v['color'][3]
                     })
                     tLocation = programInfo['uniforms']['uDirectionnalLightDirection']['location']
                     tGL.uniform3fv(tLocation, new Float32Array(tDirectionList))
@@ -212,8 +212,8 @@ var RedBaseRenderInfo;
                         tPointList[i * 3 + 2] = v['position'][2]
                         tColorList[i * 4 + 0] = v['color'][0]
                         tColorList[i * 4 + 1] = v['color'][1]
-                        tColorList[i * 4 + 2] = v['color'][2] 
-                        tColorList[i * 4 + 3] = v['color'][3] 
+                        tColorList[i * 4 + 2] = v['color'][2]
+                        tColorList[i * 4 + 3] = v['color'][3]
                         tPointRadius[i] = v['radius']
                         if (v['useDebugMode']) {
                             debugPointRenderList.push(v['__debugMesh'])
@@ -224,7 +224,7 @@ var RedBaseRenderInfo;
                             v['__debugMesh'].scale[1] = v.radius * 2
                             v['__debugMesh'].scale[2] = v.radius * 2
                             v['__debugMesh'].materialInfo.uColor[0] = v['color'][0]
-                            v['__debugMesh'].materialInfo.uColor[1] = v['color'][1] 
+                            v['__debugMesh'].materialInfo.uColor[1] = v['color'][1]
                             v['__debugMesh'].materialInfo.uColor[2] = v['color'][2]
                             v['__debugMesh'].materialInfo.uColor[3] = 0.5
                         }
@@ -339,14 +339,14 @@ var RedBaseRenderInfo;
                     /////////////////////////////////////////////////////////////////////////////////////////////
                 }
                 // 정보세팅
-                tMeterial = tMesh['materialInfo']
-                tProgramInfo = tMeterial['programInfo']
+                tMaterial = tMesh['materialInfo']
+                tProgramInfo = tMaterial['programInfo']
                 tProgram = tProgramInfo['program']
                 tGeometry = tMesh['geometryInfo']
                 tAttrGroup = tGeometry['attributes']
                 tAttrGroupList = tGeometry['__attributeList']
                 tAttrLocationGroup = tProgramInfo['attributes']
-                tUniformGroup = tMeterial['uniforms']
+                tUniformGroup = tMaterial['uniforms']
                 tUniformLocationGroup = tProgramInfo['uniforms']
                 tIndicesBuffer = tGeometry['indices']
                 tVertexPositionBuffer = tAttrGroup['vertexPosition']
@@ -381,17 +381,17 @@ var RedBaseRenderInfo;
                     }
                 }
                 // 유니폼 입력
-                tUniformGroupList = tMeterial['__uniformList']
+                tUniformGroupList = tMaterial['__uniformList']
                 i2 = tUniformGroupList.length
                 var bitmapRenderable = true
                 while (i2--) {
                     tUniformKey = tUniformGroupList[i2]['key'],
                         tUniformType = tUniformGroupList[i2]['type'],
                         // tUniformValue = tUniformGroupList[i2]['value'],
-                        tUniformValue = tMeterial[tUniformKey]
-                        tLocation = tUniformGroupList[i2]['location']
-                        // if(tUniformKey == 'uShininess') console.log(tUniformValue)
-                    if (tUniformKey == 'uAtlascoord') {
+                        tUniformValue = tMaterial[tUniformKey]
+                    tLocation = tUniformGroupList[i2]['location']
+                    if(tUniformValue == undefined) {}
+                    else if (tUniformKey == 'uAtlascoord') {
                         cacheUAtlascoord_UUID == tUniformValue['__UUID'] ? 0 : tGL.uniform4fv(tLocation, tUniformValue['value'])
                         cacheUAtlascoord_UUID = tUniformValue['__UUID']
                     } else if (tUniformValue['__uniformMethod']) {
@@ -420,7 +420,6 @@ var RedBaseRenderInfo;
                             cacheActiveTextureIndex = tTexture['__targetIndex']
                         }
                     } else if (tUniformValue['__webglTexture']) {
-
                         if (cacheTexture1_UUID == undefined) bitmapRenderable = false
                         if (tUniformValue['loaded']) {
                             if (cacheTexture1_UUID != tUniformValue['__UUID']) {
@@ -446,9 +445,28 @@ var RedBaseRenderInfo;
                             cacheActiveCubeTextureIndex != tUniformValue['__targetIndex'] ? tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
                             cacheActiveCubeTextureIndex = tUniformValue['__targetIndex']
                         }
-                    } else throw '안되는 나쁜 타입인거야!!'
+                    } 
+                    else throw '안되는 나쁜 타입인거야!!'
                 }
 
+                // 노말맵이있을경우
+                // TODO: 이놈도 안전하게 캐싱하도록 수정하자...
+                if (tProgramInfo['uniforms']['uUseNormalTexture']) {
+                    if (tMaterial['normalInfo']) {                        
+                        if (tMaterial['normalInfo']['loaded']) {
+                            if(tMaterial['normalInfo']['__targetIndex'] !=RedTextureIndex.NORMAL){
+                                throw "노말인덱스타입이 아닙니다."
+                            }
+                            tGL.uniform1i(tProgramInfo['uniforms']['uUseNormalTexture']['location'], 1)
+                            // console.log('노말사용으로전환')
+                        } else {
+                            tGL.uniform1i(tProgramInfo['uniforms']['uUseNormalTexture']['location'], 0)
+                            // console.log('노말미사용으로전환')
+                        }
+                    }else {
+                        tGL.uniform1i(tProgramInfo['uniforms']['uUseNormalTexture']['location'], 0)
+                    }
+                }
                 if (tUniformLocationGroup['uNMatrix']) {
                     //클론
                     tNMatrix[0] = tMVMatrix[0], tNMatrix[1] = tMVMatrix[1], tNMatrix[2] = tMVMatrix[2], tNMatrix[3] = tMVMatrix[3],
@@ -598,7 +616,7 @@ var RedBaseRenderInfo;
                 return : `Number`
             }
         :DOC*/
-        numDrawCall : 0
+        numDrawCall: 0
     }
     Object.freeze(RedBaseRenderInfo)
 })();

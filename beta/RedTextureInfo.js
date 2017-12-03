@@ -36,12 +36,12 @@ var RedTextureInfo;
 	RedTextureInfo = function (redGL, src, targetIndex, internalFormat, format, type) {
 		if (!(this instanceof RedTextureInfo)) return new RedTextureInfo(redGL, src, targetIndex, internalFormat, format, type)
 		if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-		if (typeof src !='string' && !(src instanceof Element && src.nodeName == 'CANVAS')) throw 'src는 문자열과 캔버스 오브젝트만 허용됩니다.'
+		if ( src !=undefined && typeof src !='string' && !(src instanceof Element && src.nodeName == 'CANVAS')) throw 'src는 문자열과 캔버스 오브젝트만 허용됩니다.'
 		var texture;
 		var img;
 		var level = 0;
-		var width = 2;
-		var height = 2;
+		var width = 1;
+		var height = 1;
 		var border = 0;
 		var self;
 		self = this
@@ -49,7 +49,7 @@ var RedTextureInfo;
 		internalFormat = internalFormat ? internalFormat : tGL.RGBA;
 		format = format ? format : tGL.RGBA;
 		type = type ? type : tGL.UNSIGNED_BYTE;
-		targetIndex = targetIndex ? targetIndex : 1
+		targetIndex = targetIndex ? targetIndex : RedTextureIndex.DIFFUSE
 		texture = tGL.createTexture()
 		tGL.activeTexture(tGL.TEXTURE0)
 		tGL.bindTexture(tGL.TEXTURE_2D, texture)
@@ -72,7 +72,7 @@ var RedTextureInfo;
 		)
 		img = new Image();
 		// 캔버스 일경우 캔버스이미지데이터를 활용함
-		img.src = src instanceof Element ? src.toDataURL() : src
+		if(src != undefined) img.src = src instanceof Element ? src.toDataURL() : src
 		img.crossOrigin = 'anonymous'
 		img.addEventListener('load', function () {
 			// 로딩상태 플래그를 완료로 설정
@@ -93,7 +93,7 @@ var RedTextureInfo;
 		// tGL.bindTexture(tGL.TEXTURE_2D, null)
 		this['__img'] = img
 		// 인덱스 번호 지정 - 초기생성전담은 0번 인덱스를 사용함
-		this['__targetIndex'] = 0
+		this['__targetIndex'] = RedTextureIndex.CREATE
 		// 로딩이 다되었는지
 		this['loaded'] = 0
 		// 액티브된적이있는지
