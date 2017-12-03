@@ -91,7 +91,7 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		tGL.scissor(0, 0, tGL.drawingBufferWidth, tGL.drawingBufferHeight);
 		// set the viewport rectangle
 		tGL.viewport(0, 0, tGL.drawingBufferWidth, tGL.drawingBufferHeight);
-		
+
 		instanceList.push(this)
 		console.log(shaderSourceInfo, callback)
 		if (shaderSourceInfo) RedShaderLoader(shaderSourceInfo, callback)
@@ -414,8 +414,8 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			description : `재질정보 생성 단축 매서드`
 		}
 		:DOC*/
-		createMaterialInfo: function (typeName, diffuseInfo) {
-			return new RedMaterialInfo(this, typeName, diffuseInfo)
+		createMaterialInfo: function (typeName, diffuseInfo, normalInfo) {
+			return new RedMaterialInfo(this, typeName, diffuseInfo, normalInfo)
 		},
 		/**DOC:
 		{
@@ -463,17 +463,17 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		createSceneInfo: function (key, camera) {
 			return new RedSceneInfo(this, key, camera)
 		},
-		createAmbientLight : function(){
+		createAmbientLight: function () {
 			return new RedAmbientLightInfo(this)
 		},
-		createDirectionalLight : function(){
+		createDirectionalLight: function () {
 			return new RedDirectionalLightInfo(this)
 		},
-		createPointLight : function(){
+		createPointLight: function () {
 			return new RedPointLightInfo(this)
 		},
-		createSkyBoxInfo : function(srcList){
-			return new RedSkyBoxInfo(this,srcList)
+		createSkyBoxInfo: function (srcList) {
+			return new RedSkyBoxInfo(this, srcList)
 		},
 		/**DOC:
 		{
@@ -482,8 +482,8 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			description : `베이스카메라 단축 생성 매서드`
 		}
 		:DOC*/
-		createBaseCameraInfo : function(key){
-			return new RedBaseCameraInfo(this,key)
+		createBaseCameraInfo: function (key) {
+			return new RedBaseCameraInfo(this, key)
 		},
 		/**DOC:
 		{
@@ -498,7 +498,7 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			}
 		}
 		:DOC*/
-		getBaseCameraInfo : function(key){
+		getBaseCameraInfo: function (key) {
 			return this['__datas']['RedBaseCameraInfo'][key]
 		},
 		createBaseRenderInfo: function (redScene, callback) {

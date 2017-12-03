@@ -97,7 +97,9 @@ start = function () {
 	var testTexture = testGL.createTextureInfo('asset/fieldstone.jpg')
 	var testNormalTexture = testGL.createTextureInfo('asset/fieldstone-normal.jpg',RedTextureIndex.NORMAL)
 	// 재질생성	
-	var testMatBitmap = testGL.createMaterialInfo('bitmapPhong', testTexture, testNormalTexture)
+	var testMatBitmapNormal = testGL.createMaterialInfo('bitmapPhong', testTexture, testNormalTexture)
+	testMatBitmapNormal.uShininess = 8
+	var testMatBitmap = testGL.createMaterialInfo('bitmapPhong', testTexture)
 	testMatBitmap.uShininess = 8
 
 	// 그리드 생성
@@ -117,20 +119,22 @@ start = function () {
 	)
 
 	// 중앙 테스트용 큰 구체...작성
-	var tMesh = testGL.createMeshInfo('testMeshAdd2', RedPrimitive.sphere(testGL, 1, 32, 32, 32), testMatBitmap)
-	tMesh.scale[0] = 4
-	tMesh.scale[1] = 4
-	tMesh.scale[2] = 4
+	// var tMesh = testGL.createMeshInfo('testMeshAdd2', RedPrimitive.cube(testGL, 1,1,1, 32, 32, 32), testMatBitmap)
+	var tMesh = testGL.createMeshInfo('testMeshAdd2', RedPrimitive.sphere(testGL, 3,32, 32, 32), testMatBitmapNormal)
+	testScene.children.push(tMesh)
+console.log(tMesh)
+	var tMesh = testGL.createMeshInfo('testMeshAdd3', RedPrimitive.sphere(testGL, 3,32, 32, 32), testMatBitmap)
+	tMesh.position[0] = 7
 	testScene.children.push(tMesh)
 
 	// 중앙 테스트용 구체...정렬
 	var i, max = 50
 	i = max
 	while (i--) {
-		var tMesh = testGL.createMeshInfo('testMeshAdd1' + i, RedPrimitive.sphere(testGL, 1, 32, 32, 32), testMatBitmap)
-		tMesh.position[0] = Math.sin(Math.PI * 2 / max * i) * 10
+		var tMesh = testGL.createMeshInfo('testMeshAdd1' + i, RedPrimitive.sphere(testGL, 1, 32, 32, 32), testMatBitmapNormal)
+		tMesh.position[0] = Math.sin(Math.PI * 2 / max * i) * 20
 		tMesh.position[1] = 0
-		tMesh.position[2] = Math.cos(Math.PI * 2 / max * i) * 10
+		tMesh.position[2] = Math.cos(Math.PI * 2 / max * i) * 20
 		testScene.children.push(tMesh)
 	}
 
@@ -143,59 +147,36 @@ start = function () {
 	var i = 3
 	while (i--) {
 		var testLight = testGL.createDirectionalLight(testGL)
-		testLight.direction[0] = Math.random() * 20 - 5
-		testLight.direction[1] = Math.random() * 20 - 5
-		testLight.direction[2] = Math.random() * 10 - 5
+		testLight.direction[0] =-0.3
+		testLight.direction[1] =-0.7
+		testLight.direction[2] = 0.3
 		testLight.color[0] = Math.random()
 		testLight.color[1] = Math.random()
 		testLight.color[2] = Math.random()
-		testLight.color[3] = Math.random()
-
 		testScene.addLight(testLight)
 	}
 	// 포인트 라이트 테스트
-	i = 6
+	i = 5
 	while (i--) {
 		var testLight = testGL.createPointLight(testGL)
+		testLight.position[1] =7
+		testLight.position[2] =7
 		testLight.color[0] = Math.random()
 		testLight.color[1] = Math.random()
 		testLight.color[2] = Math.random()
-		testLight.position[1] = Math.random() * 20 - 10
-		testLight.radius = Math.random() * 10 + 5
+		testLight.radius = 20
 		testLight.useDebugMode = true
 		testScene.addLight(testLight)
 
 	}
 
-	// 무작위로 가보자
-	var i = 30, j
-	while (i--) {
-		j = 70
-		while (j--) {
-			var tMesh = testGL.createMeshInfo('testMeshAdd2' + '_' + i + '_' + j, RedPrimitive.sphere(testGL, 0.5, 16, 16, 16), testMatBitmap)
-			// var tMesh = testGL.createMeshInfo('testMeshAdd1'+i, RedPrimitive.cube(testGL,1,1,1,32,32,32), testMatBitmap)
-			tMesh.position[0] = Math.sin(Math.PI * 2 * Math.random()) * 30
-			tMesh.position[1] = Math.sin(Math.PI * 2 * Math.random()) * 30
-			tMesh.position[2] = Math.cos(Math.PI * 2 * Math.random()) * 30
-			var tScale = Math.random() * 3
-			tMesh.scale[0] = tMesh.scale[1] = tMesh.scale[2] = tScale
-
-			testScene.children.push(tMesh)
-		}
-	}
+	
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	// 렌더러 생성!!!!
 	var renderer = testGL.createBaseRenderInfo(testScene, function (time) {
 		testCamera.setPosition(Math.sin(time / 3000) * 60, 60, Math.cos(time / 5000) * 40)
 		testCamera.lookAt([0, 0, 0])
-		i = testScene['lights']['point'].length
-		while (i--) {
-			testScene['lights']['point'][i].position[0] = Math.sin(time / 6000 + Math.PI * 2 / testScene['lights']['point'].length * i) * 20
-			testScene['lights']['point'][i].position[1] = Math.tan(time / 3000 + Math.PI * 2 / testScene['lights']['point'].length * i) * 10 +
-				Math.atan(time / 2000 + Math.PI * 2 / testScene['lights']['point'].length * i) * 10
-			testScene['lights']['point'][i].position[2] = Math.cos(time / 2500 + Math.PI * 2 / testScene['lights']['point'].length * i) * 30
-		}
 		i = testScene['lights']['directional'].length
 		while (i--) {
 			testScene['lights']['directional'][i].direction[0] = Math.sin(time / 1700 + i) * 20

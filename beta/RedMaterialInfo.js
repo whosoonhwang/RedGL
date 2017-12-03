@@ -18,7 +18,11 @@
             ],
             diffuseInfo : [
                 {type:'RedTextureInfo or RedCubeTextureInfo'},
-                '- 텍스쳐를 사용할경우 Diffuse맵이 들어감'
+                '- DiffuseMap 지정'
+            ],
+            normalInfo : [
+                 {type:'RedTextureInfo or RedCubeTextureInfo'},
+                '- normalMap 지정'
             ]
         },
         example : `
@@ -68,8 +72,8 @@ var RedMaterialInfo;
             1: 'uniform1iv'
         }
     }
-    RedMaterialInfo = function (redGL, typeName, diffuseInfo) {
-        if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseInfo)
+    RedMaterialInfo = function (redGL, typeName, diffuseInfo, normalInfo) {
+        if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseInfo, normalInfo)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
         if (typeof typeName != 'string') throw 'typeName은 문자열만 허용됩니다.'
         // 디파인더에서 재질정의를 찾고
@@ -96,6 +100,7 @@ var RedMaterialInfo;
         }
         :DOC*/
         this['diffuseInfo'] = diffuseInfo
+        this['normalInfo'] = normalInfo
         /**DOC:
 		{
             title :`uniforms`,
@@ -137,6 +142,7 @@ var RedMaterialInfo;
             ) {
                 t0['__uniformMethod'] = typeMAP['i'][t0.length]
                 t0['__isMatrix'] = t0['__uniformMethod'].length > 11
+            } else if (t0 == null ) {
             } else if (typeof t0 == 'number') {
             } else if (t0 instanceof RedAtlasUVInfo) {
             } else if (t0 instanceof RedTextureInfo || t0 instanceof RedCubeTextureInfo) {
