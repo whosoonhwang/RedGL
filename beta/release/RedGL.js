@@ -2251,7 +2251,11 @@ var RedPointLightInfo;
             ],
             diffuseInfo : [
                 {type:'RedTextureInfo or RedCubeTextureInfo'},
-                '- 텍스쳐를 사용할경우 Diffuse맵이 들어감'
+                '- DiffuseMap 지정'
+            ],
+            normalInfo : [
+                 {type:'RedTextureInfo or RedCubeTextureInfo'},
+                '- normalMap 지정'
             ]
         },
         example : `
