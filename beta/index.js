@@ -140,7 +140,7 @@ start = function () {
 	testScene.addLight(testLight)
 
 	// 디렉셔널 라이트 테스트
-	var i = 1
+	var i = 3
 	while (i--) {
 		var testLight = testGL.createDirectionalLight(testGL)
 		testLight.direction[0] = Math.random() * 20 - 5
@@ -154,7 +154,7 @@ start = function () {
 		testScene.addLight(testLight)
 	}
 	// 포인트 라이트 테스트
-	i = 5
+	i = 6
 	while (i--) {
 		var testLight = testGL.createPointLight(testGL)
 		testLight.color[0] = Math.random()
