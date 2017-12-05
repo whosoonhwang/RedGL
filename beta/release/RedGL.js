@@ -3193,9 +3193,11 @@ var RedBaseRenderInfo;
         var cacheTexture1_UUID; // 일반 텍스쳐 캐싱정보
         var cacheTexture2_UUID; // 큐브 텍스쳐 캐싱정보
         var cacheTextureAtlas_UUID; // 텍스쳐 아틀라스 캐싱정보
-        var cacheActiveTextureIndex; // 액티브된 텍스쳐정보
+        var cacheActiveTextureIndex_UUID; // 액티브된 텍스쳐정보
         var cacheActiveCubeTextureIndex; // 액티브된 큐브특스쳐정보
         var cacheUAtlascoord_UUID; // 아틀라스 UV텍스쳐 정보
+        var cacheIntFloat; // int형이나 float형 캐싱정보
+        var cacheUseNormalTexture; // 노말텍스쳐사용여부 캐싱정보
         ///////////////////////////////////////////////////////////////////
         var cacheUseCullFace; // 컬페이스 사용여부 캐싱정보
         var cacheCullFace; // 컬페이스 캐싱정보
@@ -3209,6 +3211,13 @@ var RedBaseRenderInfo;
 
         cacheAttrUUID = {}
         cacheTextureAtlas_UUID = {}
+        cacheActiveTextureIndex_UUID = {}
+        k = 50
+        while (k--) cacheActiveTextureIndex_UUID[k] = null
+        cacheIntFloat = {
+            int: null,
+            float: null
+        }
         this.render = function (time) {
             //TODO: 재질 소팅을 도입해야곘음 -_-;;
             //////////////////////////////////////////////////////////
@@ -3493,7 +3502,7 @@ var RedBaseRenderInfo;
                         // tUniformValue = tUniformGroupList[i2]['value'],
                         tUniformValue = tMaterial[tUniformKey]
                     tLocation = tUniformGroupList[i2]['location']
-                    if(tUniformValue == undefined) {}
+                    if (tUniformValue == undefined) { }
                     else if (tUniformKey == 'uAtlascoord') {
                         cacheUAtlascoord_UUID == tUniformValue['__UUID'] ? 0 : tGL.uniform4fv(tLocation, tUniformValue['value'])
                         cacheUAtlascoord_UUID = tUniformValue['__UUID']
@@ -3504,8 +3513,8 @@ var RedBaseRenderInfo;
                             tGL[tUniformValue['__uniformMethod']](tLocation, tUniformValue)
                     } else if (uniform1fiMAP[tUniformType]) {
                         // 유니폼인데 숫자값일경우
-                        // console.log(tUniformKey,tUniformType,tUniformValue)
-                        tGL[uniform1fiMAP[tUniformType]](tLocation, tUniformValue)
+                        if (cacheIntFloat[tUniformType] != tUniformValue) tGL[uniform1fiMAP[tUniformType]](tLocation, tUniformValue)
+                        cacheIntFloat[tUniformType] = tUniformValue
                     } else if (tUniformValue['__webglAtlasTexture']) {
                         var tTexture;
                         tTexture = tUniformValue['parentAtlasInfo']['textureInfo']
@@ -3519,8 +3528,8 @@ var RedBaseRenderInfo;
                                 tGL.bindTexture(tGL.TEXTURE_2D, tTexture['texture'])
                                 cacheTextureAtlas_UUID[tTexture['__targetIndex']] = tTexture['__UUID']
                             }
-                            cacheActiveTextureIndex != tTexture['__targetIndex'] ? tGL.uniform1i(tLocation, tTexture['__targetIndex']) : 0
-                            cacheActiveTextureIndex = tTexture['__targetIndex']
+                            cacheActiveTextureIndex_UUID[tTexture['__targetIndex']] != tTexture['__UUID'] ? tGL.uniform1i(tLocation, tTexture['__targetIndex']) : 0
+                            cacheActiveTextureIndex_UUID[tTexture['__targetIndex']] = tTexture['__UUID']
                         }
                     } else if (tUniformValue['__webglTexture']) {
                         if (cacheTexture1_UUID == undefined) bitmapRenderable = false
@@ -3532,8 +3541,8 @@ var RedBaseRenderInfo;
                                 tGL.bindTexture(tGL.TEXTURE_2D, tUniformValue['texture'])
                                 cacheTexture1_UUID = tUniformValue['__UUID']
                             }
-                            cacheActiveTextureIndex != tUniformValue['__targetIndex'] ? tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
-                            cacheActiveTextureIndex = tUniformValue['__targetIndex']
+                            cacheActiveTextureIndex_UUID[tUniformValue['__targetIndex']] != tUniformValue['__UUID'] ? tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
+                            cacheActiveTextureIndex_UUID[tUniformValue['__targetIndex']] = tUniformValue['__UUID']
                         }
                     } else if (tUniformValue['__webglCubeTexture']) {
                         if (cacheTexture2_UUID == undefined) bitmapRenderable = false
@@ -3545,29 +3554,25 @@ var RedBaseRenderInfo;
                                 tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, tUniformValue['texture'])
                                 cacheTexture2_UUID = tUniformValue['__UUID']
                             }
-                            cacheActiveCubeTextureIndex != tUniformValue['__targetIndex'] ? tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
-                            cacheActiveCubeTextureIndex = tUniformValue['__targetIndex']
+                            cacheActiveTextureIndex_UUID[tUniformValue['__targetIndex']] != tUniformValue['__UUID'] ? tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
+                            cacheActiveTextureIndex_UUID[tUniformValue['__targetIndex']] = tUniformValue['__UUID']
                         }
-                    } 
+                    }
                     else throw '안되는 나쁜 타입인거야!!'
                 }
 
                 // 노말맵이있을경우
-                // TODO: 이놈도 안전하게 캐싱하도록 수정하자...
                 if (tProgramInfo['uniforms']['uUseNormalTexture']) {
-                    if (tMaterial['normalInfo']) {                        
-                        if (tMaterial['normalInfo']['loaded']) {
-                            if(tMaterial['normalInfo']['__targetIndex'] !=RedTextureIndex.NORMAL){
-                                throw "노말인덱스타입이 아닙니다."
-                            }
-                            tGL.uniform1i(tProgramInfo['uniforms']['uUseNormalTexture']['location'], 1)
-                            // console.log('노말사용으로전환')
-                        } else {
-                            tGL.uniform1i(tProgramInfo['uniforms']['uUseNormalTexture']['location'], 0)
-                            // console.log('노말미사용으로전환')
-                        }
-                    }else {
-                        tGL.uniform1i(tProgramInfo['uniforms']['uUseNormalTexture']['location'], 0)
+                    if (tMaterial['normalInfo'] && tMaterial['normalInfo']['loaded']) {
+                        if (tMaterial['normalInfo']['__targetIndex'] != RedTextureIndex.NORMAL) throw "노말인덱스타입이 아닙니다."
+
+                        cacheUseNormalTexture == 1 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseNormalTexture']['location'], 1)
+                        cacheUseNormalTexture = 1
+                        // console.log('노말사용으로전환')
+                    } else {
+                        cacheUseNormalTexture == 0 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseNormalTexture']['location'], 0)
+                        cacheUseNormalTexture = 0
+                        // console.log('노말미사용으로전환')
                     }
                 }
                 if (tUniformLocationGroup['uNMatrix']) {
