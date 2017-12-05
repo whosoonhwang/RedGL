@@ -156,8 +156,6 @@ console.log(tMesh)
 	i = 5
 	while (i--) {
 		var testLight = testGL.createPointLight(testGL)
-		testLight.position[1] =7
-		testLight.position[2] =7
 		testLight.color[0] = Math.random()
 		testLight.color[1] = Math.random()
 		testLight.color[2] = Math.random()
