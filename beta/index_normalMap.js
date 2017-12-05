@@ -147,9 +147,6 @@ console.log(tMesh)
 	var i = 3
 	while (i--) {
 		var testLight = testGL.createDirectionalLight(testGL)
-		testLight.direction[0] =-0.3
-		testLight.direction[1] =-0.7
-		testLight.direction[2] = 0.3
 		testLight.color[0] = Math.random()
 		testLight.color[1] = Math.random()
 		testLight.color[2] = Math.random()
@@ -179,9 +176,9 @@ console.log(tMesh)
 		testCamera.lookAt([0, 0, 0])
 		i = testScene['lights']['directional'].length
 		while (i--) {
-			testScene['lights']['directional'][i].direction[0] = Math.sin(time / 1700 + i) * 20
+			testScene['lights']['directional'][i].direction[0] = Math.sin(time / 1700 + i) * 30
 			testScene['lights']['directional'][i].direction[1] = Math.cos(time / 1400 + i) * 20 + Math.sin(time / 2700 + i) * 50
-			testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200 + i) * 20
+			testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200 + i) * 30
 		}
 		checkCallBox.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
 	})

@@ -143,9 +143,9 @@ start = function () {
 	var i = 3
 	while (i--) {
 		var testLight = testGL.createDirectionalLight(testGL)
-		testLight.direction[0] = Math.random() * 20 - 5
-		testLight.direction[1] = Math.random() * 20 - 5
-		testLight.direction[2] = Math.random() * 10 - 5
+		testLight.direction[0] = Math.random() * 2 - 1
+		testLight.direction[1] = Math.random() * 2 - 1
+		testLight.direction[2] = Math.random() * 2 - 1
 		testLight.color[0] = Math.random()
 		testLight.color[1] = Math.random()
 		testLight.color[2] = Math.random()
