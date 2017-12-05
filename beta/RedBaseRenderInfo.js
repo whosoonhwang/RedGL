@@ -95,6 +95,7 @@ var RedBaseRenderInfo;
         var cacheUAtlascoord_UUID; // 아틀라스 UV텍스쳐 정보
         var cacheIntFloat; // int형이나 float형 캐싱정보
         var cacheUseNormalTexture; // 노말텍스쳐사용여부 캐싱정보
+        var cacheUseDisplacementTexture;//디스플레이스텍스쳐 사용여부 캐싱정보
         ///////////////////////////////////////////////////////////////////
         var cacheUseCullFace; // 컬페이스 사용여부 캐싱정보
         var cacheCullFace; // 컬페이스 캐싱정보
@@ -128,13 +129,13 @@ var RedBaseRenderInfo;
             //////////////////////////////////////////////////////////////////
             tScene = self['targetScene']
             tGL.clear(tGL.COLOR_BUFFER_BIT);
-            // TODO: 이부분은 리사이저이벤트로 날릴수 있을듯        ... 흠 프로그램 변경때문에 안되남...   
+            //////////////////////////////////////////////////////////////////
             tScene['camera'].update()
             for (k in redGL['__datas']['RedProgramInfo']) {
                 var tempProgramInfo;
                 tempProgramInfo = redGL['__datas']['RedProgramInfo'][k]
                 tGL.useProgram(tempProgramInfo['program'])
-                // 파스팩티브 갱신
+                // 퍼스팩티브 갱신
                 tLocation = tempProgramInfo['uniforms']['uPMatrix']['location']
                 tGL.uniformMatrix4fv(tLocation, false, tScene['camera']['uPMatrix'])
                 // 카메라갱신
@@ -146,20 +147,18 @@ var RedBaseRenderInfo;
                 self.setDirectionalLight(tempProgramInfo)
                 self.setPointLight(tempProgramInfo)
 
-
             }
             cacheProgram = null // 캐쉬된 프로그램을 삭제
             //////////////////////////////////////////////////////////////////
-            //////////////////////////////////////////////////////////////////
-
             self.drawSkyBox(tScene['skyBox'], time)
             tGL.clear(tGL.DEPTH_BUFFER_BIT);
             self.draw(tScene['children'], time)
             self.draw(debugPointRenderList)
             self.drawGrid(tScene['grid'], time)
-            // Set the backbuffer's alpha to 1.0
+            //////////////////////////////////////////////////////////////////
             requestAnimationFrame(self.render)
         };
+        // 암비언트 유니폼 세팅
         this.setAmbientLight = (function () {
             var tColorList = new Float32Array(4)
             return function (programInfo) {
@@ -167,17 +166,18 @@ var RedBaseRenderInfo;
                     tScene['lights'][RedAmbientLightInfo.TYPE].length
                     && programInfo['uniforms']['uAmbientLightColor']
                 ) {
-                    tScene['lights'][RedAmbientLightInfo.TYPE].forEach(function (v, i) {
-                        tColorList[i * 4 + 0] = v['color'][0]
-                        tColorList[i * 4 + 1] = v['color'][1]
-                        tColorList[i * 4 + 2] = v['color'][2]
-                        tColorList[i * 4 + 3] = v['color'][3]
+                    tScene['lights'][RedAmbientLightInfo.TYPE].forEach(function (v, index) {
+                        tColorList[index * 4 + 0] = v['color'][0]
+                        tColorList[index * 4 + 1] = v['color'][1]
+                        tColorList[index * 4 + 2] = v['color'][2]
+                        tColorList[index * 4 + 3] = v['color'][3]
                     })
                     tLocation = programInfo['uniforms']['uAmbientLightColor']['location']
                     tGL.uniform4fv(tLocation, tColorList)
                 }
             }
         })()
+        // 디렉셔널 라이트 유니폼세팅
         this.setDirectionalLight = (function () {
             var tDirectionList = [], tColorList = []
             return function (programInfo) {
@@ -187,14 +187,14 @@ var RedBaseRenderInfo;
                 ) {
                     tDirectionList.length = 0
                     tColorList.length = 0
-                    tScene['lights'][RedDirectionalLightInfo.TYPE].forEach(function (v, i) {
-                        tDirectionList[i * 3 + 0] = v['direction'][0]
-                        tDirectionList[i * 3 + 1] = v['direction'][1]
-                        tDirectionList[i * 3 + 2] = v['direction'][2]
-                        tColorList[i * 4 + 0] = v['color'][0]
-                        tColorList[i * 4 + 1] = v['color'][1]
-                        tColorList[i * 4 + 2] = v['color'][2]
-                        tColorList[i * 4 + 3] = v['color'][3]
+                    tScene['lights'][RedDirectionalLightInfo.TYPE].forEach(function (v, index) {
+                        tDirectionList[index * 3 + 0] = v['direction'][0]
+                        tDirectionList[index * 3 + 1] = v['direction'][1]
+                        tDirectionList[index * 3 + 2] = v['direction'][2]
+                        tColorList[index * 4 + 0] = v['color'][0]
+                        tColorList[index * 4 + 1] = v['color'][1]
+                        tColorList[index * 4 + 2] = v['color'][2]
+                        tColorList[index * 4 + 3] = v['color'][3]
                     })
                     tLocation = programInfo['uniforms']['uDirectionnalLightDirection']['location']
                     tGL.uniform3fv(tLocation, new Float32Array(tDirectionList))
@@ -205,6 +205,7 @@ var RedBaseRenderInfo;
                 }
             }
         })()
+        // 포인트 라이트 유니폼 세팅
         this.setPointLight = (function () {
             var tPointList = [], tColorList = [], tPointRadius = new Float32Array(16)
             return function (programInfo) {
@@ -215,15 +216,15 @@ var RedBaseRenderInfo;
                     tPointList.length = 0
                     tColorList.length = 0
                     debugPointRenderList.length = 0
-                    tScene['lights'][RedPointLightInfo.TYPE].forEach(function (v, i) {
-                        tPointList[i * 3 + 0] = v['position'][0]
-                        tPointList[i * 3 + 1] = v['position'][1]
-                        tPointList[i * 3 + 2] = v['position'][2]
-                        tColorList[i * 4 + 0] = v['color'][0]
-                        tColorList[i * 4 + 1] = v['color'][1]
-                        tColorList[i * 4 + 2] = v['color'][2]
-                        tColorList[i * 4 + 3] = v['color'][3]
-                        tPointRadius[i] = v['radius']
+                    tScene['lights'][RedPointLightInfo.TYPE].forEach(function (v, index) {
+                        tPointList[index * 3 + 0] = v['position'][0]
+                        tPointList[index * 3 + 1] = v['position'][1]
+                        tPointList[index * 3 + 2] = v['position'][2]
+                        tColorList[index * 4 + 0] = v['color'][0]
+                        tColorList[index * 4 + 1] = v['color'][1]
+                        tColorList[index * 4 + 2] = v['color'][2]
+                        tColorList[index * 4 + 3] = v['color'][3]
+                        tPointRadius[index] = v['radius']
                         if (v['useDebugMode']) {
                             debugPointRenderList.push(v['__debugMesh'])
                             v['__debugMesh'].position[0] = v.position[0]
@@ -249,6 +250,7 @@ var RedBaseRenderInfo;
                 }
             }
         })()
+        // 바닥그리드 draw
         this.drawGrid = (function () {
             var list = [];
             return function (grid) {
@@ -259,6 +261,7 @@ var RedBaseRenderInfo;
                 }
             }
         })();
+        // 스카이박스 draw
         this.drawSkyBox = (function () {
             var list = [];
             return function (skyBox) {
@@ -271,6 +274,7 @@ var RedBaseRenderInfo;
                 }
             }
         })();
+        // 기본 draw함수
         this.draw = function (renderList, time, parentMTX) {
             var i, i2; // 루프변수
             i = renderList.length
@@ -359,8 +363,6 @@ var RedBaseRenderInfo;
                 tUniformLocationGroup = tProgramInfo['uniforms']
                 tIndicesBuffer = tGeometry['indices']
                 tVertexPositionBuffer = tAttrGroup['vertexPosition']
-
-
                 // 프로그램 세팅 & 캐싱
                 cacheProgram != tProgram ? tGL.useProgram(tProgram) : 0
                 cacheProgram = tProgram
@@ -369,14 +371,16 @@ var RedBaseRenderInfo;
                 while (i2--) {
                     tAttrBufferInfo = tAttrGroupList[i2], // 대상버퍼구하고
                         tAttrPointer = tAttrBufferInfo['shaderPointerKey'] // 바인딩할 쉐이더 변수키를 알아낸다.
-                    if (tAttrLocationGroup[tAttrPointer]) { // 정보매칭이 안되는 녀석은 무시한다 
-                        tLocation = tAttrLocationGroup[tAttrPointer]['location'] // 로케이션도 알아낸다.
+                    if (tAttrLocationGroup[tAttrPointer]) { // 어트리뷰트 정보매칭이 안되는 녀석은 무시한다 
+                        tLocation = tAttrLocationGroup[tAttrPointer]['location'] // 어트리뷰트 로케이션도 알아낸다.
                         // 캐싱된 attribute정보과 현재 대상정보가 같다면 무시
                         cacheAttrUUID[tLocation] == tAttrBufferInfo['__UUID'] ?
                             0 :
                             (
-                                tGL.bindBuffer(tGL.ARRAY_BUFFER, tAttrBufferInfo['buffer']), // 실제 버퍼 바인딩하고
-                                tAttrBufferInfo['enabled'] ? 0 : (tGL.enableVertexAttribArray(tLocation), tAttrBufferInfo['enabled'] = 1), // 해당로케이션을 활성화 시킨다
+                                // 실제 버퍼 바인딩하고
+                                tGL.bindBuffer(tGL.ARRAY_BUFFER, tAttrBufferInfo['buffer']),
+                                // 해당로케이션을 활성화된적이없으면 활성화 시킨다
+                                tAttrBufferInfo['enabled'] ? 0 : (tGL.enableVertexAttribArray(tLocation), tAttrBufferInfo['enabled'] = 1),
                                 tGL.vertexAttribPointer(
                                     tLocation,
                                     tAttrBufferInfo['pointSize'],
@@ -385,7 +389,8 @@ var RedBaseRenderInfo;
                                     tAttrBufferInfo['stride'],
                                     tAttrBufferInfo['offset']
                                 ),
-                                cacheAttrUUID[tLocation] = tAttrBufferInfo['__UUID'] // 상태 캐싱
+                                // 상태 캐싱
+                                cacheAttrUUID[tLocation] = tAttrBufferInfo['__UUID']
                             )
                     }
                 }
@@ -399,20 +404,27 @@ var RedBaseRenderInfo;
                         // tUniformValue = tUniformGroupList[i2]['value'],
                         tUniformValue = tMaterial[tUniformKey]
                     tLocation = tUniformGroupList[i2]['location']
+                    // 값이없으면 무시
                     if (tUniformValue == undefined) { }
+                    // 아틀라스코디네이트값인경우
                     else if (tUniformKey == 'uAtlascoord') {
                         cacheUAtlascoord_UUID == tUniformValue['__UUID'] ? 0 : tGL.uniform4fv(tLocation, tUniformValue['value'])
                         cacheUAtlascoord_UUID = tUniformValue['__UUID']
-                    } else if (tUniformValue['__uniformMethod']) {
+                    }
+                    // 매트릭스형태인 경우
+                    else if (tUniformValue['__uniformMethod']) {
                         tUniformValue['__isMatrix'] // 매트릭스형태인지 아닌지 파악
                             ?
                             tGL[tUniformValue['__uniformMethod']](tLocation, false, tUniformValue) :
                             tGL[tUniformValue['__uniformMethod']](tLocation, tUniformValue)
-                    } else if (uniform1fiMAP[tUniformType]) {
-                        // 유니폼인데 숫자값일경우
-                        if (cacheIntFloat[tUniformType] != tUniformValue) tGL[uniform1fiMAP[tUniformType]](tLocation, tUniformValue)
+                    }
+                    // 유니폼인데 숫자값일 경우
+                    else if (uniform1fiMAP[tUniformType]) {
+                        cacheIntFloat[tUniformType] == tUniformValue ? 0 : tGL[uniform1fiMAP[tUniformType]](tLocation, tUniformValue)
                         cacheIntFloat[tUniformType] = tUniformValue
-                    } else if (tUniformValue['__webglAtlasTexture']) {
+                    }
+                    // 아틀라스텍스쳐인경우
+                    else if (tUniformValue['__webglAtlasTexture']) {
                         var tTexture;
                         tTexture = tUniformValue['parentAtlasInfo']['textureInfo']
                         if (cacheTextureAtlas_UUID[tTexture['__targetIndex']] == undefined) bitmapRenderable = false
@@ -428,7 +440,9 @@ var RedBaseRenderInfo;
                             cacheActiveTextureIndex_UUID[tTexture['__targetIndex']] != tTexture['__UUID'] ? tGL.uniform1i(tLocation, tTexture['__targetIndex']) : 0
                             cacheActiveTextureIndex_UUID[tTexture['__targetIndex']] = tTexture['__UUID']
                         }
-                    } else if (tUniformValue['__webglTexture']) {
+                    }
+                    // 일반 텍스쳐인경우
+                    else if (tUniformValue['__webglTexture']) {
                         if (cacheTexture1_UUID == undefined) bitmapRenderable = false
                         if (tUniformValue['loaded']) {
                             if (cacheTexture1_UUID != tUniformValue['__UUID']) {
@@ -441,7 +455,9 @@ var RedBaseRenderInfo;
                             cacheActiveTextureIndex_UUID[tUniformValue['__targetIndex']] != tUniformValue['__UUID'] ? tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
                             cacheActiveTextureIndex_UUID[tUniformValue['__targetIndex']] = tUniformValue['__UUID']
                         }
-                    } else if (tUniformValue['__webglCubeTexture']) {
+                    }
+                    // 큐브텍스쳐인경우
+                    else if (tUniformValue['__webglCubeTexture']) {
                         if (cacheTexture2_UUID == undefined) bitmapRenderable = false
                         if (tUniformValue['loaded']) {
                             if (cacheTexture2_UUID != tUniformValue['__UUID']) {
@@ -455,14 +471,14 @@ var RedBaseRenderInfo;
                             cacheActiveTextureIndex_UUID[tUniformValue['__targetIndex']] = tUniformValue['__UUID']
                         }
                     }
+                    // 이도저도아닌경우는 뭔가 잘못된거임
                     else throw '안되는 나쁜 타입인거야!!'
                 }
 
                 // 노말맵이있을경우
                 if (tProgramInfo['uniforms']['uUseNormalTexture']) {
                     if (tMaterial['normalInfo'] && tMaterial['normalInfo']['loaded']) {
-                        if (tMaterial['normalInfo']['__targetIndex'] != RedTextureIndex.NORMAL) throw "노말인덱스타입이 아닙니다."
-
+                        if (tMaterial['normalInfo']['__targetIndex'] != RedTextureIndex.NORMAL) throw "노말 인덱스타입이 아닙니다."
                         cacheUseNormalTexture == 1 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseNormalTexture']['location'], 1)
                         cacheUseNormalTexture = 1
                         // console.log('노말사용으로전환')
@@ -472,6 +488,21 @@ var RedBaseRenderInfo;
                         // console.log('노말미사용으로전환')
                     }
                 }
+                // displacementMap이 있을경우
+                if (tProgramInfo['uniforms']['uUseDisplacementTexture']) {
+                    if (tMaterial['displacementInfo'] && tMaterial['displacementInfo']['loaded']) {
+                        if (tMaterial['displacementInfo']['__targetIndex'] != RedTextureIndex.DISPLACEMENT) throw "DISPLACEMENT 인덱스타입이 아닙니다."
+                        cacheUseDisplacementTexture == 1 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseDisplacementTexture']['location'], 1)
+                        cacheUseDisplacementTexture = 1
+                        // console.log('displacementMap 사용으로전환')
+                    } else {
+                        cacheUseDisplacementTexture == 0 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseDisplacementTexture']['location'], 0)
+                        cacheUseDisplacementTexture = 0
+                        // console.log('displacementMap 미사용으로전환')
+                    }
+                }
+
+                // 노말매트릭스를 사용할경우
                 if (tUniformLocationGroup['uNMatrix']) {
                     //클론
                     tNMatrix[0] = tMVMatrix[0], tNMatrix[1] = tMVMatrix[1], tNMatrix[2] = tMVMatrix[2], tNMatrix[3] = tMVMatrix[3],
@@ -519,20 +550,24 @@ var RedBaseRenderInfo;
                         tNMatrix[1] = tNMatrix[4], tNMatrix[2] = tNMatrix[8], tNMatrix[3] = tNMatrix[12], tNMatrix[4] = a01, tNMatrix[6] = tNMatrix[9],
                         tNMatrix[7] = tNMatrix[13], tNMatrix[8] = a02, tNMatrix[9] = a12, tNMatrix[11] = tNMatrix[14],
                         tNMatrix[12] = a03, tNMatrix[13] = a13, tNMatrix[14] = a23;
+                    // uNMatrix 입력 
                     tGL.uniformMatrix4fv(tUniformLocationGroup['uNMatrix']['location'], false, tNMatrix)
                 }
-                // uMVMatrix 입력 //TODO: 이것도 자동으로 하고싶은데...
+                // uMVMatrix 입력 
                 tGL.uniformMatrix4fv(tUniformLocationGroup['uMVMatrix']['location'], false, tMVMatrix)
                 ////////////////////////////////////////////////////////////////////////////////////////////////////
                 // GL 드로잉상태관련 캐싱들 처리
                 // TODO: CCW도먹어야하나?
+
                 // 컬페이스 사용여부 캐싱처리
                 if (cacheUseCullFace != tMesh['useCullFace']) {
                     (cacheUseCullFace = tMesh['useCullFace']) ? tGL.enable(tGL.CULL_FACE) : tGL.disable(tGL.CULL_FACE)
                 }
                 if (cacheCullFace != tMesh['cullFace']) tGL.cullFace(tMesh['cullFace']), cacheCullFace = tMesh['cullFace']
                 // 뎁스테스트 사용여부 캐싱처리
-                if (cacheUseDepthTest != tMesh['useDepthTest']) (cacheUseDepthTest = tMesh['useDepthTest']) ? tGL.enable(tGL.DEPTH_TEST) : tGL.disable(tGL.DEPTH_TEST)
+                if (cacheUseDepthTest != tMesh['useDepthTest']) {
+                    (cacheUseDepthTest = tMesh['useDepthTest']) ? tGL.enable(tGL.DEPTH_TEST) : tGL.disable(tGL.DEPTH_TEST)
+                }
                 // 뎁스테스팅 캐싱처리
                 if (cacheDepthTestFunc != tMesh['depthTestFunc']) tGL.depthFunc(cacheDepthTestFunc = tMesh['depthTestFunc'])
                 // 블렌딩 사용여부 캐싱처리
@@ -545,6 +580,7 @@ var RedBaseRenderInfo;
                     cacheBlendModeFactor = tMesh['blendFactor1'] + tMesh['blendFactor2']
                 }
                 ////////////////////////////////////////////////////////////////////////////////////////////////////
+                // 최종 드로잉결절
                 if (tIndicesBuffer) {
                     if (bitmapRenderable) {
                         cacheDrawBufferUUID == tIndicesBuffer['__UUID'] ? 0 : tGL.bindBuffer(tGL.ELEMENT_ARRAY_BUFFER, tIndicesBuffer['buffer'])

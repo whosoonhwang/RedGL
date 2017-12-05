@@ -33,7 +33,9 @@ start = function () {
 			function (target) {
 				target.uniforms.uTexture = target['diffuseInfo']
 				target.uniforms.uNormalTexture = target['normalInfo']
+				target.uniforms.uDisplacementTexture = target['displacementInfo']
 				target.uniforms.uUseNormalTexture = 0			
+				target.uniforms.uUseDisplacementTexture = 0							
 				target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
 				target.uniforms.uShininess = 16
 			}
@@ -96,8 +98,10 @@ start = function () {
 	// 재질정의
 	var testTexture = testGL.createTextureInfo('asset/fieldstone.jpg')
 	var testNormalTexture = testGL.createTextureInfo('asset/fieldstone-normal.jpg',RedTextureIndex.NORMAL)
+	var testDisplacementTexture = testGL.createTextureInfo('asset/displacement.jpg',RedTextureIndex.DISPLACEMENT)
+	
 	// 재질생성	
-	var testMatBitmapNormal = testGL.createMaterialInfo('bitmapPhong', testTexture, testNormalTexture)
+	var testMatBitmapNormal = testGL.createMaterialInfo('bitmapPhong', testTexture, testNormalTexture,testDisplacementTexture)
 	testMatBitmapNormal.uShininess = 8
 	var testMatBitmap = testGL.createMaterialInfo('bitmapPhong', testTexture)
 	testMatBitmap.uShininess = 8
@@ -132,9 +136,9 @@ console.log(tMesh)
 	i = max
 	while (i--) {
 		var tMesh = testGL.createMeshInfo('testMeshAdd1' + i, RedPrimitive.sphere(testGL, 1, 32, 32, 32), testMatBitmapNormal)
-		tMesh.position[0] = Math.sin(Math.PI * 2 / max * i) * 20
+		tMesh.position[0] = Math.sin(Math.PI * 2 / max * i) * 30
 		tMesh.position[1] = 0
-		tMesh.position[2] = Math.cos(Math.PI * 2 / max * i) * 20
+		tMesh.position[2] = Math.cos(Math.PI * 2 / max * i) * 30
 		testScene.children.push(tMesh)
 	}
 
@@ -156,8 +160,6 @@ console.log(tMesh)
 	i = 5
 	while (i--) {
 		var testLight = testGL.createPointLight(testGL)
-		testLight.position[1] =7
-		testLight.position[2] =7
 		testLight.color[0] = Math.random()
 		testLight.color[1] = Math.random()
 		testLight.color[2] = Math.random()

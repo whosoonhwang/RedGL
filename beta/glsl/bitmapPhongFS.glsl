@@ -30,7 +30,6 @@ void main(void) {
     vec4 ld = vec4(0.0, 0.0, 0.0, 1.0);
     vec4 ls = vec4(0.0, 0.0, 0.0, 1.0);
     vec4 texelColor = texture2D(uTexture, vTexcoord);
-    vec4 normalTexelColor = texture2D(uNormalTexture, vTexcoord);
     if(texelColor.a==0.0) discard;
     vec3 N;
     vec3 L;
