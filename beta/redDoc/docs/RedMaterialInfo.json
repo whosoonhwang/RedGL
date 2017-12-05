@@ -45,6 +45,12 @@
           "type": "RedTextureInfo or RedCubeTextureInfo"
         },
         "- normalMap 지정"
+      ],
+      "displacementInfo": [
+        {
+          "type": "RedTextureInfo or RedCubeTextureInfo"
+        },
+        "- displacementMap 지정"
       ]
     },
     "example": "\n    var test;\n    test = RedGL(Canvas Element)\n    // basic이라는 이름으로 버텍스 쉐이더를 만든다. \n    test.createShaderInfo('basic', RedProgramInfo.VERTEX_SHADER, 쉐이더소스)\n    test.createShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER, 쉐이더소스)\n    // basic이라는 이름으로 프로그램을 만든다. \n    test.createProgramInfo(\n        'basic',\n        test.getShaderInfo('basic', RedProgramInfo.VERTEX_SHADER),\n        test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER)\n    )\n    // basic이라는 타입의 재질 정의한다.\n    test.createMaterialDefine(test.getProgramInfo('basic'))\n    // basic재질을 실제로 생성한다.\n    test.createMaterialInfo('basic')\n",

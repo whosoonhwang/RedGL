@@ -63,7 +63,18 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		NORMAL : 3
+		NORMAL : 3,
+		/**DOC:
+		{
+			title :`DISPLACEMENT`,
+			code : 'CONST',
+			description : `
+				- DISPLACEMENT 텍스쳐 인덱스
+			`,
+			return : 'Integer'
+		}
+		:DOC*/
+		DISPLACEMENT : 4,
 		//아틀라스는 자동
 	}
 	Object.freeze(RedTextureIndex)

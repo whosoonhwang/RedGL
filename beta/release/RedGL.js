@@ -2256,6 +2256,10 @@ var RedPointLightInfo;
             normalInfo : [
                  {type:'RedTextureInfo or RedCubeTextureInfo'},
                 '- normalMap 지정'
+            ],
+            displacementInfo : [
+                {type:'RedTextureInfo or RedCubeTextureInfo'},
+                '- displacementMap 지정'
             ]
         },
         example : `
@@ -2305,8 +2309,8 @@ var RedMaterialInfo;
             1: 'uniform1iv'
         }
     }
-    RedMaterialInfo = function (redGL, typeName, diffuseInfo, normalInfo) {
-        if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseInfo, normalInfo)
+    RedMaterialInfo = function (redGL, typeName, diffuseInfo, normalInfo, displacementInfo) {
+        if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseInfo, normalInfo, displacementInfo)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
         if (typeof typeName != 'string') throw 'typeName은 문자열만 허용됩니다.'
         // 디파인더에서 재질정의를 찾고
@@ -2334,6 +2338,7 @@ var RedMaterialInfo;
         :DOC*/
         this['diffuseInfo'] = diffuseInfo
         this['normalInfo'] = normalInfo
+        this['displacementInfo'] = displacementInfo
         /**DOC:
 		{
             title :`uniforms`,
@@ -2785,7 +2790,18 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		NORMAL : 3
+		NORMAL : 3,
+		/**DOC:
+		{
+			title :`DISPLACEMENT`,
+			code : 'CONST',
+			description : `
+				- DISPLACEMENT 텍스쳐 인덱스
+			`,
+			return : 'Integer'
+		}
+		:DOC*/
+		DISPLACEMENT : 4,
 		//아틀라스는 자동
 	}
 	Object.freeze(RedTextureIndex)
@@ -3198,6 +3214,7 @@ var RedBaseRenderInfo;
         var cacheUAtlascoord_UUID; // 아틀라스 UV텍스쳐 정보
         var cacheIntFloat; // int형이나 float형 캐싱정보
         var cacheUseNormalTexture; // 노말텍스쳐사용여부 캐싱정보
+        var cacheUseDisplacementTexture;//디스플레이스텍스쳐 사용여부 캐싱정보
         ///////////////////////////////////////////////////////////////////
         var cacheUseCullFace; // 컬페이스 사용여부 캐싱정보
         var cacheCullFace; // 컬페이스 캐싱정보
@@ -3580,7 +3597,7 @@ var RedBaseRenderInfo;
                 // 노말맵이있을경우
                 if (tProgramInfo['uniforms']['uUseNormalTexture']) {
                     if (tMaterial['normalInfo'] && tMaterial['normalInfo']['loaded']) {
-                        if (tMaterial['normalInfo']['__targetIndex'] != RedTextureIndex.NORMAL) throw "노말인덱스타입이 아닙니다."
+                        if (tMaterial['normalInfo']['__targetIndex'] != RedTextureIndex.NORMAL) throw "노말 인덱스타입이 아닙니다."
                         cacheUseNormalTexture == 1 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseNormalTexture']['location'], 1)
                         cacheUseNormalTexture = 1
                         // console.log('노말사용으로전환')
@@ -3590,6 +3607,20 @@ var RedBaseRenderInfo;
                         // console.log('노말미사용으로전환')
                     }
                 }
+                // displacementMap이 있을경우
+                if (tProgramInfo['uniforms']['uUseDisplacementTexture']) {
+                    if (tMaterial['displacementInfo'] && tMaterial['displacementInfo']['loaded']) {
+                        if (tMaterial['displacementInfo']['__targetIndex'] != RedTextureIndex.DISPLACEMENT) throw "DISPLACEMENT 인덱스타입이 아닙니다."
+                        cacheUseDisplacementTexture == 1 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseDisplacementTexture']['location'], 1)
+                        cacheUseDisplacementTexture = 1
+                        // console.log('displacementMap 사용으로전환')
+                    } else {
+                        cacheUseDisplacementTexture == 0 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseDisplacementTexture']['location'], 0)
+                        cacheUseDisplacementTexture = 0
+                        // console.log('displacementMap 미사용으로전환')
+                    }
+                }
+
                 // 노말매트릭스를 사용할경우
                 if (tUniformLocationGroup['uNMatrix']) {
                     //클론
@@ -4330,8 +4361,8 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			description : `재질정보 생성 단축 매서드`
 		}
 		:DOC*/
-		createMaterialInfo: function (typeName, diffuseInfo, normalInfo) {
-			return new RedMaterialInfo(this, typeName, diffuseInfo, normalInfo)
+		createMaterialInfo: function (typeName, diffuseInfo, normalInfo, displacementInfo) {
+			return new RedMaterialInfo(this, typeName, diffuseInfo, normalInfo, displacementInfo)
 		},
 		/**DOC:
 		{

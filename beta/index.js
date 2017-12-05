@@ -33,7 +33,9 @@ start = function () {
 			function (target) {
 				target.uniforms.uTexture = target['diffuseInfo']
 				target.uniforms.uNormalTexture = target['normalInfo']
+				target.uniforms.uDisplacementTexture = target['displacementInfo']
 				target.uniforms.uUseNormalTexture = 0			
+				target.uniforms.uUseDisplacementTexture = 0							
 				target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
 				target.uniforms.uShininess = 16
 			}
@@ -96,9 +98,13 @@ start = function () {
 	// 재질정의
 	var testTexture = testGL.createTextureInfo('asset/fieldstone.jpg')
 	var testNormalTexture = testGL.createTextureInfo('asset/fieldstone-normal.jpg',RedTextureIndex.NORMAL)
+	var testDisplacementTexture = testGL.createTextureInfo('asset/displacement.jpg',RedTextureIndex.DISPLACEMENT)
+	
 	// 재질생성	
-	var testMatBitmap = testGL.createMaterialInfo('bitmapPhong', testTexture, testNormalTexture)
+	var testMatBitmap = testGL.createMaterialInfo('bitmapPhong', testTexture, testNormalTexture, testDisplacementTexture)
+	var testMatBitmap2 = testGL.createMaterialInfo('bitmapPhong', testTexture, testNormalTexture)
 	testMatBitmap.uShininess = 8
+	testMatBitmap2.uShininess = 8
 
 	// 그리드 생성
 	var grid = testGL.createMeshInfo('grid1', RedPrimitive.grid(testGL), testGL.createMaterialInfo('color'))
@@ -128,9 +134,9 @@ start = function () {
 	i = max
 	while (i--) {
 		var tMesh = testGL.createMeshInfo('testMeshAdd1' + i, RedPrimitive.sphere(testGL, 1, 32, 32, 32), testMatBitmap)
-		tMesh.position[0] = Math.sin(Math.PI * 2 / max * i) * 10
+		tMesh.position[0] = Math.sin(Math.PI * 2 / max * i) * 30
 		tMesh.position[1] = 0
-		tMesh.position[2] = Math.cos(Math.PI * 2 / max * i) * 10
+		tMesh.position[2] = Math.cos(Math.PI * 2 / max * i) * 30
 		testScene.children.push(tMesh)
 	}
 
@@ -170,13 +176,31 @@ start = function () {
 	// 무작위로 가보자
 	var i = 30, j
 	while (i--) {
-		j = 70
+		j = 30
 		while (j--) {
 			var tMesh = testGL.createMeshInfo('testMeshAdd2' + '_' + i + '_' + j, RedPrimitive.sphere(testGL, 0.5, 16, 16, 16), testMatBitmap)
 			// var tMesh = testGL.createMeshInfo('testMeshAdd1'+i, RedPrimitive.cube(testGL,1,1,1,32,32,32), testMatBitmap)
 			tMesh.position[0] = Math.sin(Math.PI * 2 * Math.random()) * 30
 			tMesh.position[1] = Math.sin(Math.PI * 2 * Math.random()) * 30
 			tMesh.position[2] = Math.cos(Math.PI * 2 * Math.random()) * 30
+			tMesh.rotation[0] = Math.random()*Math.PI*2
+			tMesh.rotation[1] = Math.random()*Math.PI*2
+			tMesh.rotation[2] = Math.random()*Math.PI*2
+			var tScale = Math.random() * 3
+			tMesh.scale[0] = tMesh.scale[1] = tMesh.scale[2] = tScale
+
+			testScene.children.push(tMesh)
+		}
+		j = 30
+		while (j--) {
+			var tMesh = testGL.createMeshInfo('testMeshAdd3' + '_' + i + '_' + j, RedPrimitive.sphere(testGL, 0.5, 16, 16, 16), testMatBitmap2)
+			// var tMesh = testGL.createMeshInfo('testMeshAdd1'+i, RedPrimitive.cube(testGL,1,1,1,32,32,32), testMatBitmap)
+			tMesh.position[0] = Math.sin(Math.PI * 2 * Math.random()) * 30
+			tMesh.position[1] = Math.sin(Math.PI * 2 * Math.random()) * 30
+			tMesh.position[2] = Math.cos(Math.PI * 2 * Math.random()) * 30
+			tMesh.rotation[0] = Math.random()*Math.PI*2
+			tMesh.rotation[1] = Math.random()*Math.PI*2
+			tMesh.rotation[2] = Math.random()*Math.PI*2
 			var tScale = Math.random() * 3
 			tMesh.scale[0] = tMesh.scale[1] = tMesh.scale[2] = tScale
 

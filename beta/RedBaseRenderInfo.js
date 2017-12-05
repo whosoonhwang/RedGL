@@ -95,6 +95,7 @@ var RedBaseRenderInfo;
         var cacheUAtlascoord_UUID; // 아틀라스 UV텍스쳐 정보
         var cacheIntFloat; // int형이나 float형 캐싱정보
         var cacheUseNormalTexture; // 노말텍스쳐사용여부 캐싱정보
+        var cacheUseDisplacementTexture;//디스플레이스텍스쳐 사용여부 캐싱정보
         ///////////////////////////////////////////////////////////////////
         var cacheUseCullFace; // 컬페이스 사용여부 캐싱정보
         var cacheCullFace; // 컬페이스 캐싱정보
@@ -477,7 +478,7 @@ var RedBaseRenderInfo;
                 // 노말맵이있을경우
                 if (tProgramInfo['uniforms']['uUseNormalTexture']) {
                     if (tMaterial['normalInfo'] && tMaterial['normalInfo']['loaded']) {
-                        if (tMaterial['normalInfo']['__targetIndex'] != RedTextureIndex.NORMAL) throw "노말인덱스타입이 아닙니다."
+                        if (tMaterial['normalInfo']['__targetIndex'] != RedTextureIndex.NORMAL) throw "노말 인덱스타입이 아닙니다."
                         cacheUseNormalTexture == 1 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseNormalTexture']['location'], 1)
                         cacheUseNormalTexture = 1
                         // console.log('노말사용으로전환')
@@ -487,6 +488,20 @@ var RedBaseRenderInfo;
                         // console.log('노말미사용으로전환')
                     }
                 }
+                // displacementMap이 있을경우
+                if (tProgramInfo['uniforms']['uUseDisplacementTexture']) {
+                    if (tMaterial['displacementInfo'] && tMaterial['displacementInfo']['loaded']) {
+                        if (tMaterial['displacementInfo']['__targetIndex'] != RedTextureIndex.DISPLACEMENT) throw "DISPLACEMENT 인덱스타입이 아닙니다."
+                        cacheUseDisplacementTexture == 1 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseDisplacementTexture']['location'], 1)
+                        cacheUseDisplacementTexture = 1
+                        // console.log('displacementMap 사용으로전환')
+                    } else {
+                        cacheUseDisplacementTexture == 0 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseDisplacementTexture']['location'], 0)
+                        cacheUseDisplacementTexture = 0
+                        // console.log('displacementMap 미사용으로전환')
+                    }
+                }
+
                 // 노말매트릭스를 사용할경우
                 if (tUniformLocationGroup['uNMatrix']) {
                     //클론

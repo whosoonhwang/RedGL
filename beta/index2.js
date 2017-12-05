@@ -87,7 +87,9 @@ start = function () {
 		function (target) {
 			target.uniforms.uTexture = target['diffuseInfo']
 			target.uniforms.uNormalTexture = target['normalInfo']
+			target.uniforms.uDisplacementTexture = target['displacementInfo']
 			target.uniforms.uUseNormalTexture = 0			
+			target.uniforms.uUseDisplacementTexture = 0							
 			target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
 			target.uniforms.uShininess = 16
 		}
