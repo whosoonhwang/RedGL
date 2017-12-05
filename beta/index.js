@@ -198,9 +198,9 @@ start = function () {
 		}
 		i = testScene['lights']['directional'].length
 		while (i--) {
-			testScene['lights']['directional'][i].direction[0] = Math.sin(time / 1700 + i) * 20
-			testScene['lights']['directional'][i].direction[1] = Math.cos(time / 1400 + i) * 20 + Math.sin(time / 2700 + i) * 50
-			testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200 + i) * 20
+			// testScene['lights']['directional'][i].direction[0] = Math.sin(time / 1700 + i) * 20
+			// testScene['lights']['directional'][i].direction[1] = Math.cos(time / 1400 + i) * 20 + Math.sin(time / 2700 + i) * 50
+			// testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200 + i) * 20
 		}
 		checkCallBox.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
 	})
