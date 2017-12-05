@@ -101,10 +101,12 @@ start = function () {
 	var testDisplacementTexture = testGL.createTextureInfo('asset/displacement.jpg',RedTextureIndex.DISPLACEMENT)
 	
 	// 재질생성	
-	var testMatBitmapNormal = testGL.createMaterialInfo('bitmapPhong', testTexture, testNormalTexture,testDisplacementTexture)
-	testMatBitmapNormal.uShininess = 8
+	var testMatBitmapDisplacement = testGL.createMaterialInfo('bitmapPhong', testTexture, testNormalTexture,testDisplacementTexture)
+	testMatBitmapDisplacement.uShininess = 8
 	var testMatBitmap = testGL.createMaterialInfo('bitmapPhong', testTexture)
 	testMatBitmap.uShininess = 8
+	var testMatBitmapNormal = testGL.createMaterialInfo('bitmapPhong', testTexture,testNormalTexture)
+	testMatBitmapNormal.uShininess = 8
 
 	// 그리드 생성
 	var grid = testGL.createMeshInfo('grid1', RedPrimitive.grid(testGL), testGL.createMaterialInfo('color'))
@@ -124,10 +126,13 @@ start = function () {
 
 	// 중앙 테스트용 큰 구체...작성
 	// var tMesh = testGL.createMeshInfo('testMeshAdd2', RedPrimitive.cube(testGL, 1,1,1, 32, 32, 32), testMatBitmap)
-	var tMesh = testGL.createMeshInfo('testMeshAdd2', RedPrimitive.sphere(testGL, 3,32, 32, 32), testMatBitmapNormal)
+	var tMesh = testGL.createMeshInfo('testMeshAdd2', RedPrimitive.sphere(testGL, 3,32, 32, 32), testMatBitmapDisplacement)
 	testScene.children.push(tMesh)
 console.log(tMesh)
-	var tMesh = testGL.createMeshInfo('testMeshAdd3', RedPrimitive.sphere(testGL, 3,32, 32, 32), testMatBitmap)
+	var tMesh = testGL.createMeshInfo('testMeshAdd3', RedPrimitive.sphere(testGL, 3,32, 32, 32), testMatBitmapNormal)
+	tMesh.position[0] = -7
+	testScene.children.push(tMesh)
+	var tMesh = testGL.createMeshInfo('testMeshAdd4', RedPrimitive.sphere(testGL, 3,32, 32, 32), testMatBitmap)
 	tMesh.position[0] = 7
 	testScene.children.push(tMesh)
 
@@ -135,7 +140,7 @@ console.log(tMesh)
 	var i, max = 50
 	i = max
 	while (i--) {
-		var tMesh = testGL.createMeshInfo('testMeshAdd1' + i, RedPrimitive.sphere(testGL, 1, 32, 32, 32), testMatBitmapNormal)
+		var tMesh = testGL.createMeshInfo('testMeshAdd1' + i, RedPrimitive.sphere(testGL, 1, 32, 32, 32), testMatBitmapDisplacement)
 		tMesh.position[0] = Math.sin(Math.PI * 2 / max * i) * 30
 		tMesh.position[1] = 0
 		tMesh.position[2] = Math.cos(Math.PI * 2 / max * i) * 30
