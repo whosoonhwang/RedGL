@@ -85,6 +85,7 @@ var RedBaseRenderInfo;
         var tVertexPositionBuffer; // 포지션 버퍼
         ///////////////////////////////////////////////////////////////////
         var cacheProgram; // 이전 대상 프로그램        
+        var cacheProgramInfo; // 이전 대상 프로그램객체정보
         var cacheAttrUUID; // 어트리뷰트 캐싱정보
         var cacheDrawBufferUUID; // draw버퍼 캐싱정보
         var cacheTexture_UUID; // 일반 텍스쳐 캐싱정보
@@ -354,6 +355,7 @@ var RedBaseRenderInfo;
                         tMVMatrix[15] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33
                     /////////////////////////////////////////////////////////////////////////////////////////////
                 }
+               
                 // 정보세팅
                 tMaterial = tMesh['materialInfo']
                 tProgramInfo = tMaterial['programInfo']
@@ -367,7 +369,11 @@ var RedBaseRenderInfo;
                 tIndicesBuffer = tGeometry['indices']
                 tVertexPositionBuffer = tAttrGroup['vertexPosition']
                 // 프로그램 세팅 & 캐싱
-                cacheProgram != tProgram ? tGL.useProgram(tProgram) : 0
+                if(cacheProgram != tProgram){
+                     // 기존에 옵션맵을 쓰고있었으면 날린다. TODO: 이놈도정리대상이다.
+                    tGL.useProgram(tProgram)
+                }
+                cacheProgramInfo = tProgramInfo    
                 cacheProgram = tProgram
                 // 어트리뷰트 입력
                 i2 = tAttrGroupList.length

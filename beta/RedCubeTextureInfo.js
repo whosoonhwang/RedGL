@@ -50,7 +50,7 @@ var RedCubeTextureInfo;
 		// 웹지엘 텍스쳐인지
 		this['__webglCubeTexture'] = 1
 		this['__UUID'] = REDGL_UUID++
-		tGL.activeTexture(tGL.TEXTURE0)
+		tGL.activeTexture(tGL.TEXTURE0+RedTextureIndex.CREATE)
 		this['texture'] = tGL.createTexture()
 
 	}
@@ -58,9 +58,9 @@ var RedCubeTextureInfo;
 		// 로딩상태 플래그를 완료로 설정
 		this['loaded'] = 1
 		// 타겟인덱스를 설정함		
-		this['__targetIndex'] = RedTextureIndex.CUBE //TODO: 이놈도 동적캐싱을 할지 결정해야하는데...
+		this['__targetIndex'] = RedTextureIndex.CUBE 
 		console.log(this)
-		tGL.activeTexture(tGL.TEXTURE0)
+		tGL.activeTexture(tGL.TEXTURE0+RedTextureIndex.CREATE)
 		tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, this['texture'])
 		this['__imgList'].forEach(function (img, index) {
 			
@@ -82,8 +82,8 @@ var RedCubeTextureInfo;
 			);
 		})
 		
-		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR);
-		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_MIN_FILTER, tGL.LINEAR);
+		tGL.texParameterf(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR);
+		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_MIN_FILTER, tGL.LINEAR_MIPMAP_NEAREST);
 		tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_S, tGL.CLAMP_TO_EDGE);
 		tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_T, tGL.CLAMP_TO_EDGE);
 		tGL.generateMipmap(tGL.TEXTURE_CUBE_MAP);
