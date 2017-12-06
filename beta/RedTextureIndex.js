@@ -75,6 +75,17 @@ var RedTextureIndex;
 		}
 		:DOC*/
 		DISPLACEMENT : 4,
+		/**DOC:
+		{
+			title :`SPECULAR`,
+			code : 'CONST',
+			description : `
+				- SPECULAR 텍스쳐 인덱스
+			`,
+			return : 'Integer'
+		}
+		:DOC*/
+		SPECULAR : 5
 		//아틀라스는 자동
 	}
 	Object.freeze(RedTextureIndex)

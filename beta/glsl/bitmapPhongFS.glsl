@@ -2,7 +2,9 @@ precision lowp float;
 varying vec2 vTexcoord;
 uniform sampler2D uTexture; // 디뷰프텍스쳐
 uniform sampler2D uNormalTexture; // 노말텍스쳐
+uniform sampler2D uSpecularTexture; // 노말텍스쳐
 uniform int uUseNormalTexture; // 노말텍스쳐 사용여부
+uniform int uUseSpecularTexture; // 노말텍스쳐 사용여부
 varying vec3 vEyeVec;
 varying vec3 vNormal;
 
@@ -41,6 +43,10 @@ void main(void) {
 
     float lambertTerm;
     float specular;
+    float specularTextureValue = 1.0;
+
+    if(uUseSpecularTexture == 1) specularTextureValue = texture2D(uSpecularTexture, vTexcoord).r ;
+
     vec4 specularLightColor = vec4(1.0, 1.0, 1.0, 1.0);
     if(uDirectionalNum>0){
         for(int i=0;i<DIRETIONAL_MAX;i++){
@@ -51,7 +57,7 @@ void main(void) {
                 ld += uDirectionnalLightColor[i] * texelColor * lambertTerm;
                 R = reflect(L, N);
                 specular = pow( max(dot(R, -L), 0.0), uShininess);
-                ls +=  specularLightColor * specular;
+                ls +=  specularLightColor * specular * specularTextureValue;
             }
         }
     }
@@ -71,7 +77,7 @@ void main(void) {
                 ld += uPointLightColor[i] * texelColor * lambertTerm*attenuation;
                 R = reflect(L, N);
                 specular = pow( max(dot(R, -L), 0.0), uShininess);
-                ls +=  specularLightColor * specular * attenuation  ;
+                ls +=  specularLightColor * specular * attenuation * specularTextureValue  ;
             }
         }
     }           
