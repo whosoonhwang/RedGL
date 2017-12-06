@@ -27,6 +27,10 @@
             displacementInfo : [
                 {type:'RedTextureInfo or RedCubeTextureInfo'},
                 '- displacementMap 지정'
+            ],
+            specularInfo : [
+                {type:'RedTextureInfo or RedCubeTextureInfo'},
+                '- specularInfo 지정'
             ]
         },
         example : `
@@ -76,8 +80,8 @@ var RedMaterialInfo;
             1: 'uniform1iv'
         }
     }
-    RedMaterialInfo = function (redGL, typeName, diffuseInfo, normalInfo, displacementInfo) {
-        if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseInfo, normalInfo, displacementInfo)
+    RedMaterialInfo = function (redGL, typeName, diffuseInfo, normalInfo, displacementInfo, specularInfo) {
+        if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseInfo, normalInfo, displacementInfo, specularInfo)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
         if (typeof typeName != 'string') throw 'typeName은 문자열만 허용됩니다.'
         // 디파인더에서 재질정의를 찾고
@@ -106,6 +110,7 @@ var RedMaterialInfo;
         this['diffuseInfo'] = diffuseInfo
         this['normalInfo'] = normalInfo
         this['displacementInfo'] = displacementInfo
+        this['specularInfo'] = specularInfo
         /**DOC:
 		{
             title :`uniforms`,

@@ -87,8 +87,8 @@ var RedBaseRenderInfo;
         var cacheProgram; // 이전 대상 프로그램        
         var cacheAttrUUID; // 어트리뷰트 캐싱정보
         var cacheDrawBufferUUID; // draw버퍼 캐싱정보
-        var cacheTexture1_UUID; // 일반 텍스쳐 캐싱정보
-        var cacheTexture2_UUID; // 큐브 텍스쳐 캐싱정보
+        var cacheTexture_UUID; // 일반 텍스쳐 캐싱정보
+        var cacheCubeTexture_UUID; // 큐브 텍스쳐 캐싱정보
         var cacheTextureAtlas_UUID; // 텍스쳐 아틀라스 캐싱정보
         var cacheActiveTextureIndex_UUID; // 액티브된 텍스쳐정보
         var cacheActiveCubeTextureIndex; // 액티브된 큐브특스쳐정보
@@ -96,6 +96,7 @@ var RedBaseRenderInfo;
         var cacheIntFloat; // int형이나 float형 캐싱정보
         var cacheUseNormalTexture; // 노말텍스쳐사용여부 캐싱정보
         var cacheUseDisplacementTexture;//디스플레이스텍스쳐 사용여부 캐싱정보
+        var cacheUseSpecularTexture; //스페큘러텍스쳐 사용여부 캐싱정보
         ///////////////////////////////////////////////////////////////////
         var cacheUseCullFace; // 컬페이스 사용여부 캐싱정보
         var cacheCullFace; // 컬페이스 캐싱정보
@@ -108,6 +109,8 @@ var RedBaseRenderInfo;
         var debugPointRenderList = [];
 
         cacheAttrUUID = {}
+        cacheTexture_UUID = {}
+        cacheCubeTexture_UUID = {}
         cacheTextureAtlas_UUID = {}
         cacheActiveTextureIndex_UUID = {}
         k = 50
@@ -430,43 +433,45 @@ var RedBaseRenderInfo;
                         if (cacheTextureAtlas_UUID[tTexture['__targetIndex']] == undefined) bitmapRenderable = false
                         if (tTexture['loaded']) {
                             if (cacheTextureAtlas_UUID[tTexture['__targetIndex']] != tTexture['__UUID']) {
-                                // console.log('오남')
-                                tTexture['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
-                                tTexture['actived'] = 1
-                                // tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
+                                // tTexture['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
+                                // tTexture['actived'] = 1
+                                tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
                                 tGL.bindTexture(tGL.TEXTURE_2D, tTexture['texture'])
                                 cacheTextureAtlas_UUID[tTexture['__targetIndex']] = tTexture['__UUID']
-                            }
+                                
+                            } 
                             cacheActiveTextureIndex_UUID[tTexture['__targetIndex']] != tTexture['__UUID'] ? tGL.uniform1i(tLocation, tTexture['__targetIndex']) : 0
                             cacheActiveTextureIndex_UUID[tTexture['__targetIndex']] = tTexture['__UUID']
-                        }
+                        } 
                     }
                     // 일반 텍스쳐인경우
                     else if (tUniformValue['__webglTexture']) {
-                        if (cacheTexture1_UUID == undefined) bitmapRenderable = false
+                        if (cacheTexture_UUID[tUniformValue['__targetIndex']] == undefined) bitmapRenderable = false
                         if (tUniformValue['loaded']) {
-                            if (cacheTexture1_UUID != tUniformValue['__UUID']) {
-                                tUniformValue['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
-                                tUniformValue['actived'] = 1
-                                // tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
+                            if (cacheTexture_UUID[tUniformValue['__targetIndex']] != tUniformValue['__UUID']) {
+                                // tUniformValue['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
+                                // tUniformValue['actived'] = 1
+                                tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
                                 tGL.bindTexture(tGL.TEXTURE_2D, tUniformValue['texture'])
-                                cacheTexture1_UUID = tUniformValue['__UUID']
-                            }
+                                cacheTexture_UUID[tUniformValue['__targetIndex']] = tUniformValue['__UUID']
+                                
+                            }  
                             cacheActiveTextureIndex_UUID[tUniformValue['__targetIndex']] != tUniformValue['__UUID'] ? tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
                             cacheActiveTextureIndex_UUID[tUniformValue['__targetIndex']] = tUniformValue['__UUID']
                         }
                     }
                     // 큐브텍스쳐인경우
                     else if (tUniformValue['__webglCubeTexture']) {
-                        if (cacheTexture2_UUID == undefined) bitmapRenderable = false
+                        if (cacheCubeTexture_UUID[tUniformValue['__targetIndex']] == undefined) bitmapRenderable = false
                         if (tUniformValue['loaded']) {
-                            if (cacheTexture2_UUID != tUniformValue['__UUID']) {
-                                tUniformValue['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
-                                tUniformValue['actived'] = 1
-                                // tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
+                            if (cacheCubeTexture_UUID[tUniformValue['__targetIndex']] != tUniformValue['__UUID']) {
+                                // tUniformValue['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
+                                // tUniformValue['actived'] = 1
+                                tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
                                 tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, tUniformValue['texture'])
-                                cacheTexture2_UUID = tUniformValue['__UUID']
-                            }
+                                cacheCubeTexture_UUID[tUniformValue['__targetIndex']] = tUniformValue['__UUID']
+                                
+                            }  
                             cacheActiveTextureIndex_UUID[tUniformValue['__targetIndex']] != tUniformValue['__UUID'] ? tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
                             cacheActiveTextureIndex_UUID[tUniformValue['__targetIndex']] = tUniformValue['__UUID']
                         }
@@ -475,6 +480,8 @@ var RedBaseRenderInfo;
                     else throw '안되는 나쁜 타입인거야!!'
                 }
 
+                /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                // TODO: 아래는 루프로 돌리자...
                 // 노말맵이있을경우
                 if (tProgramInfo['uniforms']['uUseNormalTexture']) {
                     if (tMaterial['normalInfo'] && tMaterial['normalInfo']['loaded']) {
@@ -501,6 +508,19 @@ var RedBaseRenderInfo;
                         // console.log('displacementMap 미사용으로전환')
                     }
                 }
+                // specularMap이 있을경우
+                if (tProgramInfo['uniforms']['uUseSpecularTexture']) {
+                    if (tMaterial['specularInfo'] && tMaterial['specularInfo']['loaded']) {
+                        if (tMaterial['specularInfo']['__targetIndex'] != RedTextureIndex.SPECULAR) throw "SPECULAR 인덱스타입이 아닙니다."
+                        cacheUseSpecularTexture == 1 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseSpecularTexture']['location'], 1)
+                        cacheUseSpecularTexture = 1
+                    } else {
+
+                        cacheUseSpecularTexture == 0 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseSpecularTexture']['location'], 0)
+                        cacheUseSpecularTexture = 0
+                    }
+                }
+                /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
                 // 노말매트릭스를 사용할경우
                 if (tUniformLocationGroup['uNMatrix']) {

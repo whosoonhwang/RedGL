@@ -414,8 +414,8 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			description : `재질정보 생성 단축 매서드`
 		}
 		:DOC*/
-		createMaterialInfo: function (typeName, diffuseInfo, normalInfo, displacementInfo) {
-			return new RedMaterialInfo(this, typeName, diffuseInfo, normalInfo, displacementInfo)
+		createMaterialInfo: function (typeName, diffuseInfo, normalInfo, displacementInfo, specularInfo) {
+			return new RedMaterialInfo(this, typeName, diffuseInfo, normalInfo, displacementInfo, specularInfo)
 		},
 		/**DOC:
 		{

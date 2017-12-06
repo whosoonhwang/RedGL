@@ -35,5 +35,11 @@
     "description": "\n- 텍스쳐 고유인덱스\n",
     "example": "\nRedTextureIndex.DIFFUSE\nRedTextureIndex.NORMAL\nRedTextureIndex.CUBE\n",
     "return": "Integer"
+  },
+  {
+    "title": "SPECULAR",
+    "code": "CONST",
+    "description": "\n- SPECULAR 텍스쳐 인덱스\n",
+    "return": "Integer"
   }
 ]
