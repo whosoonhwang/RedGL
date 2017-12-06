@@ -114,7 +114,7 @@ start = function () {
 	var testMatBitmapDisplacement = testGL.createMaterialInfo('bitmapPhong', testTexture, testNormalTexture, testDisplacementTexture)
 	testMatBitmapDisplacement.uShininess = 8
 	var testMatBitmapSpecular = testGL.createMaterialInfo('bitmapPhong', tileDiffuse, null, tileDisplacement, tileSpecular)
-	// testMatBitmapSpecular.uShininess = 4
+	testMatBitmapSpecular.uShininess = 4
 	// 그리드 생성
 	var grid = testGL.createMeshInfo('grid1', RedPrimitive.grid(testGL), testGL.createMaterialInfo('color'))
 	grid.drawMode = testGL.gl.LINES

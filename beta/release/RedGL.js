@@ -3568,8 +3568,8 @@ var RedBaseRenderInfo;
                         if (cacheTextureAtlas_UUID[tTexture['__targetIndex']] == undefined) bitmapRenderable = false
                         if (tTexture['loaded']) {
                             if (cacheTextureAtlas_UUID[tTexture['__targetIndex']] != tTexture['__UUID']) {
-                                tTexture['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
-                                tTexture['actived'] = 1
+                                // tTexture['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
+                                // tTexture['actived'] = 1
                                 tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
                                 tGL.bindTexture(tGL.TEXTURE_2D, tTexture['texture'])
                                 cacheTextureAtlas_UUID[tTexture['__targetIndex']] = tTexture['__UUID']
@@ -3584,8 +3584,8 @@ var RedBaseRenderInfo;
                         if (cacheTexture_UUID[tUniformValue['__targetIndex']] == undefined) bitmapRenderable = false
                         if (tUniformValue['loaded']) {
                             if (cacheTexture_UUID[tUniformValue['__targetIndex']] != tUniformValue['__UUID']) {
-                                tUniformValue['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
-                                tUniformValue['actived'] = 1
+                                // tUniformValue['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
+                                // tUniformValue['actived'] = 1
                                 tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
                                 tGL.bindTexture(tGL.TEXTURE_2D, tUniformValue['texture'])
                                 cacheTexture_UUID[tUniformValue['__targetIndex']] = tUniformValue['__UUID']
@@ -3600,8 +3600,9 @@ var RedBaseRenderInfo;
                         if (cacheCubeTexture_UUID[tUniformValue['__targetIndex']] == undefined) bitmapRenderable = false
                         if (tUniformValue['loaded']) {
                             if (cacheCubeTexture_UUID[tUniformValue['__targetIndex']] != tUniformValue['__UUID']) {
-                                tUniformValue['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
-                                tUniformValue['actived'] = 1
+                                // tUniformValue['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
+                                // tUniformValue['actived'] = 1
+                                tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
                                 tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, tUniformValue['texture'])
                                 cacheCubeTexture_UUID[tUniformValue['__targetIndex']] = tUniformValue['__UUID']
                                 
