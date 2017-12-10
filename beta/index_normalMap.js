@@ -168,24 +168,24 @@ start = function () {
 	earth.position[0] = 12
 	testScene.children.push(earth)
 
-	// var testEnvironmentMap = testGL.createMaterialInfo(
-	// 	'environment',
-	// 	RedCubeTextureInfo(testGL, [
-	// 		'asset/cubemap/posx.jpg',
-	// 		'asset/cubemap/negx.jpg',
-	// 		'asset/cubemap/posy.jpg',
-	// 		'asset/cubemap/negy.jpg',
-	// 		'asset/cubemap/posz.jpg',
-	// 		'asset/cubemap/negz.jpg'
-	// 	]),
-	// 	null, earthDisplacement, earthSpecular
-	// )
-	// console.log(testEnvironmentMap)
+	var testEnvironmentMap = testGL.createMaterialInfo(
+		'environment',
+		RedCubeTextureInfo(testGL, [
+			'asset/cubemap/posx.jpg',
+			'asset/cubemap/negx.jpg',
+			'asset/cubemap/posy.jpg',
+			'asset/cubemap/negy.jpg',
+			'asset/cubemap/posz.jpg',
+			'asset/cubemap/negz.jpg'
+		]),
+		null, earthDisplacement, earthSpecular
+	)
+	console.log(testEnvironmentMap)
 
-	// var cubeTest = testGL.createMeshInfo('testMeshAdd6', RedPrimitive.sphere(testGL, 5, 32, 32, 32), testEnvironmentMap)
-	// cubeTest.position[2] = -12
-	// cubeTest.position[0] = -12
-	// testScene.children.push(cubeTest)
+	var cubeTest = testGL.createMeshInfo('testMeshAdd6', RedPrimitive.sphere(testGL, 5, 32, 32, 32), testEnvironmentMap)
+	cubeTest.position[2] = -12
+	cubeTest.position[0] = -12
+	testScene.children.push(cubeTest)
 
 	// 중앙 테스트용 구체...정렬
 	var i, max = 50
@@ -242,9 +242,9 @@ start = function () {
 		earth.rotation[1] += 0.01
 		earth.rotation[2] += 0.01
 
-		// cubeTest.rotation[0] += 0.01
-		// cubeTest.rotation[1] += 0.01
-		// cubeTest.rotation[2] += 0.01
+		cubeTest.rotation[0] += 0.01
+		cubeTest.rotation[1] += 0.01
+		cubeTest.rotation[2] += 0.01
 
 		checkCallBox.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
 	})

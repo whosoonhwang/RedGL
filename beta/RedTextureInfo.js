@@ -79,7 +79,6 @@ var RedTextureInfo;
 			self['loaded'] = 1
 			// 타겟인덱스를 설정함		
 			self['__targetIndex'] = targetIndex
-			tGL.activeTexture(tGL.TEXTURE_2D, tGL.TEXTURE0 + RedTextureIndex.CREATE)
 			tGL.bindTexture(tGL.TEXTURE_2D, self['texture'])
 			tGL.texImage2D(tGL.TEXTURE_2D, 0, tGL.RGBA, tGL.RGBA, tGL.UNSIGNED_BYTE, self['__img'])
 			tGL.texParameterf(tGL.TEXTURE_2D, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR);
