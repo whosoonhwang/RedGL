@@ -36,7 +36,7 @@ var RedTextureInfo;
 	RedTextureInfo = function (redGL, src, targetIndex, internalFormat, format, type) {
 		if (!(this instanceof RedTextureInfo)) return new RedTextureInfo(redGL, src, targetIndex, internalFormat, format, type)
 		if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-		if ( src !=undefined && typeof src !='string' && !(src instanceof Element && src.nodeName == 'CANVAS')) throw 'src는 문자열과 캔버스 오브젝트만 허용됩니다.'
+		if (src != undefined && typeof src != 'string' && !(src instanceof Element && src.nodeName == 'CANVAS')) throw 'src는 문자열과 캔버스 오브젝트만 허용됩니다.'
 		var texture;
 		var img;
 		var level = 0;
@@ -51,7 +51,7 @@ var RedTextureInfo;
 		type = type ? type : tGL.UNSIGNED_BYTE;
 		targetIndex = targetIndex ? targetIndex : RedTextureIndex.DIFFUSE
 		texture = tGL.createTexture()
-		tGL.activeTexture(tGL.TEXTURE0)
+		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CREATE)
 		tGL.bindTexture(tGL.TEXTURE_2D, texture)
 		// 초기이미지 설정
 		tGL.texImage2D(
@@ -72,14 +72,13 @@ var RedTextureInfo;
 		)
 		img = new Image();
 		// 캔버스 일경우 캔버스이미지데이터를 활용함
-		if(src != undefined) img.src = src instanceof Element ? src.toDataURL() : src
+		if (src != undefined) img.src = src instanceof Element ? src.toDataURL() : src
 		img.crossOrigin = 'anonymous'
 		img.addEventListener('load', function () {
 			// 로딩상태 플래그를 완료로 설정
 			self['loaded'] = 1
 			// 타겟인덱스를 설정함		
 			self['__targetIndex'] = targetIndex
-			// tGL.activeTexture(tGL.TEXTURE_2D, tGL.TEXTURE0)
 			tGL.bindTexture(tGL.TEXTURE_2D, self['texture'])
 			tGL.texImage2D(tGL.TEXTURE_2D, 0, tGL.RGBA, tGL.RGBA, tGL.UNSIGNED_BYTE, self['__img'])
 			tGL.texParameterf(tGL.TEXTURE_2D, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR);
@@ -87,7 +86,7 @@ var RedTextureInfo;
 			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_S, tGL.CLAMP_TO_EDGE);
 			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_T, tGL.CLAMP_TO_EDGE);
 			tGL.generateMipmap(tGL.TEXTURE_2D)
-			
+
 			// img.onload = null
 		});
 		// tGL.bindTexture(tGL.TEXTURE_2D, null)
@@ -103,9 +102,9 @@ var RedTextureInfo;
 		this['__UUID'] = REDGL_UUID++
 		this['texture'] = texture
 	}
-	RedTextureInfo.prototype.updateTexture = function(src){
-		console.log('업데이트',src)
+	RedTextureInfo.prototype.updateTexture = function (src) {
+		console.log('업데이트', src)
 		self['loaded'] = 0
-		this['__img'].src=src instanceof Element ? src.toDataURL() : src
+		this['__img'].src = src instanceof Element ? src.toDataURL() : src
 	}
 })();

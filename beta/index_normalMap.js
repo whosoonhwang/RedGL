@@ -14,8 +14,12 @@ start = function () {
 		console.log(testGL.createShaderInfo('bitmapPhong', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('bitmapPhongVS')))
 		console.log(testGL.createShaderInfo('bitmapPhong', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('bitmapPhongFS')))
 
+		console.log(testGL.createShaderInfo('environment', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('environmentVS')))
+		console.log(testGL.createShaderInfo('environment', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('environmentFS')))
+
 		console.log(testGL.createShaderInfo('skybox', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('skyBoxVS')))
 		console.log(testGL.createShaderInfo('skybox', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('skyBoxFS')))
+
 	}
 	makePrograms = function () {
 		testGL.createProgramInfo(
@@ -51,11 +55,28 @@ start = function () {
 
 			}
 		)
+		testGL.createProgramInfo(
+			'environment',
+			testGL.getShaderInfo('environment', RedShaderInfo.VERTEX_SHADER),
+			testGL.getShaderInfo('environment', RedShaderInfo.FRAGMENT_SHADER),
+			function (target) {
+				target.uniforms.uTexture = target['diffuseInfo']
+				target.uniforms.uNormalTexture = target['normalInfo']
+				target.uniforms.uDisplacementTexture = target['displacementInfo']
+				target.uniforms.uSpecularTexture = target['specularInfo']
+
+				target.uniforms.uUseNormalTexture = 0
+				target.uniforms.uUseDisplacementTexture = 0
+				target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
+				target.uniforms.uShininess = 16
+			}
+		)
 	}
 	defineMaterials = function () {
 		testGL.createMaterialDefine(testGL.getProgramInfo('skybox'))
 		testGL.createMaterialDefine(testGL.getProgramInfo('color'))
 		testGL.createMaterialDefine(testGL.getProgramInfo('bitmapPhong'))
+		testGL.createMaterialDefine(testGL.getProgramInfo('environment'))
 	}
 	makeCheckRenderInfo = function () {
 		checkCallBox = document.createElement('div')
@@ -102,9 +123,9 @@ start = function () {
 	var testNormalTexture = testGL.createTextureInfo('asset/fieldstone-normal.jpg', RedTextureIndex.NORMAL)
 	var testDisplacementTexture = testGL.createTextureInfo('asset/displacement.jpg', RedTextureIndex.DISPLACEMENT)
 
-	var tileDiffuse = testGL.createTextureInfo('asset/tile/diffuse.png')
-	var tileDisplacement = testGL.createTextureInfo('asset/tile/displacement.png',RedTextureIndex.DISPLACEMENT)
-	var tileSpecular = testGL.createTextureInfo('asset/tile/specular.png',RedTextureIndex.SPECULAR)
+	var earthDiffuse = testGL.createTextureInfo('asset/tile/diffuse.png')
+	var earthDisplacement = testGL.createTextureInfo('asset/tile/displacement.png', RedTextureIndex.DISPLACEMENT)
+	var earthSpecular = testGL.createTextureInfo('asset/tile/specular.png', RedTextureIndex.SPECULAR)
 
 	// 재질생성	
 	var testMatBitmap = testGL.createMaterialInfo('bitmapPhong', testTexture)
@@ -113,7 +134,7 @@ start = function () {
 	testMatBitmapNormal.uShininess = 8
 	var testMatBitmapDisplacement = testGL.createMaterialInfo('bitmapPhong', testTexture, testNormalTexture, testDisplacementTexture)
 	testMatBitmapDisplacement.uShininess = 8
-	var testMatBitmapSpecular = testGL.createMaterialInfo('bitmapPhong', tileDiffuse, null, tileDisplacement, tileSpecular)
+	var testMatBitmapSpecular = testGL.createMaterialInfo('bitmapPhong', earthDiffuse, null, earthDisplacement, earthSpecular)
 	testMatBitmapSpecular.uShininess = 4
 	// 그리드 생성
 	var grid = testGL.createMeshInfo('grid1', RedPrimitive.grid(testGL), testGL.createMaterialInfo('color'))
@@ -146,7 +167,25 @@ start = function () {
 	earth.position[2] = 12
 	earth.position[0] = 12
 	testScene.children.push(earth)
-	
+
+	var testEnvironmentMap = testGL.createMaterialInfo(
+		'environment',
+		RedCubeTextureInfo(testGL, [
+			'asset/cubemap/posx.jpg',
+			'asset/cubemap/negx.jpg',
+			'asset/cubemap/posy.jpg',
+			'asset/cubemap/negy.jpg',
+			'asset/cubemap/posz.jpg',
+			'asset/cubemap/negz.jpg'
+		]),
+		null, earthDisplacement, earthSpecular
+	)
+	console.log(testEnvironmentMap)
+
+	var cubeTest = testGL.createMeshInfo('testMeshAdd6', RedPrimitive.sphere(testGL, 5, 32, 32, 32), testEnvironmentMap)
+	cubeTest.position[2] = -12
+	cubeTest.position[0] = -12
+	testScene.children.push(cubeTest)
 
 	// 중앙 테스트용 구체...정렬
 	var i, max = 50
@@ -199,9 +238,14 @@ start = function () {
 			testScene['lights']['directional'][i].direction[1] = Math.cos(time / 4400 + i) * 20 + Math.sin(time / 2700 + i) * 50
 			testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200 + i) * 30
 		}
-		earth.rotation[0]+=0.01
-		earth.rotation[1]+=0.01
-		earth.rotation[2]+=0.01
+		earth.rotation[0] += 0.01
+		earth.rotation[1] += 0.01
+		earth.rotation[2] += 0.01
+
+		cubeTest.rotation[0] += 0.01
+		cubeTest.rotation[1] += 0.01
+		cubeTest.rotation[2] += 0.01
+
 		checkCallBox.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
 	})
 	renderer.start()
@@ -214,5 +258,7 @@ testGL = RedGL(document.getElementById('test'), start, true, [
 	{ id: 'bitmapPhongVS', src: 'glsl/bitmapPhongVS.glsl' },
 	{ id: 'bitmapPhongFS', src: 'glsl/bitmapPhongFS.glsl' },
 	{ id: 'skyBoxVS', src: 'glsl/skyBoxVS.glsl' },
-	{ id: 'skyBoxFS', src: 'glsl/skyBoxFS.glsl' }
+	{ id: 'skyBoxFS', src: 'glsl/skyBoxFS.glsl' },
+	{ id: 'environmentFS', src: 'glsl/environmentFS.glsl' },
+	{ id: 'environmentVS', src: 'glsl/environmentVS.glsl' }
 ])

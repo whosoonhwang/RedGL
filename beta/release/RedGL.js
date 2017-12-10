@@ -665,7 +665,7 @@ var RedCubeTextureInfo;
 		// 웹지엘 텍스쳐인지
 		this['__webglCubeTexture'] = 1
 		this['__UUID'] = REDGL_UUID++
-		tGL.activeTexture(tGL.TEXTURE0)
+		tGL.activeTexture(tGL.TEXTURE0+RedTextureIndex.CREATE)
 		this['texture'] = tGL.createTexture()
 
 	}
@@ -673,9 +673,9 @@ var RedCubeTextureInfo;
 		// 로딩상태 플래그를 완료로 설정
 		this['loaded'] = 1
 		// 타겟인덱스를 설정함		
-		this['__targetIndex'] = RedTextureIndex.CUBE //TODO: 이놈도 동적캐싱을 할지 결정해야하는데...
+		this['__targetIndex'] = RedTextureIndex.CUBE 
 		console.log(this)
-		tGL.activeTexture(tGL.TEXTURE0)
+		tGL.activeTexture(tGL.TEXTURE0+RedTextureIndex.CREATE)
 		tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, this['texture'])
 		this['__imgList'].forEach(function (img, index) {
 			
@@ -697,8 +697,8 @@ var RedCubeTextureInfo;
 			);
 		})
 		
-		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR);
-		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_MIN_FILTER, tGL.LINEAR);
+		tGL.texParameterf(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR);
+		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_MIN_FILTER, tGL.LINEAR_MIPMAP_NEAREST);
 		tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_S, tGL.CLAMP_TO_EDGE);
 		tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_T, tGL.CLAMP_TO_EDGE);
 		tGL.generateMipmap(tGL.TEXTURE_CUBE_MAP);
@@ -2657,7 +2657,7 @@ var RedTextureInfo;
 	RedTextureInfo = function (redGL, src, targetIndex, internalFormat, format, type) {
 		if (!(this instanceof RedTextureInfo)) return new RedTextureInfo(redGL, src, targetIndex, internalFormat, format, type)
 		if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-		if ( src !=undefined && typeof src !='string' && !(src instanceof Element && src.nodeName == 'CANVAS')) throw 'src는 문자열과 캔버스 오브젝트만 허용됩니다.'
+		if (src != undefined && typeof src != 'string' && !(src instanceof Element && src.nodeName == 'CANVAS')) throw 'src는 문자열과 캔버스 오브젝트만 허용됩니다.'
 		var texture;
 		var img;
 		var level = 0;
@@ -2672,7 +2672,7 @@ var RedTextureInfo;
 		type = type ? type : tGL.UNSIGNED_BYTE;
 		targetIndex = targetIndex ? targetIndex : RedTextureIndex.DIFFUSE
 		texture = tGL.createTexture()
-		tGL.activeTexture(tGL.TEXTURE0)
+		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CREATE)
 		tGL.bindTexture(tGL.TEXTURE_2D, texture)
 		// 초기이미지 설정
 		tGL.texImage2D(
@@ -2693,14 +2693,13 @@ var RedTextureInfo;
 		)
 		img = new Image();
 		// 캔버스 일경우 캔버스이미지데이터를 활용함
-		if(src != undefined) img.src = src instanceof Element ? src.toDataURL() : src
+		if (src != undefined) img.src = src instanceof Element ? src.toDataURL() : src
 		img.crossOrigin = 'anonymous'
 		img.addEventListener('load', function () {
 			// 로딩상태 플래그를 완료로 설정
 			self['loaded'] = 1
 			// 타겟인덱스를 설정함		
 			self['__targetIndex'] = targetIndex
-			// tGL.activeTexture(tGL.TEXTURE_2D, tGL.TEXTURE0)
 			tGL.bindTexture(tGL.TEXTURE_2D, self['texture'])
 			tGL.texImage2D(tGL.TEXTURE_2D, 0, tGL.RGBA, tGL.RGBA, tGL.UNSIGNED_BYTE, self['__img'])
 			tGL.texParameterf(tGL.TEXTURE_2D, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR);
@@ -2708,7 +2707,7 @@ var RedTextureInfo;
 			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_S, tGL.CLAMP_TO_EDGE);
 			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_T, tGL.CLAMP_TO_EDGE);
 			tGL.generateMipmap(tGL.TEXTURE_2D)
-			
+
 			// img.onload = null
 		});
 		// tGL.bindTexture(tGL.TEXTURE_2D, null)
@@ -2724,10 +2723,10 @@ var RedTextureInfo;
 		this['__UUID'] = REDGL_UUID++
 		this['texture'] = texture
 	}
-	RedTextureInfo.prototype.updateTexture = function(src){
-		console.log('업데이트',src)
+	RedTextureInfo.prototype.updateTexture = function (src) {
+		console.log('업데이트', src)
 		self['loaded'] = 0
-		this['__img'].src=src instanceof Element ? src.toDataURL() : src
+		this['__img'].src = src instanceof Element ? src.toDataURL() : src
 	}
 })();
 "use strict";
@@ -3220,13 +3219,13 @@ var RedBaseRenderInfo;
         var tVertexPositionBuffer; // 포지션 버퍼
         ///////////////////////////////////////////////////////////////////
         var cacheProgram; // 이전 대상 프로그램        
+        var cacheProgramInfo; // 이전 대상 프로그램객체정보
         var cacheAttrUUID; // 어트리뷰트 캐싱정보
         var cacheDrawBufferUUID; // draw버퍼 캐싱정보
         var cacheTexture_UUID; // 일반 텍스쳐 캐싱정보
         var cacheCubeTexture_UUID; // 큐브 텍스쳐 캐싱정보
         var cacheTextureAtlas_UUID; // 텍스쳐 아틀라스 캐싱정보
         var cacheActiveTextureIndex_UUID; // 액티브된 텍스쳐정보
-        var cacheActiveCubeTextureIndex; // 액티브된 큐브특스쳐정보
         var cacheUAtlascoord_UUID; // 아틀라스 UV텍스쳐 정보
         var cacheIntFloat; // int형이나 float형 캐싱정보
         var cacheUseNormalTexture; // 노말텍스쳐사용여부 캐싱정보
@@ -3501,8 +3500,17 @@ var RedBaseRenderInfo;
                 tUniformLocationGroup = tProgramInfo['uniforms']
                 tIndicesBuffer = tGeometry['indices']
                 tVertexPositionBuffer = tAttrGroup['vertexPosition']
+
                 // 프로그램 세팅 & 캐싱
-                cacheProgram != tProgram ? tGL.useProgram(tProgram) : 0
+                if (cacheProgram != tProgram) {
+                    // 기존에 옵션맵을 쓰고있었으면 날린다. TODO: 이놈도정리대상이다.
+                    tGL.useProgram(tProgram)
+                    cacheActiveTextureIndex_UUID = {}
+                    cacheUseNormalTexture = undefined
+                    cacheUseDisplacementTexture = undefined
+                    cacheUseSpecularTexture = undefined
+                }
+                cacheProgramInfo = tProgramInfo
                 cacheProgram = tProgram
                 // 어트리뷰트 입력
                 i2 = tAttrGroupList.length

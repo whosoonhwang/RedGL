@@ -85,13 +85,13 @@ var RedBaseRenderInfo;
         var tVertexPositionBuffer; // 포지션 버퍼
         ///////////////////////////////////////////////////////////////////
         var cacheProgram; // 이전 대상 프로그램        
+        var cacheProgramInfo; // 이전 대상 프로그램객체정보
         var cacheAttrUUID; // 어트리뷰트 캐싱정보
         var cacheDrawBufferUUID; // draw버퍼 캐싱정보
         var cacheTexture_UUID; // 일반 텍스쳐 캐싱정보
         var cacheCubeTexture_UUID; // 큐브 텍스쳐 캐싱정보
         var cacheTextureAtlas_UUID; // 텍스쳐 아틀라스 캐싱정보
         var cacheActiveTextureIndex_UUID; // 액티브된 텍스쳐정보
-        var cacheActiveCubeTextureIndex; // 액티브된 큐브특스쳐정보
         var cacheUAtlascoord_UUID; // 아틀라스 UV텍스쳐 정보
         var cacheIntFloat; // int형이나 float형 캐싱정보
         var cacheUseNormalTexture; // 노말텍스쳐사용여부 캐싱정보
@@ -366,8 +366,17 @@ var RedBaseRenderInfo;
                 tUniformLocationGroup = tProgramInfo['uniforms']
                 tIndicesBuffer = tGeometry['indices']
                 tVertexPositionBuffer = tAttrGroup['vertexPosition']
+
                 // 프로그램 세팅 & 캐싱
-                cacheProgram != tProgram ? tGL.useProgram(tProgram) : 0
+                if (cacheProgram != tProgram) {
+                    // 기존에 옵션맵을 쓰고있었으면 날린다. TODO: 이놈도정리대상이다.
+                    tGL.useProgram(tProgram)
+                    cacheActiveTextureIndex_UUID = {}
+                    cacheUseNormalTexture = undefined
+                    cacheUseDisplacementTexture = undefined
+                    cacheUseSpecularTexture = undefined
+                }
+                cacheProgramInfo = tProgramInfo
                 cacheProgram = tProgram
                 // 어트리뷰트 입력
                 i2 = tAttrGroupList.length
