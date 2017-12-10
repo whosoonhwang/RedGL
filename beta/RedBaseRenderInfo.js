@@ -372,7 +372,15 @@ var RedBaseRenderInfo;
                     // 기존에 옵션맵을 쓰고있었으면 날린다. TODO: 이놈도정리대상이다.
                     tGL.useProgram(tProgram)
                     cacheTexture_UUID = {}
+                    cacheTextureAtlas_UUID = {}
+                    cacheCubeTexture_UUID = {}
                     cacheActiveTextureIndex_UUID = {}
+                    cacheUAtlascoord_UUID = undefined
+                    
+                    cacheIntFloat = {
+                        int: null,
+                        float: null
+                    }
                     cacheUseNormalTexture = undefined
                     cacheUseDisplacementTexture = undefined
                     cacheUseSpecularTexture = undefined
