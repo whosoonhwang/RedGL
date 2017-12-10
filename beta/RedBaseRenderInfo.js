@@ -371,6 +371,7 @@ var RedBaseRenderInfo;
                 if (cacheProgram != tProgram) {
                     // 기존에 옵션맵을 쓰고있었으면 날린다. TODO: 이놈도정리대상이다.
                     tGL.useProgram(tProgram)
+                    cacheTexture_UUID = {}
                     cacheActiveTextureIndex_UUID = {}
                     cacheUseNormalTexture = undefined
                     cacheUseDisplacementTexture = undefined
@@ -439,7 +440,7 @@ var RedBaseRenderInfo;
                     else if (tUniformValue['__webglAtlasTexture']) {
                         var tTexture;
                         tTexture = tUniformValue['parentAtlasInfo']['textureInfo']
-                        if (cacheTextureAtlas_UUID[tTexture['__targetIndex']] == undefined) bitmapRenderable = false
+
                         if (tTexture['loaded']) {
                             if (cacheTextureAtlas_UUID[tTexture['__targetIndex']] != tTexture['__UUID']) {
                                 // tTexture['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
@@ -447,15 +448,15 @@ var RedBaseRenderInfo;
                                 tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
                                 tGL.bindTexture(tGL.TEXTURE_2D, tTexture['texture'])
                                 cacheTextureAtlas_UUID[tTexture['__targetIndex']] = tTexture['__UUID']
-                                
-                            } 
+
+                            }
                             cacheActiveTextureIndex_UUID[tTexture['__targetIndex']] != tTexture['__UUID'] ? tGL.uniform1i(tLocation, tTexture['__targetIndex']) : 0
                             cacheActiveTextureIndex_UUID[tTexture['__targetIndex']] = tTexture['__UUID']
-                        } 
+                        } else if (cacheTextureAtlas_UUID[tTexture['__targetIndex']] == undefined) bitmapRenderable = false
                     }
                     // 일반 텍스쳐인경우
                     else if (tUniformValue['__webglTexture']) {
-                        if (cacheTexture_UUID[tUniformValue['__targetIndex']] == undefined) bitmapRenderable = false
+
                         if (tUniformValue['loaded']) {
                             if (cacheTexture_UUID[tUniformValue['__targetIndex']] != tUniformValue['__UUID']) {
                                 // tUniformValue['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
@@ -463,15 +464,15 @@ var RedBaseRenderInfo;
                                 tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
                                 tGL.bindTexture(tGL.TEXTURE_2D, tUniformValue['texture'])
                                 cacheTexture_UUID[tUniformValue['__targetIndex']] = tUniformValue['__UUID']
-                                
-                            }  
+
+                            }
                             cacheActiveTextureIndex_UUID[tUniformValue['__targetIndex']] != tUniformValue['__UUID'] ? tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
                             cacheActiveTextureIndex_UUID[tUniformValue['__targetIndex']] = tUniformValue['__UUID']
-                        }
+                        } else if (cacheTexture_UUID[tUniformValue['__targetIndex']] == undefined) bitmapRenderable = false
                     }
                     // 큐브텍스쳐인경우
                     else if (tUniformValue['__webglCubeTexture']) {
-                        if (cacheCubeTexture_UUID[tUniformValue['__targetIndex']] == undefined) bitmapRenderable = false
+
                         if (tUniformValue['loaded']) {
                             if (cacheCubeTexture_UUID[tUniformValue['__targetIndex']] != tUniformValue['__UUID']) {
                                 // tUniformValue['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
@@ -479,11 +480,11 @@ var RedBaseRenderInfo;
                                 tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
                                 tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, tUniformValue['texture'])
                                 cacheCubeTexture_UUID[tUniformValue['__targetIndex']] = tUniformValue['__UUID']
-                                
-                            }  
+
+                            }
                             cacheActiveTextureIndex_UUID[tUniformValue['__targetIndex']] != tUniformValue['__UUID'] ? tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
                             cacheActiveTextureIndex_UUID[tUniformValue['__targetIndex']] = tUniformValue['__UUID']
-                        }
+                        } else if (cacheCubeTexture_UUID[tUniformValue['__targetIndex']] == undefined) bitmapRenderable = false
                     }
                     // 이도저도아닌경우는 뭔가 잘못된거임
                     else throw '안되는 나쁜 타입인거야!!'
