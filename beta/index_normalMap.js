@@ -31,6 +31,15 @@ start = function () {
 			}
 		)
 		testGL.createProgramInfo(
+			'bitmap',
+			testGL.getShaderInfo('bitmap', RedShaderInfo.VERTEX_SHADER),
+			testGL.getShaderInfo('bitmap', RedShaderInfo.FRAGMENT_SHADER),
+			function (target) {
+				target.uniforms.uTexture = target['diffuseInfo']
+				target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
+			}
+		)
+		testGL.createProgramInfo(
 			'bitmapPhong',
 			testGL.getShaderInfo('bitmapPhong', RedShaderInfo.VERTEX_SHADER),
 			testGL.getShaderInfo('bitmapPhong', RedShaderInfo.FRAGMENT_SHADER),
@@ -75,6 +84,7 @@ start = function () {
 	defineMaterials = function () {
 		testGL.createMaterialDefine(testGL.getProgramInfo('skybox'))
 		testGL.createMaterialDefine(testGL.getProgramInfo('color'))
+		testGL.createMaterialDefine(testGL.getProgramInfo('bitmap'))
 		testGL.createMaterialDefine(testGL.getProgramInfo('bitmapPhong'))
 		testGL.createMaterialDefine(testGL.getProgramInfo('environment'))
 	}
@@ -119,7 +129,8 @@ start = function () {
 	// Scene 생성
 	var testScene = testGL.createSceneInfo('testScene', testCamera)
 	// 재질정의
-	var testTexture = testGL.createTextureInfo('asset/fieldstone.jpg')
+	var testDiffuseTexture = testGL.createTextureInfo('asset/fieldstone.jpg')
+	var testPhongDiffuseTexture = testGL.createTextureInfo('asset/fieldstone.jpg')
 	var testNormalTexture = testGL.createTextureInfo('asset/fieldstone-normal.jpg', RedTextureIndex.NORMAL)
 	var testDisplacementTexture = testGL.createTextureInfo('asset/displacement.jpg', RedTextureIndex.DISPLACEMENT)
 
@@ -128,11 +139,12 @@ start = function () {
 	var earthSpecular = testGL.createTextureInfo('asset/tile/specular.png', RedTextureIndex.SPECULAR)
 
 	// 재질생성	
-	var testMatBitmap = testGL.createMaterialInfo('bitmapPhong', testTexture)
-	testMatBitmap.uShininess = 8
-	var testMatBitmapNormal = testGL.createMaterialInfo('bitmapPhong', testTexture, testNormalTexture)
+	var testMatBitmap = testGL.createMaterialInfo('bitmap', testDiffuseTexture)
+	var testMatBitmapPhong = testGL.createMaterialInfo('bitmapPhong', testPhongDiffuseTexture)
+	testMatBitmapPhong.uShininess = 8
+	var testMatBitmapNormal = testGL.createMaterialInfo('bitmapPhong', testPhongDiffuseTexture, testNormalTexture)
 	testMatBitmapNormal.uShininess = 8
-	var testMatBitmapDisplacement = testGL.createMaterialInfo('bitmapPhong', testTexture, testNormalTexture, testDisplacementTexture)
+	var testMatBitmapDisplacement = testGL.createMaterialInfo('bitmapPhong', testPhongDiffuseTexture, testNormalTexture, testDisplacementTexture)
 	testMatBitmapDisplacement.uShininess = 8
 	var testMatBitmapSpecular = testGL.createMaterialInfo('bitmapPhong', earthDiffuse, null, earthDisplacement, earthSpecular)
 	testMatBitmapSpecular.uShininess = 4
@@ -160,8 +172,12 @@ start = function () {
 	var tMesh = testGL.createMeshInfo('testMeshAdd3', RedPrimitive.sphere(testGL, 3, 32, 32, 32), testMatBitmapNormal)
 	tMesh.position[0] = -7
 	testScene.children.push(tMesh)
-	var tMesh = testGL.createMeshInfo('testMeshAdd4', RedPrimitive.sphere(testGL, 3, 32, 32, 32), testMatBitmap)
+	var tMesh = testGL.createMeshInfo('testMeshAdd4', RedPrimitive.sphere(testGL, 3, 32, 32, 32), testMatBitmapPhong)
 	tMesh.position[0] = 7
+	testScene.children.push(tMesh)
+	var tMesh = testGL.createMeshInfo('testMeshAdd7', RedPrimitive.sphere(testGL, 3, 32, 32, 32), testMatBitmap)
+	tMesh.position[0] = -7
+	tMesh.position[2] = -7
 	testScene.children.push(tMesh)
 	var earth = testGL.createMeshInfo('testMeshAdd5', RedPrimitive.sphere(testGL, 5, 32, 32, 32), testMatBitmapSpecular)
 	earth.position[2] = 12

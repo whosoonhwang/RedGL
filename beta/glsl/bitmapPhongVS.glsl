@@ -16,9 +16,9 @@ varying vec2 vTexcoord;
 
 varying vec3 vEyeVec;
 varying vec3 vNormal;
-
+vec4 vertexPositionEye4;
 void main(void) {
-    vec4 vertexPositionEye4 = uMVMatrix * vec4(aVertexPosition, 1.0);
+    vertexPositionEye4 = uMVMatrix * vec4(aVertexPosition, 1.0);
     vTexcoord = uAtlascoord.xy + aTexcoord*uAtlascoord.zw;
     vNormal = vec3(uNMatrix * vec4(aVertexNormal,1.0)); 
     vEyeVec = -vertexPositionEye4.xyz;
