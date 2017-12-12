@@ -70,18 +70,19 @@ var Structure_Texture;
                 startInfo = tempRootItem
                 endInfo = targetRootItem
             }
-        }        
+        }
 
-       
-        startInfo['next'][key] = {
-            target: targetRootItem,
-            targetKey: tempItemKey
+        if (startInfo) {
+            startInfo['next'][key] = {
+                target: targetRootItem,
+                targetKey: tempItemKey
+            }
+            endInfo['prev'][tempItemKey] = {
+                target: tempRootItem,
+                targetKey: key
+            }
+            console.log(startInfo, endInfo)
         }
-        endInfo['prev'][tempItemKey] = {
-            target: tempRootItem,
-            targetKey: key
-        }
-        console.log(startInfo,endInfo)
     }
     Structure_Texture = function (tInfo) {
         var rootBox;
@@ -110,7 +111,7 @@ var Structure_Texture;
                 'height', 30,
                 'line-height', 30,
                 'padding-left', 10,
-                'html', info['title'] ? info['title'] : 'Texture Instance'+instanceID,
+                'html', info['title'] ? info['title'] : 'Texture Instance' + instanceID,
                 'cursor', 'pointer',
                 'on', ['down', function (e) {
                     dragTargetContainer = rootBox
