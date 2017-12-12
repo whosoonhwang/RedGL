@@ -2,7 +2,11 @@
 
 Recard.static('INDEX', (function () {
     var result;
+    var svgList = []
     result = {
+        getLineList : function(){
+            return svgList
+        },
         init: function () {
             Recard.Css('body').S(
                 'background', 'url(grid.png)',
@@ -41,7 +45,8 @@ Recard.static('INDEX', (function () {
                     A: null
                 },
                 input: {
-                    UV: null
+                    UV: null,
+                    TEST: null
                 }
             }
             info.src = ''
@@ -51,76 +56,40 @@ Recard.static('INDEX', (function () {
             normal = new Structure_Texture(info)
             console.log(diffuse)
 
-            diffuse['next'] = {
+            diffuse['next']['UV'] = {
                 target: normal,
-                key: 'UV'
+                targetKey : 'TEXTURE'
             }
-            normal['prev'] = {
+            normal['prev']['TEXTURE'] = {
                 target: diffuse,
-                key: 'TEXTURE'
+                targetKey : 'UV'
             }
             diffuse.S('left', 100)
             normal.S('left', 400)
-            var svgList = []
-            Recard.LOOPER.add('test', function () {
-                // console.log(diffuse['next'],normal['prev'])
-                svgList.forEach(function (item) {
-                    item.remove()
-                })
-                svgList.length = 0
-                var startItem, endItem
-                startItem = normal['prev']['target'].query('[key="' + normal['prev']['key'] + '"]')
-                endItem = diffuse['next']['target'].query('[key="' + diffuse['next']['key'] + '"]')
-                startItem.query('[point]').S('background','red')
-                endItem.query('[point]').S('background','red')
+            
+            Recard.UPDATER.init()
+            
 
-
-
-                var sL, sT
-                var eL, eT
-                sL = parseInt(diffuse.S('left') + startItem.__dom__.offsetLeft + startItem.__dom__.clientWidth + 3)
-                sT = parseInt(diffuse.S('top') + startItem.__dom__.offsetTop + startItem.__dom__.clientHeight / 2)
-                eL = parseInt(normal.S('left') + endItem.__dom__.offsetLeft - 3)
-                eT = parseInt(normal.S('top') + endItem.__dom__.offsetTop + endItem.__dom__.clientHeight / 2)
-                console.log(
-                    [
-                        'M' + sL + ',' + sT,
-                        'C' + (sL - eL) / 4 + ',' + (sT - eT) / 4,
-                        (sL - eL) / 4 * 3 + ',' + (sT - eT) / 4 * 3,
-                        eL + ',' + eT
-                    ].join(' ')
-                );
-                svgList.push(
-                    Recard.Dom(document.createElementNS('http://www.w3.org/2000/svg', 'svg')).S(
-                        'position', 'absolute',
-                        'top', 0,
-                        'left', 0,
-                        '@viewBox', [
-                            0, 0,
-                            Recard.WIN.w,
-                            Recard.WIN.h
-                        ].join(','),
-                        '>', Recard.Dom(document.createElementNS('http://www.w3.org/2000/svg', 'path')).S(
-                            '@fill', 'none',
-                            '@stroke', 'red',
-                            '@stroke-linecap', 'round',
-                            '@stroke-width', 4,
-                            '@d', [
-                                'M' + sL + ',' + sT,
-                                // 'C' + (sL - eL) / 2+','+(sT - eT) / 2,
-                                // (sL - eL) / 2+','+(sT - eT) / 2,
-                                'C' + sL + ',' + (sT),
-                                sL + ',' + (eT),
-                                ///
-                                eL + ',' + eT
-                            ].join(' ')
-                            // '@d', 'M100,250 C100,100 400,100 400,250'
-                        ),
-                        'z-index', 0,
-                        '<', 'body'
+            Recard.Dom('button').S(
+                'position','absolute',
+                'bottom',10,
+                'left',10,
+                'z-index',1,
+                'padding',10,
+                'background','#5b52aa',
+                'color','#fff',
+                'outline','none',
+                'border',0,
+                'cursor','pointer',
+                'html','텍스쳐추가',
+                '<','body',
+                'on',['down',function(){
+                    console.log('test'),
+                    (new Structure_Texture(info)).S(
+                        '<','body'
                     )
-                )
-            })
+                }]
+            )
 
             Recard.Dom('body').S(
                 '>', diffuse,
