@@ -56,6 +56,14 @@ Recard.static('INDEX', (function () {
             normal = new Structure_Texture(info)
             console.log(diffuse)
 
+            diffuse['next']['UV'] = {
+                target: normal,
+                targetKey : 'TEXTURE'
+            }
+            normal['prev']['TEXTURE'] = {
+                target: diffuse,
+                targetKey : 'UV'
+            }
             diffuse.S('left', 100)
             normal.S('left', 400)
             
