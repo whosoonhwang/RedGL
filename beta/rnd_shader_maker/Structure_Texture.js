@@ -18,6 +18,7 @@ var Structure_Texture;
         ////////////////////////////////////////////////////////
         rootBox = Recard.Dom('div').S(
             'position', 'absolute',
+            'z-index',1,
             'left', Recard.WIN.w / 2 - W / 2,
             'top', Recard.WIN.h / 2,
             'width', 150,
