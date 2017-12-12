@@ -6,6 +6,7 @@ var Structure_Texture;
     var W;
     var targetContainer;
     var startX, startY
+    var currentZIndex = 2
     W = 150
     Structure_Texture = function (tInfo) {
         var rootBox;
@@ -14,19 +15,21 @@ var Structure_Texture;
         var info;
         ////////////////////////////////////////////////////////
         info = tInfo
-        
+
         ////////////////////////////////////////////////////////
         rootBox = Recard.Dom('div').S(
             'position', 'absolute',
-            'z-index',1,
+            'z-index', 1,
             'left', Recard.WIN.w / 2 - W / 2,
             'top', Recard.WIN.h / 2,
-            'width', 150,
+            'width', W,
             'min-height', 100,
-            'background', '#444',
+            'background', '#1d1c24',
             'box-shadow', '0px 0px 10px 10px rgba(0,0,0,0.1)',
+            'border-radius', 10,
             '>', Recard.Dom('div').S(
-                'background', '#666',
+                'border-top-left-radius', 8,
+                'background', '#272530',
                 'height', 30,
                 'line-height', 30,
                 'padding-left', 6,
@@ -36,6 +39,7 @@ var Structure_Texture;
                     targetContainer = rootBox
                     startX = e.nativeEvent.offsetX
                     startY = e.nativeEvent.offsetY
+                    rootBox.S('z-index',currentZIndex++)
                 }]
             ),
             '>', inputBox = Recard.Dom('div').S(
@@ -55,6 +59,7 @@ var Structure_Texture;
                 '@key', k,
                 'html', k,
                 '>', Recard.Dom('div').S(
+                    '@point', '',
                     'position', 'absolute',
                     'top', '50%',
                     'left', 0,
@@ -73,6 +78,7 @@ var Structure_Texture;
                 '@key', k,
                 'html', k,
                 '>', Recard.Dom('div').S(
+                    '@point', '',
                     'position', 'absolute',
                     'top', '50%',
                     'right', 0,

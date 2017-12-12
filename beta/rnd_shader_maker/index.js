@@ -5,7 +5,7 @@ Recard.static('INDEX', (function () {
     result = {
         init: function () {
             Recard.Css('body').S(
-                'background', '#222',
+                'background', 'url(grid.png)',
                 'font-size', 12,
                 'color', '#fff',
                 'user-select', 'none'
@@ -15,6 +15,7 @@ Recard.static('INDEX', (function () {
                 'text-align', 'left',
                 'padding-left', 10,
                 'height', 20,
+                'color', 'rgb(242, 169, 113)',
                 'font-size', 11,
                 'line-height', 20
             )
@@ -24,6 +25,7 @@ Recard.static('INDEX', (function () {
                 'padding-right', 10,
                 'height', 20,
                 'font-size', 11,
+                'color', 'rgb(242, 169, 113)',
                 'line-height', 20
             )
             /////////////////////////////////////
@@ -57,8 +59,8 @@ Recard.static('INDEX', (function () {
                 target: diffuse,
                 key: 'TEXTURE'
             }
-            diffuse.S('left',100)
-            normal.S('left',400)
+            diffuse.S('left', 100)
+            normal.S('left', 400)
             var svgList = []
             Recard.LOOPER.add('test', function () {
                 // console.log(diffuse['next'],normal['prev'])
@@ -69,16 +71,16 @@ Recard.static('INDEX', (function () {
                 var startItem, endItem
                 startItem = normal['prev']['target'].query('[key="' + normal['prev']['key'] + '"]')
                 endItem = diffuse['next']['target'].query('[key="' + diffuse['next']['key'] + '"]')
-
-
+                startItem.query('[point]').S('background','red')
+                endItem.query('[point]').S('background','red')
 
 
 
                 var sL, sT
                 var eL, eT
-                sL = parseInt(diffuse.S('left') + startItem.__dom__.offsetLeft + startItem.__dom__.clientWidth + 5)
+                sL = parseInt(diffuse.S('left') + startItem.__dom__.offsetLeft + startItem.__dom__.clientWidth + 3)
                 sT = parseInt(diffuse.S('top') + startItem.__dom__.offsetTop + startItem.__dom__.clientHeight / 2)
-                eL = parseInt(normal.S('left') + endItem.__dom__.offsetLeft - 5)
+                eL = parseInt(normal.S('left') + endItem.__dom__.offsetLeft - 3)
                 eT = parseInt(normal.S('top') + endItem.__dom__.offsetTop + endItem.__dom__.clientHeight / 2)
                 console.log(
                     [
