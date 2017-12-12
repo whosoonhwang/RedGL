@@ -8,7 +8,7 @@ var Structure_Texture;
     var dragStartX, dragStartY
     var currentZIndex = 2
     var instanceID = 0
-    var tempRootBox, tempItem, tempItemKey, tempItemType;
+    var tempRootItem, tempItemKey, tempItemType;
     var tempCurveItem
     var tempDragStartX, tempDragStartY
     var drawTempCurve;
@@ -19,7 +19,7 @@ var Structure_Texture;
         var starKeytItem, endKeyItem;
         var sL, sT;
         var eL, eT;
-        if (tempItem) {
+        if (tempRootItem) {
             sL = tempDragStartX
             sT = tempDragStartY
             eL = Recard.WIN.mouseX
@@ -53,43 +53,33 @@ var Structure_Texture;
 
         }
     }
-    prevNextInfo = function (targetItem, targetRootBox, key, type) {
+    prevNextInfo = function (targetRootItem, key, type) {
         var startInfo, endInfo
         if (tempItemType == 'inputItem') {
             console.log('시작이 인풋인놈')
-            throw '인풋부터 시작할수없음'
-            // if (type != 'outputItem') return
-            // else {
-            //     startInfo = targetItem
-            //     endInfo = tempItemType
-            // }
+            if (type != 'outputItem') return
+            else {
+                startInfo = targetRootItem
+                endInfo = tempItemType
+            }
         }
         if (tempItemType == 'outputItem') {
             console.log('시작이 아웃풋인놈')
             if (type != 'inputItem') return
             else {
-                startInfo = tempItem
-                endInfo = targetItem
+                startInfo = tempRootItem
+                endInfo = targetRootItem
             }
         }
 
         if (startInfo) {
-            var tUUID,tUUID2;
-            tUUID2 = tempItem['__uuid__']
-            tUUID = targetItem['__uuid__']
-            if(!startInfo['next']) startInfo['next'] = {}
-            if(!startInfo['next'][tUUID]) startInfo['next'][tUUID] = {}
-            if(!endInfo['prev']) endInfo['prev'] = {}
-            if(!endInfo['prev'][tUUID2]) endInfo['prev'][tUUID2] = {}
-            startInfo['next'][tUUID] = {
-                target: targetItem,
-                rootBox: targetRootBox,
-                targetKey: key
-            }
-            endInfo['prev']  = {
-                target: tempItem,
-                rootBox: tempRootBox,
+            startInfo['next'][key] = {
+                target: targetRootItem,
                 targetKey: tempItemKey
+            }
+            endInfo['prev'][tempItemKey] = {
+                target: tempRootItem,
+                targetKey: key
             }
             console.log(startInfo, endInfo)
         }
@@ -144,9 +134,10 @@ var Structure_Texture;
         for (var k in info['structure']['input']) {
             Recard.Dom('div').S(
                 '@className', 'inputItem',
+                '@key', k,
                 'html', k,
                 '>', Recard.Dom('div').S(
-                    '@key', k,
+                    '@point', '',
                     'position', 'absolute',
                     'top', '50%',
                     'left', 0,
@@ -164,7 +155,7 @@ var Structure_Texture;
                     }],
                     'on', ['up', function () {
                         console.log('오냐?')
-                        prevNextInfo(this, rootBox, this.S('@key'), this.parent().S('@className'))
+                        prevNextInfo(rootBox, this.parent().S('@key'), this.parent().S('@className'))
                     }]
                 ),
                 '<', inputBox
@@ -173,11 +164,10 @@ var Structure_Texture;
         for (var k in info['structure']['output']) {
             Recard.Dom('div').S(
                 '@className', 'outputItem',
+                '@key', k,
                 'html', k,
                 '>', Recard.Dom('div').S(
-                    '@outputItem', '',
-                    '@key', k,
-
+                    '@point', '',
                     'position', 'absolute',
                     'top', '50%',
                     'right', 0,
@@ -195,15 +185,18 @@ var Structure_Texture;
                     }],
                     'on', ['down', function () {
                         console.log({
-                            target: this.parent(),
-                            key: this.S('@key')
+                            target: rootBox,
+                            key: this.parent().S('@key')
                         })
-                        tempRootBox = rootBox
-                        tempItem = this
-                        tempItemKey = this.S('@key')
+                        tempRootItem = rootBox
+                        tempItemKey = this.parent().S('@key')
                         tempItemType = this.parent().S('@className')
                         tempDragStartX = Recard.WIN.mouseX
                         tempDragStartY = Recard.WIN.mouseY
+                    }],
+                    'on', ['up', function () {
+                        console.log('오냐?')
+                        prevNextInfo(rootBox, this.parent().S('@key'), this.parent().S('@className'))
                     }]
                 ),
                 '<', outputBox
@@ -211,7 +204,8 @@ var Structure_Texture;
         }
         ////////////////////////////////////////////////////////
         rootBox['info'] = info
-
+        rootBox['next'] = {}
+        rootBox['prev'] = {}
         ////////////////////////////////////////////////////////
 
         return rootBox
@@ -224,14 +218,14 @@ var Structure_Texture;
                 'left', Recard.WIN.mouseX - dragStartX
             )
         }
-        if (tempItem) drawTempCurve()
+        if (tempRootItem) drawTempCurve()
     })
     Recard.EVENT_EMITTER.on(window, 'mouseup', function (e) {
         dragTargetContainer = null
 
         if (tempCurveItem) {
             setTimeout(function () {
-                tempItem = null
+                tempRootItem = null
             }, 1)
             tempCurveItem.remove(), tempCurveItem = null
         }
