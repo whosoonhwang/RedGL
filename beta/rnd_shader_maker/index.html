@@ -14,14 +14,20 @@
             overflow: hidden
         }
     </style>
-    <script src="bitmapVS.js"></script>
-    <script src="bitmapFS.js"></script>
-    <script src="shaderMixer.js"></script>
-    <script src="../release/RedGL.min.js"></script>
+    <script src='https://redcamel.github.io/Recard/beta/release/recard.min.js'></script>
+    <!-- <script src="../release/RedGL.min.js"></script> -->
 </head>
 
 <body>
-    <script src="index.js"></script>
+    <script>
+        Recard(function(){
+            Recard.INDEX.init()
+        },
+        'Structure_Color.js',
+        'Structure_Texture.js',
+        'index.js'
+    )
+    </script>
 </body>
 
 </html>
