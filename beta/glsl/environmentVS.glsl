@@ -17,15 +17,18 @@ varying vec2 vTexcoord;
 varying vec3 vEyeVec;
 varying vec3 vNormal;
 varying vec3 vCubeCoord;  
+// 변수선언
+vec4 vertexPositionEye4;
+vec4 cubeNormal;
 void main(void) {
-    vec4 vertexPositionEye4 = uMVMatrix * vec4(aVertexPosition, 1.0);
+    vertexPositionEye4 = uMVMatrix * vec4(aVertexPosition, 1.0);
     vTexcoord = uAtlascoord.xy + aTexcoord*uAtlascoord.zw;
     vNormal = vec3(uNMatrix * vec4(aVertexNormal,1.0)); 
     vEyeVec = -vertexPositionEye4.xyz;
     if(uUseDisplacementTexture == 1) {
         vertexPositionEye4.xyz += normalize(vNormal) * texture2D(uDisplacementTexture,vTexcoord).x;
     }
-    vec4 cubeNormal =  uMVMatrix *vec4(-aVertexPosition, 0.0);
+    cubeNormal =  uMVMatrix *vec4(-aVertexPosition, 0.0);
     vCubeCoord = cubeNormal.xyz;
     // 포지션 결정
     gl_Position = uPMatrix * uCameraMatrix *  vertexPositionEye4;

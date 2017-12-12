@@ -176,7 +176,7 @@ start = function () {
 	}
 
 	// 무작위로 가보자
-	var i = 30, j
+	var i = 40, j
 	while (i--) {
 		j = 30
 		while (j--) {

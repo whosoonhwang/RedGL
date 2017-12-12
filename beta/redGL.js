@@ -12,10 +12,12 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		option = {
 			alpha: false,
 			depth: true,
-			failIfMajorPerformanceCaveat: false,
+			stencil: false,
+			antialias:true,
 			premultipliedAlpha: false,
 			preserveDrawingBuffer: false,
-			stencil: false
+			powerPreference  : 'default', // default, high-performance, low-power
+			failIfMajorPerformanceCaveat: false
 		}
 		checkList = 'experimental-webgl,webgl,webkit-3d,moz-webgl,3d'.split(',')
 		return function (cvs) {
