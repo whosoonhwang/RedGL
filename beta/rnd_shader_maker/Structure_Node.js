@@ -1,7 +1,6 @@
 
 'use strict';
-var Structure_Texture;
-// 텍스쳐 기본정보
+var Structure_Node;
 (function () {
     var W;
     var dragTargetContainer;
@@ -13,7 +12,7 @@ var Structure_Texture;
     var tempDragStartX, tempDragStartY
     var drawTempCurve;
     var prevNextInfo;
-    W = 150
+    W = 200
     drawTempCurve = function () {
         var startItem;
         var starKeytItem, endKeyItem;
@@ -37,9 +36,9 @@ var Structure_Texture;
                 ].join(','),
                 '>', Recard.Dom(document.createElementNS('http://www.w3.org/2000/svg', 'path')).S(
                     '@fill', 'none',
-                    '@stroke', 'red',
+                    '@stroke', 'green',
                     '@stroke-linecap', 'round',
-                    '@stroke-width', 4,
+                    '@stroke-width', 2,
                     '@d', [
                         'M' + sL + ',' + sT,
                         'C' + sL + ',' + (sT),
@@ -74,19 +73,19 @@ var Structure_Texture;
         }
 
         if (startInfo) {
-            var tUUID,tUUID2;
+            var tUUID, tUUID2;
             tUUID2 = tempItem['__uuid__']
             tUUID = targetItem['__uuid__']
-            if(!startInfo['next']) startInfo['next'] = {}
-            if(!startInfo['next'][tUUID]) startInfo['next'][tUUID] = {}
-            if(!endInfo['prev']) endInfo['prev'] = {}
-            if(!endInfo['prev'][tUUID2]) endInfo['prev'][tUUID2] = {}
+            if (!startInfo['next']) startInfo['next'] = {}
+            if (!startInfo['next'][tUUID]) startInfo['next'][tUUID] = {}
+            if (!endInfo['prev']) endInfo['prev'] = {}
+            if (!endInfo['prev'][tUUID2]) endInfo['prev'][tUUID2] = {}
             startInfo['next'][tUUID] = {
                 target: targetItem,
                 rootBox: targetRootBox,
                 targetKey: key
             }
-            endInfo['prev']  = {
+            endInfo['prev'] = {
                 target: tempItem,
                 rootBox: tempRootBox,
                 targetKey: tempItemKey
@@ -94,7 +93,7 @@ var Structure_Texture;
             console.log(startInfo, endInfo)
         }
     }
-    Structure_Texture = function (tInfo) {
+    Structure_Node = function (tInfo) {
         var rootBox;
         var inputBox;
         var outputBox;
@@ -107,21 +106,22 @@ var Structure_Texture;
         rootBox = Recard.Dom('div').S(
             '@nodeItem', '',
             'position', 'absolute',
-            'z-index', 1,
+            'z-index', currentZIndex++,
             'left', Recard.WIN.w / 2 - W / 2,
             'top', Recard.WIN.h / 2,
             'width', W,
             'min-height', 100,
             'background', 'rgba(29,28,36,0.8)',
-            'box-shadow', '0px 0px 10px 10px rgba(0,0,0,0.1)',
+            'box-shadow', '0px 0px 10px 5px rgba(0,0,0,0.2)',
             'border-radius', 10,
             '>', Recard.Dom('div').S(
                 'border-top-left-radius', 8,
+                'border-top-right-radius', 8,
                 'background', '#272530',
                 'height', 30,
                 'line-height', 30,
                 'padding-left', 10,
-                'html', info['title'] ? info['title'] : 'Texture Instance' + instanceID,
+                'html', info['title'] ? info['title'] : (info['type'] +' Instance' + instanceID),
                 'cursor', 'pointer',
                 'on', ['down', function (e) {
                     dragTargetContainer = rootBox
@@ -134,17 +134,27 @@ var Structure_Texture;
                 'float', 'left',
                 'display', 'inline-block',
                 'width', '50%',
+                'padding-top', 5,
+                'padding-bottom', 5
             ),
             '>', outputBox = Recard.Dom('div').S(
                 'float', 'right',
                 'display', 'inline-block',
-                'width', '50%'
+                'width', '50%',
+                'padding-top', 5,
+                'padding-bottom', 5
             )
         )
         for (var k in info['structure']['input']) {
             Recard.Dom('div').S(
                 '@className', 'inputItem',
-                'html', k,
+                '>', Recard.Dom('span').S(
+                    'html', k,
+                ),
+                '>', Recard.Dom('span').S(
+                    'color', '#888',
+                    'html', ' ' + info['structure']['input'][k]
+                ),
                 '>', Recard.Dom('div').S(
                     '@key', k,
                     'position', 'absolute',
@@ -173,7 +183,13 @@ var Structure_Texture;
         for (var k in info['structure']['output']) {
             Recard.Dom('div').S(
                 '@className', 'outputItem',
-                'html', k,
+                '>', Recard.Dom('span').S(
+                    'color', '#888',
+                    'html', info['structure']['output'][k] + ' '
+                ),
+                '>', Recard.Dom('span').S(
+                    'html', k,
+                ),
                 '>', Recard.Dom('div').S(
                     '@outputItem', '',
                     '@key', k,
@@ -216,7 +232,7 @@ var Structure_Texture;
 
         return rootBox
     }
-    Object.freeze(Structure_Texture)
+    Object.freeze(Structure_Node)
     Recard.EVENT_EMITTER.on(window, 'mousemove', function (e) {
         if (dragTargetContainer) {
             dragTargetContainer.S(
