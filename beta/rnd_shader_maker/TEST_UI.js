@@ -150,66 +150,67 @@ Recard.static('TEST_UI', (function () {
                             '<', 'body'
                         )
                     }]
-                ),
-                '>', Recard.Dom('button').S(
-                    'margin-right', 1,
-                    'padding', 10,
-                    'background', '#5b52aa',
-                    'color', '#fff',
-                    'outline', 'none',
-                    'border', 0,
-                    'cursor', 'pointer',
-                    'html', 'Add',
-
-                    'on', ['down', function () {
-                        var info;
-                        info = {}
-                        info['nodeType'] = 'Add'
-                        info['structure'] = {
-                            title: null,
-                            output: {
-                                OUTPUT: null
-                            },
-                            input: {
-                                INPUT1: null,
-                                INPUT2: null
-                            }
-                        }
-                        info.src = '';
-                        (new Structure_Node(info)).S(
-                            '<', 'body'
-                        )
-                    }]
-                ),
-                '>', Recard.Dom('button').S(
-                    'margin-right', 1,
-                    'padding', 10,
-                    'background', '#5b52aa',
-                    'color', '#fff',
-                    'outline', 'none',
-                    'border', 0,
-                    'cursor', 'pointer',
-                    'html', 'Mul',
-                    'on', ['down', function () {
-                        var info;
-                        info = {}
-                        info['nodeType'] = 'Mul'
-                        info['structure'] = {
-                            title: null,
-                            output: {
-                                OUTPUT: null
-                            },
-                            input: {
-                                INPUT1: null,
-                                INPUT2: null
-                            }
-                        }
-                        info.src = '';
-                        (new Structure_Node(info)).S(
-                            '<', 'body'
-                        )
-                    }]
                 )
+                // ,
+                // '>', Recard.Dom('button').S(
+                //     'margin-right', 1,
+                //     'padding', 10,
+                //     'background', '#5b52aa',
+                //     'color', '#fff',
+                //     'outline', 'none',
+                //     'border', 0,
+                //     'cursor', 'pointer',
+                //     'html', 'Add',
+
+                //     'on', ['down', function () {
+                //         var info;
+                //         info = {}
+                //         info['nodeType'] = 'Add'
+                //         info['structure'] = {
+                //             title: null,
+                //             output: {
+                //                 OUTPUT: null
+                //             },
+                //             input: {
+                //                 INPUT1: null,
+                //                 INPUT2: null
+                //             }
+                //         }
+                //         info.src = '';
+                //         (new Structure_Node(info)).S(
+                //             '<', 'body'
+                //         )
+                //     }]
+                // ),
+                // '>', Recard.Dom('button').S(
+                //     'margin-right', 1,
+                //     'padding', 10,
+                //     'background', '#5b52aa',
+                //     'color', '#fff',
+                //     'outline', 'none',
+                //     'border', 0,
+                //     'cursor', 'pointer',
+                //     'html', 'Mul',
+                //     'on', ['down', function () {
+                //         var info;
+                //         info = {}
+                //         info['nodeType'] = 'Mul'
+                //         info['structure'] = {
+                //             title: null,
+                //             output: {
+                //                 OUTPUT: null
+                //             },
+                //             input: {
+                //                 INPUT1: null,
+                //                 INPUT2: null
+                //             }
+                //         }
+                //         info.src = '';
+                //         (new Structure_Node(info)).S(
+                //             '<', 'body'
+                //         )
+                //     }]
+                // )
             )
 
         }
