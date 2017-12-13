@@ -11,7 +11,7 @@ var Structure_Node;
     var curveItem
     var drawTempCurve;
     var setPrevNext;
-    W = 200
+    W = 250
     drawTempCurve = function () {
         var sL, sT;
         var eL, eT;
@@ -28,7 +28,7 @@ var Structure_Node;
                 '@viewBox', [0, 0, Recard.WIN.w, Recard.WIN.h].join(','),
                 '>', Recard.Dom(document.createElementNS('http://www.w3.org/2000/svg', 'path')).S(
                     '@fill', 'none',
-                    '@stroke', 'green',
+                    '@stroke', 'red',
                     '@stroke-linecap', 'round',
                     '@stroke-width', 2,
                     '@d', [
@@ -52,6 +52,19 @@ var Structure_Node;
                 if (endItemtype != 'inputItem') return
                 else tStart = startItem, tEnd = targetItem
             }
+            /////////////////////////////////////////////////////////////
+            // 타입체크를 해야함
+            var tSDataType, tEDataType
+            tSDataType = tStart.S('@dataType')
+            tEDataType = tEnd.S('@dataType')
+            console.log(tSDataType, tEDataType)
+            // 단순 상호간 체크
+            if (tEDataType == null) { }
+            else if (tSDataType != tEDataType) {
+                return console.log('타입이 다릅니다.')
+            }
+
+            /////////////////////////////////////////////////////////////
             tStartUUID = tStart['__uuid__']
             tEndUUID = tEnd['__uuid__']
             //
@@ -59,7 +72,37 @@ var Structure_Node;
             if (!tStart['next'][tEndUUID]) tStart['next'][tEndUUID] = {}
             if (!tEnd['prev']) tEnd['prev'] = {}
             if (!tEnd['prev'][tStartUUID]) tEnd['prev'][tStartUUID] = {}
+
+            tEnd.parent().query('[dataTypeBox]').S('html', ' ' + tSDataType)
             //
+            switch (targetRootBox.S('@nodeType')) {
+                case 'Add':
+                    console.log('NodeType Add')
+                    console.log(targetRootBox)
+                    var tList;
+                    tList = targetRootBox.queryAll('.inputItem [dataTypeBox]')
+                    if (tList[0].S('text') == '' || tList[1].S('text') == '') { }
+                    else if (tList[0].S('text') != tList[1].S('text')) {
+                        tEnd.parent().query('[dataTypeBox]').S('html', '')
+                        return console.log('타입이 일치하지않습니다.')
+                    }
+                    if (tList[0].S('text') == tList[1].S('text')) {
+                        targetRootBox.query('.outputItem [dataTypeBox]').S('text', tList[0].S('text') + ' ')
+                    }
+                    break
+                case 'Mul':
+                    console.log('NodeType Mul')
+                    break
+                case 'Texture':
+                    console.log('NodeType Texture')
+                    break
+                default:
+                    return
+            }
+            // 기존에 있는놈삭제
+            if(tEnd['prev'] && tEnd['prev']['target']){
+                delete tEnd['prev']['target']['next'][tEndUUID]
+            }
             tStart['next'][tEndUUID] = {
                 target: tEnd,
                 rootBox: targetRootBox,
@@ -70,6 +113,8 @@ var Structure_Node;
                 rootBox: startPointRootBox,
                 targetKey: startItemKey
             }
+
+
             console.log(tStart, tEnd)
         }
     })()
@@ -80,6 +125,7 @@ var Structure_Node;
         instanceID++
         rootBox = Recard.Dom('div').S(
             '@nodeItem', '',
+            '@nodeType', info['nodeType'],
             'position', 'absolute',
             'z-index', currentZIndex++,
             'top', Recard.WIN.h / 2, 'left', Recard.WIN.w / 2 - W / 2,
@@ -88,14 +134,14 @@ var Structure_Node;
             'box-shadow', '0px 0px 10px 5px rgba(0,0,0,0.2)',
             'border-radius', 10,
             '>', Recard.Dom('div').S(
-                'position','relative',
+                'position', 'relative',
                 'height', 30,
                 'border-top-left-radius', 8,
                 'border-top-right-radius', 8,
-                'background', '#272530',                
+                'background', '#272530',
                 'line-height', 30,
                 'padding-left', 10,
-                'html', info['title'] ? info['title'] : (info['type'] + ' Instance' + instanceID),
+                'html', info['title'] ? info['title'] : (info['nodeType'] + ' Instance' + instanceID),
                 'cursor', 'pointer',
                 'on', ['down', function (e) {
                     dragRootBox = rootBox
@@ -105,28 +151,28 @@ var Structure_Node;
                 }],
                 '>', Recard.Dom('button').S(
                     'float', 'right',
-                    'margin-right',5,
+                    'margin-right', 5,
                     'height', 30,
                     'background', 'transparent',
                     'border', 0,
                     'color', '#fff',
-                    'font-size',11,
-                    'cursor','pointer',
+                    'font-size', 11,
+                    'cursor', 'pointer',
                     'html', 'X',
                     'on', ['down', function () {
-                        rootBox.queryAll('[outputItem]').forEach(function(item,index){
-                            if(item['next']){
-                                for(var k in item['next']){
+                        rootBox.queryAll('[outputItem]').forEach(function (item, index) {
+                            if (item['next']) {
+                                for (var k in item['next']) {
                                     delete item['next'][k]
                                 }
                             }
                         })
-                        rootBox.queryAll('[inputItem]').forEach(function(item,index){
-                            if(item['prev']){
+                        rootBox.queryAll('[inputItem]').forEach(function (item, index) {
+                            if (item['prev']) {
                                 var tTarget = item['prev']['target']
                                 console.log(tTarget)
-                                for(var k in tTarget['next']){
-                                    if(tTarget['next'][k]['rootBox']==rootBox) delete tTarget['next'][k]
+                                for (var k in tTarget['next']) {
+                                    if (tTarget['next'][k]['rootBox'] == rootBox || !rootBox.parent()) delete tTarget['next'][k]
                                 }
                             }
                         })
@@ -142,8 +188,10 @@ var Structure_Node;
                 '@className', 'inputItem',
                 '>', Recard.Dom('span').S('html', k, ),
                 '>', Recard.Dom('span').S('color', '#888', 'html', ' ' + info['structure']['input'][k]),
+                '>', Recard.Dom('span').S('@dataTypeBox', '', 'color', '#1ed5e9'),
                 '>', Recard.Dom('div').S(
                     '@inputItem', '',
+                    '@dataType', info['structure']['input'][k],
                     '@key', k,
                     'position', 'absolute',
                     'top', '50%', 'left', 0,
@@ -156,7 +204,12 @@ var Structure_Node;
                     'on', ['out', function () { this.S('background', '#666') }],
                     'on', ['up', function () {
                         console.log('오냐?')
-                        setPrevNext(this, rootBox, this.S('@key'), this.parent().S('@className'))
+                        setPrevNext(
+                            this, //targetItem
+                            rootBox, //targetRootBox
+                            this.S('@key'), //key
+                            this.parent().S('@className') //endItemtype
+                        )
                     }]
                 ),
                 '<', inputBox
@@ -165,11 +218,12 @@ var Structure_Node;
         for (var k in info['structure']['output']) {
             Recard.Dom('div').S(
                 '@className', 'outputItem',
-                '>', Recard.Dom('span').S('color', '#888', 'html', info['structure']['output'][k] + ' '),
+                '>', Recard.Dom('span').S('@dataTypeBox', '', 'color', '#888', 'html', info['structure']['output'][k] + ' '),
                 '>', Recard.Dom('span').S('html', k, ),
                 '>', Recard.Dom('div').S(
                     '@outputItem', '',
                     '@key', k,
+                    '@dataType', info['structure']['output'][k],
                     'position', 'absolute',
                     'top', '50%', 'right', 0,
                     'width', 10, 'height', 10,

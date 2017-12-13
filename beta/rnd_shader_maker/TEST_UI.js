@@ -5,7 +5,7 @@ Recard.static('TEST_UI', (function () {
         init: function () {
             var info;
             info = {}
-            info['type'] = 'Texture'
+            info['nodeType'] = 'Texture'
             info['structure'] = {
                 title: null,
                 output: {
@@ -29,7 +29,7 @@ Recard.static('TEST_UI', (function () {
 
             diffuse.S('left', 100)
             normal.S('left', 400)
-            
+
             Recard.Dom('body').S(
                 '>', diffuse,
                 '>', normal
@@ -54,7 +54,7 @@ Recard.static('TEST_UI', (function () {
                     'on', ['down', function () {
                         var info;
                         info = {}
-                        info['type'] = 'Texture'
+                        info['nodeType'] = 'Texture'
                         info['structure'] = {
                             title: null,
                             output: {
@@ -88,7 +88,7 @@ Recard.static('TEST_UI', (function () {
                     'on', ['down', function () {
                         var info;
                         info = {}
-                        info['type'] = 'Add'
+                        info['nodeType'] = 'Add'
                         info['structure'] = {
                             title: null,
                             output: {
@@ -117,7 +117,7 @@ Recard.static('TEST_UI', (function () {
                     'on', ['down', function () {
                         var info;
                         info = {}
-                        info['type'] = 'Mul'
+                        info['nodeType'] = 'Mul'
                         info['structure'] = {
                             title: null,
                             output: {
