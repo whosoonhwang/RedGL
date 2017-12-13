@@ -49,6 +49,7 @@ var Structure_Node;
         if (tEnd['prev'] && tEnd['prev']['target']) {
             delete tEnd['prev']['target']['next'][tEnd['__uuid__']]
         }
+        tEnd['prev'] = null
     }
     setPrevNext = (function () {
         var tStart, tEnd
@@ -232,6 +233,7 @@ var Structure_Node;
                         deletePrevData(tEnd)
                         this.S('display', 'none')
                         tEnd.parent().query('[dataTypeBox]').S('html', '')
+                        Recard.TEST_UI.lastCompile()
                     }]
                 ),
                 '>', Recard.Dom('div').S(
@@ -414,9 +416,11 @@ var Structure_Node;
                 resultStr += tData[k]['origin'] + ';\n'
             }
         });
+        resultStr+='\nvoid main(void) {\n';
         ['header', 'body', 'footer'].forEach(function (key) {
-            if (result[key].length) resultStr += '\n'+result[key].join(';\n') + ';'
+            if (result[key].length) resultStr += result[key].join(';\n') + ';'
         })
+        resultStr+='\n}'
         return resultStr
     }
 
