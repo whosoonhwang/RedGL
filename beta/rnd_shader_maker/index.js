@@ -10,7 +10,8 @@ Recard.static('INDEX', (function () {
                 'background', 'url(grid.png)',
                 'font-size', 12,
                 'color', '#fff',
-                'user-select', 'none'
+                'user-select', 'none',
+                'text-shadow', '1px 1px #000000'
             )
             Recard.Css('.inOutputBox').S(
                 'display', 'inline-block',
@@ -38,7 +39,7 @@ Recard.static('INDEX', (function () {
             )
             /////////////////////////////////////
            
-
+            
             Recard.UPDATER.init()
             Recard.TEST_UI.init()
             
