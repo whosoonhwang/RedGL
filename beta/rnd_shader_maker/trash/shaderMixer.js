@@ -3,7 +3,6 @@ var shaderMixer;
 (function () {
     var makeStr;
     makeStr = function (v,result) {
-        
         var resultStr;
         
         console.log(v);

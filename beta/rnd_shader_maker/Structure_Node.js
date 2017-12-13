@@ -12,6 +12,8 @@ var Structure_Node;
     var drawTempCurve;
     var setPrevNext;
     var deletePrevData;
+    var sourceIndex = 0;
+    var makeShaderStr;
     drawTempCurve = function () {
         var sL, sT;
         var eL, eT;
@@ -102,9 +104,9 @@ var Structure_Node;
                 case 'Texture':
                     console.log('NodeType Texture')
                     break
-                case 'gl_FragColor':
-                console.log('NodeType Texture')
-                break
+                case 'Result':
+                    console.log('NodeType Texture')
+                    break
                 default:
                     return
             }
@@ -120,6 +122,10 @@ var Structure_Node;
                 rootBox: startPointRootBox,
                 targetKey: startItemKey
             }
+            startPointRootBox.makeCode()
+            if(targetRootBox.S('@nodeType') =='Result') {
+                Recard.TEST_UI.lastCompile()
+            }else targetRootBox.makeCode()
             tEnd.parent().query('[deleteBox]').S('display', 'block')
             console.log(tStart, tEnd)
         }
@@ -128,13 +134,14 @@ var Structure_Node;
         var rootBox;
         var inputBox;
         var outputBox;
+        var codeBox;
         rootBox = Recard.Dom('div').S(
             '@nodeItem', '',
             '@nodeType', info['nodeType'],
             'position', 'absolute',
             'z-index', currentZIndex++,
             'top', Recard.WIN.h / 2, 'left', Recard.WIN.w / 2,
-            'transform','translate(-50%,-50%)',
+            'transform', 'translate(-50%,-50%)',
             'min-width', 250, 'min-height', 100,
             'background', 'rgba(29,28,36,0.8)',
             'box-shadow', '0px 0px 10px 5px rgba(0,0,0,0.2)',
@@ -147,7 +154,7 @@ var Structure_Node;
                 'background', '#272530',
                 'line-height', 30,
                 'padding-left', 10,
-                'html', info['structure']['title'] ? info['structure']['title'] : (info['nodeType'] + ' Instance' ),
+                'html', info['structure']['title'] ? info['structure']['title'] : (info['nodeType'] + ' Instance'),
                 'cursor', 'pointer',
                 'on', ['down', function (e) {
                     dragRootBox = rootBox
@@ -156,7 +163,7 @@ var Structure_Node;
                     rootBox.S('z-index', currentZIndex++)
                 }],
                 '>', Recard.Dom('button').S(
-                    'display',info['nodeType'] == 'gl_FragColor' ? 'none' : 'block',
+                    'display', info['nodeType'] == 'Result' ? 'none' : 'block',
                     'float', 'right',
                     'margin-right', 5,
                     'height', 30,
@@ -188,12 +195,20 @@ var Structure_Node;
                 )
             ),
             '>', inputBox = Recard.Dom('div').S('@className', 'inOutputBox', 'float', 'left'),
-            '>', outputBox = Recard.Dom('div').S('@className', 'inOutputBox', 'float', 'right')
+            '>', outputBox = Recard.Dom('div').S('@className', 'inOutputBox', 'float', 'right'),
+            '>', Recard.Dom('div').S('clear', 'both'),
+            '>', codeBox = Recard.Dom('div').S(
+                '@id','style-1',
+                'background','rgba(0,0,0,0.1)',
+                'padding',10,
+                'max-height',200,
+                'overflow-y','auto'
+            )
         )
         for (var k in info['structure']['input']) {
             Recard.Dom('div').S(
                 '@className', 'inputItem',
-                'white-space','noWrap',
+                'white-space', 'noWrap',
                 '>', Recard.Dom('span').S('html', k, ),
                 '>', Recard.Dom('span').S('color', '#888', 'html', ' ' + info['structure']['input'][k]),
                 '>', Recard.Dom('span').S('@dataTypeBox', '', 'color', '#1ed5e9'),
@@ -239,7 +254,6 @@ var Structure_Node;
                             this.S('@key'), //key
                             this.parent().S('@className') //endItemtype
                         )
-
                     }]
                 ),
                 '<', inputBox
@@ -248,7 +262,7 @@ var Structure_Node;
         for (var k in info['structure']['output']) {
             Recard.Dom('div').S(
                 '@className', 'outputItem',
-                'white-space','noWrap',
+                'white-space', 'noWrap',
                 '>', Recard.Dom('span').S('@dataTypeBox', '', 'color', '#888', 'html', info['structure']['output'][k] + ' '),
                 '>', Recard.Dom('span').S('html', k, ),
                 '>', Recard.Dom('div').S(
@@ -278,17 +292,140 @@ var Structure_Node;
         }
         ////////////////////////////////////////////////////////
         rootBox['info'] = info
+       
+        
+        rootBox['makeCode'] = function (source) {
+            rootBox['compileInfo'] = {
+                define: {
+                    uniforms: {},
+                    varyings: {},
+                    vars: {}
+                },
+                header: [],
+                body: [],
+                footer: []
+            }
+            rootBox['compileSourceInfo'] = {
+                define: {
+                    uniforms: [],
+                    varyings: [],
+                    vars: []
+                },
+                header: [],
+                body: [],
+                footer: []
+            }
+            switch (rootBox.S('@nodeType')) {
+                case 'Result':
+                    var t = makeShaderStr(source,rootBox['compileInfo'])
+                    console.log(t)
+                    codeBox.S(
+                        'html', '',
+                        'html', t.replace(/\n/g, '<br>')
+                    )
+                    break
+                case 'Texture':
+                    var tShaderSource;
+                    sourceIndex++
+                    tShaderSource = {
+                        type: 'fragment',
+                        define: {
+                            uniforms: [
+                                // 텍스쳐
+                                ['uniform sampler2D uTexture' + sourceIndex]
+                            ],
+                            varyings: [
+                                // 비트맵 코디네이트 값
+                                ['varying vec2 vTexcoord']
+
+                            ],
+                            vars: [
+                                // 최종컬러값
+                                ['vec4 textureColor' + sourceIndex]
+                            ]
+                        },
+                        header: [],
+                        body: [],
+                        footer: [
+                            'textureColor' + sourceIndex + '= texture2D(uTexture' + sourceIndex + ', vTexcoord)'
+                        ]
+                    }
+                    console.log(tShaderSource)
+                    rootBox['compileSourceInfo'] = JSON.parse(JSON.stringify(tShaderSource))
+                    var t = makeShaderStr(tShaderSource,rootBox['compileInfo'])
+                    console.log(t)
+                    codeBox.S(
+                        'html', '',
+                        'html', t.replace(/\n/g,'<br>')
+                    )
+            
+                    break
+            }
+
+        }
         ////////////////////////////////////////////////////////
         return rootBox
     }
     Object.freeze(Structure_Node)
-   
+    makeShaderStr = function (v,result) {
+        var resultStr;        
+        console.log(v);
+        // 정의를 일단 분석해
+        ['uniforms', 'varyings', 'vars'].forEach(function (key) {
+            var tData = v['define'][key]
+            console.log(tData)
+            tData.forEach(function (v2, index2) {
+                var t0 = v2[0].split(' ')
+                console.log(t0)
+                if (t0.length == 2) t0.reverse(), t0.push(null), t0.reverse()
+                t0 = {
+                    type: t0[0],
+                    dataType: t0[1],
+                    name: t0[2],
+                    origin: v2
+                }
+                v['define'][key][index2] = t0
+                if (result['define'][key][t0['name']]) console.log(t0['name']+' 이미존재하는 변수명이라 추가에서 제외됨')
+                result['define'][key][t0['name']] = t0
+            })
+            console.log(tData)
+        });
+        // 헤더, 바디, 푸터도 분석해
+        ['header', 'body', 'footer'].forEach(function (key) {
+            if (v[key].length) {
+                // result[key] = result[key].concat(v[key])
+                console.log(result[key])
+                v[key].forEach(function(data){
+                    console.log(data,result[key].indexOf(data))
+                    if(result[key].indexOf(data)==-1) result[key].push(data)
+                })
+            }
+        })
+        console.log(result)
+        // 최종문자열 병합해..
+        resultStr = '';
+        ['uniforms', 'varyings', 'vars'].forEach(function (key) {
+            var tData = result['define'][key]
+            console.log(tData)
+            resultStr += '\n'
+            resultStr += '// define : ' + key + ';\n'
+            for (var k in tData) {
+                console.log(tData[k])
+                resultStr += tData[k]['origin'] + ';\n'
+            }
+        });
+        ['header', 'body', 'footer'].forEach(function (key) {
+            if (result[key].length) resultStr += '\n'+result[key].join(';\n') + ';'
+        })
+        return resultStr
+    }
+
     // 드래그/라인처리 관련 이벤트 처리
     Recard.EVENT_EMITTER.on(window, 'mousemove', function (e) {
         if (dragRootBox) {
             dragRootBox.S(
-                'top', Recard.WIN.mouseY - dragStartY+dragRootBox.__dom__.clientHeight/2,
-                'left', Recard.WIN.mouseX - dragStartX+dragRootBox.__dom__.clientWidth/2
+                'top', Recard.WIN.mouseY - dragStartY + dragRootBox.__dom__.clientHeight / 2,
+                'left', Recard.WIN.mouseX - dragStartX + dragRootBox.__dom__.clientWidth / 2
             )
         }
         if (startItem) drawTempCurve()

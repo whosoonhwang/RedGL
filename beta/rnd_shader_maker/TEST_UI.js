@@ -5,15 +5,15 @@ Recard.static('TEST_UI', (function () {
     setResult = function () {
         var info;
         info = {}
-        info['nodeType'] = 'gl_FragColor'
+        info['nodeType'] = 'Result'
         info['structure'] = {
-            title: 'gl_FragColor',
+            title: 'Result',
             output: {},
             input: {
-                DIFFUSE: 'sampler2D',
-                NORMAL: 'sampler2D',
-                SPECULAR: 'sampler2D',
-                DISPLACEMENT: 'sampler2D',
+                DIFFUSE: 'vec4',
+                NORMAL: 'vec4',
+                SPECULAR: 'vec4',
+                DISPLACEMENT: 'vec4'
             }
         }
         info.src = '';
@@ -25,6 +25,89 @@ Recard.static('TEST_UI', (function () {
         )
     }
     result = {
+        lastCompile: (function(){
+            var parse;
+            var data;
+            parse = function(parentData,tData){
+                var root;
+                var tInputItemList
+                console.log(tData)
+                parentData.push(tData)
+                root = tData['rootBox']                
+                tInputItemList = root.queryAll('[inputItem]')
+                tInputItemList.forEach(function (item, index) {
+                    if(item['prev']) {
+                        parse(parentData,item['prev'])
+                    }
+                })
+            }
+            return function () {
+                var root;
+                var tInputItemList
+                data = {}
+                root = Recard.query('[nodeType="Result"]')
+                tInputItemList = root.queryAll('[inputItem]')
+                console.log(root)            
+                tInputItemList.forEach(function (item, index) {
+                    if(item['prev']) {
+                        data[item.S('@key')]={
+                            children : []
+                        }
+                        parse(data[item.S('@key')]['children'],item['prev'])
+                    }
+                    
+                })
+                console.log(data)
+                root['compileInfo'] = {
+                    define: {
+                        uniforms: {},
+                        varyings: {},
+                        vars: {}
+                    },
+                    header: [],
+                    body: [],
+                    footer: []
+                }
+                var mergeCompileSource = {
+                    define: {
+                        uniforms: [],
+                        varyings: [],
+                        vars: []
+                    },
+                    header: [],
+                    body: [],
+                    footer: []
+                }
+                for (var k in data) {
+                    var tFlow;
+                    tFlow = data[k]['children'].concat()
+                    tFlow.reverse()
+                    console.log(k, '에 대한 플로우', tFlow)
+                    tFlow.forEach(function (item) {
+                        var tData = item['rootBox']['compileSourceInfo']
+                        console.log(tData)
+                        mergeCompileSource['header'] = mergeCompileSource['header'].concat(tData['header'])
+                        mergeCompileSource['body'] = mergeCompileSource['body'].concat(tData['body'])
+                        mergeCompileSource['footer'] = mergeCompileSource['footer'].concat(tData['footer'])
+                        mergeCompileSource['define']['uniforms'] = mergeCompileSource['define']['uniforms'].concat(
+                            item['rootBox']['compileSourceInfo']['define']['uniforms']
+                        )
+                        mergeCompileSource['define']['varyings'] = mergeCompileSource['define']['varyings'].concat(
+                            item['rootBox']['compileSourceInfo']['define']['varyings']
+                        )
+                        mergeCompileSource['define']['vars'] = mergeCompileSource['define']['vars'].concat(
+                            item['rootBox']['compileSourceInfo']['define']['vars']
+                        )
+                        
+                      
+                    })
+                }
+                console.log(mergeCompileSource)
+                root.makeCode(mergeCompileSource)
+
+
+            }
+        })(),
         init: function () {
             setResult()
             /////////////////////////////////////
@@ -51,22 +134,15 @@ Recard.static('TEST_UI', (function () {
                         info['structure'] = {
                             title: null,
                             output: {
-                                TEXTURE: 'sampler2D',
+                                // TEXTURE: 'sampler2D',
                                 COLOR: 'vec4',
                                 R: 'float',
                                 G: 'float',
                                 B: 'float',
-                                A: 'float',
-                                TEST_VEC2: 'vec2',
-                                TEST_VEC3: 'vec3',
-                                TEST_VEC4: 'vec4',
-                                TEST_MAT2: 'mat2',
-                                TEST_MAT3: 'mat3',
-                                TEST_MAT4: 'mat4',
+                                A: 'float'
                             },
                             input: {
-                                UV: 'vec2',
-                                TEST: null
+                                UV: 'vec2'
                             }
                         }
                         info.src = '';
