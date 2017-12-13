@@ -1,17 +1,17 @@
 
 'use strict';
 var Structure_Node;
+
 (function () {
     var W;
     var dragRootBox, dragStartX, dragStartY;
     var currentZIndex = 2
-    var instanceID = 0
     var startPointRootBox, startItem, startItemKey, startItemType;
     var startDragX, startDragY
     var curveItem
     var drawTempCurve;
     var setPrevNext;
-    W = 250
+    var deletePrevData;
     drawTempCurve = function () {
         var sL, sT;
         var eL, eT;
@@ -43,6 +43,11 @@ var Structure_Node;
 
         }
     }
+    deletePrevData = function (tEnd) {
+        if (tEnd['prev'] && tEnd['prev']['target']) {
+            delete tEnd['prev']['target']['next'][tEnd['__uuid__']]
+        }
+    }
     setPrevNext = (function () {
         var tStart, tEnd
         var tEndUUID, tStartUUID;
@@ -55,6 +60,7 @@ var Structure_Node;
             /////////////////////////////////////////////////////////////
             // 타입체크를 해야함
             var tSDataType, tEDataType
+            if (!tStart) return
             tSDataType = tStart.S('@dataType')
             tEDataType = tEnd.S('@dataType')
             console.log(tSDataType, tEDataType)
@@ -96,13 +102,14 @@ var Structure_Node;
                 case 'Texture':
                     console.log('NodeType Texture')
                     break
+                case 'gl_FragColor':
+                console.log('NodeType Texture')
+                break
                 default:
                     return
             }
             // 기존에 있는놈삭제
-            if(tEnd['prev'] && tEnd['prev']['target']){
-                delete tEnd['prev']['target']['next'][tEndUUID]
-            }
+            deletePrevData(tEnd)
             tStart['next'][tEndUUID] = {
                 target: tEnd,
                 rootBox: targetRootBox,
@@ -113,8 +120,7 @@ var Structure_Node;
                 rootBox: startPointRootBox,
                 targetKey: startItemKey
             }
-
-
+            tEnd.parent().query('[deleteBox]').S('display', 'block')
             console.log(tStart, tEnd)
         }
     })()
@@ -122,14 +128,14 @@ var Structure_Node;
         var rootBox;
         var inputBox;
         var outputBox;
-        instanceID++
         rootBox = Recard.Dom('div').S(
             '@nodeItem', '',
             '@nodeType', info['nodeType'],
             'position', 'absolute',
             'z-index', currentZIndex++,
-            'top', Recard.WIN.h / 2, 'left', Recard.WIN.w / 2 - W / 2,
-            'width', W, 'min-height', 100,
+            'top', Recard.WIN.h / 2, 'left', Recard.WIN.w / 2,
+            'transform','translate(-50%,-50%)',
+            'min-width', 250, 'min-height', 100,
             'background', 'rgba(29,28,36,0.8)',
             'box-shadow', '0px 0px 10px 5px rgba(0,0,0,0.2)',
             'border-radius', 10,
@@ -141,7 +147,7 @@ var Structure_Node;
                 'background', '#272530',
                 'line-height', 30,
                 'padding-left', 10,
-                'html', info['title'] ? info['title'] : (info['nodeType'] + ' Instance' + instanceID),
+                'html', info['structure']['title'] ? info['structure']['title'] : (info['nodeType'] + ' Instance' ),
                 'cursor', 'pointer',
                 'on', ['down', function (e) {
                     dragRootBox = rootBox
@@ -150,6 +156,7 @@ var Structure_Node;
                     rootBox.S('z-index', currentZIndex++)
                 }],
                 '>', Recard.Dom('button').S(
+                    'display',info['nodeType'] == 'gl_FragColor' ? 'none' : 'block',
                     'float', 'right',
                     'margin-right', 5,
                     'height', 30,
@@ -186,9 +193,32 @@ var Structure_Node;
         for (var k in info['structure']['input']) {
             Recard.Dom('div').S(
                 '@className', 'inputItem',
+                'white-space','noWrap',
                 '>', Recard.Dom('span').S('html', k, ),
                 '>', Recard.Dom('span').S('color', '#888', 'html', ' ' + info['structure']['input'][k]),
                 '>', Recard.Dom('span').S('@dataTypeBox', '', 'color', '#1ed5e9'),
+                '>', Recard.Dom('div').S(
+                    '@deleteBox', '',
+                    'display', 'none',
+                    'position', 'absolute',
+                    'top', '50%', 'left', -10,
+                    'background', '#5b52aa',
+                    'font-size', 11,
+                    'line-height', 11,
+                    'color', '#fff',
+                    'padding', '2px 5px 3px 5px',
+                    'transform', 'translate(-100%,-50%)',
+                    'html', 'delete',
+                    'cursor', 'pointer',
+                    'on', ['over', function () { this.S('background', 'red') }],
+                    'on', ['out', function () { this.S('background', '#5b52aa') }],
+                    'on', ['down', function () {
+                        var tEnd = this.parent().query('[inputItem]')
+                        deletePrevData(tEnd)
+                        this.S('display', 'none')
+                        tEnd.parent().query('[dataTypeBox]').S('html', '')
+                    }]
+                ),
                 '>', Recard.Dom('div').S(
                     '@inputItem', '',
                     '@dataType', info['structure']['input'][k],
@@ -203,13 +233,13 @@ var Structure_Node;
                     'on', ['over', function () { this.S('background', 'red') }],
                     'on', ['out', function () { this.S('background', '#666') }],
                     'on', ['up', function () {
-                        console.log('오냐?')
                         setPrevNext(
                             this, //targetItem
                             rootBox, //targetRootBox
                             this.S('@key'), //key
                             this.parent().S('@className') //endItemtype
                         )
+
                     }]
                 ),
                 '<', inputBox
@@ -218,6 +248,7 @@ var Structure_Node;
         for (var k in info['structure']['output']) {
             Recard.Dom('div').S(
                 '@className', 'outputItem',
+                'white-space','noWrap',
                 '>', Recard.Dom('span').S('@dataTypeBox', '', 'color', '#888', 'html', info['structure']['output'][k] + ' '),
                 '>', Recard.Dom('span').S('html', k, ),
                 '>', Recard.Dom('div').S(
@@ -251,12 +282,13 @@ var Structure_Node;
         return rootBox
     }
     Object.freeze(Structure_Node)
+   
     // 드래그/라인처리 관련 이벤트 처리
     Recard.EVENT_EMITTER.on(window, 'mousemove', function (e) {
         if (dragRootBox) {
             dragRootBox.S(
-                'top', Recard.WIN.mouseY - dragStartY,
-                'left', Recard.WIN.mouseX - dragStartX
+                'top', Recard.WIN.mouseY - dragStartY+dragRootBox.__dom__.clientHeight/2,
+                'left', Recard.WIN.mouseX - dragStartX+dragRootBox.__dom__.clientWidth/2
             )
         }
         if (startItem) drawTempCurve()
