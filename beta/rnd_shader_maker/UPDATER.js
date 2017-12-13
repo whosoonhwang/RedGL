@@ -1,11 +1,11 @@
 'use strict';
 Recard.static('UPDATER', (function () {
     var result;
+    var svgList = []
     result = {
         init: function () {
             Recard.LOOPER.del('UPDATER')
             Recard.LOOPER.add('UPDATER', function () {
-                var svgList = Recard.INDEX.getLineList()
                 var nodeList = Recard.queryAll('[outputItem]')
                 svgList.forEach(function (item) {
                     item.remove()
