@@ -295,6 +295,8 @@ var shaderIndex = 0;
         }
         ////////////////////////////////////////////////////////
         rootBox['info'] = info
+        rootBox['comfileInfo'] = null
+        rootBox['lastCompileInfo'] = null
         rootBox['makeCode'] = function () {
             dataMaker.call(this)    
             shaderParser.call(this)   
