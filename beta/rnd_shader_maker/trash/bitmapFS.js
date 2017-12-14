@@ -6,7 +6,7 @@ FS_BITMAP_BASE_SET = {
     define: {
         uniforms: [
             // 디퓨즈텍스쳐
-            ['uniform sampler2D uTexture']
+            ['uniform sampler2D uDiffuseTexture']
         ],
         varyings: [
             // 비트맵 코디네이트 값
@@ -21,6 +21,6 @@ FS_BITMAP_BASE_SET = {
     header: [],
     body: [],
     footer: [
-        'finalColor = texture2D(uTexture, vTexcoord)'
+        'finalColor = texture2D(uDiffuseTexture, vTexcoord)'
     ]
 }

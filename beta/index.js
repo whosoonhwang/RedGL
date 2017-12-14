@@ -31,7 +31,7 @@ start = function () {
 			testGL.getShaderInfo('bitmapPhong', RedShaderInfo.VERTEX_SHADER),
 			testGL.getShaderInfo('bitmapPhong', RedShaderInfo.FRAGMENT_SHADER),
 			function (target) {
-				target.uniforms.uTexture = target['diffuseInfo']
+				target.uniforms.uDiffuseTexture = target['diffuseInfo']
 				target.uniforms.uNormalTexture = target['normalInfo']
 				target.uniforms.uDisplacementTexture = target['displacementInfo']
 				target.uniforms.uSpecularTexture = target['specularInfo']

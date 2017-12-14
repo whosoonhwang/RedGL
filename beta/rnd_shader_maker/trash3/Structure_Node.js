@@ -337,7 +337,7 @@ var sourceIndex = 0;
                         define: {
                             uniforms: [
                                 // 텍스쳐
-                                ['uniform sampler2D uTexture' + sourceIndex]
+                                ['uniform sampler2D uDiffuseTexture' + sourceIndex]
                             ],
                             varyings: [
                                 // 비트맵 코디네이트 값
@@ -352,7 +352,7 @@ var sourceIndex = 0;
                         header: [],
                         body: [],
                         footer: [
-                            'textureColor' + sourceIndex + '= texture2D(uTexture' + sourceIndex + ', vTexcoord)',
+                            'textureColor' + sourceIndex + '= texture2D(uDiffuseTexture' + sourceIndex + ', vTexcoord)',
                             'gl_FragColor ='+ 'textureColor' + sourceIndex
                         ]
                     }
