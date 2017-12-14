@@ -18,16 +18,16 @@ var Structure_Node;
         var sL, sT;
         var eL, eT;
         if (startItem) {
-            sL = startDragX
-            sT = startDragY
-            eL = Recard.WIN.mouseX
-            eT = Recard.WIN.mouseY
+            sL = startDragX + Recard.WIN.scroll('x')
+            sT = startDragY + Recard.WIN.scroll('y')
+            eL = Recard.WIN.mouseX + Recard.WIN.scroll('x')
+            eT = Recard.WIN.mouseY + Recard.WIN.scroll('y')
             if (curveItem) curveItem.remove(), curveItem = null
             curveItem = Recard.Dom(document.createElementNS('http://www.w3.org/2000/svg', 'svg')).S(
                 'position', 'absolute',
                 'top', 0, 'left', 0,
                 'z-index', 0,
-                '@viewBox', [0, 0, Recard.WIN.w, Recard.WIN.h].join(','),
+                '@viewBox', [0, 0, 20000, 20000].join(','),
                 '>', Recard.Dom(document.createElementNS('http://www.w3.org/2000/svg', 'path')).S(
                     '@fill', 'none',
                     '@stroke', 'red',
@@ -40,8 +40,9 @@ var Structure_Node;
                         eL + ',' + eT
                     ].join(' ')
                 ),
-                '<', 'body'
+                '<', Recard.Dom('#nodeBox')
             )
+
 
         }
     }
@@ -49,6 +50,7 @@ var Structure_Node;
         if (tEnd['prev'] && tEnd['prev']['target']) {
             delete tEnd['prev']['target']['next'][tEnd['__uuid__']]
         }
+        tEnd['prev'] = null
     }
     setPrevNext = (function () {
         var tStart, tEnd
@@ -123,9 +125,9 @@ var Structure_Node;
                 targetKey: startItemKey
             }
             startPointRootBox.makeCode()
-            if(targetRootBox.S('@nodeType') =='Result') {
+            if (targetRootBox.S('@nodeType') == 'Result') {
                 Recard.TEST_UI.lastCompile()
-            }else targetRootBox.makeCode()
+            } else targetRootBox.makeCode()
             tEnd.parent().query('[deleteBox]').S('display', 'block')
             console.log(tStart, tEnd)
         }
@@ -198,11 +200,11 @@ var Structure_Node;
             '>', outputBox = Recard.Dom('div').S('@className', 'inOutputBox', 'float', 'right'),
             '>', Recard.Dom('div').S('clear', 'both'),
             '>', codeBox = Recard.Dom('div').S(
-                '@id','style-1',
-                'background','rgba(0,0,0,0.1)',
-                'padding',10,
-                'max-height',200,
-                'overflow-y','auto'
+                '@id', 'style-1',
+                'background', 'rgba(0,0,0,0.1)',
+                'padding', 10,
+                'max-height', 200,
+                'overflow-y', 'auto'
             )
         )
         for (var k in info['structure']['input']) {
@@ -232,6 +234,7 @@ var Structure_Node;
                         deletePrevData(tEnd)
                         this.S('display', 'none')
                         tEnd.parent().query('[dataTypeBox]').S('html', '')
+                        Recard.TEST_UI.lastCompile()
                     }]
                 ),
                 '>', Recard.Dom('div').S(
@@ -292,8 +295,8 @@ var Structure_Node;
         }
         ////////////////////////////////////////////////////////
         rootBox['info'] = info
-       
-        
+
+
         rootBox['makeCode'] = function (source) {
             rootBox['compileInfo'] = {
                 define: {
@@ -317,12 +320,13 @@ var Structure_Node;
             }
             switch (rootBox.S('@nodeType')) {
                 case 'Result':
-                    var t = makeShaderStr(source,rootBox['compileInfo'])
+                    var t = makeShaderStr(source, rootBox['compileInfo'])
                     console.log(t)
                     codeBox.S(
                         'html', '',
                         'html', t.replace(/\n/g, '<br>')
                     )
+                    return t
                     break
                 case 'Texture':
                     var tShaderSource;
@@ -347,18 +351,19 @@ var Structure_Node;
                         header: [],
                         body: [],
                         footer: [
-                            'textureColor' + sourceIndex + '= texture2D(uTexture' + sourceIndex + ', vTexcoord)'
+                            'textureColor' + sourceIndex + '= texture2D(uTexture' + sourceIndex + ', vTexcoord)',
+                            'gl_FragColor =textureColor' + sourceIndex
                         ]
                     }
                     console.log(tShaderSource)
                     rootBox['compileSourceInfo'] = JSON.parse(JSON.stringify(tShaderSource))
-                    var t = makeShaderStr(tShaderSource,rootBox['compileInfo'])
+                    var t = makeShaderStr(tShaderSource, rootBox['compileInfo'])
                     console.log(t)
                     codeBox.S(
                         'html', '',
-                        'html', t.replace(/\n/g,'<br>')
+                        'html', t.replace(/\n/g, '<br>')
                     )
-            
+                    return t
                     break
             }
 
@@ -367,8 +372,8 @@ var Structure_Node;
         return rootBox
     }
     Object.freeze(Structure_Node)
-    makeShaderStr = function (v,result) {
-        var resultStr;        
+    makeShaderStr = function (v, result) {
+        var resultStr;
         console.log(v);
         // 정의를 일단 분석해
         ['uniforms', 'varyings', 'vars'].forEach(function (key) {
@@ -385,7 +390,7 @@ var Structure_Node;
                     origin: v2
                 }
                 v['define'][key][index2] = t0
-                if (result['define'][key][t0['name']]) console.log(t0['name']+' 이미존재하는 변수명이라 추가에서 제외됨')
+                if (result['define'][key][t0['name']]) console.log(t0['name'] + ' 이미존재하는 변수명이라 추가에서 제외됨')
                 result['define'][key][t0['name']] = t0
             })
             console.log(tData)
@@ -395,9 +400,9 @@ var Structure_Node;
             if (v[key].length) {
                 // result[key] = result[key].concat(v[key])
                 console.log(result[key])
-                v[key].forEach(function(data){
-                    console.log(data,result[key].indexOf(data))
-                    if(result[key].indexOf(data)==-1) result[key].push(data)
+                v[key].forEach(function (data) {
+                    console.log(data, result[key].indexOf(data))
+                    if (result[key].indexOf(data) == -1) result[key].push(data)
                 })
             }
         })
@@ -407,16 +412,17 @@ var Structure_Node;
         ['uniforms', 'varyings', 'vars'].forEach(function (key) {
             var tData = result['define'][key]
             console.log(tData)
-            resultStr += '\n'
-            resultStr += '// define : ' + key + ';\n'
+            // resultStr += '// define : ' + key + ';\n'
             for (var k in tData) {
                 console.log(tData[k])
                 resultStr += tData[k]['origin'] + ';\n'
             }
         });
+        resultStr += '\nvoid main(void) {\n';
         ['header', 'body', 'footer'].forEach(function (key) {
-            if (result[key].length) resultStr += '\n'+result[key].join(';\n') + ';'
+            if (result[key].length) resultStr += result[key].join(';\n') + ';'
         })
+        resultStr += '\n}'
         return resultStr
     }
 
@@ -424,8 +430,8 @@ var Structure_Node;
     Recard.EVENT_EMITTER.on(window, 'mousemove', function (e) {
         if (dragRootBox) {
             dragRootBox.S(
-                'top', Recard.WIN.mouseY - dragStartY + dragRootBox.__dom__.clientHeight / 2,
-                'left', Recard.WIN.mouseX - dragStartX + dragRootBox.__dom__.clientWidth / 2
+                'top', Recard.WIN.mouseY - dragStartY + dragRootBox.__dom__.clientHeight / 2 + Recard.WIN.scroll('y'),
+                'left', Recard.WIN.mouseX - dragStartX + dragRootBox.__dom__.clientWidth / 2 + Recard.WIN.scroll('x')
             )
         }
         if (startItem) drawTempCurve()

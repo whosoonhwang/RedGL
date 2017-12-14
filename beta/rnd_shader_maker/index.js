@@ -6,8 +6,11 @@ Recard.static('INDEX', (function () {
     result = {
        
         init: function () {
-            Recard.Css('body').S(
+            Recard.Css('html').S(
                 'background', 'url(grid.png)',
+                'overflow','hidden'
+            )
+            Recard.Css('body').S(
                 'font-size', 12,
                 'color', '#fff',
                 'user-select', 'none',
@@ -38,10 +41,10 @@ Recard.static('INDEX', (function () {
                 'line-height', 20
             )
             /////////////////////////////////////
-           
-            
-            Recard.UPDATER.init()
+            Recard.PREVIEW.init()
             Recard.TEST_UI.init()
+            Recard.UPDATER.init()
+     
             
            
         }

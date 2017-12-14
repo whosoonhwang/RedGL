@@ -3,6 +3,7 @@ Recard.static('UPDATER', (function () {
     var result;
     var svgList = []
     var svgRootBox;
+    var locationBox;
     result = {
         init: function () {
             svgRootBox = Recard.Dom(document.createElementNS('http://www.w3.org/2000/svg', 'svg')).S(
@@ -11,21 +12,13 @@ Recard.static('UPDATER', (function () {
                 'left', 0,
                 '@viewBox', [
                     0, 0,
-                    Recard.WIN.w,
-                    Recard.WIN.h
+                    20000,
+                    20000
                 ].join(','),
                 'z-index', 0,
-                '<', 'body'
+                '<', Recard.Dom('#nodeBox')
             )
-            Recard.WIN_RESIZER.add('SVG_ROOT_BOX', function () {
-                svgRootBox.S(
-                    '@viewBox', [
-                        0, 0,
-                        Recard.WIN.w,
-                        Recard.WIN.h
-                    ].join(',')
-                )
-            })
+           
             Recard.LOOPER.del('UPDATER')
             Recard.LOOPER.add('UPDATER', function () {
                 var nodeList = Recard.queryAll('[outputItem]')
@@ -41,6 +34,7 @@ Recard.static('UPDATER', (function () {
                     var sL, sT
                     var eL, eT
                     var tNextData
+                 
                     for (var k in item['next']) {
                         tNextData = item['next'][k]
                         // console.log('시작아이템정보',tPrevData)
@@ -62,10 +56,10 @@ Recard.static('UPDATER', (function () {
                             var endItem2 = endItem.parent()
                             var tRootBox;
                             tRootBox = endItem['prev']['rootBox']
-                            sL = tRootBox.S('left') - tRootBox.__dom__.clientWidth / 2 + startItem2.__dom__.offsetLeft + startItem2.__dom__.clientWidth + 3
+                            sL = tRootBox.S('left') - tRootBox.__dom__.clientWidth / 2 + startItem2.__dom__.offsetLeft + startItem2.__dom__.clientWidth 
                             sT = tRootBox.S('top') - tRootBox.__dom__.clientHeight / 2 + startItem2.__dom__.offsetTop + startItem2.__dom__.clientHeight / 2
                             tRootBox = tNextData['rootBox']
-                            eL = tRootBox.S('left') - tRootBox.__dom__.clientWidth / 2 + endItem2.__dom__.offsetLeft - 3
+                            eL = tRootBox.S('left') - tRootBox.__dom__.clientWidth / 2 + endItem2.__dom__.offsetLeft 
                             eT = tRootBox.S('top') - tRootBox.__dom__.clientHeight / 2 + endItem2.__dom__.offsetTop + endItem2.__dom__.clientHeight / 2
                             // console.log(
                             //     [
