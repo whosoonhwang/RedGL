@@ -1,7 +1,7 @@
 
 'use strict';
 var Structure_Node;
-var sourceIndex = 0;
+var shaderIndex = 0;
 (function () {
     var W;
     var dragRootBox, dragStartX, dragStartY;
@@ -12,8 +12,7 @@ var sourceIndex = 0;
     var drawTempCurve;
     var setPrevNext;
     var deletePrevData;
- 
-    var makeShaderStr;
+
     drawTempCurve = function () {
         var sL, sT;
         var eL, eT;
@@ -50,6 +49,7 @@ var sourceIndex = 0;
         if (tEnd['prev'] && tEnd['prev']['target']) {
             delete tEnd['prev']['target']['next'][tEnd['__uuid__']]
         }
+        if(tEnd['prev'] && tEnd['prev']['rootBox']) tEnd['prev']['rootBox'].makeCode()
         tEnd['prev'] = null
     }
     setPrevNext = (function () {
@@ -126,7 +126,7 @@ var sourceIndex = 0;
             }
             startPointRootBox.makeCode()
             if (targetRootBox.S('@nodeType') == 'Result') {
-                Recard.TEST_UI.lastCompile()
+                Recard.RED_SHADER_MIXER.lastCompile()
             } else targetRootBox.makeCode()
             tEnd.parent().query('[deleteBox]').S('display', 'block')
             console.log(tStart, tEnd)
@@ -136,7 +136,6 @@ var sourceIndex = 0;
         var rootBox;
         var inputBox;
         var outputBox;
-        var codeBox;
         rootBox = Recard.Dom('div').S(
             '@nodeItem', '',
             '@nodeType', info['nodeType'],
@@ -199,7 +198,8 @@ var sourceIndex = 0;
             '>', inputBox = Recard.Dom('div').S('@className', 'inOutputBox', 'float', 'left'),
             '>', outputBox = Recard.Dom('div').S('@className', 'inOutputBox', 'float', 'right'),
             '>', Recard.Dom('div').S('clear', 'both'),
-            '>', codeBox = Recard.Dom('div').S(
+            '>', Recard.Dom('div').S(
+                '@codeBox','',
                 '@id', 'style-1',
                 'background', 'rgba(0,0,0,0.1)',
                 'padding', 10,
@@ -234,7 +234,7 @@ var sourceIndex = 0;
                         deletePrevData(tEnd)
                         this.S('display', 'none')
                         tEnd.parent().query('[dataTypeBox]').S('html', '')
-                        Recard.TEST_UI.lastCompile()
+                        Recard.RED_SHADER_MIXER.lastCompile()
                     }]
                 ),
                 '>', Recard.Dom('div').S(
@@ -295,138 +295,17 @@ var sourceIndex = 0;
         }
         ////////////////////////////////////////////////////////
         rootBox['info'] = info
-
-
-        rootBox['makeCode'] = function (source) {
-            rootBox['compileInfo'] = {
-                define: {
-                    uniforms: {},
-                    varyings: {},
-                    vars: {}
-                },
-                header: [],
-                body: [],
-                footer: []
-            }
-            rootBox['compileSourceInfo'] = {
-                define: {
-                    uniforms: [],
-                    varyings: [],
-                    vars: []
-                },
-                header: [],
-                body: [],
-                footer: []
-            }
-            switch (rootBox.S('@nodeType')) {
-                case 'Result':
-                
-                    var t = makeShaderStr(source, rootBox['compileInfo'])
-                    console.log(t)
-                    codeBox.S(
-                        'html', '',
-                        'html', t.replace(/\n/g, '<br>')
-                    )
-                    return t
-                    break
-                case 'Texture':
-                    var tShaderSource;
-                    sourceIndex++
-                    tShaderSource = {
-                        type: 'fragment',
-                        define: {
-                            uniforms: [
-                                // 텍스쳐
-                                ['uniform sampler2D uTexture' + sourceIndex]
-                            ],
-                            varyings: [
-                                // 비트맵 코디네이트 값
-                                ['varying vec2 vTexcoord']
-
-                            ],
-                            vars: [
-                                // 최종컬러값
-                                ['vec4 textureColor' + sourceIndex]
-                            ]
-                        },
-                        header: [],
-                        body: [],
-                        footer: [
-                            'textureColor' + sourceIndex + '= texture2D(uTexture' + sourceIndex + ', vTexcoord)',
-                            'gl_FragColor ='+ 'textureColor' + sourceIndex
-                        ]
-                    }
-                    console.log(tShaderSource)
-                    rootBox['compileSourceInfo'] = JSON.parse(JSON.stringify(tShaderSource))
-                    var t = makeShaderStr(tShaderSource, rootBox['compileInfo'])
-                    console.log(t)
-                    codeBox.S(
-                        'html', '',
-                        'html', t.replace(/\n/g, '<br>')
-                    )
-                    return t
-                    break
-            }
-
+        rootBox['comfileInfo'] = null
+        rootBox['lastCompileInfo'] = null
+        rootBox['makeCode'] = function () {
+            dataMaker.call(this)    
+            shaderParser.call(this)   
         }
         ////////////////////////////////////////////////////////
         return rootBox
     }
     Object.freeze(Structure_Node)
-    makeShaderStr = function (v, result) {
-        var resultStr;
-        console.log(v);
-        console.log(result);
-        // 정의를 일단 분석해
-        ['uniforms', 'varyings', 'vars'].forEach(function (key) {
-            var tData = v['define'][key]
-            console.log(tData)
-            tData.forEach(function (v2, index2) {
-                var t0 = v2[0].split(' ')
-                console.log(t0)
-                if (t0.length == 2) t0.reverse(), t0.push(null), t0.reverse()
-                t0 = {
-                    type: t0[0],
-                    dataType: t0[1],
-                    name: t0[2],
-                    origin: v2
-                }
-                v['define'][key][index2] = t0
-                if (result['define'][key][t0['name']] && key!='varyings') console.log('무시') 
-                result['define'][key][t0['name']] = t0
-            })
-            console.log(tData)
-        });
-        // 헤더, 바디, 푸터도 분석해
-        ['header', 'body', 'footer'].forEach(function (key) {
-            if (v[key].length) {
-                // result[key] = result[key].concat(v[key])
-                console.log(result[key])
-                v[key].forEach(function (data) {
-                    console.log(data, result[key].indexOf(data))
-                    if (result[key].indexOf(data) == -1) result[key].push(data)
-                })
-            }
-        })
-        console.log(result)
-        // 최종문자열 병합해..
-        resultStr = '';
-        ['uniforms', 'varyings', 'vars'].forEach(function (key) {
-            var tData = result['define'][key]
-            console.log(tData)
-            // resultStr += '// define : ' + key + ';\n'
-            for (var k in tData) {
-                console.log(tData[k])
-                resultStr += tData[k]['origin'][0] + ';\n'
-            }
-        });
-        resultStr += '\nvoid main(void) {\n';
-        ['header', 'body', 'footer'].forEach(function (key) {
-            if (result[key].length) resultStr += result[key].join(';\n') + ';'
-        })
-        resultStr += '\n}'
-        return resultStr
-    }
+
 
     // 드래그/라인처리 관련 이벤트 처리
     Recard.EVENT_EMITTER.on(window, 'mousemove', function (e) {

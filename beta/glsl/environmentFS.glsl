@@ -1,7 +1,7 @@
 
 precision lowp float;
 
-uniform samplerCube uTexture; // 디뷰프텍스쳐
+uniform samplerCube uDiffuseTexture; // 디뷰프텍스쳐
 uniform sampler2D uNormalTexture; // 노말텍스쳐
 uniform sampler2D uSpecularTexture; // 노말텍스쳐
 uniform int uUseNormalTexture; // 노말텍스쳐 사용여부
@@ -51,7 +51,7 @@ void main(void) {
     la = uAmbientLightColor;
     ld = vec4(0.0, 0.0, 0.0, 1.0);
     ls = vec4(0.0, 0.0, 0.0, 1.0);
-    texelColor = textureCube(uTexture, vCubeCoord);
+    texelColor = textureCube(uDiffuseTexture, vCubeCoord);
     if(texelColor.a==0.0) discard;
     E = normalize(vEyeVec);
     
