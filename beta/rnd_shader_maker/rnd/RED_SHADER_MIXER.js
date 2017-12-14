@@ -65,7 +65,7 @@ Recard.static('RED_SHADER_MIXER', (function () {
                 resultStr +='// define vars\n'
                 resultStr += lastResult['vars'].join('')
                 resultStr +='\n'
-                resultStr +='void main(void) {\m'
+                resultStr +='void main(void) {\n'
                 resultStr +='// 먼가 디파인코드가 생성되어야하고\n'
                 resultStr +='}'
                 root.query('[codeBox]').S(

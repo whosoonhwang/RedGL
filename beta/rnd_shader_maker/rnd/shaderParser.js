@@ -13,7 +13,10 @@ var shaderParser;
         this['lastCompileInfo'] = {
             uniforms : [],
             varyings : [],
-            vars : []
+            vars : [],
+            header : [],
+            body : [],
+            footer : []
         }
         // 유니폼 코드생성
         resultStr += '//define uniforms \n'
@@ -59,19 +62,33 @@ var shaderParser;
             tData = tDataGroup[k]
             var tNAME;
             var tSourceLine;
+            var useResultDst;
             tNAME = tData['varName']
             if (tData['resultDst']) {
-                if (tData['resultDst']['targetKey'] == 'DIFFUSE') tNAME = 'texelColor_diffuse'
-                if (tData['resultDst']['targetKey'] == 'NORMAL') tNAME = 'texelColor_normal'
-                if (tData['resultDst']['targetKey'] == 'DISPLACEMENT') tNAME = 'texelColor_displacement'
-                if (tData['resultDst']['targetKey'] == 'SPECULAR') tNAME = 'texelColor_specular'
+                if (tData['resultDst']['targetKey'] == 'DIFFUSE') tNAME = 'texelColor_diffuse', useResultDst = true
+                if (tData['resultDst']['targetKey'] == 'NORMAL') tNAME = 'texelColor_normal', useResultDst = true
+                if (tData['resultDst']['targetKey'] == 'DISPLACEMENT') tNAME = 'texelColor_displacement', useResultDst = true
+                if (tData['resultDst']['targetKey'] == 'SPECULAR') tNAME = 'texelColor_specular', useResultDst = true
             }
             tSourceLine = tData['dataType'] + ' ' + tNAME
             // 변수선언이 같으면 추가를 안한다. 
-            if (resultStr.indexOf(tSourceLine) == -1) resultStr += tSourceLine + ';\n', resultStr2 += tSourceLine + ';\n'
+            if (resultStr.indexOf(tSourceLine) == -1){
+                resultStr += tSourceLine + ';\n', resultStr2 += tSourceLine + ';\n'
+                // header, body, footer에 추가하자
+               
+            }
 
         }
         this['lastCompileInfo']['vars'].push(resultStr2)
+        //////////////////////////////////////////////////////////////////
+        // TODO: header, body, footer 코드도 동적으로 들어가야함
+        //////////////////////////////////////////////////////////////////
+
+        //////////////////////////////////////////////////////////////////
+        // TODO:라이트가 있다고 했을때 필요한 코드가 들어가야함
+        //////////////////////////////////////////////////////////////////
+
+
         resultStr += '\n'
         codeBox.S(
             'html',resultStr.replace(/\n/g,'<br>')
