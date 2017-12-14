@@ -8,13 +8,14 @@ Recard.static('PREVIEW', (function () {
     var testScene, testCamera
     var testMat, tMesh
     var setTest
-    setTest = (function(){
+    setTest = (function () {
         var index;
         index = 1
-        return function(v,f,unifromInfo){
+        return function (v, f, unifromInfo) {
             console.log('실행')
             var tName = 'testShader' + index
             index++
+
             v = `attribute vec3 aVertexPosition;
 attribute vec2 aTexcoord;
 uniform mat4 uMVMatrix;
@@ -27,9 +28,14 @@ gl_Position = uPMatrix * uCameraMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
 vTexcoord = uAtlascoord.xy + aTexcoord*uAtlascoord.zw;
 }`
             console.log('~~~~~~~~~~~')
-            f = 'precision lowp float;\n'+f
+            f = 'precision lowp float;\n' + f
             console.log(v)
             console.log(f)
+         
+            var tTextrue
+            var tTextrue2
+            var tTextrue3
+            unifromInfo = unifromInfo['define']['uniforms']
             console.log(unifromInfo)
             testGL.createShaderInfo(tName, RedShaderInfo.VERTEX_SHADER, v)
             testGL.createShaderInfo(tName, RedShaderInfo.FRAGMENT_SHADER, f)
@@ -39,29 +45,44 @@ vTexcoord = uAtlascoord.xy + aTexcoord*uAtlascoord.zw;
                 testGL.getShaderInfo(tName, RedShaderInfo.FRAGMENT_SHADER),
                 function (target) {
                     unifromInfo = JSON.parse(JSON.stringify(unifromInfo))
-                    unifromInfo.forEach(function(data){
-                        console.log(data)
-                        if (data['dataType'] == 'sampler2D') target.uniforms[data['name']] = target['diffuseInfo']
+                    unifromInfo.forEach(function (data) {
+                        var resultDst = data.origin[1]
+                        console.log(data,resultDst)
+                        if (data['dataType'] == 'sampler2D') {
+                            if (resultDst == 'DIFFUSE') target.uniforms[data['name']] = target['diffuseInfo']
+                            if (resultDst == 'NORMAL') {
+                                console.log('걸리냐!!!!!!!!!!!!')
+                                target.uniforms[data['name']] = target['normalInfo']
+                            }
+                            if (resultDst == 'SPECULAR') {
+                                console.log('걸리냐!222!!!!!!!!!!!')
+                                target.uniforms[data['name']] = target['specularInfo']
+                            }
+                        }
                     })
-                    
+
                     target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
                 }
             )
-            var tTextrue = testGL.createTextureInfo(index%2 ? '../asset/tile/diffuse.png' : '../asset/draft1.png')
+            tTextrue = testGL.createTextureInfo('../asset/fieldstone.jpg')
+            tTextrue2 = testGL.createTextureInfo('../asset/fieldstone-normal.jpg', RedTextureIndex.NORMAL)
+            tTextrue3 = testGL.createTextureInfo('../asset/draft1.png', RedTextureIndex.SEPCULAR)
             testGL.createMaterialDefine(testGL.getProgramInfo(tName))
-            var t2 = testGL.createMaterialInfo(tName,tTextrue)
- 
-            tMesh.materialInfo = t2
+            setTimeout(function () {
+                var t2 = testGL.createMaterialInfo(tName, tTextrue, tTextrue2,null,tTextrue3)
+
+                tMesh.materialInfo = t2
+            }, 500)
         }
     })()
     result = {
-        setTest : setTest,
+        setTest: setTest,
         init: function () {
             rootBox = Recard.Dom('div').S(
                 'position', 'fixed',
                 'z-index', 10,
                 'top', 0,
-                'right', 0,
+                'left', 0,
                 'width', 400,
                 'height', 400,
                 'background', '#000',
@@ -112,12 +133,26 @@ vTexcoord = uAtlascoord.xy + aTexcoord*uAtlascoord.zw;
                 )
                 testMat = testGL.createMaterialInfo('color')
                 tMesh = testGL.createMeshInfo('testMesh', RedPrimitive.sphere(testGL, 10, 32, 32, 32), testMat)
-         
+
                 testScene.children.push(tMesh)
                 var renderer = testGL.createBaseRenderInfo(testScene, function (time) {
                     testCamera.setPosition(Math.sin(time / 3000) * 60, 60, Math.cos(time / 5000) * 40)
                     testCamera.lookAt([0, 0, 0])
                 })
+                // 엠비언트 라이트 테스트
+                var testLight = testGL.createAmbientLight(testGL)
+                console.log(testLight)
+                testScene.addLight(testLight)
+
+                // 디렉셔널 라이트 테스트
+                var i = 3
+                while (i--) {
+                    var testLight = testGL.createDirectionalLight(testGL)
+                    testLight.color[0] = Math.random()
+                    testLight.color[1] = Math.random()
+                    testLight.color[2] = Math.random()
+                    testScene.addLight(testLight)
+                }
                 renderer.start()
             }, false, [
                     { id: 'colorVS', src: '../glsl/colorVS.glsl' },

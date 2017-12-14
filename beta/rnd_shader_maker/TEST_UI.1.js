@@ -88,14 +88,23 @@ Recard.static('TEST_UI', (function () {
                     tFlow.forEach(function (item) {
                         var tData = item['rootBox']['compileSourceInfo']
                         console.log(tData)
-                       
+                        mergeCompileSource['resultDst'] = k
+                        if(k=='NORMAL' ){
+                            sourceIndex++
+                            mergeCompileSource['define']['uniforms'].push(
+                                ['uniform sampler2D uNormalTexture'], // 노말텍스쳐
+                                ['uniform int uUseNormalTexture'] // 노말텍스쳐 사용여부
+                            )
+                            mergeCompileSource['define']['varyings'].push(
+                                ['varying vec2 vTexcoord'],
+                                ['varying vec3 vEyeVec'],
+                                ['varying vec3 vNormal']
+                            )
+                         
+                        }
                         mergeCompileSource['header'] = mergeCompileSource['header'].concat(tData['header'])
                         mergeCompileSource['body'] = mergeCompileSource['body'].concat(tData['body'])
                         mergeCompileSource['footer'] = mergeCompileSource['footer'].concat(tData['footer'])
-                      
-                        item['rootBox']['compileSourceInfo']['define']['uniforms'].forEach(function(v,i){
-                            item['rootBox']['compileSourceInfo']['define']['uniforms'][i].push(k)
-                        })
                         mergeCompileSource['define']['uniforms'] = mergeCompileSource['define']['uniforms'].concat(
                             item['rootBox']['compileSourceInfo']['define']['uniforms']
                         )
@@ -105,44 +114,11 @@ Recard.static('TEST_UI', (function () {
                         mergeCompileSource['define']['vars'] = mergeCompileSource['define']['vars'].concat(
                             item['rootBox']['compileSourceInfo']['define']['vars']
                         )
-                        if(k=='NORMAL' ){
-                            sourceIndex++
-                            mergeCompileSource['define']['uniforms'].push(
-                                ['uniform int uUseNormalTexture'] // 노말텍스쳐 사용여부
-                            )
-                            mergeCompileSource['define']['varyings'].push(
-                                ['varying vec2 vTexcoord'],
-                                ['varying vec3 vEyeVec'],
-                                ['varying vec3 vNormal']
-                            )
-                            mergeCompileSource['footer'].push(
-                                'gl_FragColor = textureColor1*0.5 + textureColor2*0.5'
-                            )
-                        }
-                        // if(k=='SPECULAR' ){
-                        //     sourceIndex++
-                        //     mergeCompileSource['define']['uniforms'].push(
-                        //         ['uniform int uSpecularTexture'] // 노말텍스쳐 사용여부
-                        //     )
-                        //     mergeCompileSource['define']['varyings'].push(
-                        //         ['varying vec2 vTexcoord'],
-                        //         ['varying vec3 vEyeVec'],
-                        //         ['varying vec3 vNormal']
-                        //     )
-                        //     mergeCompileSource['footer'].push(
-                        //         'gl_FragColor = textureColor1*0.1 + textureColor2*0.1+ textureColor4*0.8'
-                        //     )
-                        // }
                     })
                 }
                 console.log(mergeCompileSource)
                 var ttt = root.makeCode(mergeCompileSource)
-                try {
-                    Recard.PREVIEW.setTest(null,ttt,mergeCompileSource)
-                } catch (error) {
-                    
-                }
-                
+                Recard.PREVIEW.setTest(null,ttt,mergeCompileSource['define']['uniforms'])
 
 
             }
