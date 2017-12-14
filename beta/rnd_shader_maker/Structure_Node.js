@@ -1,7 +1,7 @@
 
 'use strict';
 var Structure_Node;
-
+var sourceIndex = 0;
 (function () {
     var W;
     var dragRootBox, dragStartX, dragStartY;
@@ -12,7 +12,7 @@ var Structure_Node;
     var drawTempCurve;
     var setPrevNext;
     var deletePrevData;
-    var sourceIndex = 0;
+ 
     var makeShaderStr;
     drawTempCurve = function () {
         var sL, sT;
@@ -320,6 +320,7 @@ var Structure_Node;
             }
             switch (rootBox.S('@nodeType')) {
                 case 'Result':
+                
                     var t = makeShaderStr(source, rootBox['compileInfo'])
                     console.log(t)
                     codeBox.S(
@@ -352,7 +353,7 @@ var Structure_Node;
                         body: [],
                         footer: [
                             'textureColor' + sourceIndex + '= texture2D(uTexture' + sourceIndex + ', vTexcoord)',
-                            'gl_FragColor =textureColor' + sourceIndex
+                            'gl_FragColor ='+ 'textureColor' + sourceIndex
                         ]
                     }
                     console.log(tShaderSource)
@@ -375,6 +376,7 @@ var Structure_Node;
     makeShaderStr = function (v, result) {
         var resultStr;
         console.log(v);
+        console.log(result);
         // 정의를 일단 분석해
         ['uniforms', 'varyings', 'vars'].forEach(function (key) {
             var tData = v['define'][key]
@@ -390,7 +392,7 @@ var Structure_Node;
                     origin: v2
                 }
                 v['define'][key][index2] = t0
-                if (result['define'][key][t0['name']]) console.log(t0['name'] + ' 이미존재하는 변수명이라 추가에서 제외됨')
+                if (result['define'][key][t0['name']] && key!='varyings') console.log('무시') 
                 result['define'][key][t0['name']] = t0
             })
             console.log(tData)
@@ -415,7 +417,7 @@ var Structure_Node;
             // resultStr += '// define : ' + key + ';\n'
             for (var k in tData) {
                 console.log(tData[k])
-                resultStr += tData[k]['origin'] + ';\n'
+                resultStr += tData[k]['origin'][0] + ';\n'
             }
         });
         resultStr += '\nvoid main(void) {\n';
