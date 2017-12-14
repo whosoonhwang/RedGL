@@ -8,10 +8,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, target-densitydpi=device-dpi"
     />
     <style>
-        body {
+        html,body {
             margin: 0;
             padding: 0;
-            overflow: hidden
+            box-sizing: border-box;
         }
 
         #style-1::-webkit-scrollbar-track {
@@ -32,7 +32,7 @@
         }
     </style>
     <script src='https://redcamel.github.io/Recard/beta/release/recard.min.js'></script>
-    <script src="../release/RedGL.min.js"></script>
+    <script src="../release/RedGL.js"></script>
 </head>
 
 <body>
@@ -41,6 +41,7 @@
             Recard.INDEX.init()
         },
             'Structure_Node.js',
+            'PREVIEW.js',
             'index.js',
             'TEST_UI.js',
             'UPDATER.js'
