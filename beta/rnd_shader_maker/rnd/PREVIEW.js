@@ -95,6 +95,7 @@ void main(void) {
                         }
                         target.uniforms.uDisplacementTexture = target['displacementInfo']
                         target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
+                        // target.uniforms.uTime = Recard.LOOPER.playTime
                         target.uniforms.uShininess = 8
                         console.log('결과가',target)       
                     }
