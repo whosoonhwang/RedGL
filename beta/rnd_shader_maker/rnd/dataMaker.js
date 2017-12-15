@@ -63,19 +63,19 @@ var dataMaker;
                     console.log(tKEY)
                     switch (tKEY) {
                         case 'R':
-                            self.compileInfo['header'].push(self.compileInfo['outLinkInfo']['COLOR'] + '.r')
+                            self.compileInfo['header'].push(self.compileInfo['outLinkInfo']['COLOR'] + '.r;\n')
                             self.compileInfo['outLinkInfo']['R'] = self.compileInfo['outLinkInfo']['COLOR']+'.r'
                             break
                         case 'G':
-                            self.compileInfo['header'].push(self.compileInfo['outLinkInfo']['COLOR'] + '.g')
+                            self.compileInfo['header'].push(self.compileInfo['outLinkInfo']['COLOR'] + '.g;\n')
                             self.compileInfo['outLinkInfo']['G'] = self.compileInfo['outLinkInfo']['COLOR']+'.g'
                             break
                         case 'B':
-                            self.compileInfo['header'].push(self.compileInfo['outLinkInfo']['COLOR'] + '.b')
+                            self.compileInfo['header'].push(self.compileInfo['outLinkInfo']['COLOR'] + '.b;\n')
                             self.compileInfo['outLinkInfo']['B'] = self.compileInfo['outLinkInfo']['COLOR']+'.b'
                             break
                         case 'A':
-                            self.compileInfo['header'].push(self.compileInfo['outLinkInfo']['COLOR'] + '.a')
+                            self.compileInfo['header'].push(self.compileInfo['outLinkInfo']['COLOR'] + '.a;\n')
                             self.compileInfo['outLinkInfo']['A'] = self.compileInfo['outLinkInfo']['COLOR']+'.a'
                             break
                     }

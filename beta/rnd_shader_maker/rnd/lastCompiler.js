@@ -206,9 +206,9 @@ lastCompiler = function () {
     resultStr += mergedLastInfo.footer.join('')
     resultStr += '\n}'
     codeBox.S(
-        'html', resultStr.replace(/\n/g, '<br>')
+        'html', resultStr
     )
-    
+    Prism.highlightAll()
 
    
 
