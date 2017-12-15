@@ -58,7 +58,7 @@ var shaderParser;
             var tNAME;
             var tSourceLine;
             var useResultDst;
-            tNAME = tData['varName']
+            tNAME = k
          
             tSourceLine = tData['dataType'] + ' ' + tNAME
             // 변수선언이 같으면 추가를 안한다. 
@@ -68,6 +68,7 @@ var shaderParser;
                
             }
         }
+        this['lastCompileInfo']['vars'].push(resultStr2)
         resultStr += '\nvoid main(void) {\n'
         // 헤더생성 코드생성
         resultStr += '//define header \n'

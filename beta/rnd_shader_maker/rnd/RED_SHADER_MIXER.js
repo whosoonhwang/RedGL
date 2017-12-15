@@ -32,8 +32,98 @@ Recard.static('RED_SHADER_MIXER', (function () {
             return function(){
                 console.log('라스트 파서!')
                 var root;
-                root = Recard.Dom('[nodeType="Result"]')
-                root.query('DIFFUSE')
+                var tTarget
+                var tCompileInfo,tLastCompileInfo
+                var codeBox;
+                var addStr=""
+                var resultStr="";
+                root = Recard.query('[nodeType="Result"]')
+                codeBox= root.query('[codeBox]')
+                codeBox.S('html','')
+                
+                // 값이 있는 링크를 모드 찾는다.
+                var tList;
+                var lastCompileInfoList;
+                var mergedInfo;
+                var tStr
+                lastCompileInfoList = []
+                tList = root.queryAll('[key]')
+                tList = tList.filter(function (item) {
+                    if (item['prev']) return true
+                })
+                tList.forEach(function(v){
+                    lastCompileInfoList.push(v['prev']['rootBox']['lastCompileInfo'])
+                })
+                console.log('병합할 정보들',lastCompileInfoList)
+                mergedInfo = {
+                    uniforms: [],
+                    varyings: [],
+                    vars: [],
+                    header: [],
+                    body: [],
+                    footer: []
+                }
+                lastCompileInfoList.forEach(function(v){
+                    mergedInfo['header'] = mergedInfo['header'].concat(v['header'])
+                    mergedInfo['body'] = mergedInfo['body'].concat(v['body'])
+                    mergedInfo['footer'] = mergedInfo['footer'].concat(v['footer'])
+                    mergedInfo['uniforms'] = mergedInfo['uniforms'].concat(v['uniforms'])
+                    mergedInfo['varyings'] = mergedInfo['varyings'].concat(v['varyings'])
+                    mergedInfo['vars'] = mergedInfo['vars'].concat(v['vars'])
+                })
+                console.log('병합된 정보',mergedInfo)
+
+                // 디퓨즈처리
+                tTarget = root.query('[key="DIFFUSE"]')                
+                if(tTarget['prev']){
+                    tTarget = tTarget['prev']
+                    console.log('//디퓨즈처리')
+                    console.log('타겟정보',tTarget)
+                    console.log('컴파일정보', tCompileInfo = tTarget['rootBox']['comfileInfo'])
+                    console.log('최종컴파일정보', tLastCompileInfo = tTarget['rootBox']['lastCompileInfo'])
+                    tStr='vec4 texelColor_DIFFUSE =' + tCompileInfo['outLinkInfo']['COLOR']+';\n'
+                    addStr+= tStr
+                    mergedInfo['header'].push()
+                }
+                // 노말처리
+                tTarget = root.query('[key="NORMAL"]')                
+                if(tTarget['prev']){
+                    tTarget = tTarget['prev']
+                    console.log('//노말처리')
+                    console.log('타겟정보',tTarget)
+                    console.log('컴파일정보', tCompileInfo = tTarget['rootBox']['comfileInfo'])
+                    console.log('최종컴파일정보', tLastCompileInfo = tTarget['rootBox']['lastCompileInfo'])
+                    tStr= 'vec4 texelColor_NORMAL =' + tCompileInfo['outLinkInfo']['COLOR']+';\n'
+                    addStr+= tStr
+                }
+                // SPECULAR
+                tTarget = root.query('[key="SPECULAR"]')                
+                if(tTarget['prev']){
+                    tTarget = tTarget['prev']
+                    console.log('//SPECULAR처리')
+                    console.log('타겟정보',tTarget)
+                    console.log('컴파일정보', tCompileInfo = tTarget['rootBox']['comfileInfo'])
+                    console.log('최종컴파일정보', tLastCompileInfo = tTarget['rootBox']['lastCompileInfo'])
+                    tStr= 'vec4 texelColor_SPECULAR =' + tCompileInfo['outLinkInfo']['COLOR']+';\n'
+                    addStr+= tStr
+                }
+                mergedInfo.header.push(addStr)
+                resultStr += '\n//define uniforms \n'
+                resultStr += mergedInfo.uniforms.join('')
+                resultStr += '\n//define varyings \n'
+                resultStr += mergedInfo.varyings.join('')
+                resultStr += '\n//define vars \n'
+                resultStr += mergedInfo.vars.join('')
+                resultStr += '\n//define main \n'
+                resultStr += 'void main(void){ \n'
+                resultStr += mergedInfo.header.join('')
+                resultStr += mergedInfo.body.join('')
+                resultStr += mergedInfo.footer.join('')
+                resultStr += '}'
+                codeBox.S(
+                    'html',resultStr.replace(/\n/g,'<br>')
+                )
+                
             }
         })(),
         init: function () {

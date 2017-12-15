@@ -142,7 +142,7 @@ var shaderIndex = 0;
             'z-index', currentZIndex++,
             'top', Recard.WIN.h / 2, 'left', Recard.WIN.w / 2,
             'transform', 'translate(-50%,-50%)',
-            'min-width', 250, 'min-height', 100,
+            'min-width', info['structure']['title'] =='Result' ? 350 : 250, 'min-height', 100,
             'background', 'rgba(29,28,36,0.8)',
             'box-shadow', '0px 0px 10px 5px rgba(0,0,0,0.2)',
             'border-radius', 10,
