@@ -12,6 +12,7 @@ var shaderIndex = 0;
     var drawTempCurve;
     var setPrevNext;
     var deletePrevData;
+
     drawTempCurve = function () {
         var sL, sT;
         var eL, eT;
@@ -48,7 +49,7 @@ var shaderIndex = 0;
         if (tEnd['prev'] && tEnd['prev']['target']) {
             delete tEnd['prev']['target']['next'][tEnd['__uuid__']]
         }
-        if (tEnd['prev'] && tEnd['prev']['rootBox']) tEnd['prev']['rootBox'].makeCode()
+        if(tEnd['prev'] && tEnd['prev']['rootBox']) tEnd['prev']['rootBox'].makeCode()
         tEnd['prev'] = null
     }
     setPrevNext = (function () {
@@ -125,7 +126,7 @@ var shaderIndex = 0;
             }
             startPointRootBox.makeCode()
             if (targetRootBox.S('@nodeType') == 'Result') {
-                lastCompiler()
+                Recard.RED_SHADER_MIXER.lastCompile()
             } else targetRootBox.makeCode()
             tEnd.parent().query('[deleteBox]').S('display', 'block')
             console.log(tStart, tEnd)
@@ -142,7 +143,7 @@ var shaderIndex = 0;
             'z-index', currentZIndex++,
             'top', Recard.WIN.h / 2, 'left', Recard.WIN.w / 2,
             'transform', 'translate(-50%,-50%)',
-            'min-width', info['structure']['title'] =='Result' ? 400 : 250, 'min-height', 100,
+            'min-width', 250, 'min-height', 100,
             'background', 'rgba(29,28,36,0.8)',
             'box-shadow', '0px 0px 10px 5px rgba(0,0,0,0.2)',
             'border-radius', 10,
@@ -198,7 +199,7 @@ var shaderIndex = 0;
             '>', outputBox = Recard.Dom('div').S('@className', 'inOutputBox', 'float', 'right'),
             '>', Recard.Dom('div').S('clear', 'both'),
             '>', Recard.Dom('div').S(
-                '@codeBox', '',
+                '@codeBox','',
                 '@id', 'style-1',
                 'background', 'rgba(0,0,0,0.1)',
                 'padding', 10,
@@ -233,7 +234,7 @@ var shaderIndex = 0;
                         deletePrevData(tEnd)
                         this.S('display', 'none')
                         tEnd.parent().query('[dataTypeBox]').S('html', '')
-                        lastCompiler()
+                        Recard.RED_SHADER_MIXER.lastCompile()
                     }]
                 ),
                 '>', Recard.Dom('div').S(
@@ -294,14 +295,13 @@ var shaderIndex = 0;
         }
         ////////////////////////////////////////////////////////
         rootBox['info'] = info
-        rootBox['compileInfo'] = null
+        rootBox['comfileInfo'] = null
         rootBox['lastCompileInfo'] = null
         rootBox['makeCode'] = function () {
-            dataMaker.call(this)
-            shaderParser.call(this)
+            dataMaker.call(this)    
+            shaderParser.call(this)   
         }
         ////////////////////////////////////////////////////////
-        rootBox.makeCode()
         return rootBox
     }
     Object.freeze(Structure_Node)

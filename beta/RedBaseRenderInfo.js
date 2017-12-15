@@ -464,7 +464,6 @@ var RedBaseRenderInfo;
                     }
                     // 일반 텍스쳐인경우
                     else if (tUniformValue['__webglTexture']) {
-
                         if (tUniformValue['loaded']) {
                             if (cacheTexture_UUID[tUniformValue['__targetIndex']] != tUniformValue['__UUID']) {
                                 // tUniformValue['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
