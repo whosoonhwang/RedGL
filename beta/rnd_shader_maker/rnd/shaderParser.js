@@ -87,9 +87,11 @@ var shaderParser;
 
 
         resultStr += '\n'
+        Prism.highlightAll()
         codeBox.S(
-            'html',resultStr.replace(/\n/g,'<br>')
+            'html',resultStr
         )
+        Prism.highlightAll()
         console.log('결과')
         console.log(resultStr)
         console.log('lastCompileInfo',this['lastCompileInfo'])

@@ -197,13 +197,19 @@ var shaderIndex = 0;
             '>', inputBox = Recard.Dom('div').S('@className', 'inOutputBox', 'float', 'left'),
             '>', outputBox = Recard.Dom('div').S('@className', 'inOutputBox', 'float', 'right'),
             '>', Recard.Dom('div').S('clear', 'both'),
-            '>', Recard.Dom('div').S(
-                '@codeBox', '',
+            '>', Recard.Dom('pre').S(
                 '@id', 'style-1',
-                'background', 'rgba(0,0,0,0.1)',
-                'padding', 10,
+                'max-width', 400,
                 'max-height', 200,
-                'overflow-y', 'auto'
+                'overflow', 'auto',
+                'margin',0,
+                'background','transparent',
+                '>', Recard.Dom('code').S(
+                    '@codeBox', '',
+                    '@className','language-javascript',
+                    'background', 'rgba(0,0,0,0.1)',
+                    'padding', 10
+                )
             )
         )
         for (var k in info['structure']['input']) {
@@ -301,7 +307,7 @@ var shaderIndex = 0;
             shaderParser.call(this)
         }
         ////////////////////////////////////////////////////////
-        rootBox.makeCode()
+        info['structure']['title'] =='Result' ? '' : rootBox.makeCode()
         return rootBox
     }
     Object.freeze(Structure_Node)
