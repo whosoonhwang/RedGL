@@ -12,7 +12,6 @@ var shaderIndex = 0;
     var drawTempCurve;
     var setPrevNext;
     var deletePrevData;
-
     drawTempCurve = function () {
         var sL, sT;
         var eL, eT;
@@ -49,7 +48,7 @@ var shaderIndex = 0;
         if (tEnd['prev'] && tEnd['prev']['target']) {
             delete tEnd['prev']['target']['next'][tEnd['__uuid__']]
         }
-        if(tEnd['prev'] && tEnd['prev']['rootBox']) tEnd['prev']['rootBox'].makeCode()
+        if (tEnd['prev'] && tEnd['prev']['rootBox']) tEnd['prev']['rootBox'].makeCode()
         tEnd['prev'] = null
     }
     setPrevNext = (function () {
@@ -199,7 +198,7 @@ var shaderIndex = 0;
             '>', outputBox = Recard.Dom('div').S('@className', 'inOutputBox', 'float', 'right'),
             '>', Recard.Dom('div').S('clear', 'both'),
             '>', Recard.Dom('div').S(
-                '@codeBox','',
+                '@codeBox', '',
                 '@id', 'style-1',
                 'background', 'rgba(0,0,0,0.1)',
                 'padding', 10,
@@ -298,10 +297,11 @@ var shaderIndex = 0;
         rootBox['comfileInfo'] = null
         rootBox['lastCompileInfo'] = null
         rootBox['makeCode'] = function () {
-            dataMaker.call(this)    
-            shaderParser.call(this)   
+            dataMaker.call(this)
+            shaderParser.call(this)
         }
         ////////////////////////////////////////////////////////
+        rootBox.makeCode()
         return rootBox
     }
     Object.freeze(Structure_Node)

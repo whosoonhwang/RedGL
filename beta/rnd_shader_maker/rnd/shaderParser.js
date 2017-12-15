@@ -20,19 +20,14 @@ var shaderParser;
         }
         // 유니폼 코드생성
         resultStr += '//define uniforms \n'
-        tDataGroup = this.comfileInfo['define']['uniforms']
+        tDataGroup = this.comfileInfo['uniforms']
         resultStr2 =''
         for (var k in tDataGroup) {
             tData = tDataGroup[k]
             var tNAME;
             var tSourceLine;
-            tNAME = tData['varName']
-            if (tData['resultDst']) {
-                if (tData['resultDst']['targetKey'] == 'DIFFUSE') tNAME = 'uDiffuseTexture'
-                if (tData['resultDst']['targetKey'] == 'NORMAL') tNAME = 'uNormalTexture'
-                if (tData['resultDst']['targetKey'] == 'DISPLACEMENT') tNAME = 'uDisplacementTexture'
-                if (tData['resultDst']['targetKey'] == 'SPECULAR') tNAME = 'uSpecularTexture'
-            }
+            tNAME = k
+         
             tSourceLine = tData['type'] + ' ' + tData['dataType'] + ' ' + tNAME
             // 유니폼선언이 같으면 추가를 안한다. 
             if (resultStr.indexOf(tSourceLine) == -1) resultStr += tSourceLine + ';\n', resultStr2 += tSourceLine + ';\n'
@@ -41,7 +36,7 @@ var shaderParser;
         resultStr += '\n'
         // 베어링 코드생성
         resultStr += '//define varyings \n'
-        tDataGroup = this.comfileInfo['define']['varyings']
+        tDataGroup = this.comfileInfo['varyings']
         resultStr2 =''
         for (var k in tDataGroup) {
             tData = tDataGroup[k]
@@ -56,7 +51,7 @@ var shaderParser;
         resultStr += '\n'
         // 변수 코드생성
         resultStr += '//define vars \n'
-        tDataGroup = this.comfileInfo['define']['vars']
+        tDataGroup = this.comfileInfo['vars']
         resultStr2 =''
         for (var k in tDataGroup) {
             tData = tDataGroup[k]
@@ -64,12 +59,7 @@ var shaderParser;
             var tSourceLine;
             var useResultDst;
             tNAME = tData['varName']
-            if (tData['resultDst']) {
-                if (tData['resultDst']['targetKey'] == 'DIFFUSE') tNAME = 'texelColor_diffuse', useResultDst = true
-                if (tData['resultDst']['targetKey'] == 'NORMAL') tNAME = 'texelColor_normal', useResultDst = true
-                if (tData['resultDst']['targetKey'] == 'DISPLACEMENT') tNAME = 'texelColor_displacement', useResultDst = true
-                if (tData['resultDst']['targetKey'] == 'SPECULAR') tNAME = 'texelColor_specular', useResultDst = true
-            }
+         
             tSourceLine = tData['dataType'] + ' ' + tNAME
             // 변수선언이 같으면 추가를 안한다. 
             if (resultStr.indexOf(tSourceLine) == -1){
@@ -77,9 +67,15 @@ var shaderParser;
                 // header, body, footer에 추가하자
                
             }
-
         }
-        this['lastCompileInfo']['vars'].push(resultStr2)
+        resultStr += '\nvoid main(void) {\n'
+        // 헤더생성 코드생성
+        resultStr += '//define header \n'
+        tDataGroup = this.comfileInfo['header']
+        resultStr2 = tDataGroup.join(';\n')
+        resultStr+=resultStr2
+        this['lastCompileInfo']['header'].push(resultStr2)
+        resultStr += '}\n'
         //////////////////////////////////////////////////////////////////
         // TODO: header, body, footer 코드도 동적으로 들어가야함
         //////////////////////////////////////////////////////////////////

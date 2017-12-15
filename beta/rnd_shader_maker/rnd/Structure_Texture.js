@@ -6,14 +6,13 @@ var shaderIndex = 0;
         var info,  t0
         info = {
             type: 'fragment',
-            define: {
-                uniforms: {},
-                varyings: {},
-                vars: {}
-            },
+            uniforms: {},
+            varyings: {},
+            vars: {},
             header: [],
             body: [],
-            footer: []
+            footer: [],
+            outLinkInfo:{}
         }
         for (var k in info) this[k] = info[k]
      

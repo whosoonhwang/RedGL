@@ -14,7 +14,8 @@ Recard.static('RED_SHADER_MIXER', (function () {
                 DIFFUSE: 'vec4',
                 NORMAL: 'vec4',
                 SPECULAR: 'vec4',
-                DISPLACEMENT: 'vec4'
+                DISPLACEMENT: 'vec4',
+                TEST_FLOAT : 'float'
             }
         }
         info.src = '';
@@ -30,48 +31,9 @@ Recard.static('RED_SHADER_MIXER', (function () {
         lastCompile: (function(){
             return function(){
                 console.log('라스트 파서!')
-                var root
-                var tList;
-                var lastResult = {
-                    uniforms : [],
-                    varyings : [],
-                    vars : []
-                }
-                var resultStr = ''
-                root = Recard.query('[nodeType="Result"]')
-                tList = root.queryAll('[key]')
-                tList = tList.filter(function(v){
-                    if(v['prev']) return true
-                })
-                console.log(tList)
-                tList.forEach(function(item){
-                    item['prev']['rootBox']['lastCompileInfo']['uniforms'].forEach(function(v){
-                        if(lastResult['uniforms'].indexOf(v)==-1) lastResult['uniforms'].push(v)
-                    })
-                    item['prev']['rootBox']['lastCompileInfo']['varyings'].forEach(function(v){
-                        if(lastResult['varyings'].indexOf(v)==-1) lastResult['varyings'].push(v)
-                    })
-                    item['prev']['rootBox']['lastCompileInfo']['vars'].forEach(function(v){
-                        if(lastResult['vars'].indexOf(v)==-1) lastResult['vars'].push(v)
-                    })
-                })
-                console.log(lastResult)
-                resultStr +='// define unifroms\n'
-                resultStr += lastResult['uniforms'].join('')
-                resultStr +='\n'
-                resultStr +='// define varyings\n'
-                resultStr += lastResult['varyings'].join('')
-                resultStr +='\n'
-                resultStr +='// define vars\n'
-                resultStr += lastResult['vars'].join('')
-                resultStr +='\n'
-                resultStr +='void main(void) {\n'
-                resultStr +='// 먼가 디파인코드가 생성되어야하고\n'
-                resultStr +='}'
-                root.query('[codeBox]').S(
-                    'html',resultStr.replace(/\n/g,'<br>')
-                )
-                console.log(resultStr)
+                var root;
+                root = Recard.Dom('[nodeType="Result"]')
+                root.query('DIFFUSE')
             }
         })(),
         init: function () {
@@ -136,7 +98,8 @@ Recard.static('RED_SHADER_MIXER', (function () {
                                 A: 'float'
                             },
                             input: {
-                                UV: 'vec2'
+                                UV: 'vec2',
+                                TEST_VEC4 : 'vec4'
                             }
                         }
                         info.src = '';
