@@ -41,7 +41,7 @@ Recard.static('INDEX', (function () {
                 'line-height', 20
             )
             /////////////////////////////////////
-            // Recard.PREVIEW.init()
+            Recard.PREVIEW.init()
             Recard.RED_SHADER_MIXER.init()
             Recard.UPDATER.init()
      

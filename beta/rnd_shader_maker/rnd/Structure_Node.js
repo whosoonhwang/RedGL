@@ -125,7 +125,7 @@ var shaderIndex = 0;
             }
             startPointRootBox.makeCode()
             if (targetRootBox.S('@nodeType') == 'Result') {
-                Recard.RED_SHADER_MIXER.lastCompile()
+                lastCompiler()
             } else targetRootBox.makeCode()
             tEnd.parent().query('[deleteBox]').S('display', 'block')
             console.log(tStart, tEnd)
@@ -142,7 +142,7 @@ var shaderIndex = 0;
             'z-index', currentZIndex++,
             'top', Recard.WIN.h / 2, 'left', Recard.WIN.w / 2,
             'transform', 'translate(-50%,-50%)',
-            'min-width', info['structure']['title'] =='Result' ? 350 : 250, 'min-height', 100,
+            'min-width', info['structure']['title'] =='Result' ? 400 : 250, 'min-height', 100,
             'background', 'rgba(29,28,36,0.8)',
             'box-shadow', '0px 0px 10px 5px rgba(0,0,0,0.2)',
             'border-radius', 10,
@@ -233,7 +233,7 @@ var shaderIndex = 0;
                         deletePrevData(tEnd)
                         this.S('display', 'none')
                         tEnd.parent().query('[dataTypeBox]').S('html', '')
-                        Recard.RED_SHADER_MIXER.lastCompile()
+                        lastCompiler()
                     }]
                 ),
                 '>', Recard.Dom('div').S(
@@ -294,7 +294,7 @@ var shaderIndex = 0;
         }
         ////////////////////////////////////////////////////////
         rootBox['info'] = info
-        rootBox['comfileInfo'] = null
+        rootBox['compileInfo'] = null
         rootBox['lastCompileInfo'] = null
         rootBox['makeCode'] = function () {
             dataMaker.call(this)

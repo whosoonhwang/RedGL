@@ -11,13 +11,13 @@ var dataMaker;
             type: t1[0],
             dataType: t1[1],
             varName: t1[2],
-            resultDst: null
+            varCompiledName : t1[2] + '_' + shaderIndex
         }
         // 아웃풋 링크정보
-        self.comfileInfo['outLinkInfo']['COLOR'] = 'textureColor_' + shaderIndex
-        self.comfileInfo['uniforms'][t1[2] + '_' + shaderIndex] = t0
+        self.compileInfo['outLinkInfo']['COLOR'] = 'textureColor_' + shaderIndex
+        self.compileInfo['uniforms'][t1[2] + '_' + shaderIndex] = t0
         // 텍스쳐 코드생성
-        self.comfileInfo['header'].push(
+        self.compileInfo['header'].push(
             'textureColor_' + shaderIndex + '= texture2D(' + t1[2] + '_' + shaderIndex + ',vTexcoord);\n'
         )
         // 베어링
@@ -27,9 +27,9 @@ var dataMaker;
             type: t1[0],
             dataType: t1[1],
             varName: t1[2],
-            resultDst: null
+            varCompiledName : t1[2] + '_' + shaderIndex
         }
-        self.comfileInfo['varyings'][t1[2]] = t0
+        self.compileInfo['varyings'][t1[2]] = t0
         // 변수
         t1 = 'vec4 textureColor'
         t1 = t1.split(' ')
@@ -37,17 +37,17 @@ var dataMaker;
             type: null,
             dataType: t1[0],
             varName: t1[1],
-            resultDst: null
+            varCompiledName : t1[1] + '_' + shaderIndex
         }
-        self.comfileInfo['vars'][t1[1] + '_' + shaderIndex] = t0
+        self.compileInfo['vars'][t1[1] + '_' + shaderIndex] = t0
         shaderIndex++
     }
     dataMaker = function () {
-        this['comfileInfo'] = new Structure_Texture()
+        this['compileInfo'] = new Structure_Texture()
         console.log('start 데이터 메이커 ---------------------------------------------------')
         console.log('this.info', this.info)
         console.log('this.info.structure.output', this.info.structure.output)
-        console.log('this.comfileInfo', this.comfileInfo)
+        console.log('this.compileInfo', this.compileInfo)
         var inoutputList;
         var self = this
         //
@@ -63,27 +63,27 @@ var dataMaker;
                     console.log(tKEY)
                     switch (tKEY) {
                         case 'R':
-                            self.comfileInfo['header'].push(self.comfileInfo['outLinkInfo']['COLOR'] + '.r')
-                            self.comfileInfo['outLinkInfo']['R'] = self.comfileInfo['outLinkInfo']['COLOR']+'.r'
+                            self.compileInfo['header'].push(self.compileInfo['outLinkInfo']['COLOR'] + '.r')
+                            self.compileInfo['outLinkInfo']['R'] = self.compileInfo['outLinkInfo']['COLOR']+'.r'
                             break
                         case 'G':
-                            self.comfileInfo['header'].push(self.comfileInfo['outLinkInfo']['COLOR'] + '.g')
-                            self.comfileInfo['outLinkInfo']['G'] = self.comfileInfo['outLinkInfo']['COLOR']+'.g'
+                            self.compileInfo['header'].push(self.compileInfo['outLinkInfo']['COLOR'] + '.g')
+                            self.compileInfo['outLinkInfo']['G'] = self.compileInfo['outLinkInfo']['COLOR']+'.g'
                             break
                         case 'B':
-                            self.comfileInfo['header'].push(self.comfileInfo['outLinkInfo']['COLOR'] + '.b')
-                            self.comfileInfo['outLinkInfo']['B'] = self.comfileInfo['outLinkInfo']['COLOR']+'.b'
+                            self.compileInfo['header'].push(self.compileInfo['outLinkInfo']['COLOR'] + '.b')
+                            self.compileInfo['outLinkInfo']['B'] = self.compileInfo['outLinkInfo']['COLOR']+'.b'
                             break
                         case 'A':
-                            self.comfileInfo['header'].push(self.comfileInfo['outLinkInfo']['COLOR'] + '.a')
-                            self.comfileInfo['outLinkInfo']['A'] = self.comfileInfo['outLinkInfo']['COLOR']+'.a'
+                            self.compileInfo['header'].push(self.compileInfo['outLinkInfo']['COLOR'] + '.a')
+                            self.compileInfo['outLinkInfo']['A'] = self.compileInfo['outLinkInfo']['COLOR']+'.a'
                             break
                     }
                 }
             }
         })
 
-        console.log(this.comfileInfo)
+        console.log(this.compileInfo)
         console.log('end 데이터 메이커 ---------------------------------------------------')
     }
 })()

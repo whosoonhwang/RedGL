@@ -3,7 +3,7 @@ var shaderParser;
 (function () {
     shaderParser = function () {
         console.log('start 쉐이더파싱 ----------------------------')
-        console.log(this.comfileInfo)
+        console.log(this.compileInfo)
         var codeBox;
         var tDataGroup, tData;
         var resultStr,resultStr2;
@@ -19,8 +19,8 @@ var shaderParser;
             footer : []
         }
         // 유니폼 코드생성
-        resultStr += '//define uniforms \n'
-        tDataGroup = this.comfileInfo['uniforms']
+        resultStr += '//define uniforms\n'
+        tDataGroup = this.compileInfo['uniforms']
         resultStr2 =''
         for (var k in tDataGroup) {
             tData = tDataGroup[k]
@@ -36,7 +36,7 @@ var shaderParser;
         resultStr += '\n'
         // 베어링 코드생성
         resultStr += '//define varyings \n'
-        tDataGroup = this.comfileInfo['varyings']
+        tDataGroup = this.compileInfo['varyings']
         resultStr2 =''
         for (var k in tDataGroup) {
             tData = tDataGroup[k]
@@ -51,7 +51,7 @@ var shaderParser;
         resultStr += '\n'
         // 변수 코드생성
         resultStr += '//define vars \n'
-        tDataGroup = this.comfileInfo['vars']
+        tDataGroup = this.compileInfo['vars']
         resultStr2 =''
         for (var k in tDataGroup) {
             tData = tDataGroup[k]
@@ -72,7 +72,7 @@ var shaderParser;
         resultStr += '\nvoid main(void) {\n'
         // 헤더생성 코드생성
         resultStr += '//define header \n'
-        tDataGroup = this.comfileInfo['header']
+        tDataGroup = this.compileInfo['header']
         resultStr2 = tDataGroup.join(';\n')
         resultStr+=resultStr2
         this['lastCompileInfo']['header'].push(resultStr2)
