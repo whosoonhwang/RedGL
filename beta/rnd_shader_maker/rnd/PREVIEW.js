@@ -147,13 +147,8 @@ void main(void) {
                 'z-index', 0,
                 'top', 0,
                 'left', 0,
-                'width', 400,
-                'height', 400,
                 'background', '#000',
-                '>', testCvs = Recard.Dom('canvas').S(
-                    '@width', 400,
-                    '@height', 400,
-                ),
+                '>', testCvs = Recard.Dom('canvas'),
                 '<', 'body'
             )
           

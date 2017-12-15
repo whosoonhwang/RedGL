@@ -308,6 +308,9 @@ var shaderIndex = 0;
         }
         ////////////////////////////////////////////////////////
         info['structure']['title'] =='Result' ? '' : rootBox.makeCode()
+        setTimeout(function(){
+            Prism.highlightAll()
+        },1)
         return rootBox
     }
     Object.freeze(Structure_Node)
@@ -325,6 +328,7 @@ var shaderIndex = 0;
     })
     Recard.EVENT_EMITTER.on(window, 'mouseup', function (e) {
         dragRootBox = null
+        console.log('dhsi')
 
         if (curveItem) {
             setTimeout(function () {

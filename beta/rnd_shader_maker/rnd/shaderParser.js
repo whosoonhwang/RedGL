@@ -87,7 +87,6 @@ var shaderParser;
 
 
         resultStr += '\n'
-        Prism.highlightAll()
         codeBox.S(
             'html',resultStr
         )
