@@ -62,6 +62,10 @@ var dataMaker;
                     tKEY = item.S('@key')
                     console.log(tKEY)
                     switch (tKEY) {
+                        case 'RGB':
+                            self.compileInfo['header'].push(self.compileInfo['outLinkInfo']['COLOR'] + '.rgb;\n')
+                            self.compileInfo['outLinkInfo']['RGB'] = self.compileInfo['outLinkInfo']['COLOR']+'.rgb'
+                        break
                         case 'R':
                             self.compileInfo['header'].push(self.compileInfo['outLinkInfo']['COLOR'] + '.r;\n')
                             self.compileInfo['outLinkInfo']['R'] = self.compileInfo['outLinkInfo']['COLOR']+'.r'

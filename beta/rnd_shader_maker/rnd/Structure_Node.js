@@ -85,9 +85,8 @@ var shaderIndex = 0;
             tEnd.parent().query('[dataTypeBox]').S('html', ' ' + tSDataType)
             //
             switch (targetRootBox.S('@nodeType')) {
-                case 'Add':
+                case 'add':
                     console.log('NodeType Add')
-                    console.log(targetRootBox)
                     var tList;
                     tList = targetRootBox.queryAll('.inputItem [dataTypeBox]')
                     if (tList[0].S('text') == '' || tList[1].S('text') == '') { }

@@ -427,6 +427,9 @@ var RedBaseRenderInfo;
                     tLocation = tUniformGroupList[i2]['location']
                     // 값이없으면 무시
                     if (tUniformValue == undefined) { }
+                    else if (tUniformKey == 'uTime') { 
+                        tGL.uniform4fv(tLocation, tUniformValue['value'])
+                    }
                     // 아틀라스코디네이트값인경우
                     else if (tUniformKey == 'uAtlascoord') {
                         cacheUAtlascoord_UUID == tUniformValue['__UUID'] ? 0 : tGL.uniform4fv(tLocation, tUniformValue['value'])

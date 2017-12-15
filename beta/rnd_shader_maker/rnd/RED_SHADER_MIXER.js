@@ -15,7 +15,8 @@ Recard.static('RED_SHADER_MIXER', (function () {
                 NORMAL: 'vec4',
                 SPECULAR: 'vec4',
                 DISPLACEMENT: 'vec4',
-                TEST_FLOAT: 'float'
+                TEST_FLOAT: 'float',
+                TEST_VEC3: 'vec3'
             }
         }
         info.src = '';
@@ -83,14 +84,14 @@ Recard.static('RED_SHADER_MIXER', (function () {
                             title: null,
                             output: {
                                 COLOR: 'vec4',
+                                RGB: 'vec3',
                                 R: 'float',
                                 G: 'float',
                                 B: 'float',
                                 A: 'float'
                             },
                             input: {
-                                UV: 'vec2',
-                                TEST_VEC4: 'vec4'
+                                UV: 'vec2'
                             }
                         }
                         info.src = '';
@@ -102,6 +103,84 @@ Recard.static('RED_SHADER_MIXER', (function () {
                     }]
                 )
             )
+            Recard.Dom('div').S(
+                'position', 'fixed',
+                'bottom', 10,
+                'left', 100,
+                'right', 10,
+                'z-index', 1,
+                '<', 'body',
+                '>', Recard.Dom('button').S(
+                    'margin-right', 1,
+                    'padding', 10,
+                    'background', '#5b52aa',
+                    'color', '#fff',
+                    'outline', 'none',
+                    'border', 0,
+                    'cursor', 'pointer',
+                    'html', 'ShaderTest',
+                    'on', ['down', function () {
+                        var info;
+                        info = {}
+                        info['nodeType'] = 'ShaderTest'
+                        info['structure'] = {
+                            title: null,
+                            output: {
+                                output: null
+                            },
+                            input: {
+                                A: null,
+                                B: null
+                            }
+                        }
+                        info.src = '';
+                        (new Structure_Node(info)).S(
+                            'top', Recard.WIN.scroll('y') + Recard.WIN.h / 2,
+                            'left', Recard.WIN.scroll('x') + Recard.WIN.w / 2,
+                            '<', 'body'
+                        )
+                    }]
+                )
+            )
+            // Recard.Dom('div').S(
+            //     'position', 'fixed',
+            //     'bottom', 10,
+            //     'left', 100,
+            //     'right', 10,
+            //     'z-index', 1,
+            //     '<', 'body',
+            //     '>', Recard.Dom('button').S(
+            //         'margin-right', 1,
+            //         'padding', 10,
+            //         'background', '#5b52aa',
+            //         'color', '#fff',
+            //         'outline', 'none',
+            //         'border', 0,
+            //         'cursor', 'pointer',
+            //         'html', 'add',
+            //         'on', ['down', function () {
+            //             var info;
+            //             info = {}
+            //             info['nodeType'] = 'add'
+            //             info['structure'] = {
+            //                 title: null,
+            //                 output: {
+            //                     output: null
+            //                 },
+            //                 input: {
+            //                     A: null,
+            //                     B: null
+            //                 }
+            //             }
+            //             info.src = '';
+            //             (new Structure_Node(info)).S(
+            //                 'top', Recard.WIN.scroll('y') + Recard.WIN.h / 2,
+            //                 'left', Recard.WIN.scroll('x') + Recard.WIN.w / 2,
+            //                 '<', 'body'
+            //             )
+            //         }]
+            //     )
+            // )
 
         }
     }
