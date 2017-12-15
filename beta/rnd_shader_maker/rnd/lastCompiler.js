@@ -135,7 +135,6 @@ lastCompiler = function () {
     mergedLastInfo['header']
     // body추가
     mergedLastInfo['body'].push(`
-            
                     la = uAmbientLightColor;
                     ld = vec4(0.0, 0.0, 0.0, 1.0);
                     ls = vec4(0.0, 0.0, 0.0, 1.0);
@@ -209,6 +208,7 @@ lastCompiler = function () {
     codeBox.S(
         'html', resultStr.replace(/\n/g, '<br>')
     )
+    
 
    
 
