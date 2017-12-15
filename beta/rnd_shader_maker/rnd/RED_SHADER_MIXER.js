@@ -64,12 +64,12 @@ Recard.static('RED_SHADER_MIXER', (function () {
                     footer: []
                 }
                 lastCompileInfoList.forEach(function(v){
-                    mergedInfo['header'] = mergedInfo['header'].concat(v['header'])
-                    mergedInfo['body'] = mergedInfo['body'].concat(v['body'])
-                    mergedInfo['footer'] = mergedInfo['footer'].concat(v['footer'])
-                    mergedInfo['uniforms'] = mergedInfo['uniforms'].concat(v['uniforms'])
-                    mergedInfo['varyings'] = mergedInfo['varyings'].concat(v['varyings'])
-                    mergedInfo['vars'] = mergedInfo['vars'].concat(v['vars'])
+                    ('header,body,footer,uniforms,varyings,vars'.split(',')).forEach(function(key){
+                        v[key].forEach(function(v2){
+                            if(mergedInfo[key].indexOf(v2)==-1) mergedInfo[key].push(v2)
+                        })
+                    })
+                    
                 })
                 console.log('병합된 정보',mergedInfo)
 
@@ -119,7 +119,7 @@ Recard.static('RED_SHADER_MIXER', (function () {
                 resultStr += mergedInfo.header.join('')
                 resultStr += mergedInfo.body.join('')
                 resultStr += mergedInfo.footer.join('')
-                resultStr += '}'
+                resultStr += '\n}'
                 codeBox.S(
                     'html',resultStr.replace(/\n/g,'<br>')
                 )
