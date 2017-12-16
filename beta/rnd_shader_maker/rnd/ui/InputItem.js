@@ -50,7 +50,7 @@ var InputItem;
                         } else {
                             // 계산아이템일떄
                             if (key.indexOf('INPUT') > -1) {
-                                if (info['from']) tTempOutputItem.delTo(info['from'])
+                                if (info['from']) tTempOutputItem.delTo(rootBox)
                                 info['from'] = tTempOutputItem
                                 info['dataType'] = tTempOutputItem.S('@dataType')
                                 //TODO: 여기서 형시계산을 해줘야하는군...
