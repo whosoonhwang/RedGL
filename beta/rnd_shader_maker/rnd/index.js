@@ -13,6 +13,7 @@ Recard.static('INDEX', (function () {
             Recard.RED_SHADER_PREVIEW.init()
             Recard.RED_SHADER_GRID.init()
             Recard.TEST_BOX.init()
+            Recard.LINE_MANAGER.init()
 
         }
     }

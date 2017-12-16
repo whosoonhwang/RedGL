@@ -14,6 +14,13 @@ Recard.static('RED_SHADER_GRID', (function () {
                 '<', rootBox
             )
         },
+        
+        getRootBox : function(){
+            return rootBox
+        },
+        getContentBox : function(){
+            return contentBox
+        },
         init: function () {
             W = 20000
             H = 20000
@@ -53,8 +60,8 @@ Recard.static('RED_SHADER_GRID', (function () {
                 ),
                 '<', 'body'
             )
-            rootBox.__dom__.scrollTop = H / 2 - rootBox.__dom__.clientHeight / 2
-            rootBox.__dom__.scrollLeft = W / 2 - rootBox.__dom__.clientWidth / 2
+            // rootBox.__dom__.scrollTop = H / 2 - rootBox.__dom__.clientHeight / 2
+            // rootBox.__dom__.scrollLeft = W / 2 - rootBox.__dom__.clientWidth / 2
         }
     }
 

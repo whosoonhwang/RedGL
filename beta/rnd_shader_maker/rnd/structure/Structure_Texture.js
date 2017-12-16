@@ -25,4 +25,5 @@ var Structure_Texture;
         index++
         console.log(this)
     }
+    Object.freeze(Structure_Texture)
 })();
