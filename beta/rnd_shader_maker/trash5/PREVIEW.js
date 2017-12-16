@@ -226,9 +226,9 @@ void main(void) {
                 }
                 renderer.start()
                 Recard.WIN_RESIZER.add('testGL',function(){
-                    testGL.setSize(window.screen.width,window.screen.height)
+                    testGL.setSize(document.body.clientWidth,document.body.clientHeight)
                 })
-                testGL.setSize(window.screen.width,window.screen.height)
+                testGL.setSize(document.body.clientWidth,document.body.clientHeight)
             }, false, [
                     { id: 'colorVS', src: '../../glsl/colorVS.glsl' },
                     { id: 'colorFS', src: '../../glsl/colorFS.glsl' },

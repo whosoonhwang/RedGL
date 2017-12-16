@@ -1,20 +1,28 @@
-"use strict";
+'use strict';
 var Structure_Texture;
-var shaderIndex = 0;
 (function () {
+    var index;
+    index = 0
     Structure_Texture = function () {
-        var info,  t0
-        info = {
-            type: 'fragment',
-            uniforms: {},
-            varyings: {},
-            vars: {},
-            header: [],
-            body: [],
-            footer: [],
-            outLinkInfo:{}
+        this['nodeType'] = 'Texture'
+        this['index'] = index
+        this['structure'] = {
+            input: {
+                UV: {
+                    dataType: 'vec2',
+                    from: null
+                }
+            },
+            output: {
+                COLOR: { dataType: 'vec4', to: {} },
+                R: { dataType: 'float', to: {} },
+                G: { dataType: 'float', to: {} },
+                B: { dataType: 'float', to: {} },
+                A: { dataType: 'float', to: {} }
+            }
         }
-        for (var k in info) this[k] = info[k]
-     
+        this['compileInfo'] = new CompileInfo()
+        index++
+        console.log(this)
     }
-})()
+})();
