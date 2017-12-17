@@ -12,9 +12,7 @@ var InputItem;
             if (info['from']) {
                 var tStr;
                 tStr = [info['from'].parent().parent().query('[titleBox]').S('text')]
-                info['from'].queryAll('span').forEach(function (v) {
-                    tStr.push(v.S('text'))
-                })
+                tStr.push(info['from'].S('@dataType') + ' '+info['from'].S('@key'))
                 fromBox.S('html', 'from - ' + tStr.join(' '))
                 pointBox.S('background', 'rgb(242, 169, 113)')
             }else{
@@ -32,11 +30,11 @@ var InputItem;
             'line-height', 20,
             '>', pointBox = Recard.Dom('button').S(
                 'position', 'absolute',
-                'top', '50%',
+                'top', 5,
                 'left', 0,
                 'width', 15,
                 'height', 15,
-                'transform', 'translate(-50%, -50%)',
+                'transform', 'translate(-50%, 0%)',
                 'border-radius', '50%',
                 'background', '#666',
                 'on', ['up', function () {
@@ -61,8 +59,10 @@ var InputItem;
                             }
                             // 일반아이템일때
                             else if (tTempOutputItem.S('@dataType') == info['dataType']) {
+                                if (info['from']) info['from'].delTo(rootBox)
                                 info['from'] = tTempOutputItem
                                 update()
+                                tTempOutputItem.addTo(rootBox)
                             }
                             else console.log('같은 데이터 형식만 지정할 수 있습니다. ')
                         }
@@ -78,6 +78,7 @@ var InputItem;
                 'color', 'rgb(242, 169, 113)'
             ),
             '>', fromBox = Recard.Dom('div').S(
+                '@fromBox','',
                 'margin-left', 15,
                 'font-size', 11,
                 'white-space', 'noWrap',

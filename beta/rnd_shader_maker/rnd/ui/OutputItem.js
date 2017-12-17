@@ -28,7 +28,7 @@ var OutputItem;
                             tStr.reverse()
                             tStr.push(tNode[k2].parent().parent().query('[titleBox]').S('text'))
                             tStr.reverse()
-                            tStrs.push('<div>to - ' + tStr.join(' ')+'</div>')
+                            tStrs.push('<span>to - ' + tStr.join(' ')+'</span>')
                         }
                         
                     }
@@ -37,7 +37,7 @@ var OutputItem;
                 console.log(tStrs)
                 if (tStrs.length) {
                     pointBox.S('background', 'rgb(242, 169, 113)')
-                    toBox.S('html', tStrs.join(''))
+                    toBox.S('html', tStrs.join('<br>'))
                 }
             }
         }
@@ -52,11 +52,11 @@ var OutputItem;
             'line-height', 20,
             '>', pointBox = Recard.Dom('button').S(
                 'position', 'absolute',
-                'top', '50%',
+                'top', 5,
                 'right', 0,
                 'width', 15,
                 'height', 15,
-                'transform', 'translate(50%, -50%)',
+                'transform', 'translate(50%, 0%)',
                 'border-radius', '50%',
                 'background', '#666',
                 'on', ['down', function () {
@@ -92,7 +92,7 @@ var OutputItem;
             var tKey;
             tKey = inputItem.parent().parent().query('[titleBox]').S('text')
             if (!toInfo[tKey]) toInfo[tKey] = {}
-            if(inputItem.query('[toBox]')) inputItem.query('[toBox]').S('html','')
+            inputItem.query('[fromBox]').S('html','')
             delete toInfo[tKey][inputItem.S('@key')]
             update()
         }

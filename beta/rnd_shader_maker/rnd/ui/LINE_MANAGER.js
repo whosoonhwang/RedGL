@@ -77,9 +77,9 @@ Recard.static('LINE_MANAGER', (function () {
                         endRoot = endItem.parent().parent()
                         gridRootBox = Recard.RED_SHADER_GRID.getRootBox()
                         sL = startRoot.S('left')  + startRoot.__dom__.clientWidth / 2
-                        sT = startRoot.S('top') + startItem.__dom__.clientHeight / 2 - startRoot.__dom__.clientHeight / 2+startItem.__dom__.offsetTop
-                        eL = endRoot.S('left')- endRoot.__dom__.clientWidth / 2
-                        eT = endRoot.S('top')+ endItem.__dom__.clientHeight / 2 -  endRoot.__dom__.clientHeight / 2+endItem.__dom__.offsetTop
+                        sT = startRoot.S('top') - startRoot.__dom__.clientHeight / 2 + startItem.__dom__.offsetTop + 12
+                        eL = endRoot.S('left') - endRoot.__dom__.clientWidth / 2
+                        eT = endRoot.S('top') - endRoot.__dom__.clientHeight / 2 + endItem.__dom__.offsetTop + 12
                         // console.log(
                         //     'M' + sL + ',' + sT,
                         //     'C' + sL + ',' + (sT),
