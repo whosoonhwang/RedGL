@@ -17,6 +17,8 @@ var InputItem;
                 })
                 fromBox.S('html', 'from - ' + tStr.join(' '))
                 pointBox.S('background', 'rgb(242, 169, 113)')
+            }else{
+                pointBox.S('background', '#666')
             }
             dataTypeBox.S(
                 'html', info['dataType'] ? info['dataType'] : 'null'
@@ -50,7 +52,7 @@ var InputItem;
                         } else {
                             // 계산아이템일떄
                             if (key.indexOf('INPUT') > -1) {
-                                if (info['from']) tTempOutputItem.delTo(rootBox)
+                                if (info['from']) info['from'].delTo(rootBox)
                                 info['from'] = tTempOutputItem
                                 info['dataType'] = tTempOutputItem.S('@dataType')
                                 //TODO: 여기서 형시계산을 해줘야하는군...
@@ -84,7 +86,7 @@ var InputItem;
         )
         update()
         rootBox['info'] = info
-        rootBox['updateFrom'] = update
+        rootBox['update'] = update
         return rootBox
     }
 })()

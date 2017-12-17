@@ -20,15 +20,20 @@ var OutputItem;
                 for (k in toInfo) {
                     tNode = toInfo[k]
                     for (var k2 in tNode) {
-                        tStr = [tNode[k2].parent().parent().query('[titleBox]').S('text')]
+                        tStr = []
                         tNode[k2].queryAll('span').forEach(function (v) {
                             tStr.push(v.S('text'))
                         })
-                        tStrs.push('<div>to - ' + tStr.join(' ')+'</div>')
+                        if(tStr.length){
+                            tStr.reverse()
+                            tStr.push(tNode[k2].parent().parent().query('[titleBox]').S('text'))
+                            tStr.reverse()
+                            tStrs.push('<div>to - ' + tStr.join(' ')+'</div>')
+                        }
+                        
                     }
-                    
                 }
-
+                console.log(toInfo)
                 console.log(tStrs)
                 if (tStrs.length) {
                     pointBox.S('background', 'rgb(242, 169, 113)')
@@ -81,8 +86,9 @@ var OutputItem;
                 'color', '#666'
             )
         )
+        rootBox['update'] = update
         rootBox['delTo'] = function (inputItem) {
-            console.log('기존꺼있으면삭제')
+            console.log('기존꺼있으면삭제',inputItem)
             var tKey;
             tKey = inputItem.parent().parent().query('[titleBox]').S('text')
             if (!toInfo[tKey]) toInfo[tKey] = {}
