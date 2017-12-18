@@ -23,11 +23,12 @@ var NodeBox;
         var rootBox;
         var inputBox, outputBox;
         rootBox = Recard.Dom('div').S(
+            '@nodeType',structureInfo['nodeType'],
             'position', 'absolute',
             'top', 0,
             'left', 0,
             'width', 250,
-            'max-height', 400,
+            // 'max-height', 400,
             'background', 'rgba(29,28,36,0.8)',
             'box-shadow', '0px 0px 10px 5px rgba(0,0,0,0.2)',
             'border-radius', 10,
@@ -99,6 +100,84 @@ var NodeBox;
                 )
             )
         )
+        rootBox['structureInfo'] = structureInfo
+        rootBox['prism'] = function(){
+            Prism.highlightElement(rootBox.query('[codeBox]').__dom__)
+        }
+        rootBox['parseDefine'] = (function(){
+            var makeNodeStack;
+            makeNodeStack = function(tRoot,tList){
+                tRoot.queryAll('[inputItem]').forEach(function(item){
+                    if(item['info']['from']){
+                        item['info']['from'].parent().parent()['structureInfo'].parse()
+                        tList.push(item['info']['from'].parent().parent())
+                        makeNodeStack(item['info']['from'].parent().parent(),tList)
+                        // console.log(item.S('@key'),item['info']['from'])
+                    }
+                })
+            
+            }
+            return function(){
+                console.log(this)
+                rootBox.query('[codeBox]').S(
+                    'html', ''
+                )
+                var tList = []
+                var resultInfo = []
+                var finalDefine = {
+                    uniforms: {},
+                    varyings: {},
+                    vars: {},
+                    headers: [],
+                    bodys: [],
+                    footers: []
+                }
+                // 하위노드 리스트를 만들고
+                makeNodeStack(Recard.query('[nodeType="Final"]'), tList)
+                tList.reverse()
+                // 하위부터 정보를 합한다.
+                tList.forEach(function (item) {
+                    console.log(item['structureInfo']['define'])
+                    resultInfo.push({
+                        uuid: item['structureInfo']['nodeType'] + item['structureInfo']['index'],
+                        define: item['structureInfo']['define']
+                    })
+                })
+                console.log('최종결과', resultInfo)
+                resultInfo.forEach(function(item){
+                    var tData = item['define']
+                    for (var groupKey in tData) {
+                        var tGroupData = tData[groupKey]
+                        if (tGroupData instanceof Array) {
+                            tGroupData.forEach(function (v) {
+                                finalDefine[groupKey].push(v)
+                            })
+
+                        } else {
+                            for (var key in tGroupData) {
+                                finalDefine[groupKey][key] = tGroupData[key]
+                            }
+                        }
+
+                    }
+                })
+               
+                if(structureInfo instanceof Structure_Final){
+                    Recard.RED_SHADER_PREVIEW.setTest(null,rootBox['structureInfo'].parse(finalDefine))
+                }else{
+                    rootBox.query('[codeBox]').S(
+                        'html',rootBox['structureInfo'].parse(finalDefine)
+                    )
+                }
+                console.log('finalDefine',finalDefine)
+                Recard.query('[nodeType="Final"]').query('[codeBox]').S(
+                    'html',Recard.query('[nodeType="Final"]')['structureInfo'].parse(finalDefine)
+                )
+
+                rootBox['prism']()
+                Recard.query('[nodeType="Final"]')['prism']()
+            }
+        })()
         makeInputItems.call(inputBox, structureInfo['structure']['input'])
         makeOutputItems.call(outputBox, structureInfo['structure']['output'])
 

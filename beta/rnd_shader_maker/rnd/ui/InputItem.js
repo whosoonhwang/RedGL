@@ -15,13 +15,15 @@ var InputItem;
                 tStr.push(info['from'].S('@dataType') + ' '+info['from'].S('@key'))
                 fromBox.S('html', 'from - ' + tStr.join(' '))
                 pointBox.S('background', 'rgb(242, 169, 113)')
+               
             }else{
                 pointBox.S('background', '#666')
             }
             dataTypeBox.S(
                 'html', info['dataType'] ? info['dataType'] : 'null'
             )
-        }
+            rootBox.parent().parent()['parseDefine']()
+        }        
         rootBox = Recard.Dom('div').S(
             '@inputItem', '',
             '@key', key,
@@ -48,8 +50,9 @@ var InputItem;
                                 console.log('데이터가 지정되지 않았습니다.')
                             }
                         } else {
-                            // 계산아이템일떄
+                            // 계산아이템
                             if (key.indexOf('INPUT') > -1) {
+                                // 계산아이템
                                 if (info['from']) info['from'].delTo(rootBox)
                                 info['from'] = tTempOutputItem
                                 info['dataType'] = tTempOutputItem.S('@dataType')
@@ -57,12 +60,14 @@ var InputItem;
                                 update()
                                 tTempOutputItem.addTo(rootBox)
                             }
-                            // 일반아이템일때
+                            // 일반아이템
                             else if (tTempOutputItem.S('@dataType') == info['dataType']) {
                                 if (info['from']) info['from'].delTo(rootBox)
                                 info['from'] = tTempOutputItem
-                                update()
                                 tTempOutputItem.addTo(rootBox)
+                                
+                                update()
+                                
                             }
                             else console.log('같은 데이터 형식만 지정할 수 있습니다. ')
                         }
@@ -85,9 +90,10 @@ var InputItem;
                 'color', '#666'
             )
         )
-        update()
+       
         rootBox['info'] = info
         rootBox['update'] = update
+        requestAnimationFrame(rootBox['update'])
         return rootBox
     }
 })()

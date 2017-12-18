@@ -40,6 +40,7 @@ var OutputItem;
                     toBox.S('html', tStrs.join('<br>'))
                 }
             }
+            rootBox.parent().parent()['parseDefine']()
         }
         toInfo = info['to']
         console.log('toInfo', toInfo)
@@ -86,7 +87,9 @@ var OutputItem;
                 'color', '#666'
             )
         )
+        rootBox['info'] = info
         rootBox['update'] = update
+        requestAnimationFrame(rootBox['update'])
         rootBox['delTo'] = function (inputItem) {
             console.log('기존꺼있으면삭제',inputItem)
             var tKey;
@@ -101,6 +104,7 @@ var OutputItem;
             var tKey;
             tKey = inputItem.parent().parent().query('[titleBox]').S('text')
             if (!toInfo[tKey]) toInfo[tKey] = {}
+            
             toInfo[tKey][inputItem.S('@key')] = inputItem
             update()
             console.log(toInfo)

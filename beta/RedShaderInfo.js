@@ -79,6 +79,7 @@ var RedShaderInfo;
         }
         parseData = source.match(/attribute[\s\S]+?\;|uniform[\s\S]+?\;/g)
         console.log(source,parseData)
+        parseData = parseData ? parseData : []
         parseData.forEach(function (v, index) {
             parseData[index] = v.trim().replace(';', '').split('[')[0]
         })

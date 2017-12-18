@@ -39,22 +39,24 @@ Recard.static('TEST_BOX', (function () {
                 }],
                 '<', rootBox
             ),
-            Recard.Dom('div').S(
-                '@className','nodeItemButton',
-                'html', 'Add',
-                'on',['down',function(){
-                    Recard.RED_SHADER_GRID.addNode(new Structure_Add())
-                }],
-                '<', rootBox
-            )
-            Recard.Dom('div').S(
-                '@className','nodeItemButton',
-                'html', 'Multiply',
-                'on',['down',function(){
-                    Recard.RED_SHADER_GRID.addNode(new Structure_Multiply())
-                }],
-                '<', rootBox
-            )
+            // Recard.Dom('div').S(
+            //     '@className','nodeItemButton',
+            //     'html', 'Add',
+            //     'on',['down',function(){
+            //         Recard.RED_SHADER_GRID.addNode(new Structure_Add())
+            //     }],
+            //     '<', rootBox
+            // )
+            // Recard.Dom('div').S(
+            //     '@className','nodeItemButton',
+            //     'html', 'Multiply',
+            //     'on',['down',function(){
+            //         Recard.RED_SHADER_GRID.addNode(new Structure_Multiply())
+            //     }],
+            //     '<', rootBox
+            // )
+            Recard.RED_SHADER_GRID.addNode(new Structure_Final())
+            
         }
     }
 
