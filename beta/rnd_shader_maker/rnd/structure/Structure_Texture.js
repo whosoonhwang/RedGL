@@ -77,7 +77,7 @@ var Structure_Texture;
         }
 
         console.log('텍스쳐 기본정보',this['define'])
-        this['compileInfo'] = new CompileInfo()
+        
         index++
         console.log(this)
     }

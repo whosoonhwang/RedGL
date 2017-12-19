@@ -2400,6 +2400,13 @@ var RedMaterialInfo;
             var tUniformGroup = this['uniforms']
             var tUniformLocationGroup = this['programInfo']['uniforms']
             for (k in tUniformGroup) {
+                console.log(k)
+                console.log(tUniformLocationGroup)
+                console.log(tUniformLocationGroup[k])
+                console.log(tUniformLocationGroup[k]['type'])
+                console.log(tUniformGroup[k])
+                console.log(tUniformLocationGroup[k]['location'])
+                console.log(tUniformLocationGroup)
                 this['__uniformList'].push({
                     key: k,
                     type: tUniformLocationGroup[k]['type'],
@@ -3285,6 +3292,16 @@ var RedBaseRenderInfo;
                 self.setDirectionalLight(tempProgramInfo)
                 self.setPointLight(tempProgramInfo)
 
+                if(tempProgramInfo['uniforms']['uSystemTime']){
+                    tLocation = tempProgramInfo['uniforms']['uSystemTime']['location']
+                    tGL.uniform1f(tLocation, time/1000)
+                }
+                if(tempProgramInfo['uniforms']['uSystemResolution']){
+                    tLocation = tempProgramInfo['uniforms']['uSystemResolution']['location']
+                    tGL.uniform2fv(tLocation, new Float32Array([tGL['drawingBufferWidth'], tGL['drawingBufferHeight']]))
+                }
+                
+
             }
             cacheProgram = null // 캐쉬된 프로그램을 삭제
             //////////////////////////////////////////////////////////////////
@@ -3562,9 +3579,7 @@ var RedBaseRenderInfo;
                     tLocation = tUniformGroupList[i2]['location']
                     // 값이없으면 무시
                     if (tUniformValue == undefined) { }
-                    else if (tUniformKey == 'uTime') { 
-                        tGL.uniform4fv(tLocation, tUniformValue['value'])
-                    }
+                
                     // 아틀라스코디네이트값인경우
                     else if (tUniformKey == 'uAtlascoord') {
                         cacheUAtlascoord_UUID == tUniformValue['__UUID'] ? 0 : tGL.uniform4fv(tLocation, tUniformValue['value'])

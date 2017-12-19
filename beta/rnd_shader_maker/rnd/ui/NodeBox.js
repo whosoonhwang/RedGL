@@ -27,7 +27,7 @@ var NodeBox;
             'position', 'absolute',
             'top', 0,
             'left', 0,
-            'width', 250,
+            'min-width', 250,
             // 'max-height', 400,
             'background', 'rgba(29,28,36,0.8)',
             'box-shadow', '0px 0px 10px 5px rgba(0,0,0,0.2)',
@@ -87,8 +87,8 @@ var NodeBox;
             '>', Recard.Dom('div').S('clear', 'both'),
             '>', Recard.Dom('pre').S(
                 '@className', 'style-1',
-                'max-width', 400,
-                'max-height', 200,
+                'max-width', 500,
+                'max-height', 400,
                 'overflow', 'auto',
                 'margin', 0,
                 'background', 'transparent',
@@ -164,15 +164,19 @@ var NodeBox;
                
                 if(structureInfo instanceof Structure_Final){
                     Recard.RED_SHADER_PREVIEW.setTest(null,rootBox['structureInfo'].parse(finalDefine))
+                    Recard.query('[nodeType="Final"]').query('[codeBox]').S(
+                        'html',Recard.query('[nodeType="Final"]')['structureInfo'].parse(finalDefine)
+                    )
                 }else{
                     rootBox.query('[codeBox]').S(
                         'html',rootBox['structureInfo'].parse(finalDefine)
                     )
+                    Recard.query('[nodeType="Final"]').query('[codeBox]').S(
+                        'html',Recard.query('[nodeType="Final"]')['parseDefine']()
+                    )
                 }
                 console.log('finalDefine',finalDefine)
-                Recard.query('[nodeType="Final"]').query('[codeBox]').S(
-                    'html',Recard.query('[nodeType="Final"]')['structureInfo'].parse(finalDefine)
-                )
+            
 
                 rootBox['prism']()
                 Recard.query('[nodeType="Final"]')['prism']()

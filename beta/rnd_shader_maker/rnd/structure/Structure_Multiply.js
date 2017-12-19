@@ -21,7 +21,7 @@ var Structure_Multiply;
                 OUTPUT: { dataType: null, to: {} }
             }
         }
-        this['compileInfo'] = new CompileInfo()
+        
         index++
         console.log(this)
     }

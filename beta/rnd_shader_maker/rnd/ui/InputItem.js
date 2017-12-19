@@ -45,17 +45,21 @@ var InputItem;
                     tTempOutputItem = Recard.LINE_MANAGER.getTempOutputItem()
                     console.log(tTempOutputItem)
                     if (tTempOutputItem) {
-                        if (tTempOutputItem.S('@key') == 'OUTPUT') {
-                            if (!tTempOutputItem.S('@dataType')) {
-                                console.log('데이터가 지정되지 않았습니다.')
-                            }
-                        } else {
+                        // if (tTempOutputItem.S('@key') == 'OUTPUT') {
+                        //     if (!tTempOutputItem.S('@dataType')) {
+                        //         console.log('데이터가 지정되지 않았습니다.')
+                        //     }
+                        // } else {
                             // 계산아이템
                             if (key.indexOf('INPUT') > -1) {
                                 // 계산아이템
                                 if (info['from']) info['from'].delTo(rootBox)
                                 info['from'] = tTempOutputItem
                                 info['dataType'] = tTempOutputItem.S('@dataType')
+                                console.log(rootBox.parent().parent()['structureInfo'])
+                                rootBox.parent().parent()['structureInfo']['structure']['output']['OUTPUT']['dataType'] = info['dataType'] 
+                                rootBox.parent().parent().query('[key="OUTPUT"]').S('@dataType',info['dataType'] )
+                                rootBox.parent().parent().query('[key="OUTPUT"] span').S('html',info['dataType'] )
                                 //TODO: 여기서 형시계산을 해줘야하는군...
                                 update()
                                 tTempOutputItem.addTo(rootBox)
@@ -71,7 +75,7 @@ var InputItem;
                             }
                             else console.log('같은 데이터 형식만 지정할 수 있습니다. ')
                         }
-                    }
+                    // }
                 }]
             ),
             '>', Recard.Dom('span').S(

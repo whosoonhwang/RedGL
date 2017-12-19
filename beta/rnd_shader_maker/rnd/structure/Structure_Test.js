@@ -60,8 +60,6 @@ var Structure_Test;
                     if (tInput['from']) {
                     this['define']['headers'].push('    ' + tVarKey + ' = ' + tInput['from']['info']['sourceKey'])
                 }
-         
-               
             }
             resutlStr = ''
             defineInfo = this['define']
@@ -91,7 +89,7 @@ var Structure_Test;
             defineInfo['footers'].forEach(function(v){ resutlStr += v+';\n' })
             return resutlStr
         }
-        this['compileInfo'] = new CompileInfo()
+        
         index++
         console.log(this)
     }

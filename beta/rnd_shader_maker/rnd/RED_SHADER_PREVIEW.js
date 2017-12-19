@@ -50,7 +50,7 @@ void main(void) {
             f = 'precision lowp float;\n' + f
             console.log(v)
             console.log(f);
-            (function(){
+            (function () {
                 var tTextureDiffuse
                 var tTextureNormal
                 var tTextureSpecular
@@ -62,69 +62,98 @@ void main(void) {
                     testGL.getShaderInfo(tName, RedShaderInfo.VERTEX_SHADER),
                     testGL.getShaderInfo(tName, RedShaderInfo.FRAGMENT_SHADER),
                     function (target) {
-                        var root, tList;
-                        root = Recard.query('[nodeType="Final"]')
-                        tList = root.queryAll('[key]')
-                        tList = tList.filter(function (item) {
-                            if (item['info']['from']) return true
-                        })
-                        var i = tList.length
-                        while(i--){
-                            var item = tList[i]
-                            console.log(item['info']['from'])
-                            if (item.S('@key') == 'DIFFUSE' && item['info']['from']) {
-                                console.log('디퓨즈를 먹는다.')
-                                // target.uniforms['uTexture_' + item['info']['from'].parent().parent()['structureInfo']['index']] = target['diffuseInfo']
-                                // target.uniforms['uTexture_' + 0] = target['diffuseInfo']
+                        var tList;
+                        var checkCode;
+                        checkCode = function(v){
+                            var t0;
+                            var str1,str2
+                            var result
+                            t0 = v.split(' = ')
+                            str1 = t0[0]
+                            str1 = str1.split(' ')
+                            str1 = str1[str1.length-1]
+                            str2 = t0[1].replace(';','').trim()
+                            console.log(str1,str2)
+                            if(str2.indexOf('textureColor')==-1){
+                                // 추적해서 찾아야함
+                                var i,len
+                                var v2
+                                i =0,len = tList.length
+                                for(i;i<len;i++){
+                                    v2 = tList[i]
+                                    console.log(str2, v2)
+                                    console.log(v2.indexOf(str2 + ' = '))
+                                    if (v2.indexOf(str2 + ' = ') > -1) {
+                                        return checkCode(v2)
+                                        break
+                                    }
+                                }
+                            }else return str2.split('_')[1]
+                            
+                        }
+                        tList = f.split('\n')
+                        tList.forEach(function (v,index) {
+                            if (v.indexOf('vec4 texelColor_DIFFUSE = ') > -1) {
+                                var t0 = checkCode(v)
+                                console.log('체크결과',t0)
+                                target.uniforms['uTexture_' + t0] = target['diffuseInfo']
                             }
-                            if (item.S('@key') == 'NORMAL' && item['info']['from']) {
-                               
+                            if (v.indexOf('vec4 texelColor_NORMAL = ') > -1) {
+                                var t0 = checkCode(v)
+                                console.log('체크결과',t0)
+                                target.uniforms['uTexture_' + t0] = target['normalInfo']
                             }
-                            if (item.S('@key') == 'SPECULAR' && item['info']['from']) {
-                               
+                            if (v.indexOf('vec4 texelColor_SPECULAR = ') > -1) {
+                                var t0 = checkCode(v)
+                                console.log('체크결과',t0)
+                                target.uniforms['uTexture_' + t0] = target['specularInfo']
                             }
                            
-                        }
+                        })
+                        target.uniforms.uDisplacementTexture = target['displacementInfo']
+                        target.uniforms.uUseNormalTexture = 0
+                        target.uniforms.uUseDisplacementTexture = 0
+                        target.uniforms.uShininess = 32
                         target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
-                        console.log('결과가',target)       
+
+                        console.log('결과가', target)
                     }
                 );
-                (function(){
-                    var root, tList;
-                    root = Recard.query('[nodeType="Final"]')
-                    tList = root.queryAll('[key]')
-                    tList = tList.filter(function (item) {
-                        if (item['info']['from']) return true
-                    })
-                    var i = tList.length
-                    while(i--){
-                        var item = tList[i]
-                        console.log(item['info']['from'])
-                        if (item.S('@key') == 'DIFFUSE' && item['info']['from']) {
-                            console.log('디퓨즈를 먹는다.')
+                (function () {
+                    var tList;
+                    tList = f.split('\n')
+
+                    tList.forEach(function (v) {
+                        if (v.indexOf('vec4 texelColor_DIFFUSE = ') > -1) {
                             tTextureDiffuse = testGL.createTextureInfo('../../asset/fieldstone.jpg')
                         }
-                        if (item.S('@key') == 'NORMAL' && item['info']['from']) {
-                            console.log('노멀을 먹는다.')
+                        if (v.indexOf('vec4 texelColor_NORMAL = ') > -1) {
                             tTextureNormal = testGL.createTextureInfo('../../asset/fieldstone-normal.jpg', RedTextureIndex.NORMAL)
                         }
-                        if (item.S('@key') == 'SPECULAR' && item['info']['from']) {
-                           
+                        if (v.indexOf('vec4 texelColor_SPECULAR = ') > -1) {
+                            tTextureSpecular = testGL.createTextureInfo('../../asset/tile/specular.png', RedTextureIndex.SPECULAR)
                         }
-                       
+                    })
+                    if (Recard.query('[nodeType="Final"] [key="DISPLACEMENT"]')['info']['from']) {
+                        tTextureDisplacement = testGL.createTextureInfo('../../asset/displacement.jpg', RedTextureIndex.DISPLACEMENT)
                     }
                 })();
 
                 console.log(tTextureDiffuse, tTextureNormal, tTextureDisplacement, tTextureSpecular)
-                testGL.createMaterialDefine(testGL.getProgramInfo(tName))
-                var t2 = testGL.createMaterialInfo(tName, tTextureDiffuse, tTextureNormal, tTextureDisplacement, tTextureSpecular)
-                console.log('결과가',t2)       
-                tMesh.materialInfo = t2
+                try {
+                    testGL.createMaterialDefine(testGL.getProgramInfo(tName))
+                    var t2 = testGL.createMaterialInfo(tName, tTextureDiffuse, tTextureNormal, tTextureDisplacement, tTextureSpecular)
+                    console.log('결과가2', t2)
+                    tMesh.materialInfo = t2    
+                } catch (error) {
+                    
+                }
+                
             })()
         }
     })()
     result = {
-        setTest : setTest,
+        setTest: setTest,
         init: function () {
             rootBox = Recard.Dom('div').S(
                 'position', 'fixed',
@@ -133,10 +162,10 @@ void main(void) {
                 'width', 400,
                 'height', 400,
                 'overflow', 'hidden',
-                'background','#222',
+                'background', '#222',
                 '>', testCvs = Recard.Dom('canvas').S(
-                    '@width',400,
-                    '@height',400
+                    '@width', 400,
+                    '@height', 400
                 ),
                 '<', 'body'
             )
@@ -180,18 +209,19 @@ void main(void) {
                     ])
                 )
                 testMat = testGL.createMaterialInfo('color')
-                tMesh = testGL.createMeshInfo('testMesh', RedPrimitive.sphere(testGL, 10, 32, 32, 32), testMat)
+                tMesh = testGL.createMeshInfo('testMesh', RedPrimitive.sphere(testGL, 15, 32, 32, 32), testMat)
+                // tMesh = testGL.createMeshInfo('testMesh', RedPrimitive.cube(testGL, 15,15,15, 32, 32, 32), testMat)
 
                 testScene.children.push(tMesh)
                 var renderer = testGL.createBaseRenderInfo(testScene, function (time) {
                     testCamera.setPosition(Math.sin(time / 3000) * 60, 60, Math.cos(time / 5000) * 40)
                     testCamera.lookAt([0, 0, 0])
-                    var i = testScene['lights']['directional'].length
-                    while (i--) {
-                        testScene['lights']['directional'][i].direction[0] = Math.sin(time / 1700 + i) * 30
-                        testScene['lights']['directional'][i].direction[1] = Math.cos(time / 4400 + i) * 20 + Math.sin(time / 2700 + i) * 50
-                        testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200 + i) * 30
-                    }
+                    // var i = testScene['lights']['directional'].length
+                    // while (i--) {
+                    //     testScene['lights']['directional'][i].direction[0] = Math.sin(time / 1700 + i) * 30
+                    //     testScene['lights']['directional'][i].direction[1] = Math.cos(time / 4400 + i) * 20 + Math.sin(time / 2700 + i) * 50
+                    //     testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200 + i) * 30
+                    // }
                 })
                 // 엠비언트 라이트 테스트
                 var testLight = testGL.createAmbientLight(testGL)
@@ -199,15 +229,15 @@ void main(void) {
                 testScene.addLight(testLight)
 
                 // 디렉셔널 라이트 테스트
-                var i = 3
+                var i = 1
                 while (i--) {
                     var testLight = testGL.createDirectionalLight(testGL)
-                    testLight.direction[0] = 0
+                    testLight.direction[0] = -1
                     testLight.direction[1] = -1
                     testLight.direction[2] = 0
-                    testLight.color[0] = Math.random()
-                    testLight.color[1] = Math.random()
-                    testLight.color[2] = Math.random()
+                    // testLight.color[0] = Math.random()
+                    // testLight.color[1] = Math.random()
+                    // testLight.color[2] = Math.random()
                     testScene.addLight(testLight)
 
                 }

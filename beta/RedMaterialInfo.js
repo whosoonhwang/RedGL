@@ -166,6 +166,13 @@ var RedMaterialInfo;
             var tUniformGroup = this['uniforms']
             var tUniformLocationGroup = this['programInfo']['uniforms']
             for (k in tUniformGroup) {
+                console.log(k)
+                console.log(tUniformLocationGroup)
+                console.log(tUniformLocationGroup[k])
+                console.log(tUniformLocationGroup[k]['type'])
+                console.log(tUniformGroup[k])
+                console.log(tUniformLocationGroup[k]['location'])
+                console.log(tUniformLocationGroup)
                 this['__uniformList'].push({
                     key: k,
                     type: tUniformLocationGroup[k]['type'],
