@@ -107,8 +107,7 @@ void main(void) {
                                 var t0 = checkCode(v)
                                 console.log('체크결과',t0)
                                 target.uniforms['uTexture_' + t0] = target['specularInfo']
-                            }
-                           
+                            }                           
                         })
                         target.uniforms.uDisplacementTexture = target['displacementInfo']
                         target.uniforms.uUseNormalTexture = 0
@@ -216,12 +215,12 @@ void main(void) {
                 var renderer = testGL.createBaseRenderInfo(testScene, function (time) {
                     testCamera.setPosition(Math.sin(time / 3000) * 60, 60, Math.cos(time / 5000) * 40)
                     testCamera.lookAt([0, 0, 0])
-                    // var i = testScene['lights']['directional'].length
-                    // while (i--) {
-                    //     testScene['lights']['directional'][i].direction[0] = Math.sin(time / 1700 + i) * 30
-                    //     testScene['lights']['directional'][i].direction[1] = Math.cos(time / 4400 + i) * 20 + Math.sin(time / 2700 + i) * 50
-                    //     testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200 + i) * 30
-                    // }
+                    var i = testScene['lights']['directional'].length
+                    while (i--) {
+                        testScene['lights']['directional'][i].direction[0] = Math.sin(time / 1700 + Math.PI*2/3*i) * 30
+                        testScene['lights']['directional'][i].direction[1] = Math.cos(time / 4400 + Math.PI*2/3*i) * 20 + Math.sin(time / 2700 + Math.PI*2/3*i) * 50
+                        testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200 + Math.PI*2/3*i) * 30
+                    }
                 })
                 // 엠비언트 라이트 테스트
                 var testLight = testGL.createAmbientLight(testGL)
@@ -229,15 +228,15 @@ void main(void) {
                 testScene.addLight(testLight)
 
                 // 디렉셔널 라이트 테스트
-                var i = 1
+                var i = 3
                 while (i--) {
                     var testLight = testGL.createDirectionalLight(testGL)
                     testLight.direction[0] = -1
                     testLight.direction[1] = -1
                     testLight.direction[2] = 0
-                    // testLight.color[0] = Math.random()
-                    // testLight.color[1] = Math.random()
-                    // testLight.color[2] = Math.random()
+                    testLight.color[0] = Math.random()
+                    testLight.color[1] = Math.random()
+                    testLight.color[2] = Math.random()
                     testScene.addLight(testLight)
 
                 }

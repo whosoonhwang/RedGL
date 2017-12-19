@@ -42,7 +42,7 @@ var Structure_Texture;
                tUVKey = tVarKey
                this['define']['headers'].push(tUVKey + ' = ' + tVaryingKey)     
             }
-            this['define']['headers'].push('    '+tVarKey + '= texture2D(' + tUniformKey + ','+tUVKey+')')
+            this['define']['headers'].push('    '+tVarKey + ' = texture2D(' + tUniformKey + ','+tUVKey+')')
             var defineInfo;
             var resutlStr;
             var k,tData;

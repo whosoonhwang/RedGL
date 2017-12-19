@@ -127,31 +127,37 @@ vec4 finalColor; // 최종컬러값
 
 ///////////////////////////////////
 // 쉐이더 추가테스트
-// vec2 v_texCoord = gl_FragCoord.xy/uSystemResolution +vTexcoord;
-// vec2 p =  (v_texCoord) * 8.0 - vec2(20.0);
-// vec2 i = p;
-// float c = 1.0;
-// float inten = .05;
-// const int MAX_ITER = 4;
-// for (int n = 0; n < MAX_ITER; n++)
-// {
-//     float t = uSystemTime * (2.0 - (3.0 / float(n+1)));
+vec2 v_texCoord = gl_FragCoord.xy/uSystemResolution +vTexcoord;
+vec2 p =  (v_texCoord) * 8.0 ;
+vec2 i = p;
+float c = 1.0;
+float inten = .05;
+const int MAX_ITER = 4;
+for (int n = 0; n < MAX_ITER; n++)
+{
+    float t = uSystemTime * (2.0 - (3.0 / float(n+1)));
 
-//     i = p + vec2(cos(t - i.x) + sin(t + i.y),
-//     sin(t - i.y) + cos(t + i.x));
+    i = p + vec2(cos(t - i.x) + sin(t + i.y),
+    sin(t - i.y) + cos(t + i.x));
 
-//     c += 1.0/length(vec2(p.x / (sin(i.x+t)/inten),
-//     p.y / (cos(i.y+t)/inten)));
-// }
-// c /= float(MAX_ITER);
-// c = 1.5 - sqrt(c);
-// vec4 texColor = vec4(0.50, 0.15, 0.02, 1.);
-// texColor.rgb *= (1.0/ (1.0 - (c + 0.05)));
+    c += 1.0/length(
+        vec2(p.x / (sin(i.x+t)/inten),
+    p.y / (cos(i.y+t)/inten)));
+}
+c /= float(MAX_ITER);
+c = 1.5 - sqrt(c);
+vec4 texColor = vec4(0.10, 0.55, 0.02, 1.);
+texColor.rgb *= (1.0/ (1.0 - (c + 0.05)));
 
-// texColor.rgb *= 0.2;
-// texelColor_DIFFUSE.rgb +=  texColor.rgb;
+texColor.rgb *= 0.2;
+texelColor_DIFFUSE.rgb +=  texColor.rgb;
 ///////////////////////////////////
 ///////////////////////////////////
+// 쉐이더 추가테스트
+
+
+///////////////////////////////////
+
 
 
 la = uAmbientLightColor;
