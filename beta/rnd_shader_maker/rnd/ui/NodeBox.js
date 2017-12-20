@@ -22,13 +22,14 @@ var NodeBox;
         if (!(this instanceof NodeBox)) return new NodeBox(structureInfo)
         var rootBox;
         var inputBox, outputBox;
-        var imageBox, fileBox,uniformNameBox;
+        var imageBox, fileBox, uniformNameBox;
         rootBox = Recard.Dom('div').S(
             '@nodeType', structureInfo['nodeType'],
             'position', 'absolute',
             'top', 0,
             'left', 0,
             'min-width', 250,
+            'z-index', currentZIndex++,
             // 'max-height', 400,
             'background', 'rgba(29,28,36,0.8)',
             'box-shadow', '0px 0px 10px 5px rgba(0,0,0,0.2)',
@@ -37,45 +38,46 @@ var NodeBox;
             '>', Recard.Dom('div').S(
                 'position', 'absolute',
                 'top', 0,
-                'left',0,
-                'right',0,
-                'transform','translate(0,-100%)',
+                'left', 0,
+                'right', 0,
+                'transform', 'translate(0,-100%)',
                 // 텍스쳐의 경우 이미지를 따로 받아서 UUID로 활용한다.
                 // 일반적인 UUID는 아니며... 쉐이더내의 유니폼명으로 활용하기위한 기반
                 'background', 'rgba(0,0,0,0.5)',
                 'display', structureInfo['nodeType'] == 'Texture' ? 'block' : 'none',
                 '>', imageBox = Recard.Dom('img').S(
                     '@imageBox', '',
-                    'float','left',
+                    'float', 'left',
                     'width', 80,
                     'height', 80,
                     'margin', 10,
-                    'border-radius',5,
+                    'border-radius', 5,
                     '@src', structureInfo['structure']['textureInfo']['src']
                 ),
                 '>', Recard.Dom('div').S(
-                    'margin-top',10,
-                    'width',200,
-                    'display','inline-block',
+                    'margin-top', 10,
+                    'width', 200,
+                    'display', 'inline-block',
                     '>', uniformNameBox = Recard.Dom('input').S(
+                        '@disabled', '',
                         '@type', 'text',
                         '@value', structureInfo['nodeType'] == 'Texture' ? structureInfo['structure']['textureInfo']['textureUniformKey'] : (structureInfo['nodeType'] + structureInfo['index']),
-                        'width',200,
+                        'width', 200,
                         'on', ['focusout', function (e) {
                             structureInfo['structure']['textureInfo']['textureUniformKey'] = this.S('@value')
-                        
+
                             Recard.query('[nodeType="Final"]')['parseDefine']()
                         }]
                     ),
                     '>', fileBox = Recard.Dom('input').S(
                         '@type', 'file',
                         '@accept', '.png, .jpg, .jpeg',
-                        'width',200,
+                        'width', 200,
                         'on', ['change', function (e) {
                             console.log(this.__dom__.files)
                             structureInfo['structure']['textureInfo']['src'] = window.URL.createObjectURL(this.__dom__.files[0])
                             imageBox.S('@src', window.URL.createObjectURL(this.__dom__.files[0]))
-                        
+
                             Recard.query('[nodeType="Final"]')['parseDefine']()
                         }]
                     ),
@@ -86,27 +88,32 @@ var NodeBox;
                             'on', ['change', function (e) {
                                 console.log(this.__dom__.files)
                                 structureInfo['structure']['textureInfo']['textureIndex'] = +this.S('@value')
+                                uniformNameBox.S('@disabled', null)
                                 switch (structureInfo['structure']['textureInfo']['textureIndex']) {
                                     case RedTextureIndex.DIFFUSE:
+                                        uniformNameBox.S('@disabled', '')
                                         structureInfo['structure']['textureInfo']['textureUniformKey'] = 'uDiffuseTexture'
                                         break
                                     case RedTextureIndex.NORMAL:
+                                        uniformNameBox.S('@disabled', '')
                                         structureInfo['structure']['textureInfo']['textureUniformKey'] = 'uNormalTexture'
                                         break
                                     case RedTextureIndex.SPECULAR:
+                                        uniformNameBox.S('@disabled', '')
                                         structureInfo['structure']['textureInfo']['textureUniformKey'] = 'uSpecularTexture'
                                         break
                                     case RedTextureIndex.DISPLACEMENT:
-                                         structureInfo['structure']['textureInfo']['textureUniformKey'] = 'uDisplacementTexture'
+                                        uniformNameBox.S('@disabled', '')
+                                        structureInfo['structure']['textureInfo']['textureUniformKey'] = 'uDisplacementTexture'
                                         break
                                     default:
                                         structureInfo['structure']['textureInfo']['textureUniformKey'] = 'uTexture_' + structureInfo['index']
                                         break
                                 }
                                 uniformNameBox.S(
-                                    '@value',structureInfo['structure']['textureInfo']['textureUniformKey']
+                                    '@value', structureInfo['structure']['textureInfo']['textureUniformKey']
                                 )
-                               
+
                                 Recard.query('[nodeType="Final"]')['parseDefine']()
                             }]
                         )
@@ -168,6 +175,19 @@ var NodeBox;
                     'cursor', 'pointer',
                     'html', 'X',
                     'on', ['down', function () {
+                        rootBox.queryAll('[inputItem]').forEach(function(item){
+                            item['deleteFromData']()
+                        })
+                        rootBox.queryAll('[outputItem]').forEach(function(item){
+                            for(var k in item['info']['to']){
+                                var tItemData = item['info']['to'][k]
+                                console.log(tItemData)
+                                for(var k2 in tItemData){
+                                    tItemData[k2]['deleteFromData']()
+                                }
+                                
+                            }
+                        })
                         rootBox.remove()
                     }]
                 )
@@ -215,8 +235,8 @@ var NodeBox;
                 var tList = []
                 var resultInfo = []
                 var finalDefine = {
-                    funcInfo : {},
-                    textureInfo : {},
+                    funcInfo: {},
+                    textureInfo: {},
                     uniforms: {},
                     varyings: {},
                     vars: {},
@@ -255,7 +275,7 @@ var NodeBox;
                 })
                 console.log('finalDefine', finalDefine)
                 if (structureInfo instanceof Structure_Final) {
-                    Recard.RED_SHADER_PREVIEW.setTest(null, rootBox['structureInfo'].parse(finalDefine),finalDefine['textureInfo'])
+                    Recard.RED_SHADER_PREVIEW.setTest(null, rootBox['structureInfo'].parse(finalDefine), finalDefine['textureInfo'])
                     Recard.query('[nodeType="Final"]').query('[codeBox]').S(
                         'html', Recard.query('[nodeType="Final"]')['structureInfo'].parse(finalDefine)
                     )
@@ -267,7 +287,7 @@ var NodeBox;
                         'html', Recard.query('[nodeType="Final"]')['parseDefine']()
                     )
                 }
-              
+
 
 
                 rootBox['prism']()
