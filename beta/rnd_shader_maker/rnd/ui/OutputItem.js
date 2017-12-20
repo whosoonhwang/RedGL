@@ -6,32 +6,28 @@ var OutputItem;
         var rootBox, toBox, pointBox;
         var toInfo, update;
         var getPanel, getPanelTitle;
-        getPanel = function () {
-            return rootBox.parent().parent()
-        }
-        getPanelTitle = function () {
-            return rootBox.parent().parent().query('[titleBox]').S('text')
-        }
+        getPanel = function () { return rootBox.parent().parent() }
+        getPanelTitle = function () { return rootBox.parent().parent().query('[titleBox]').S('text') }
         update = function () {
             toBox.S('html', '')
             pointBox.S('background', '#666')
             var toList
-            var tToStr;
+            var tToStrList;
             var k, k2
             var tInput
             toList = []
             for (k in toInfo) {
                 tInput = toInfo[k]
                 for (k2 in tInput) {
-                    tToStr = []
+                    tToStrList = []
                     tInput[k2].queryAll('span').forEach(function (v) {
-                        tToStr.push(v.S('text'))
+                        tToStrList.push(v.S('text'))
                     })
-                    if (tToStr.length) {
-                        tToStr.reverse()
-                        tToStr.push(tInput[k2].getPanelTitle())
-                        tToStr.reverse()
-                        toList.push('<span>to - ' + tToStr.join(' ') + '</span>')
+                    if (tToStrList.length) {
+                        tToStrList.reverse()
+                        tToStrList.push(tInput[k2].getPanelTitle())
+                        tToStrList.reverse()
+                        toList.push('<span>to - ' + tToStrList.join(' ') + '</span>')
                     }
 
                 }
@@ -53,10 +49,8 @@ var OutputItem;
             'line-height', 20,
             '>', pointBox = Recard.Dom('button').S(
                 'position', 'absolute',
-                'top', 5,
-                'right', 0,
-                'width', 15,
-                'height', 15,
+                'top', 5, 'right', 0,
+                'width', 15, 'height', 15,
                 'transform', 'translate(50%, 0%)',
                 'border-radius', '50%',
                 'background', '#666',
@@ -90,7 +84,7 @@ var OutputItem;
         rootBox['getPanel'] = getPanel
         rootBox['getPanelTitle'] = getPanelTitle
         rootBox['delTo'] = function (inputItem) {
-            // console.log('기존꺼있으면삭제', inputItem)
+            // console.log('delTo', inputItem)
             var tKey;
             tKey = inputItem.getPanelTitle()
             if (!toInfo[tKey]) toInfo[tKey] = {}
@@ -99,13 +93,14 @@ var OutputItem;
             update()
         }
         rootBox['addTo'] = function (inputItem) {
-            // console.log('새로추가',inputItem)
+            // console.log('addTo',inputItem)
             var tKey;
             tKey = inputItem.getPanelTitle()
             if (!toInfo[tKey]) toInfo[tKey] = {}
             toInfo[tKey][inputItem.S('@key')] = inputItem
             update()
         }
+        requestAnimationFrame(rootBox['update'])
         return rootBox
     }
 })()
