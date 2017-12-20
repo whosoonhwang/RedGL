@@ -263,9 +263,9 @@ var NodeBox;
                     rootBox.query('[codeBox]').S(
                         'html', rootBox['structureInfo'].parse(finalDefine)
                     )
-                    // Recard.query('[nodeType="Final"]').query('[codeBox]').S(
-                    //     'html', Recard.query('[nodeType="Final"]')['parseDefine']()
-                    // )
+                    Recard.query('[nodeType="Final"]').query('[codeBox]').S(
+                        'html', Recard.query('[nodeType="Final"]')['parseDefine']()
+                    )
                 }
               
 
