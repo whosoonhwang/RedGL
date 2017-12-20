@@ -73,10 +73,10 @@ Recard.static('LINE_MANAGER', (function () {
                         var tCurve
                         startItem = v['info']['from']
                         endItem = v
-                        startRoot = startItem.parent().parent()
-                        endRoot = endItem.parent().parent()
+                        startRoot = startItem.getPanel()
+                        endRoot = endItem.getPanel()
                         gridRootBox = Recard.RED_SHADER_GRID.getRootBox()
-                        sL = startRoot.S('left')  + startRoot.__dom__.clientWidth / 2
+                        sL = startRoot.S('left') + startRoot.__dom__.clientWidth / 2
                         sT = startRoot.S('top') - startRoot.__dom__.clientHeight / 2 + startItem.__dom__.offsetTop + 12
                         eL = endRoot.S('left') - endRoot.__dom__.clientWidth / 2
                         eT = endRoot.S('top') - endRoot.__dom__.clientHeight / 2 + endItem.__dom__.offsetTop + 12
@@ -112,6 +112,5 @@ Recard.static('LINE_MANAGER', (function () {
             })
         }
     }
-
     return result
 })())

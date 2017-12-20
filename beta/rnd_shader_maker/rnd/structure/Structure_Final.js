@@ -7,8 +7,8 @@ var Structure_Final;
     Structure_Final = function () {
         this['nodeType'] = 'Final'
         this['index'] = index
-        this['structure'] = {
-            funcInfo :{},
+        this['structureBase'] = {
+            functions :{},
             textureInfo : {},
             input: {
                 DIFFUSE: {
@@ -100,7 +100,7 @@ vec4 finalColor; // 최종컬러값
                 resultStr += tData[k] + ';\n'
             }
             //
-            tData = defineInfo['funcInfo']
+            tData = defineInfo['functions']
             resultStr += '//define funcs;\n'
             for (k in tData) {
                 resultStr += tData[k] + '\n'
@@ -114,10 +114,10 @@ vec4 finalColor; // 최종컬러값
 
             ['DIFFUSE', 'NORMAL', 'SPECULAR'].forEach(function (v) {
                 console.log(v)
-                if (self['structure']['input'][v] && self['structure']['input'][v]['from']) {
+                if (self['structureBase']['input'][v] && self['structureBase']['input'][v]['from']) {
                     console.log(defineInfo['headers'])
-                    console.log(self['structure']['input'][v]['from'])
-                    var tStr = '    vec4 texelColor_' + v + ' = ' + self['structure']['input'][v]['from']['info']['sourceKey']
+                    console.log(self['structureBase']['input'][v]['from'])
+                    var tStr = '    vec4 texelColor_' + v + ' = ' + self['structureBase']['input'][v]['from']['info']['sourceKey']
                     if (defineInfo['headers'].indexOf(tStr) == -1) {
                         defineInfo['headers'].push(tStr)
                     }

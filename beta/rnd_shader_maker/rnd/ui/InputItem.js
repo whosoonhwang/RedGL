@@ -6,32 +6,39 @@ var InputItem;
         var rootBox;
         var fromBox, dataTypeBox, pointBox, deleteBox;
         var update;
-        var deleteFromData
+        var deleteFromData;
+        var getPanel,getPanelTitle;
+        getPanel = function () {
+            return rootBox.parent().parent()
+        }
+        getPanelTitle = function(){
+            return rootBox.parent().parent().query('[titleBox]').S('text')
+        }
         update = function () {
             fromBox.S('html', '')
             pointBox.S('background', '#666')
             if (info['from']) {
                 var tStr;
-                tStr = [info['from'].parent().parent().query('[titleBox]').S('text')]
+                tStr = [info['from'].getPanelTitle()]
                 tStr.push(info['from'].S('@dataType') + ' ' + info['from'].S('@key'))
                 fromBox.S('html', 'from - ' + tStr.join(' '))
                 pointBox.S('background', 'rgb(242, 169, 113)')
-                deleteBox.S('display','block')
+                deleteBox.S('display', 'block')
             } else {
                 pointBox.S('background', '#666')
-                deleteBox.S('display','none')
+                deleteBox.S('display', 'none')
             }
             dataTypeBox.S(
                 'html', info['dataType'] ? info['dataType'] : 'null'
             )
-            rootBox.parent().parent()['parseDefine']()
+            getPanel()['parseDefine']()
         }
-        deleteFromData = function(){
+        deleteFromData = function () {
             if (info['from']) {
                 console.log(info['from']['info'])
                 var tRoot;
-                tRoot = rootBox.parent().parent().query('[titleBox]').S('text')
-                console.log('지울데이터',info['from']['info']['to'][tRoot][key])
+                tRoot = getPanelTitle()
+                console.log('지울데이터', info['from']['info']['to'][tRoot][key])
                 delete info['from']['info']['to'][tRoot][key]
                 info['from'].update()
                 delete info['from']
@@ -65,11 +72,11 @@ var InputItem;
                             if (info['from']) info['from'].delTo(rootBox)
                             info['from'] = tTempOutputItem
                             info['dataType'] = tTempOutputItem.S('@dataType')
-                            console.log(rootBox.parent().parent()['structureInfo'])
-                            if (rootBox.parent().parent().S('@nodeType') == 'Add') {
-                                rootBox.parent().parent()['structureInfo']['structure']['output']['OUTPUT']['dataType'] = info['dataType']
-                                rootBox.parent().parent().query('[key="OUTPUT"]').S('@dataType', info['dataType'])
-                                rootBox.parent().parent().query('[key="OUTPUT"] span').S('html', info['dataType'])
+                            console.log(getPanel()['structureInfo'])
+                            if (getPanel().S('@nodeType') == 'Add') {
+                                getPanel()['structureInfo']['structureBase']['output']['OUTPUT']['dataType'] = info['dataType']
+                                getPanel().query('[key="OUTPUT"]').S('@dataType', info['dataType'])
+                                getPanel().query('[key="OUTPUT"] span').S('html', info['dataType'])
                             }
 
                             //TODO: 여기서 형시계산을 해줘야하는군...
@@ -125,6 +132,8 @@ var InputItem;
 
         rootBox['info'] = info
         rootBox['update'] = update
+        rootBox['getPanel'] = getPanel
+        rootBox['getPanelTitle'] = getPanelTitle        
         rootBox['deleteFromData'] = deleteFromData
         requestAnimationFrame(rootBox['update'])
         return rootBox

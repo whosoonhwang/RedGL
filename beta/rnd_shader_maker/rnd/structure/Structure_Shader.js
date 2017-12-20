@@ -7,9 +7,9 @@ var Structure_Shader;
     Structure_Shader = function () {
         this['nodeType'] = 'ShaderTest'
         this['index'] = index
-        this['structure'] = {
-            funcInfo : {
-                func_shaderTest : 
+        this['structureBase'] = {
+            functions: {
+                func_shaderTest:
 `vec4 func_shaderTest(vec2 currentTexcoord){
     vec2 v_texCoord = gl_FragCoord.xy/uSystemResolution +currentTexcoord;
     vec2 p =  (v_texCoord) * 8.0 ;
@@ -33,73 +33,26 @@ var Structure_Shader;
     texColor.rgb *= (1.0/ (1.0 - (c + 0.05)));
     texColor.rgb *= 0.1;
     return texColor;
-}
-`
+}`
             },
-            textureInfo : {},
             output: {
                 SHADER_TEST_OUTPUT: { dataType: 'vec4', to: {}, sourceKey: 'SHADER_TEST_OUTPUT_' + this['index'] }
             }
         }
+        Structure_util.structureBaseFill(this['structureBase'])
         this['parse'] = function () {
-            this['define'] = {
-                funcInfo : {},
-                textureInfo : {},
-                uniforms: {},
-                varyings: {},
-                vars: {},
-                headers: [],
-                bodys: [],
-                footers: []
-            }
-            var defineInfo;
-            var resultStr;
+            this['define'] = new Structure_define()
             var k, tData;
-            var  tOutput
-       
-
-           
-            tOutput = this['structure']['output']['SHADER_TEST_OUTPUT']
+            var tOutput
+            tOutput = this['structureBase']['output']['SHADER_TEST_OUTPUT']
             console.log(this['define']['vars'])
-            resultStr = ''
             this['define']['uniforms']['MAX_ITER'] = 'const int MAX_ITER = 4'
             this['define']['vars'][tVarKey = 'SHADER_TEST_OUTPUT_' + this['index']] = tOutput['dataType'] + ' ' + tVarKey
-            this['define']['funcInfo']['func_shaderTest'] = this['structure']['funcInfo']['func_shaderTest']
+            for(var k in this['structureBase']['functions']){
+                this['define']['functions'][k] = this['structureBase']['functions'][k]
+            }
             this['define']['headers'].push('    ' + tVarKey + ' = ' + 'func_shaderTest(vTexcoord)')
-         
-            defineInfo = this['define']
-            //
-            tData = defineInfo['uniforms']
-            resultStr += '//define uniforms;\n'
-            for (k in tData) {
-                resultStr += tData[k] + ';\n'
-            }
-            //
-            tData = defineInfo['varyings']
-            resultStr += '//define varyings;\n'
-            for (k in tData) {
-                resultStr += tData[k] + ';\n'
-            }
-            //
-            tData = defineInfo['vars']
-            resultStr += '//define vars;\n'
-            for (k in tData) {
-                resultStr += tData[k] + ';\n'
-            }
-            tData = defineInfo['funcInfo']
-            resultStr += '//define funcs;\n'
-            for (k in tData) {
-                resultStr += tData[k] + ';\n'
-            }
-            resultStr += '//define headers;\n'
-            defineInfo['headers'].forEach(function (v) { resultStr += v + ';\n' })
-            resultStr += '//define bodys;\n'
-            defineInfo['bodys'].forEach(function (v) { resultStr += v + ';\n' })
-            resultStr += '//define footers;\n'
-            defineInfo['footers'].forEach(function (v) { resultStr += v + ';\n' })
-
-
-            return resultStr
+            return Structure_util.makeViewStr(this['define'])
         }
         index++
         console.log(this)

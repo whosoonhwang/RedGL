@@ -7,9 +7,7 @@ var Structure_Add;
     Structure_Add = function () {
         this['nodeType'] = 'Add'
         this['index'] = index
-        this['structure'] = {
-            funcInfo : {},
-            textureInfo : {},
+        this['structureBase'] = {
             input: {
                 INPUT1: {
                     dataType: null,
@@ -24,68 +22,23 @@ var Structure_Add;
                 OUTPUT: { dataType: null, to: {}, sourceKey: 'OUTPUT_' + this['index'] }
             }
         }
+        Structure_util.structureBaseFill(this['structureBase'])
         this['parse'] = function () {
-            this['define'] = {
-                funcInfo : {},
-                textureInfo : {},
-                uniforms: {},
-                varyings: {},
-                vars: {},
-                headers: [],
-                bodys: [],
-                footers: []
-            }
-            var defineInfo;
-            var resultStr;
+            this['define'] = new Structure_define()
             var k, tData;
             var tInput1, tInput2, tOutput
-       
-
-           
-            tInput1 = this['structure']['input']['INPUT1']
-            tInput2 = this['structure']['input']['INPUT2']
-            tOutput = this['structure']['output']['OUTPUT']
+            tInput1 = this['structureBase']['input']['INPUT1']
+            tInput2 = this['structureBase']['input']['INPUT2']
+            tOutput = this['structureBase']['output']['OUTPUT']
             console.log(this['define']['vars'])
-            resultStr = ''
             if (tInput1['from'] && tInput2['from']) {
                 tOutput['dataType'] = tInput1['dataType']
-            }else tOutput['dataType'] = null
-            if(tOutput['dataType']){
-                
+            } else tOutput['dataType'] = null
+            if (tOutput['dataType']) {
                 this['define']['vars'][tVarKey = 'OUTPUT_' + this['index']] = tOutput['dataType'] + ' ' + tVarKey
-                this['define']['headers'].push('    ' + tVarKey + ' = ' + tInput1['from']['info']['sourceKey'] + ' + ' +tInput2['from']['info']['sourceKey'])
+                this['define']['headers'].push('    ' + tVarKey + ' = ' + tInput1['from']['info']['sourceKey'] + ' + ' + tInput2['from']['info']['sourceKey'])
             }
-          
-
-          
-            defineInfo = this['define']
-            //
-            tData = defineInfo['uniforms']
-            resultStr += '//define uniforms;\n'
-            for (k in tData) {
-                resultStr += tData[k] + ';\n'
-            }
-            //
-            tData = defineInfo['varyings']
-            resultStr += '//define varyings;\n'
-            for (k in tData) {
-                resultStr += tData[k] + ';\n'
-            }
-            //
-            tData = defineInfo['vars']
-            resultStr += '//define vars;\n'
-            for (k in tData) {
-                resultStr += tData[k] + ';\n'
-            }
-            resultStr += '//define headers;\n'
-            defineInfo['headers'].forEach(function (v) { resultStr += v + ';\n' })
-            resultStr += '//define bodys;\n'
-            defineInfo['bodys'].forEach(function (v) { resultStr += v + ';\n' })
-            resultStr += '//define footers;\n'
-            defineInfo['footers'].forEach(function (v) { resultStr += v + ';\n' })
-
-
-            return resultStr
+            return Structure_util.makeViewStr(this['define'])
         }
         index++
         console.log(this)

@@ -40,7 +40,7 @@ void main(void) {
     vNormal = vec3(uNMatrix * vec4(aVertexNormal,1.0)); 
     vEyeVec = -vertexPositionEye4.xyz;
     if(uUseDisplacementTexture == 1) {
-        vertexPositionEye4.xyz += normalize(vNormal) * texture2D(uDisplacementTexture,vTexcoord).x ;
+        vertexPositionEye4.xyz += normalize(vNormal) * texture2D(uDisplacementTexture,vTexcoord).x * vec3(uMVMatrix[0][0],uMVMatrix[1][1],uMVMatrix[2][2]);
     }
     // 포지션 결정
     gl_Position = uPMatrix * uCameraMatrix *  vertexPositionEye4;
@@ -166,11 +166,14 @@ void main(void) {
                 'position', 'fixed',
                 'top', 0,
                 'left', 0,
-                // 'width', 400,
-                // 'height', 400,
-                // 'overflow', 'hidden',
+                'width', 400,
+                'height', 400,
+                'overflow', 'hidden',
                 'background', '#222',
-                '>', testCvs = Recard.Dom('canvas'),
+                '>', testCvs = Recard.Dom('canvas').S(
+                    '@width', 400,
+                    '@height', 400
+                ),
                 '<', 'body'
             )
             testGL = RedGL(testCvs.__dom__, function () {
@@ -247,11 +250,11 @@ void main(void) {
 
                 }
                 renderer.start()
-                Recard.WIN_RESIZER.add('testGL',function(){
-                    testGL.setSize(400,document.body.clientHeight)
-                })
-                testGL.setSize(400,document.body.clientHeight)
-            }, true, [
+                // Recard.WIN_RESIZER.add('testGL',function(){
+                //     testGL.setSize(400,document.body.clientHeight)
+                // })
+                // testGL.setSize(400,document.body.clientHeight)
+            }, false, [
                     { id: 'colorVS', src: '../../glsl/colorVS.glsl' },
                     { id: 'colorFS', src: '../../glsl/colorFS.glsl' },
                     { id: 'skyBoxVS', src: '../../glsl/skyBoxVS.glsl' },

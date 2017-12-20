@@ -3,44 +3,44 @@ var OutputItem;
 (function () {
     OutputItem = function (key, info) {
         if (!(this instanceof OutputItem)) return new OutputItem(key, info)
-        var rootBox,toBox;
-        var pointBox;
-        var toInfo;
-        var update;
+        var rootBox, toBox, pointBox;
+        var toInfo, update;
+        var getPanel, getPanelTitle;
+        getPanel = function () {
+            return rootBox.parent().parent()
+        }
+        getPanelTitle = function () {
+            return rootBox.parent().parent().query('[titleBox]').S('text')
+        }
         update = function () {
             toBox.S('html', '')
             pointBox.S('background', '#666')
-            if (toInfo) {
-                var tStrs
-                var tStr;
-                var k
-                var tNode
-                tStrs = []
-                console.log(toInfo)
-                for (k in toInfo) {
-                    tNode = toInfo[k]
-                    for (var k2 in tNode) {
-                        tStr = []
-                        tNode[k2].queryAll('span').forEach(function (v) {
-                            tStr.push(v.S('text'))
-                        })
-                        if(tStr.length){
-                            tStr.reverse()
-                            tStr.push(tNode[k2].parent().parent().query('[titleBox]').S('text'))
-                            tStr.reverse()
-                            tStrs.push('<span>to - ' + tStr.join(' ')+'</span>')
-                        }
-                        
+            var toList
+            var tToStr;
+            var k, k2
+            var tInput
+            toList = []
+            for (k in toInfo) {
+                tInput = toInfo[k]
+                for (k2 in tInput) {
+                    tToStr = []
+                    tInput[k2].queryAll('span').forEach(function (v) {
+                        tToStr.push(v.S('text'))
+                    })
+                    if (tToStr.length) {
+                        tToStr.reverse()
+                        tToStr.push(tInput[k2].getPanelTitle())
+                        tToStr.reverse()
+                        toList.push('<span>to - ' + tToStr.join(' ') + '</span>')
                     }
-                }
-                console.log(toInfo)
-                console.log(tStrs)
-                if (tStrs.length) {
-                    pointBox.S('background', 'rgb(242, 169, 113)')
-                    toBox.S('html', tStrs.join('<br>'))
+
                 }
             }
-            rootBox.parent().parent()['parseDefine']()
+            if (toList.length) {
+                pointBox.S('background', 'rgb(242, 169, 113)')
+                toBox.S('html', toList.join('<br>'))
+            }
+            getPanel()['parseDefine']()
         }
         toInfo = info['to']
         console.log('toInfo', toInfo)
@@ -64,9 +64,7 @@ var OutputItem;
                     Recard.LINE_MANAGER.setTempCurve(rootBox)
                     Recard.EVENT_EMITTER.on(window, 'mouseup', function () {
                         Recard.EVENT_EMITTER.off(window, 'mouseup')
-                        setTimeout(function () {
-                            Recard.LINE_MANAGER.removeTempCurve()
-                        }, 1)
+                        requestAnimationFrame(Recard.LINE_MANAGER.removeTempCurve)
                     })
                 }]
             ),
@@ -80,7 +78,7 @@ var OutputItem;
                 'html', key
             ),
             '>', toBox = Recard.Dom('div').S(
-                '@toBox','',
+                '@toBox', '',
                 'margin-right', 15,
                 'font-size', 11,
                 'white-space', 'noWrap',
@@ -89,25 +87,24 @@ var OutputItem;
         )
         rootBox['info'] = info
         rootBox['update'] = update
-        requestAnimationFrame(rootBox['update'])
+        rootBox['getPanel'] = getPanel
+        rootBox['getPanelTitle'] = getPanelTitle
         rootBox['delTo'] = function (inputItem) {
-            console.log('기존꺼있으면삭제',inputItem)
+            // console.log('기존꺼있으면삭제', inputItem)
             var tKey;
-            tKey = inputItem.parent().parent().query('[titleBox]').S('text')
+            tKey = inputItem.getPanelTitle()
             if (!toInfo[tKey]) toInfo[tKey] = {}
-            inputItem.query('[fromBox]').S('html','')
+            inputItem.query('[fromBox]').S('html', '')
             delete toInfo[tKey][inputItem.S('@key')]
             update()
         }
         rootBox['addTo'] = function (inputItem) {
-            console.log('새로추가삭제')
+            // console.log('새로추가',inputItem)
             var tKey;
-            tKey = inputItem.parent().parent().query('[titleBox]').S('text')
+            tKey = inputItem.getPanelTitle()
             if (!toInfo[tKey]) toInfo[tKey] = {}
-            
             toInfo[tKey][inputItem.S('@key')] = inputItem
             update()
-            console.log(toInfo)
         }
         return rootBox
     }

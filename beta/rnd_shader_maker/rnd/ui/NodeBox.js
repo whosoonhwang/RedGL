@@ -53,7 +53,7 @@ var NodeBox;
                     'height', 80,
                     'margin', 10,
                     'border-radius', 5,
-                    '@src', structureInfo['structure']['textureInfo']['src']
+                    '@src', structureInfo['structureBase']['textureInfo']['src']
                 ),
                 '>', Recard.Dom('div').S(
                     'margin-top', 10,
@@ -62,12 +62,12 @@ var NodeBox;
                     '>', uniformNameBox = Recard.Dom('input').S(
                         '@disabled', '',
                         '@type', 'text',
-                        '@value', structureInfo['nodeType'] == 'Texture' ? structureInfo['structure']['textureInfo']['textureUniformKey'] : (structureInfo['nodeType'] + structureInfo['index']),
+                        '@value', structureInfo['nodeType'] == 'Texture' ? structureInfo['structureBase']['textureInfo']['textureUniformKey'] : (structureInfo['nodeType'] + structureInfo['index']),
                         'border',0,'outline','none',
                         'padding',5,
                         'width', 200,
                         'on', ['focusout', function (e) {
-                            structureInfo['structure']['textureInfo']['textureUniformKey'] = this.S('@value')
+                            structureInfo['structureBase']['textureInfo']['textureUniformKey'] = this.S('@value')
 
                             Recard.query('[nodeType="Final"]')['parseDefine']()
                         }]
@@ -80,7 +80,7 @@ var NodeBox;
                         'border',0,'outline','none',
                         'on', ['change', function (e) {
                             console.log(this.__dom__.files)
-                            structureInfo['structure']['textureInfo']['src'] = window.URL.createObjectURL(this.__dom__.files[0])
+                            structureInfo['structureBase']['textureInfo']['src'] = window.URL.createObjectURL(this.__dom__.files[0])
                             imageBox.S('@src', window.URL.createObjectURL(this.__dom__.files[0]))
 
                             Recard.query('[nodeType="Final"]')['parseDefine']()
@@ -93,31 +93,31 @@ var NodeBox;
                             'width', 200,
                             'on', ['change', function (e) {
                                 console.log(this.__dom__.files)
-                                structureInfo['structure']['textureInfo']['textureIndex'] = +this.S('@value')
+                                structureInfo['structureBase']['textureInfo']['textureIndex'] = +this.S('@value')
                                 uniformNameBox.S('@disabled', null)
-                                switch (structureInfo['structure']['textureInfo']['textureIndex']) {
+                                switch (structureInfo['structureBase']['textureInfo']['textureIndex']) {
                                     case RedTextureIndex.DIFFUSE:
                                         uniformNameBox.S('@disabled', '')
-                                        structureInfo['structure']['textureInfo']['textureUniformKey'] = 'uDiffuseTexture'
+                                        structureInfo['structureBase']['textureInfo']['textureUniformKey'] = 'uDiffuseTexture'
                                         break
                                     case RedTextureIndex.NORMAL:
                                         uniformNameBox.S('@disabled', '')
-                                        structureInfo['structure']['textureInfo']['textureUniformKey'] = 'uNormalTexture'
+                                        structureInfo['structureBase']['textureInfo']['textureUniformKey'] = 'uNormalTexture'
                                         break
                                     case RedTextureIndex.SPECULAR:
                                         uniformNameBox.S('@disabled', '')
-                                        structureInfo['structure']['textureInfo']['textureUniformKey'] = 'uSpecularTexture'
+                                        structureInfo['structureBase']['textureInfo']['textureUniformKey'] = 'uSpecularTexture'
                                         break
                                     case RedTextureIndex.DISPLACEMENT:
                                         uniformNameBox.S('@disabled', '')
-                                        structureInfo['structure']['textureInfo']['textureUniformKey'] = 'uDisplacementTexture'
+                                        structureInfo['structureBase']['textureInfo']['textureUniformKey'] = 'uDisplacementTexture'
                                         break
                                     default:
-                                        structureInfo['structure']['textureInfo']['textureUniformKey'] = 'uTexture_' + structureInfo['index']
+                                        structureInfo['structureBase']['textureInfo']['textureUniformKey'] = 'uTexture_' + structureInfo['index']
                                         break
                                 }
                                 uniformNameBox.S(
-                                    '@value', structureInfo['structure']['textureInfo']['textureUniformKey']
+                                    '@value', structureInfo['structureBase']['textureInfo']['textureUniformKey']
                                 )
 
                                 Recard.query('[nodeType="Final"]')['parseDefine']()
@@ -225,9 +225,9 @@ var NodeBox;
             makeNodeStack = function (tRoot, tList) {
                 tRoot.queryAll('[inputItem]').forEach(function (item) {
                     if (item['info']['from']) {
-                        item['info']['from'].parent().parent()['structureInfo'].parse()
-                        tList.push(item['info']['from'].parent().parent())
-                        makeNodeStack(item['info']['from'].parent().parent(), tList)
+                        item['info']['from'].getPanel()['structureInfo'].parse()
+                        tList.push(item['info']['from'].getPanel())
+                        makeNodeStack(item['info']['from'].getPanel(), tList)
                         // console.log(item.S('@key'),item['info']['from'])
                     }
                 })
@@ -241,7 +241,7 @@ var NodeBox;
                 var tList = []
                 var resultInfo = []
                 var finalDefine = {
-                    funcInfo: {},
+                    functions: {},
                     textureInfo: {},
                     uniforms: {},
                     varyings: {},
@@ -300,8 +300,8 @@ var NodeBox;
                 Recard.query('[nodeType="Final"]')['prism']()
             }
         })()
-        makeInputItems.call(inputBox, structureInfo['structure']['input'])
-        makeOutputItems.call(outputBox, structureInfo['structure']['output'])
+        makeInputItems.call(inputBox, structureInfo['structureBase']['input'])
+        makeOutputItems.call(outputBox, structureInfo['structureBase']['output'])
 
         return rootBox
     }
