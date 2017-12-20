@@ -166,14 +166,11 @@ void main(void) {
                 'position', 'fixed',
                 'top', 0,
                 'left', 0,
-                'width', 400,
-                'height', 400,
-                'overflow', 'hidden',
+                // 'width', 400,
+                // 'height', 400,
+                // 'overflow', 'hidden',
                 'background', '#222',
-                '>', testCvs = Recard.Dom('canvas').S(
-                    '@width', 400,
-                    '@height', 400
-                ),
+                '>', testCvs = Recard.Dom('canvas'),
                 '<', 'body'
             )
             testGL = RedGL(testCvs.__dom__, function () {
@@ -216,7 +213,7 @@ void main(void) {
                     ])
                 )
                 testMat = testGL.createMaterialInfo('color')
-                tMesh = testGL.createMeshInfo('testMesh', RedPrimitive.sphere(testGL, 15, 32, 32, 32), testMat)
+                tMesh = testGL.createMeshInfo('testMesh', RedPrimitive.sphere(testGL, 10, 32, 32, 32), testMat)
                 // tMesh = testGL.createMeshInfo('testMesh', RedPrimitive.cube(testGL, 15,15,15, 32, 32, 32), testMat)
 
                 testScene.children.push(tMesh)
@@ -250,11 +247,11 @@ void main(void) {
 
                 }
                 renderer.start()
-                // Recard.WIN_RESIZER.add('testGL',function(){
-                //     testGL.setSize(document.body.clientWidth,document.body.clientHeight)
-                // })
-                // testGL.setSize(document.body.clientWidth,document.body.clientHeight)
-            }, false, [
+                Recard.WIN_RESIZER.add('testGL',function(){
+                    testGL.setSize(400,document.body.clientHeight)
+                })
+                testGL.setSize(400,document.body.clientHeight)
+            }, true, [
                     { id: 'colorVS', src: '../../glsl/colorVS.glsl' },
                     { id: 'colorFS', src: '../../glsl/colorFS.glsl' },
                     { id: 'skyBoxVS', src: '../../glsl/skyBoxVS.glsl' },

@@ -8,19 +8,19 @@ Recard.static('TEST_BOX', (function () {
         'display','block',
         'margin-bottom',1,
         'cursor','pointer',
-        'border-bottom','1px solid #333',
+        'border-bottom','1px solid rgba(255,255,255,0.05)',
         'padding', 10
     )
     result = {
         init: function () {
             rootBox = Recard.Dom('div').S(
+                '@className', 'style-1',
                 'position', 'fixed',
-                'top', 400,
                 'left', 0,
                 'bottom', 0,
-                'width',400,
-                '@className', 'style-1',
+                'width',400,                
                 'overflow', 'auto',
+                'background','rgba(0,0,0,0.5)',
                 '<', 'body'
             )
             Recard.Dom('div').S(

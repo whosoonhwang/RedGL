@@ -33,17 +33,18 @@ var NodeBox;
             // 'max-height', 400,
             'background', 'rgba(29,28,36,0.8)',
             'box-shadow', '0px 0px 10px 5px rgba(0,0,0,0.2)',
-            'border-radius', 10,
+           
             'transform', 'translate(-50%, -50%)',
             '>', Recard.Dom('div').S(
                 'position', 'absolute',
-                'top', 0,
+                'bottom', 0,
                 'left', 0,
                 'right', 0,
-                'transform', 'translate(0,-100%)',
-                // 텍스쳐의 경우 이미지를 따로 받아서 UUID로 활용한다.
-                // 일반적인 UUID는 아니며... 쉐이더내의 유니폼명으로 활용하기위한 기반
-                'background', 'rgba(0,0,0,0.5)',
+                'transform', 'translate(0,100%)',
+                'border-bottom-left-radius', 8,
+                'border-bottom-right-radius', 8,
+                
+                'background', 'rgba(29,28,36,0.8)',
                 'display', structureInfo['nodeType'] == 'Texture' ? 'block' : 'none',
                 '>', imageBox = Recard.Dom('img').S(
                     '@imageBox', '',
@@ -62,6 +63,8 @@ var NodeBox;
                         '@disabled', '',
                         '@type', 'text',
                         '@value', structureInfo['nodeType'] == 'Texture' ? structureInfo['structure']['textureInfo']['textureUniformKey'] : (structureInfo['nodeType'] + structureInfo['index']),
+                        'border',0,'outline','none',
+                        'padding',5,
                         'width', 200,
                         'on', ['focusout', function (e) {
                             structureInfo['structure']['textureInfo']['textureUniformKey'] = this.S('@value')
@@ -72,7 +75,9 @@ var NodeBox;
                     '>', fileBox = Recard.Dom('input').S(
                         '@type', 'file',
                         '@accept', '.png, .jpg, .jpeg',
+                        'margin-top',5,
                         'width', 200,
+                        'border',0,'outline','none',
                         'on', ['change', function (e) {
                             console.log(this.__dom__.files)
                             structureInfo['structure']['textureInfo']['src'] = window.URL.createObjectURL(this.__dom__.files[0])
@@ -84,6 +89,7 @@ var NodeBox;
                     '>', (function () {
                         var t0;
                         t0 = Recard.Dom('select').S(
+                            'margin-top',5,
                             'width', 200,
                             'on', ['change', function (e) {
                                 console.log(this.__dom__.files)
