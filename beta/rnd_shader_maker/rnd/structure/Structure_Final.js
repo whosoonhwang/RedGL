@@ -26,12 +26,15 @@ var Structure_Final;
             finalDefineInfo['uniforms']['uSystemTime'] = 'uniform float uSystemTime'
             finalDefineInfo['uniforms']['uSystemResolution'] = 'uniform vec2 uSystemResolution'
             console.log(finalDefineInfo)
-            resultStr += Structure_FinalInfo['define'];
+            resultStr += Structure_Final_FS_Info['define'];
             //
             ['uniforms', 'varyings', 'vars', 'functions'].forEach(function (key) {
                 tData = finalDefineInfo[key]
                 // resultStr += '//define ' + key + ';\n'
-                for (k in tData) { resultStr += tData[k] + ';\n' }
+                var tN;
+                tN = ';\n'
+                if(key == 'functions') tN = '\n'
+                for (k in tData) { resultStr += tData[k] + tN }
             })
             resultStr += 'void main(void) {\n';
             resultStr += '    //define headers;\n';
@@ -51,12 +54,12 @@ var Structure_Final;
             if (resultStr.indexOf('texelColor_DIFFUSE') == -1) resultStr += '    vec4 texelColor_DIFFUSE;\n'
             if (resultStr.indexOf('texelColor_NORMAL') == -1) resultStr += '    vec4 texelColor_NORMAL;\n'
             if (resultStr.indexOf('texelColor_SPECULAR') == -1) resultStr += '    vec4 texelColor_SPECULAR;\n'
-            resultStr += Structure_FinalInfo['lightBase'];
+            resultStr += Structure_Final_FS_Info['lightBase'];
             resultStr += '    //define bodys;\n'
             finalDefineInfo['bodys'].forEach(function (v) { resultStr += v + ';\n' })
             resultStr += '    //define footers;\n'
             finalDefineInfo['footers'].forEach(function (v) { resultStr += v + ';\n' })
-            resultStr += Structure_FinalInfo['lightCalc'];
+            resultStr += Structure_Final_FS_Info['lightCalc'];
             resultStr += `
             
     finalColor = la + ld + ls;

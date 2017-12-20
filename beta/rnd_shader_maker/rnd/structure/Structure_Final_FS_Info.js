@@ -1,10 +1,11 @@
 'use strict';
 //TODO: 최종적으로는 이놈들도 개별로 다빠질수있으면 좋겠다..
-var Structure_FinalInfo;
+var Structure_Final_FS_Info;
 (function () {
-    Structure_FinalInfo = {
+    Structure_Final_FS_Info = {
         define:
         `
+precision lowp float;
 uniform int uUseNormalTexture; // 노말텍스쳐 사용여부
 uniform int uUseSpecularTexture; // 스페큘러텍스쳐 사용여부
 varying vec3 vEyeVec;
@@ -102,5 +103,5 @@ vec4 finalColor; // 최종컬러값
     }
 `
     }
-    Object.freeze(Structure_FinalInfo)
+    Object.freeze(Structure_Final_FS_Info)
 })();

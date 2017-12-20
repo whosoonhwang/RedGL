@@ -1,4 +1,5 @@
 'use strict';
+// TODO: 여기정리해야함
 var NodeBox;
 (function () {
     var startMouseX, startMouseY;
@@ -12,12 +13,8 @@ var NodeBox;
         'padding-bottom', 5
     )
     currentZIndex = 1
-    makeInputItems = function (info) {
-        for (var k in info) this.S('>', InputItem(k, info[k]))
-    }
-    makeOutputItems = function (info) {
-        for (var k in info) this.S('>', OutputItem(k, info[k]))
-    }
+    makeInputItems = function (info) { for (var k in info) this.S('>', InputItem(k, info[k])) }
+    makeOutputItems = function (info) { for (var k in info) this.S('>', OutputItem(k, info[k])) }
     NodeBox = function (structureInfo) {
         if (!(this instanceof NodeBox)) return new NodeBox(structureInfo)
         var rootBox;
@@ -31,9 +28,9 @@ var NodeBox;
             'min-width', 250,
             'z-index', currentZIndex++,
             // 'max-height', 400,
-            'background', 'rgba(29,28,36,0.8)',
+            'background', 'rgba(19,18,26,0.8)',
             'box-shadow', '0px 0px 10px 5px rgba(0,0,0,0.2)',
-           
+
             'transform', 'translate(-50%, -50%)',
             '>', Recard.Dom('div').S(
                 'position', 'absolute',
@@ -43,8 +40,8 @@ var NodeBox;
                 'transform', 'translate(0,100%)',
                 'border-bottom-left-radius', 8,
                 'border-bottom-right-radius', 8,
-                
-                'background', 'rgba(29,28,36,0.8)',
+
+                'background', 'rgba(19,18,26,0.8)',
                 'display', structureInfo['nodeType'] == 'Texture' ? 'block' : 'none',
                 '>', imageBox = Recard.Dom('img').S(
                     '@imageBox', '',
@@ -63,8 +60,8 @@ var NodeBox;
                         '@disabled', '',
                         '@type', 'text',
                         '@value', structureInfo['nodeType'] == 'Texture' ? structureInfo['structureBase']['textureInfo']['textureUniformKey'] : (structureInfo['nodeType'] + structureInfo['index']),
-                        'border',0,'outline','none',
-                        'padding',5,
+                        'border', 0, 'outline', 'none',
+                        'padding', 5,
                         'width', 200,
                         'on', ['focusout', function (e) {
                             structureInfo['structureBase']['textureInfo']['textureUniformKey'] = this.S('@value')
@@ -75,9 +72,9 @@ var NodeBox;
                     '>', fileBox = Recard.Dom('input').S(
                         '@type', 'file',
                         '@accept', '.png, .jpg, .jpeg',
-                        'margin-top',5,
+                        'margin-top', 5,
                         'width', 200,
-                        'border',0,'outline','none',
+                        'border', 0, 'outline', 'none',
                         'on', ['change', function (e) {
                             console.log(this.__dom__.files)
                             structureInfo['structureBase']['textureInfo']['src'] = window.URL.createObjectURL(this.__dom__.files[0])
@@ -89,7 +86,7 @@ var NodeBox;
                     '>', (function () {
                         var t0;
                         t0 = Recard.Dom('select').S(
-                            'margin-top',5,
+                            'margin-top', 5,
                             'width', 200,
                             'on', ['change', function (e) {
                                 console.log(this.__dom__.files)
@@ -141,7 +138,7 @@ var NodeBox;
                 'height', 30,
                 'border-top-left-radius', 8,
                 'border-top-right-radius', 8,
-                'background', '#272530',
+                'background', structureInfo['nodeType'] == 'Texture' ? 'rgb(144, 74, 135)' : '#272530',
                 'line-height', 30,
                 'padding-left', 10,
                 '>', Recard.Dom('span').S(
@@ -181,17 +178,17 @@ var NodeBox;
                     'cursor', 'pointer',
                     'html', 'X',
                     'on', ['down', function () {
-                        rootBox.queryAll('[inputItem]').forEach(function(item){
+                        rootBox.queryAll('[inputItem]').forEach(function (item) {
                             item['deleteFromData']()
                         })
-                        rootBox.queryAll('[outputItem]').forEach(function(item){
-                            for(var k in item['info']['to']){
+                        rootBox.queryAll('[outputItem]').forEach(function (item) {
+                            for (var k in item['info']['to']) {
                                 var tItemData = item['info']['to'][k]
                                 console.log(tItemData)
-                                for(var k2 in tItemData){
+                                for (var k2 in tItemData) {
                                     tItemData[k2]['deleteFromData']()
                                 }
-                                
+
                             }
                         })
                         rootBox.remove()
@@ -240,16 +237,7 @@ var NodeBox;
                 )
                 var tList = []
                 var resultInfo = []
-                var finalDefine = {
-                    functions: {},
-                    textureInfo: {},
-                    uniforms: {},
-                    varyings: {},
-                    vars: {},
-                    headers: [],
-                    bodys: [],
-                    footers: []
-                }
+                var finalDefine = new Structure_define()
                 // 하위노드 리스트를 만들고
                 makeNodeStack(Recard.query('[nodeType="Final"]'), tList)
                 tList.reverse()
@@ -293,16 +281,12 @@ var NodeBox;
                         'html', Recard.query('[nodeType="Final"]')['parseDefine']()
                     )
                 }
-
-
-
                 rootBox['prism']()
                 Recard.query('[nodeType="Final"]')['prism']()
             }
         })()
         makeInputItems.call(inputBox, structureInfo['structureBase']['input'])
         makeOutputItems.call(outputBox, structureInfo['structureBase']['output'])
-
         return rootBox
     }
 })()

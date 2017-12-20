@@ -10,7 +10,8 @@ var Structure_Shader;
         this['structureBase'] = {
             functions: {
                 func_shaderTest:
-`vec4 func_shaderTest(vec2 currentTexcoord){
+`
+vec4 func_shaderTest(vec2 currentTexcoord){
     vec2 v_texCoord = gl_FragCoord.xy/uSystemResolution +currentTexcoord;
     vec2 p =  (v_texCoord) * 8.0 ;
     vec2 i = p;
@@ -33,7 +34,8 @@ var Structure_Shader;
     texColor.rgb *= (1.0/ (1.0 - (c + 0.05)));
     texColor.rgb *= 0.1;
     return texColor;
-}`
+}
+`
             },
             output: {
                 SHADER_TEST_OUTPUT: { dataType: 'vec4', to: {}, sourceKey: 'SHADER_TEST_OUTPUT_' + this['index'] }
