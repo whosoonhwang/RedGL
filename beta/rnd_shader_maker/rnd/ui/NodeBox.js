@@ -204,7 +204,7 @@ var NodeBox;
                 'background', 'transparent',
                 '>', Recard.Dom('code').S(
                     '@codeBox', '',
-                    '@className', 'language-javascript',
+                    '@className', 'language-glsl',
                     'background', 'rgba(0,0,0,0.1)',
                     'padding', 10
                 )

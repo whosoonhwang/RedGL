@@ -237,7 +237,7 @@ void main(void) {
                 testScene.addLight(testLight)
 
                 // 디렉셔널 라이트 테스트
-                var i = 2
+                var i = 1
                 while (i--) {
                     var testLight = testGL.createDirectionalLight(testGL)
                     testLight.direction[0] = -1
