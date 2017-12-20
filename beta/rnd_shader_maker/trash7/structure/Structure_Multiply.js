@@ -7,8 +7,6 @@ var Structure_Multiply;
         this['nodeType'] = 'Multiply'
         this['index'] = index
         this['structure'] = {
-            funcInfo : {},
-            textureInfo : {},
             input: {
                 INPUT1: {
                     dataType: null,

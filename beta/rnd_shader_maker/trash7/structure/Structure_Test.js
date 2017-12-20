@@ -8,8 +8,6 @@ var Structure_Test;
         this['nodeType'] = 'TypeTest'
         this['index'] = index
         this['structure'] = {
-            funcInfo : {},
-            textureInfo : {},
             input: {
                 FLOAT_TEST: {
                     dataType: 'float',
@@ -42,8 +40,6 @@ var Structure_Test;
         }
         this['parse'] = function(){
             this['define'] = {
-                funcInfo : {},
-                textureInfo : {},
                 uniforms: {},
                 varyings: {},
                 vars: {},
@@ -52,10 +48,10 @@ var Structure_Test;
                 footers: []
             }
             var defineInfo;
-            var resultStr;
+            var resutlStr;
             var k,tData;
             var tInput,tOutput
-            resultStr = ''
+            resutlStr = ''
             for(var k in this['structure']['output']){
                 tInput = this['structure']['input'][k]
                 tOutput = this['structure']['output'][k]
@@ -65,33 +61,33 @@ var Structure_Test;
                     this['define']['headers'].push('    ' + tVarKey + ' = ' + tInput['from']['info']['sourceKey'])
                 }
             }
-            resultStr = ''
+            resutlStr = ''
             defineInfo = this['define']
             //
             tData = defineInfo['uniforms']
-            resultStr += '//define uniforms;\n'
+            resutlStr += '//define uniforms;\n'
             for(k in tData){
-                resultStr += tData[k] + ';\n'
+                resutlStr += tData[k] + ';\n'
             }
             //
             tData = defineInfo['varyings']
-            resultStr += '//define varyings;\n'
+            resutlStr += '//define varyings;\n'
             for(k in tData){
-                resultStr += tData[k] + ';\n'
+                resutlStr += tData[k] + ';\n'
             }
             //
             tData = defineInfo['vars']
-            resultStr += '//define vars;\n'
+            resutlStr += '//define vars;\n'
             for(k in tData){
-                resultStr += tData[k] + ';\n'
+                resutlStr += tData[k] + ';\n'
             }
-            resultStr += '//define headers;\n'
-            defineInfo['headers'].forEach(function(v){ resultStr += v+';\n' })
-            resultStr += '//define bodys;\n'
-            defineInfo['bodys'].forEach(function(v){ resultStr += v+';\n' })
-            resultStr += '//define footers;\n'
-            defineInfo['footers'].forEach(function(v){ resultStr += v+';\n' })
-            return resultStr
+            resutlStr += '//define headers;\n'
+            defineInfo['headers'].forEach(function(v){ resutlStr += v+';\n' })
+            resutlStr += '//define bodys;\n'
+            defineInfo['bodys'].forEach(function(v){ resutlStr += v+';\n' })
+            resutlStr += '//define footers;\n'
+            defineInfo['footers'].forEach(function(v){ resutlStr += v+';\n' })
+            return resutlStr
         }
         
         index++

@@ -85,8 +85,12 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		SPECULAR : 5
+		SPECULAR : 5,
 		//아틀라스는 자동
+		ETC1 : 10,
+		ETC2 : 11,
+		ETC3 : 12,
+		ETC4 : 13
 	}
 	Object.freeze(RedTextureIndex)
 })();

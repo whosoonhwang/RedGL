@@ -8,8 +8,6 @@ var Structure_Final;
         this['nodeType'] = 'Final'
         this['index'] = index
         this['structure'] = {
-            funcInfo :{},
-            textureInfo : {},
             input: {
                 DIFFUSE: {
                     dataType: 'vec4',
@@ -99,12 +97,6 @@ vec4 finalColor; // 최종컬러값
             for (k in tData) {
                 resultStr += tData[k] + ';\n'
             }
-            //
-            tData = defineInfo['funcInfo']
-            resultStr += '//define funcs;\n'
-            for (k in tData) {
-                resultStr += tData[k] + '\n'
-            }
             console.log(defineInfo)
             resultStr += 'void main(void) {\n';
             resultStr += '//define headers;\n'
@@ -125,27 +117,6 @@ vec4 finalColor; // 최종컬러값
 
                 }
             });
-            // for(var k in finalData['textureInfo']){
-            //     console.log(k, finalData['textureInfo'][k] )
-            //     var tStr
-            //     switch(finalData['textureInfo'][k]['textureIndex']){
-            //         case RedTextureIndex.DIFFUSE:
-            //             tStr = '    vec4 texelColor_DIFFUSE = ' + finalData['textureInfo'][k]['varStr']                        
-            //         break
-            //         case RedTextureIndex.NORMAL : 
-            //             tStr = '    vec4 texelColor_NORMAL = ' + finalData['textureInfo'][k]['varStr']
-            //         break
-            //         case RedTextureIndex.SPECULAR : 
-            //             tStr = '    vec4 texelColor_SPECULAR = ' + finalData['textureInfo'][k]['varStr']
-            //         break
-            //     }
-            //     if(tStr){
-            //         if (defineInfo['headers'].indexOf(tStr) == -1) {
-            //             defineInfo['headers'].push(tStr)
-            //         }
-            //     }
-                
-            // }
             ///////////////////////////////////
             resultStr += '//define headers;\n'
             defineInfo['headers'].forEach(function (v) { resultStr += v + ';\n' })
@@ -153,6 +124,41 @@ vec4 finalColor; // 최종컬러값
             if (resultStr.indexOf('texelColor_NORMAL') == -1) resultStr += 'vec4 texelColor_NORMAL;\n'
             if (resultStr.indexOf('texelColor_SPECULAR') == -1) resultStr += 'vec4 texelColor_SPECULAR;\n'
             resultStr += `
+
+///////////////////////////////////
+// 쉐이더 추가테스트
+vec2 v_texCoord = gl_FragCoord.xy/uSystemResolution +vTexcoord;
+vec2 p =  (v_texCoord) * 8.0 ;
+vec2 i = p;
+float c = 1.0;
+float inten = .05;
+const int MAX_ITER = 4;
+for (int n = 0; n < MAX_ITER; n++)
+{
+    float t = uSystemTime * (2.0 - (3.0 / float(n+1)));
+
+    i = p + vec2(cos(t - i.x) + sin(t + i.y),
+    sin(t - i.y) + cos(t + i.x));
+
+    c += 1.0/length(
+        vec2(p.x / (sin(i.x+t)/inten),
+    p.y / (cos(i.y+t)/inten)));
+}
+c /= float(MAX_ITER);
+c = 1.5 - sqrt(c);
+vec4 texColor = vec4(0.10, 0.55, 0.02, 1.);
+texColor.rgb *= (1.0/ (1.0 - (c + 0.05)));
+
+texColor.rgb *= 0.2;
+texelColor_DIFFUSE.rgb +=  texColor.rgb;
+///////////////////////////////////
+///////////////////////////////////
+// 쉐이더 추가테스트
+
+
+///////////////////////////////////
+
+
 
 la = uAmbientLightColor;
 ld = vec4(0.0, 0.0, 0.0, 1.0);

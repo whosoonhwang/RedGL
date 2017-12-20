@@ -2394,12 +2394,17 @@ var RedMaterialInfo;
                 this['uniforms']['uAtlascoord'] = t0['atlasUVInfo']
             } else throw k + '는 올바르지 않은 타입입니다.'
         }
+        this.updateUniformList()
+        this['__UUID'] = REDGL_UUID++
+    }
+    RedMaterialInfo.prototype.updateUniformList = function () {
         // 프로그램 정보를 처리
         if (this['needUniformList']) {
             this['__uniformList'] = []
             var tUniformGroup = this['uniforms']
             var tUniformLocationGroup = this['programInfo']['uniforms']
             for (k in tUniformGroup) {
+                console.log('//////////////////////////////////////')
                 console.log(k)
                 console.log(tUniformLocationGroup)
                 console.log(tUniformLocationGroup[k])
@@ -2407,6 +2412,7 @@ var RedMaterialInfo;
                 console.log(tUniformGroup[k])
                 console.log(tUniformLocationGroup[k]['location'])
                 console.log(tUniformLocationGroup)
+                console.log('//////////////////////////////////////')
                 this['__uniformList'].push({
                     key: k,
                     type: tUniformLocationGroup[k]['type'],
@@ -2418,7 +2424,6 @@ var RedMaterialInfo;
             }
             this['needUniformList'] = false
         }
-        this['__UUID'] = REDGL_UUID++
     }
     Object.freeze(RedMaterialInfo)
 })();
@@ -2824,8 +2829,12 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		SPECULAR : 5
+		SPECULAR : 5,
 		//아틀라스는 자동
+		ETC1 : 10,
+		ETC2 : 11,
+		ETC3 : 12,
+		ETC4 : 13
 	}
 	Object.freeze(RedTextureIndex)
 })();
@@ -2974,7 +2983,7 @@ var RedAtlasTextureManager;
 		tAtlas = new Atlas(canvas);
 		tAtlas['atlasInfo'] = RedAtlasInfo(tRedGL, tAtlas)
 		tTextureUnitIndex++
-		if (tTextureUnitIndex == MAX_TEXTURE_IMAGE_UNITS) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 2)
+		if (tTextureUnitIndex == MAX_TEXTURE_IMAGE_UNITS) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 4)
 		tAtlas['__targetIndex'] = tTextureUnitIndex // console.log(tAtlas)
 		atlasInfoList.push(tAtlas['atlasInfo'])
 
@@ -3567,6 +3576,7 @@ var RedBaseRenderInfo;
                             )
                     }
                 }
+                if(tMaterial['needUniformList']) tMaterial.updateUniformList()
                 // 유니폼 입력
                 tUniformGroupList = tMaterial['__uniformList']
                 i2 = tUniformGroupList.length

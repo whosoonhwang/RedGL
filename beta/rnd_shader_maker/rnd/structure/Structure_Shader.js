@@ -1,27 +1,44 @@
 'use strict';
-var Structure_Add;
+var Structure_Shader;
 (function () {
     var index;
     var tVarKey;
     index = 0
-    Structure_Add = function () {
-        this['nodeType'] = 'Add'
+    Structure_Shader = function () {
+        this['nodeType'] = 'ShaderTest'
         this['index'] = index
         this['structure'] = {
-            funcInfo : {},
-            textureInfo : {},
-            input: {
-                INPUT1: {
-                    dataType: null,
-                    from: null
-                },
-                INPUT2: {
-                    dataType: null,
-                    from: null
-                }
+            funcInfo : {
+                func_shaderTest : 
+`vec4 func_shaderTest(vec2 currentTexcoord){
+    vec2 v_texCoord = gl_FragCoord.xy/uSystemResolution +currentTexcoord;
+    vec2 p =  (v_texCoord) * 8.0 ;
+    vec2 i = p;
+    float c = 1.0;
+    float inten = .05;
+    for (int n = 0; n < MAX_ITER; n++)
+    {
+        float t = uSystemTime * (2.0 - (3.0 / float(n+1)));
+
+        i = p + vec2(cos(t - i.x) + sin(t + i.y),
+        sin(t - i.y) + cos(t + i.x));
+
+        c += 1.0/length(
+            vec2(p.x / (sin(i.x+t)/inten),
+        p.y / (cos(i.y+t)/inten)));
+    }
+    c /= float(MAX_ITER);
+    c = 1.5 - sqrt(c);
+    vec4 texColor = vec4(0.10, 0.55, 0.02, 1.);
+    texColor.rgb *= (1.0/ (1.0 - (c + 0.05)));
+    texColor.rgb *= 0.1;
+    return texColor;
+}
+`
             },
+            textureInfo : {},
             output: {
-                OUTPUT: { dataType: null, to: {}, sourceKey: 'OUTPUT_' + this['index'] }
+                SHADER_TEST_OUTPUT: { dataType: 'vec4', to: {}, sourceKey: 'SHADER_TEST_OUTPUT_' + this['index'] }
             }
         }
         this['parse'] = function () {
@@ -38,26 +55,18 @@ var Structure_Add;
             var defineInfo;
             var resultStr;
             var k, tData;
-            var tInput1, tInput2, tOutput
+            var  tOutput
        
 
            
-            tInput1 = this['structure']['input']['INPUT1']
-            tInput2 = this['structure']['input']['INPUT2']
-            tOutput = this['structure']['output']['OUTPUT']
+            tOutput = this['structure']['output']['SHADER_TEST_OUTPUT']
             console.log(this['define']['vars'])
             resultStr = ''
-            if (tInput1['from'] && tInput2['from']) {
-                tOutput['dataType'] = tInput1['dataType']
-            }else tOutput['dataType'] = null
-            if(tOutput['dataType']){
-                
-                this['define']['vars'][tVarKey = 'OUTPUT_' + this['index']] = tOutput['dataType'] + ' ' + tVarKey
-                this['define']['headers'].push('    ' + tVarKey + ' = ' + tInput1['from']['info']['sourceKey'] + ' + ' +tInput2['from']['info']['sourceKey'])
-            }
-          
-
-          
+            this['define']['uniforms']['MAX_ITER'] = 'const int MAX_ITER = 4'
+            this['define']['vars'][tVarKey = 'SHADER_TEST_OUTPUT_' + this['index']] = tOutput['dataType'] + ' ' + tVarKey
+            this['define']['funcInfo']['func_shaderTest'] = this['structure']['funcInfo']['func_shaderTest']
+            this['define']['headers'].push('    ' + tVarKey + ' = ' + 'func_shaderTest(vTexcoord)')
+         
             defineInfo = this['define']
             //
             tData = defineInfo['uniforms']
@@ -77,6 +86,11 @@ var Structure_Add;
             for (k in tData) {
                 resultStr += tData[k] + ';\n'
             }
+            tData = defineInfo['funcInfo']
+            resultStr += '//define funcs;\n'
+            for (k in tData) {
+                resultStr += tData[k] + ';\n'
+            }
             resultStr += '//define headers;\n'
             defineInfo['headers'].forEach(function (v) { resultStr += v + ';\n' })
             resultStr += '//define bodys;\n'
@@ -90,5 +104,5 @@ var Structure_Add;
         index++
         console.log(this)
     }
-    Object.freeze(Structure_Add)
+    Object.freeze(Structure_Shader)
 })();

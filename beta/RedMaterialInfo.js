@@ -160,12 +160,17 @@ var RedMaterialInfo;
                 this['uniforms']['uAtlascoord'] = t0['atlasUVInfo']
             } else throw k + '는 올바르지 않은 타입입니다.'
         }
+        this.updateUniformList()
+        this['__UUID'] = REDGL_UUID++
+    }
+    RedMaterialInfo.prototype.updateUniformList = function () {
         // 프로그램 정보를 처리
         if (this['needUniformList']) {
             this['__uniformList'] = []
             var tUniformGroup = this['uniforms']
             var tUniformLocationGroup = this['programInfo']['uniforms']
             for (k in tUniformGroup) {
+                console.log('//////////////////////////////////////')
                 console.log(k)
                 console.log(tUniformLocationGroup)
                 console.log(tUniformLocationGroup[k])
@@ -173,6 +178,7 @@ var RedMaterialInfo;
                 console.log(tUniformGroup[k])
                 console.log(tUniformLocationGroup[k]['location'])
                 console.log(tUniformLocationGroup)
+                console.log('//////////////////////////////////////')
                 this['__uniformList'].push({
                     key: k,
                     type: tUniformLocationGroup[k]['type'],
@@ -184,7 +190,6 @@ var RedMaterialInfo;
             }
             this['needUniformList'] = false
         }
-        this['__UUID'] = REDGL_UUID++
     }
     Object.freeze(RedMaterialInfo)
 })();

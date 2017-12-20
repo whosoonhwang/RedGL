@@ -57,12 +57,9 @@ var InputItem;
                                 info['from'] = tTempOutputItem
                                 info['dataType'] = tTempOutputItem.S('@dataType')
                                 console.log(rootBox.parent().parent()['structureInfo'])
-                                if(rootBox.parent().parent().S('@nodeType')=='Add'){
-                                    rootBox.parent().parent()['structureInfo']['structure']['output']['OUTPUT']['dataType'] = info['dataType'] 
-                                    rootBox.parent().parent().query('[key="OUTPUT"]').S('@dataType',info['dataType'] )
-                                    rootBox.parent().parent().query('[key="OUTPUT"] span').S('html',info['dataType'] )
-                                }
-                                
+                                rootBox.parent().parent()['structureInfo']['structure']['output']['OUTPUT']['dataType'] = info['dataType'] 
+                                rootBox.parent().parent().query('[key="OUTPUT"]').S('@dataType',info['dataType'] )
+                                rootBox.parent().parent().query('[key="OUTPUT"] span').S('html',info['dataType'] )
                                 //TODO: 여기서 형시계산을 해줘야하는군...
                                 update()
                                 tTempOutputItem.addTo(rootBox)

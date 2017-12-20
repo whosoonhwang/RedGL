@@ -8,13 +8,6 @@ var Structure_Texture;
         this['nodeType'] = 'Texture'
         this['index'] = index
         this['structure'] = {
-            funcInfo : {},
-            textureInfo: {
-                textureUniformKey : 'uDiffuseTexture',
-                textureIndex : RedTextureIndex.DIFFUSE,
-                varStr : 'textureColor_'+this['index'],
-                src : 'images/noImage.jpg'
-            },
             input: {
                 UV: {
                     dataType: 'vec2',
@@ -31,8 +24,6 @@ var Structure_Texture;
         }
         this['parse'] = function(){
             this['define'] = {
-                funcInfo : {},
-                textureInfo : {},
                 uniforms: {},
                 varyings: {},
                 vars: {},
@@ -41,8 +32,7 @@ var Structure_Texture;
                 footers: []
             }        
             var tUVKey;
-            this['define']['uniforms'][tUniformKey = this['structure']['textureInfo']['textureUniformKey'] ] = 'uniform sampler2D ' + tUniformKey
-            this['define']['textureInfo'][tUniformKey] = this['structure']['textureInfo']
+            this['define']['uniforms'][tUniformKey = 'uTexture_' + this['index']] = 'uniform sampler2D ' + tUniformKey
             this['define']['varyings'][tVaryingKey = 'vTexcoord'] = 'varying vec2 ' + tVaryingKey
             tUVKey = tVaryingKey
             this['define']['vars'][tVarKey = 'textureColor_' + this['index']] = 'vec4 ' + tVarKey
@@ -54,36 +44,36 @@ var Structure_Texture;
             }
             this['define']['headers'].push('    '+tVarKey + ' = texture2D(' + tUniformKey + ','+tUVKey+')')
             var defineInfo;
-            var resultStr;
+            var resutlStr;
             var k,tData;
-            resultStr = ''
+            resutlStr = ''
             defineInfo = this['define']
             //
             tData = defineInfo['uniforms']
-            resultStr += '//define uniforms;\n'
+            resutlStr += '//define uniforms;\n'
             for(k in tData){
-                resultStr += tData[k] + ';\n'
+                resutlStr += tData[k] + ';\n'
             }
             //
             tData = defineInfo['varyings']
-            resultStr += '//define varyings;\n'
+            resutlStr += '//define varyings;\n'
             for(k in tData){
-                resultStr += tData[k] + ';\n'
+                resutlStr += tData[k] + ';\n'
             }
             //
             tData = defineInfo['vars']
-            resultStr += '//define vars;\n'
+            resutlStr += '//define vars;\n'
             for(k in tData){
-                resultStr += tData[k] + ';\n'
+                resutlStr += tData[k] + ';\n'
             }
             console.log(defineInfo)
-            resultStr += '//define headers;\n'
-            defineInfo['headers'].forEach(function(v){ resultStr += v+';\n' })
-            resultStr += '//define bodys;\n'
-            defineInfo['bodys'].forEach(function(v){ resultStr += v+';\n' })
-            resultStr += '//define footers;\n'
-            defineInfo['footers'].forEach(function(v){ resultStr += v+';\n' })
-            return resultStr
+            resutlStr += '//define headers;\n'
+            defineInfo['headers'].forEach(function(v){ resutlStr += v+';\n' })
+            resutlStr += '//define bodys;\n'
+            defineInfo['bodys'].forEach(function(v){ resutlStr += v+';\n' })
+            resutlStr += '//define footers;\n'
+            defineInfo['footers'].forEach(function(v){ resutlStr += v+';\n' })
+            return resutlStr
         }
 
         console.log('텍스쳐 기본정보',this['define'])

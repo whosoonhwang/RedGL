@@ -47,14 +47,14 @@ Recard.static('TEST_BOX', (function () {
                 }],
                 '<', rootBox
             )
-            Recard.Dom('div').S(
-                '@className','nodeItemButton',
-                'html', 'ShaderTest',
-                'on',['down',function(){
-                    Recard.RED_SHADER_GRID.addNode(new Structure_Shader())
-                }],
-                '<', rootBox
-            )
+            // Recard.Dom('div').S(
+            //     '@className','nodeItemButton',
+            //     'html', 'Multiply',
+            //     'on',['down',function(){
+            //         Recard.RED_SHADER_GRID.addNode(new Structure_Multiply())
+            //     }],
+            //     '<', rootBox
+            // )
             Recard.RED_SHADER_GRID.addNode(new Structure_Final())
             
         }

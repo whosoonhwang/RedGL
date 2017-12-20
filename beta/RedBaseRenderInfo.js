@@ -425,6 +425,7 @@ var RedBaseRenderInfo;
                             )
                     }
                 }
+                if(tMaterial['needUniformList']) tMaterial.updateUniformList()
                 // 유니폼 입력
                 tUniformGroupList = tMaterial['__uniformList']
                 i2 = tUniformGroupList.length

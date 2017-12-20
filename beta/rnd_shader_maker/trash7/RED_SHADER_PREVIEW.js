@@ -10,7 +10,7 @@ Recard.static('RED_SHADER_PREVIEW', (function () {
     setTest = (function () {
         var index;
         index = 1
-        return function (v, f,textureInfo) {
+        return function (v, f) {
             console.log('실행')
             var tName = 'testShader' + index
             index++
@@ -40,7 +40,7 @@ void main(void) {
     vNormal = vec3(uNMatrix * vec4(aVertexNormal,1.0)); 
     vEyeVec = -vertexPositionEye4.xyz;
     if(uUseDisplacementTexture == 1) {
-        vertexPositionEye4.xyz += normalize(vNormal) * texture2D(uDisplacementTexture,vTexcoord).x * vec3(uMVMatrix[0][0],uMVMatrix[1][1],uMVMatrix[2][2]);
+        vertexPositionEye4.xyz += normalize(vNormal) * texture2D(uDisplacementTexture,vTexcoord).x;
     }
     // 포지션 결정
     gl_Position = uPMatrix * uCameraMatrix *  vertexPositionEye4;
@@ -55,8 +55,6 @@ void main(void) {
                 var tTextureNormal
                 var tTextureSpecular
                 var tTextureDisplacement
-                var tEtc1,tEtc2,tEtc3,tEtc4
-                try {
                 testGL.createShaderInfo(tName, RedShaderInfo.VERTEX_SHADER, v)
                 testGL.createShaderInfo(tName, RedShaderInfo.FRAGMENT_SHADER, f)
                 testGL.createProgramInfo(
@@ -64,96 +62,90 @@ void main(void) {
                     testGL.getShaderInfo(tName, RedShaderInfo.VERTEX_SHADER),
                     testGL.getShaderInfo(tName, RedShaderInfo.FRAGMENT_SHADER),
                     function (target) {
+                        var tList;
+                        var checkCode;
+                        checkCode = function(v){
+                            var t0;
+                            var str1,str2
+                            var result
+                            t0 = v.split(' = ')
+                            str1 = t0[0]
+                            str1 = str1.split(' ')
+                            str1 = str1[str1.length-1]
+                            str2 = t0[1].replace(';','').trim()
+                            console.log(str1,str2)
+                            if(str2.indexOf('textureColor')==-1){
+                                // 추적해서 찾아야함
+                                var i,len
+                                var v2
+                                i =0,len = tList.length
+                                for(i;i<len;i++){
+                                    v2 = tList[i]
+                                    console.log(str2, v2)
+                                    console.log(v2.indexOf(str2 + ' = '))
+                                    if (v2.indexOf(str2 + ' = ') > -1) {
+                                        return checkCode(v2)
+                                        break
+                                    }
+                                }
+                            }else return str2.split('_')[1]
+                            
+                        }
+                        tList = f.split('\n')
+                        tList.forEach(function (v,index) {
+                            if (v.indexOf('vec4 texelColor_DIFFUSE = ') > -1) {
+                                var t0 = checkCode(v)
+                                console.log('체크결과',t0)
+                                target.uniforms['uTexture_' + t0] = target['diffuseInfo']
+                            }
+                            if (v.indexOf('vec4 texelColor_NORMAL = ') > -1) {
+                                var t0 = checkCode(v)
+                                console.log('체크결과',t0)
+                                target.uniforms['uTexture_' + t0] = target['normalInfo']
+                            }
+                            if (v.indexOf('vec4 texelColor_SPECULAR = ') > -1) {
+                                var t0 = checkCode(v)
+                                console.log('체크결과',t0)
+                                target.uniforms['uTexture_' + t0] = target['specularInfo']
+                            }                           
+                        })
                         target.uniforms.uDisplacementTexture = target['displacementInfo']
-                        target.uniforms.uUseNormalTexture = 1
-                        target.uniforms.uUseSpecularTexture = 1
-                        target.uniforms.uUseDisplacementTexture = 1
-                        target.uniforms.uShininess = 8
+                        target.uniforms.uUseNormalTexture = 0
+                        target.uniforms.uUseDisplacementTexture = 0
+                        target.uniforms.uShininess = 32
                         target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
 
                         console.log('결과가', target)
                     }
                 );
-                for (var k in textureInfo) {
-                    console.log('뭐가오냐', textureInfo[k])
-                    console.log(textureInfo[k]['src'])
-                    var tStc = textureInfo[k]['src']
-                    switch (textureInfo[k]['textureIndex']) {
-                        case RedTextureIndex.DIFFUSE:
-                            tTextureDiffuse = testGL.createTextureInfo(tStc)
-                            break
-                        case RedTextureIndex.NORMAL:
-                            tTextureNormal = testGL.createTextureInfo(tStc, RedTextureIndex.NORMAL)
-                            break
-                        case RedTextureIndex.SPECULAR:
-                            tTextureSpecular = testGL.createTextureInfo(tStc, RedTextureIndex.SPECULAR)
-                            break
-                        case RedTextureIndex.DISPLACEMENT:
-                            tTextureDisplacement = testGL.createTextureInfo(tStc, RedTextureIndex.DISPLACEMENT)
-                            break
-                        case RedTextureIndex.ETC1:
-                            tEtc1 = testGL.createTextureInfo(tStc, RedTextureIndex.ETC1)
-                            break
-                        case RedTextureIndex.ETC2:
-                            tEtc2 = testGL.createTextureInfo(tStc, RedTextureIndex.ETC2)
-                            break
-                        case RedTextureIndex.ETC3:
-                            tEtc3 = testGL.createTextureInfo(tStc, RedTextureIndex.ETC3)
-                            break
-                        case RedTextureIndex.ETC4:
-                            tEtc4 = testGL.createTextureInfo(tStc, RedTextureIndex.ETC4)
-                            break
-                    }
-                }
+                (function () {
+                    var tList;
+                    tList = f.split('\n')
 
-                //     if (Recard.query('[nodeType="Final"] [key="DISPLACEMENT"]')['info']['from']) {
-                //         tTextureDisplacement = testGL.createTextureInfo('../../asset/displacement.jpg', RedTextureIndex.DISPLACEMENT)
-                //     }
+                    tList.forEach(function (v) {
+                        if (v.indexOf('vec4 texelColor_DIFFUSE = ') > -1) {
+                            tTextureDiffuse = testGL.createTextureInfo('../../asset/fieldstone.jpg')
+                        }
+                        if (v.indexOf('vec4 texelColor_NORMAL = ') > -1) {
+                            tTextureNormal = testGL.createTextureInfo('../../asset/fieldstone-normal.jpg', RedTextureIndex.NORMAL)
+                        }
+                        if (v.indexOf('vec4 texelColor_SPECULAR = ') > -1) {
+                            tTextureSpecular = testGL.createTextureInfo('../../asset/tile/specular.png', RedTextureIndex.SPECULAR)
+                        }
+                    })
+                    if (Recard.query('[nodeType="Final"] [key="DISPLACEMENT"]')['info']['from']) {
+                        tTextureDisplacement = testGL.createTextureInfo('../../asset/displacement.jpg', RedTextureIndex.DISPLACEMENT)
+                    }
+                })();
 
                 console.log(tTextureDiffuse, tTextureNormal, tTextureDisplacement, tTextureSpecular)
-                
+                try {
                     testGL.createMaterialDefine(testGL.getProgramInfo(tName))
-                    var t2 = testGL.createMaterialInfo(tName)
-                    for (var k in textureInfo) {
-                        switch (textureInfo[k]['textureIndex']) {
-                            case RedTextureIndex.DIFFUSE:
-                                t2['diffuseInfo'] = tTextureDiffuse
-                                t2.uniforms[textureInfo[k]['textureUniformKey']] = t2['diffuseInfo']
-                                break
-                            case RedTextureIndex.NORMAL:
-                                t2['normalInfo'] = tTextureNormal
-                                t2.uniforms[textureInfo[k]['textureUniformKey']] = t2['normalInfo']
-                                break
-                            case RedTextureIndex.SPECULAR:
-                                t2['specularInfo'] = tTextureSpecular
-                                t2.uniforms[textureInfo[k]['textureUniformKey']] = t2['specularInfo']
-                                break
-                            case RedTextureIndex.DISPLACEMENT:
-                                t2['displacementInfo'] = tTextureDisplacement
-                                break
-                            case RedTextureIndex.ETC1:
-                                t2[textureInfo[k]['textureUniformKey']] = tEtc1
-                                t2.uniforms[textureInfo[k]['textureUniformKey']] = t2[textureInfo[k]['textureUniformKey']]
-                                break
-                            case RedTextureIndex.ETC2:
-                                t2[textureInfo[k]['textureUniformKey']] = tEtc2
-                                t2.uniforms[textureInfo[k]['textureUniformKey']] =t2[textureInfo[k]['textureUniformKey']]
-                                break
-                            case RedTextureIndex.ETC3:
-                                t2[textureInfo[k]['textureUniformKey']] = tEtc3
-                                t2.uniforms[textureInfo[k]['textureUniformKey']] =t2[textureInfo[k]['textureUniformKey']]
-                                break
-                            case RedTextureIndex.ETC4:
-                                t2[textureInfo[k]['textureUniformKey']] = tEtc4
-                                t2.uniforms[textureInfo[k]['textureUniformKey']] =t2[textureInfo[k]['textureUniformKey']]
-                                break
-                        }
-                    }
+                    var t2 = testGL.createMaterialInfo(tName, tTextureDiffuse, tTextureNormal, tTextureDisplacement, tTextureSpecular)
                     console.log('결과가2', t2)
-                    t2['needUniformList'] = true
                     tMesh.materialInfo = t2    
                 } catch (error) {
-                    console.log('재질생성실패!',error)
+                    
                 }
                 
             })()
@@ -225,27 +217,26 @@ void main(void) {
                     testCamera.lookAt([0, 0, 0])
                     var i = testScene['lights']['directional'].length
                     while (i--) {
-                        testScene['lights']['directional'][i].direction[0] = Math.sin(time / 1700 + Math.PI*2/2*i) * 30
-                        testScene['lights']['directional'][i].direction[1] = Math.cos(time / 4400 + Math.PI*2/2*i) * 20 + Math.sin(time / 2700 + Math.PI*2/2*i) * 50
-                        testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200 + Math.PI*2/2*i) * 30
+                        testScene['lights']['directional'][i].direction[0] = Math.sin(time / 1700 + Math.PI*2/3*i) * 30
+                        testScene['lights']['directional'][i].direction[1] = Math.cos(time / 4400 + Math.PI*2/3*i) * 20 + Math.sin(time / 2700 + Math.PI*2/3*i) * 50
+                        testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200 + Math.PI*2/3*i) * 30
                     }
                 })
                 // 엠비언트 라이트 테스트
                 var testLight = testGL.createAmbientLight(testGL)
-             
                 console.log(testLight)
                 testScene.addLight(testLight)
 
                 // 디렉셔널 라이트 테스트
-                var i = 2
+                var i = 3
                 while (i--) {
                     var testLight = testGL.createDirectionalLight(testGL)
                     testLight.direction[0] = -1
                     testLight.direction[1] = -1
                     testLight.direction[2] = 0
-                    // testLight.color[0] = Math.random()
-                    // testLight.color[1] = Math.random()
-                    // testLight.color[2] = Math.random()
+                    testLight.color[0] = Math.random()
+                    testLight.color[1] = Math.random()
+                    testLight.color[2] = Math.random()
                     testScene.addLight(testLight)
 
                 }
