@@ -24,21 +24,21 @@ var Structure_Add;
         }
         Structure_util.structureBaseFill(this['structureBase'])
         this['parse'] = function () {
-            this['define'] = new Structure_define()
+            this['define_fragment'] = new Structure_define()
             var k, tData;
             var tInput1, tInput2, tOutput
             tInput1 = this['structureBase']['input']['INPUT1']
             tInput2 = this['structureBase']['input']['INPUT2']
             tOutput = this['structureBase']['output']['OUTPUT']
-            console.log(this['define']['vars'])
+            console.log(this['define_fragment']['vars'])
             if (tInput1['from'] && tInput2['from']) {
                 tOutput['dataType'] = tInput1['dataType']
             } else tOutput['dataType'] = null
             if (tOutput['dataType']) {
-                this['define']['vars'][tVarKey = 'OUTPUT_' + this['index']] = tOutput['dataType'] + ' ' + tVarKey
-                this['define']['headers'].push('    ' + tVarKey + ' = ' + tInput1['from']['info']['sourceKey'] + ' + ' + tInput2['from']['info']['sourceKey'])
+                this['define_fragment']['vars'][tVarKey = 'OUTPUT_' + this['index']] = tOutput['dataType'] + ' ' + tVarKey
+                this['define_fragment']['headers'].push('    ' + tVarKey + ' = ' + tInput1['from']['info']['sourceKey'] + ' + ' + tInput2['from']['info']['sourceKey'])
             }
-            return Structure_util.makeViewStr(this['define'])
+            return Structure_util.makeViewStr(this['define_fragment'])
         }
         index++
         console.log(this)

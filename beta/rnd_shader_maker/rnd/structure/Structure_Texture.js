@@ -30,21 +30,21 @@ var Structure_Texture;
         }
         Structure_util.structureBaseFill(this['structureBase'])
         this['parse'] = function () {
-            this['define'] = new Structure_define()
+            this['define_fragment'] = new Structure_define()
             var tUVKey;
-            this['define']['uniforms'][tUniformKey = this['structureBase']['textureInfo']['textureUniformKey']] = 'uniform sampler2D ' + tUniformKey
-            this['define']['textureInfo'][tUniformKey] = this['structureBase']['textureInfo']
-            this['define']['varyings'][tVaryingKey = 'vTexcoord'] = 'varying vec2 vTexcoord' + tVaryingKey
+            this['define_fragment']['uniforms'][tUniformKey = this['structureBase']['textureInfo']['textureUniformKey']] = 'uniform sampler2D ' + tUniformKey
+            this['define_fragment']['textureInfo'][tUniformKey] = this['structureBase']['textureInfo']
+            this['define_fragment']['varyings'][tVaryingKey = 'vTexcoord'] = 'varying vec2 vTexcoord' + tVaryingKey
             tUVKey = tVaryingKey
-            this['define']['vars'][tVarKey = 'textureColor_' + this['index']] = 'vec4 ' + tVarKey
+            this['define_fragment']['vars'][tVarKey = 'textureColor_' + this['index']] = 'vec4 ' + tVarKey
             // 인풋 UV가있으면 바라보는 UV값을 변경해야함
             if (this['structureBase']['input']['UV']['from']) {
-                this['define']['vars'][tVarKey = 'inputUV_' + this['index']] = 'vec2 ' + tVarKey
+                this['define_fragment']['vars'][tVarKey = 'inputUV_' + this['index']] = 'vec2 ' + tVarKey
                 tUVKey = tVarKey
-                this['define']['headers'].push(tUVKey + ' = ' + tVaryingKey)
+                this['define_fragment']['headers'].push(tUVKey + ' = ' + tVaryingKey)
             }
-            this['define']['headers'].push('    ' + tVarKey + ' = texture2D(' + tUniformKey + ',' + tUVKey + ')')
-            return Structure_util.makeViewStr(this['define'])
+            this['define_fragment']['headers'].push('    ' + tVarKey + ' = texture2D(' + tUniformKey + ',' + tUVKey + ')')
+            return Structure_util.makeViewStr(this['define_fragment'])
         }
         index++
         console.log(this)

@@ -9,10 +9,10 @@ var Structure_Final;
         this['index'] = index
         this['structureBase'] = {
             input: {
-                DIFFUSE: { dataType: 'vec4', from: null },
-                NORMAL: { dataType: 'vec4', from: null },
-                SPECULAR: { dataType: 'vec4', from: null },
-                DISPLACEMENT: { dataType: 'vec4', from: null },
+                DIFFUSE: { dataType: 'vec4', from: null, shaderType : 'fragment' },
+                NORMAL: { dataType: 'vec4', from: null, shaderType : 'fragment' },
+                SPECULAR: { dataType: 'vec4', from: null, shaderType : 'fragment' },
+                DISPLACEMENT: { dataType: 'vec4', from: null, shaderType : 'vertex' },
             }
         }
         Structure_util.structureBaseFill(this['structureBase'])
@@ -24,7 +24,7 @@ var Structure_Final;
             resultStr = ''
             finalDefineInfo = finalDefineInfo
             console.log(finalDefineInfo)
-            resultStr += Structure_Final_FS_Info['define'];
+            resultStr += Structure_Final_FS_Info['define_fragment'];
             //
             ['uniforms', 'varyings', 'vars', 'functions'].forEach(function (key) {
                 tData = finalDefineInfo[key]

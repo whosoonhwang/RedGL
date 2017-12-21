@@ -243,15 +243,15 @@ var NodeBox;
                 tList.reverse()
                 // 하위부터 정보를 합한다.
                 tList.forEach(function (item) {
-                    console.log(item['structureInfo']['define'])
+                    console.log(item['structureInfo']['define_fragment'])
                     resultInfo.push({
                         uuid: item['structureInfo']['nodeType'] + item['structureInfo']['index'],
-                        define: item['structureInfo']['define']
+                        define_fragment: item['structureInfo']['define_fragment']
                     })
                 })
                 console.log('최종결과', resultInfo)
                 resultInfo.forEach(function (item) {
-                    var tData = item['define']
+                    var tData = item['define_fragment']
                     for (var groupKey in tData) {
                         var tGroupData = tData[groupKey]
                         if (tGroupData instanceof Array) {

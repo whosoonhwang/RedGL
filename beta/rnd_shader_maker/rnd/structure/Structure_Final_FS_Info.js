@@ -3,7 +3,7 @@
 var Structure_Final_FS_Info;
 (function () {
     Structure_Final_FS_Info = {
-        define:
+        define_fragment:
         `
 precision lowp float;
 uniform sampler2D uDiffuseTexture; // 디뷰프텍스쳐

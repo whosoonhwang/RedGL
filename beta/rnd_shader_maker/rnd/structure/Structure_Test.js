@@ -40,20 +40,20 @@ var Structure_Test;
         }
         Structure_util.structureBaseFill(this['structureBase'])
         this['parse'] = function () {
-            this['define'] = new Structure_define()
+            this['define_fragment'] = new Structure_define()
             var k, tData;
             var tInput, tOutput
             for (var k in this['structureBase']['output']) {
                 tInput = this['structureBase']['input'][k]
                 tOutput = this['structureBase']['output'][k]
-                console.log(this['define']['vars'])
-                this['define']['vars'][tVarKey = k + '_' + this['index']] = tOutput['dataType'] + ' ' + tVarKey
+                console.log(this['define_fragment']['vars'])
+                this['define_fragment']['vars'][tVarKey = k + '_' + this['index']] = tOutput['dataType'] + ' ' + tVarKey
                 if (tInput['from']) {
-                    this['define']['headers'].push('    ' + tVarKey + ' = ' + tInput['from']['info']['sourceKey'])
+                    this['define_fragment']['headers'].push('    ' + tVarKey + ' = ' + tInput['from']['info']['sourceKey'])
                 }
             }
 
-            return Structure_util.makeViewStr(this['define'])
+            return Structure_util.makeViewStr(this['define_fragment'])
         }
 
         index++

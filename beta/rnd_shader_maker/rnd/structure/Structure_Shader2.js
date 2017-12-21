@@ -39,17 +39,17 @@ vec4 ${this['nodeType']}_func_shaderTest2_${this['index']} (){
         }
         Structure_util.structureBaseFill(this['structureBase'])
         this['parse'] = function () {
-            this['define'] = new Structure_define()
+            this['define_fragment'] = new Structure_define()
             var k, tData;
             var tOutput
             tOutput = this['structureBase']['output']['SHADER_TEST_OUTPUT']
-            console.log(this['define']['vars'])
-            this['define']['vars'][tVarKey = 'SHADER_TEST_OUTPUT_' + this['index']] = tOutput['dataType'] + ' ' + tVarKey
+            console.log(this['define_fragment']['vars'])
+            this['define_fragment']['vars'][tVarKey = 'SHADER_TEST_OUTPUT_' + this['index']] = tOutput['dataType'] + ' ' + tVarKey
             for (var k in this['structureBase']['functions']) {
-                this['define']['functions'][k] = this['structureBase']['functions'][k]
+                this['define_fragment']['functions'][k] = this['structureBase']['functions'][k]
             }
-            this['define']['headers'].push('    ' + tVarKey + ' = ' + `${this['nodeType']}_func_shaderTest2_${this['index']}()`)
-            return Structure_util.makeViewStr(this['define'])
+            this['define_fragment']['headers'].push('    ' + tVarKey + ' = ' + `${this['nodeType']}_func_shaderTest2_${this['index']}()`)
+            return Structure_util.makeViewStr(this['define_fragment'])
         }
         index++
         console.log(this)
