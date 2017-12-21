@@ -114,7 +114,7 @@ var NodeBox;
                                 uniformNameBox.S(
                                     '@value', structureInfo['structureBase']['textureInfo']['textureUniformKey']
                                 )
-
+                                rootBox.parseDefine()
                                 Recard.query('[nodeType="Final"]')['parseDefine']()
                             }]
                         )

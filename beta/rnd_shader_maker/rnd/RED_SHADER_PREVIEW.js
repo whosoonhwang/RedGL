@@ -172,15 +172,13 @@ Recard.static('RED_SHADER_PREVIEW', (function () {
                     ])
                 )
                 testMat = testGL.createMaterialInfo('color')
-                tMesh = testGL.createMeshInfo('testMesh', RedPrimitive.sphere(testGL, 1, 32, 32, 32), testMat)
-                tMesh.scale[0] = 15
-                tMesh.scale[1] = 15
-                tMesh.scale[2] = 15
+                tMesh = testGL.createMeshInfo('testMesh', RedPrimitive.sphere(testGL, 3, 32, 32, 32), testMat)
+          
                 // tMesh.drawMode = testGL.gl.LINES
                 // tMesh = testGL.createMeshInfo('testMesh', RedPrimitive.cube(testGL, 20, 20,20,32, 32, 32), testMat)
                 testScene.children.push(tMesh)
                 var renderer = testGL.createBaseRenderInfo(testScene, function (time) {
-                    testCamera.setPosition(Math.sin(time / 3000) * 60, 60, Math.cos(time / 5000) * 40)
+                    testCamera.setPosition(Math.sin(time / 3000) * 10, 10, Math.cos(time / 5000) * 10)
                     testCamera.lookAt([0, 0, 0])
                     var i = testScene['lights']['directional'].length
                     while (i--) {
