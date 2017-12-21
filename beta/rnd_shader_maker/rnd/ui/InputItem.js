@@ -26,6 +26,7 @@ var InputItem;
             }
             dataTypeBox.S('html', info['dataType'] ? info['dataType'] : 'null')
             getPanel()['parseDefine']()
+            Recard.LINE_MANAGER.render()
         }
         deleteFromData = function () {
             var tFrom, tFromToInfo;

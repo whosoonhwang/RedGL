@@ -37,6 +37,7 @@ var OutputItem;
                 toBox.S('html', toList.join('<br>'))
             }
             getPanel()['parseDefine']()
+            Recard.LINE_MANAGER.render()
         }
         toInfo = info['to']
         console.log('toInfo', toInfo)
@@ -56,9 +57,14 @@ var OutputItem;
                 'background', '#666',
                 'on', ['down', function () {
                     Recard.LINE_MANAGER.setTempCurve(rootBox)
+                    Recard.LINE_MANAGER.setNeedRender(true)
                     Recard.EVENT_EMITTER.on(window, 'mouseup', function () {
                         Recard.EVENT_EMITTER.off(window, 'mouseup')
-                        requestAnimationFrame(Recard.LINE_MANAGER.removeTempCurve)
+                        requestAnimationFrame(function(){
+                            Recard.LINE_MANAGER.setNeedRender(false)
+                            Recard.LINE_MANAGER.removeTempCurve()
+                        })
+                        
                     })
                 }]
             ),
