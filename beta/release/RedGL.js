@@ -107,6 +107,7 @@ var RedShaderInfo;
         }
         parseData = source.match(/attribute[\s\S]+?\;|uniform[\s\S]+?\;/g)
         console.log(source,parseData)
+        parseData = parseData ? parseData : []
         parseData.forEach(function (v, index) {
             parseData[index] = v.trim().replace(';', '').split('[')[0]
         })
@@ -2393,12 +2394,25 @@ var RedMaterialInfo;
                 this['uniforms']['uAtlascoord'] = t0['atlasUVInfo']
             } else throw k + '는 올바르지 않은 타입입니다.'
         }
+        this.updateUniformList()
+        this['__UUID'] = REDGL_UUID++
+    }
+    RedMaterialInfo.prototype.updateUniformList = function () {
         // 프로그램 정보를 처리
         if (this['needUniformList']) {
             this['__uniformList'] = []
             var tUniformGroup = this['uniforms']
             var tUniformLocationGroup = this['programInfo']['uniforms']
             for (k in tUniformGroup) {
+                console.log('//////////////////////////////////////')
+                console.log(k)
+                console.log(tUniformLocationGroup)
+                console.log(tUniformLocationGroup[k])
+                console.log(tUniformLocationGroup[k]['type'])
+                console.log(tUniformGroup[k])
+                console.log(tUniformLocationGroup[k]['location'])
+                console.log(tUniformLocationGroup)
+                console.log('//////////////////////////////////////')
                 this['__uniformList'].push({
                     key: k,
                     type: tUniformLocationGroup[k]['type'],
@@ -2410,7 +2424,6 @@ var RedMaterialInfo;
             }
             this['needUniformList'] = false
         }
-        this['__UUID'] = REDGL_UUID++
     }
     Object.freeze(RedMaterialInfo)
 })();
@@ -2816,8 +2829,12 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		SPECULAR : 5
+		SPECULAR : 5,
 		//아틀라스는 자동
+		ETC1 : 10,
+		ETC2 : 11,
+		ETC3 : 12,
+		ETC4 : 13
 	}
 	Object.freeze(RedTextureIndex)
 })();
@@ -2966,7 +2983,7 @@ var RedAtlasTextureManager;
 		tAtlas = new Atlas(canvas);
 		tAtlas['atlasInfo'] = RedAtlasInfo(tRedGL, tAtlas)
 		tTextureUnitIndex++
-		if (tTextureUnitIndex == MAX_TEXTURE_IMAGE_UNITS) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 2)
+		if (tTextureUnitIndex == MAX_TEXTURE_IMAGE_UNITS) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 4)
 		tAtlas['__targetIndex'] = tTextureUnitIndex // console.log(tAtlas)
 		atlasInfoList.push(tAtlas['atlasInfo'])
 
@@ -3284,6 +3301,16 @@ var RedBaseRenderInfo;
                 self.setDirectionalLight(tempProgramInfo)
                 self.setPointLight(tempProgramInfo)
 
+                if(tempProgramInfo['uniforms']['uSystemTime']){
+                    tLocation = tempProgramInfo['uniforms']['uSystemTime']['location']
+                    tGL.uniform1f(tLocation, time/1000)
+                }
+                if(tempProgramInfo['uniforms']['uSystemResolution']){
+                    tLocation = tempProgramInfo['uniforms']['uSystemResolution']['location']
+                    tGL.uniform2fv(tLocation, new Float32Array([tGL['drawingBufferWidth'], tGL['drawingBufferHeight']]))
+                }
+                
+
             }
             cacheProgram = null // 캐쉬된 프로그램을 삭제
             //////////////////////////////////////////////////////////////////
@@ -3549,6 +3576,7 @@ var RedBaseRenderInfo;
                             )
                     }
                 }
+                if(tMaterial['needUniformList']) tMaterial.updateUniformList()
                 // 유니폼 입력
                 tUniformGroupList = tMaterial['__uniformList']
                 i2 = tUniformGroupList.length
@@ -3561,6 +3589,7 @@ var RedBaseRenderInfo;
                     tLocation = tUniformGroupList[i2]['location']
                     // 값이없으면 무시
                     if (tUniformValue == undefined) { }
+                
                     // 아틀라스코디네이트값인경우
                     else if (tUniformKey == 'uAtlascoord') {
                         cacheUAtlascoord_UUID == tUniformValue['__UUID'] ? 0 : tGL.uniform4fv(tLocation, tUniformValue['value'])

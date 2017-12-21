@@ -51,7 +51,7 @@ var RedAtlasTextureManager;
 		tAtlas = new Atlas(canvas);
 		tAtlas['atlasInfo'] = RedAtlasInfo(tRedGL, tAtlas)
 		tTextureUnitIndex++
-		if (tTextureUnitIndex == MAX_TEXTURE_IMAGE_UNITS) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 2)
+		if (tTextureUnitIndex == MAX_TEXTURE_IMAGE_UNITS) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 4)
 		tAtlas['__targetIndex'] = tTextureUnitIndex // console.log(tAtlas)
 		atlasInfoList.push(tAtlas['atlasInfo'])
 

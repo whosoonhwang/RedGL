@@ -1,7 +1,6 @@
-
 'use strict';
 var testGL
-Recard.static('PREVIEW', (function () {
+Recard.static('RED_SHADER_PREVIEW', (function () {
     var result;
     var rootBox
     var testCvs
@@ -64,74 +63,58 @@ void main(void) {
                     testGL.getShaderInfo(tName, RedShaderInfo.FRAGMENT_SHADER),
                     function (target) {
                         var root, tList;
-                        root = Recard.query('[nodeType="Result"]')
+                        root = Recard.query('[nodeType="Final"]')
                         tList = root.queryAll('[key]')
                         tList = tList.filter(function (item) {
-                            if (item['prev']) return true
+                            if (item['info']['from']) return true
                         })
                         var i = tList.length
                         while(i--){
                             var item = tList[i]
-                            console.log(item['prev'])
-                            if (item.S('@key') == 'DIFFUSE' && item['prev']) {
+                            console.log(item['info']['from'])
+                            if (item.S('@key') == 'DIFFUSE' && item['info']['from']) {
                                 console.log('디퓨즈를 먹는다.')
-                                var tIndex = item['prev']['rootBox']['compileInfo']['outLinkInfo']['COLOR'].split('_')
-                                tIndex = tIndex[1]
-                                target.uniforms['uTexture_' + tIndex] = target['diffuseInfo']
+                                // target.uniforms['uTexture_' + item['info']['from'].parent().parent()['structureInfo']['index']] = target['diffuseInfo']
+                                // target.uniforms['uTexture_' + 0] = target['diffuseInfo']
                             }
-                            if (item.S('@key') == 'NORMAL' && item['prev']) {
-                                console.log('노멀을 먹는다.')
-                                var tIndex = item['prev']['rootBox']['compileInfo']['outLinkInfo']['COLOR'].split('_')
-                                tIndex = tIndex[1]
-                                target.uniforms['uTexture_' + tIndex] = target['normalInfo']
+                            if (item.S('@key') == 'NORMAL' && item['info']['from']) {
+                               
                             }
-                            if (item.S('@key') == 'SPECULAR' && item['prev']) {
-                                console.log('SPECULAR를 먹는다.')
-                                var tIndex = item['prev']['rootBox']['compileInfo']['outLinkInfo']['COLOR'].split('_')
-                                tIndex = tIndex[1]
-                                target.uniforms['uTexture_' + tIndex] = target['specularInfo']
+                            if (item.S('@key') == 'SPECULAR' && item['info']['from']) {
+                               
                             }
                            
                         }
-                        target.uniforms.uDisplacementTexture = target['displacementInfo']
                         target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
-                        // target.uniforms.uTime = Recard.LOOPER.playTime
-                        target.uniforms.uShininess = 8
                         console.log('결과가',target)       
                     }
                 );
                 (function(){
                     var root, tList;
-                    root = Recard.query('[nodeType="Result"]')
+                    root = Recard.query('[nodeType="Final"]')
                     tList = root.queryAll('[key]')
                     tList = tList.filter(function (item) {
-                        if (item['prev']) return true
+                        if (item['info']['from']) return true
                     })
                     var i = tList.length
                     while(i--){
                         var item = tList[i]
-                        console.log(item['prev'])
-                        if (item.S('@key') == 'DIFFUSE' && item['prev']) {
+                        console.log(item['info']['from'])
+                        if (item.S('@key') == 'DIFFUSE' && item['info']['from']) {
                             console.log('디퓨즈를 먹는다.')
                             tTextureDiffuse = testGL.createTextureInfo('../../asset/fieldstone.jpg')
                         }
-                        if (item.S('@key') == 'NORMAL' && item['prev']) {
+                        if (item.S('@key') == 'NORMAL' && item['info']['from']) {
                             console.log('노멀을 먹는다.')
                             tTextureNormal = testGL.createTextureInfo('../../asset/fieldstone-normal.jpg', RedTextureIndex.NORMAL)
                         }
-                        if (item.S('@key') == 'SPECULAR' && item['prev']) {
-                            console.log('SPECULAR를 먹는다.')
-                            tTextureSpecular = testGL.createTextureInfo('../../asset/tile/specular.png', RedTextureIndex.SPECULAR)
-                        }
-                        if (item.S('@key') == 'DISPLACEMENT' && item['prev']) {
-                            console.log('DISPLACEMENT를 먹는다.')
-                            tTextureDisplacement = testGL.createTextureInfo('../../asset/displacement.jpg', RedTextureIndex.DISPLACEMENT)
+                        if (item.S('@key') == 'SPECULAR' && item['info']['from']) {
+                           
                         }
                        
                     }
                 })();
-                
-               
+
                 console.log(tTextureDiffuse, tTextureNormal, tTextureDisplacement, tTextureSpecular)
                 testGL.createMaterialDefine(testGL.getProgramInfo(tName))
                 var t2 = testGL.createMaterialInfo(tName, tTextureDiffuse, tTextureNormal, tTextureDisplacement, tTextureSpecular)
@@ -141,18 +124,22 @@ void main(void) {
         }
     })()
     result = {
-        setTest: setTest,
+        setTest : setTest,
         init: function () {
             rootBox = Recard.Dom('div').S(
                 'position', 'fixed',
-                'z-index', 0,
                 'top', 0,
                 'left', 0,
-                'background', '#000',
-                '>', testCvs = Recard.Dom('canvas'),
+                'width', 400,
+                'height', 400,
+                'overflow', 'hidden',
+                'background','#222',
+                '>', testCvs = Recard.Dom('canvas').S(
+                    '@width',400,
+                    '@height',400
+                ),
                 '<', 'body'
             )
-          
             testGL = RedGL(testCvs.__dom__, function () {
                 testGL.createShaderInfo('color', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('colorVS'))
                 testGL.createShaderInfo('color', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('colorFS'))
@@ -225,10 +212,10 @@ void main(void) {
 
                 }
                 renderer.start()
-                Recard.WIN_RESIZER.add('testGL',function(){
-                    testGL.setSize(window.screen.width,window.screen.height)
-                })
-                testGL.setSize(window.screen.width,window.screen.height)
+                // Recard.WIN_RESIZER.add('testGL',function(){
+                //     testGL.setSize(document.body.clientWidth,document.body.clientHeight)
+                // })
+                // testGL.setSize(document.body.clientWidth,document.body.clientHeight)
             }, false, [
                     { id: 'colorVS', src: '../../glsl/colorVS.glsl' },
                     { id: 'colorFS', src: '../../glsl/colorFS.glsl' },
@@ -238,5 +225,6 @@ void main(void) {
 
         }
     }
+
     return result
 })())
