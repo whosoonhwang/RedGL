@@ -152,6 +152,7 @@ var NodeBox;
                     startMouseY = Recard.WIN.mouseY
                     startX = rootBox.S('left')
                     startY = rootBox.S('top')
+                    Recard.LINE_MANAGER.setNeedRender(true)
                     Recard.LOOPER.add('RED_SHADER_NODE_BOX', function () {
                         var tX, tY
                         tX = startX - (startMouseX - Recard.WIN.mouseX)
@@ -164,6 +165,7 @@ var NodeBox;
                     Recard.EVENT_EMITTER.on(window, 'mouseup', function () {
                         Recard.LOOPER.del('RED_SHADER_NODE_BOX')
                         Recard.EVENT_EMITTER.off(window, 'mouseup')
+                        Recard.LINE_MANAGER.setNeedRender(false)
                     })
                 }],
                 '>', Recard.Dom('button').S(
