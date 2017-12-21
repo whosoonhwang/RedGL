@@ -11,8 +11,8 @@ var Structure_Final;
             input: {
                 DIFFUSE: { dataType: 'vec4', from: null },
                 NORMAL: { dataType: 'vec4', from: null },
+                SPECULAR: { dataType: 'vec4', from: null },
                 DISPLACEMENT: { dataType: 'vec4', from: null },
-                SPECULAR: { dataType: 'vec4', from: null }
             }
         }
         Structure_util.structureBaseFill(this['structureBase'])
@@ -32,7 +32,9 @@ var Structure_Final;
                 var tN;
                 tN = ';\n'
                 if(key == 'functions') tN = '\n'
-                for (k in tData) { resultStr += tData[k] + tN }
+                for (k in tData) {  
+                    if(resultStr.indexOf(tData[k])==-1) resultStr += tData[k] + tN
+                 }
             })
             resultStr += 'void main(void) {\n';
             resultStr += '    //define headers;\n';
