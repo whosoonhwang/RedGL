@@ -27,7 +27,7 @@ vec4 ${this['nodeType']}_func_shaderTest2_${this['index']} (){
     for (float i = 0.; i < PI*2.; i += PI/17.5) {
 		vec2 p = position - vec2(cos(i+T), sin(i+T)) * 0.25;
 		vec3 col = ${this['nodeType']}_hsv2rgb_${this['index']}(vec3((i)/(PI*2.), 1., mod(i-T*3.,PI*2.)/PI));
-		color += col * (1./128.) / length(p);
+		color += col * (1./1024.) / length(p);
     }
     return vec4(color,0.5);
 }

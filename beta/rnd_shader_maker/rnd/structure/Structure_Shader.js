@@ -13,7 +13,7 @@ var Structure_Shader;
                     `
 const int func_shaderTestMAX_ITER = 4;
 vec4 ${this['nodeType']}_func_shaderTest_${this['index']} (vec2 currentTexcoord){
-    vec2 v_texCoord = gl_FragCoord.xy/vSystemResolution + currentTexcoord;
+    vec2 v_texCoord = gl_FragCoord.xy/vSystemResolution ;
     vec2 p =  (v_texCoord) * 8.0 ;
     vec2 i = p;
     float c = 1.0;
