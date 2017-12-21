@@ -55,6 +55,14 @@ Recard.static('TEST_BOX', (function () {
                 }],
                 '<', rootBox
             )
+            Recard.Dom('div').S(
+                '@className', 'nodeItemButton',
+                'html', 'ShaderTest2',
+                'on', ['down', function () {
+                    Recard.RED_SHADER_GRID.addNode(new Structure_Shader2())
+                }],
+                '<', rootBox
+            )
             Recard.RED_SHADER_GRID.addNode(new Structure_Final())
 
         }

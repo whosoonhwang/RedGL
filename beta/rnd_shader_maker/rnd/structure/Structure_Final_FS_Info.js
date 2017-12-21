@@ -10,6 +10,8 @@ uniform int uUseNormalTexture; // 노말텍스쳐 사용여부
 uniform int uUseSpecularTexture; // 스페큘러텍스쳐 사용여부
 varying vec3 vEyeVec;
 varying vec3 vNormal;
+varying float vSystemTime;
+varying vec2 vSystemResolution;
 
 // 암비안트
 uniform vec4 uAmbientLightColor;
@@ -76,7 +78,7 @@ vec4 finalColor; // 최종컬러값
             if(i == uDirectionalNum) break;
             L = normalize(uDirectionnalLightDirection[i]);
             lambertTerm = dot(N, -L);
-            if(lambertTerm > 0.0){
+            if(lambertTerm > 0.05){
                 ld += uDirectionnalLightColor[i] * texelColor_DIFFUSE * lambertTerm;
                 R = reflect(L, N);
                 specular = pow( max(dot(R, -L), 0.0), uShininess);
@@ -93,7 +95,7 @@ vec4 finalColor; // 최종컬러값
             attenuation = 1.0 / (0.01 + 0.01 * lightDistanceLength + 0.02 * lightDistanceLength * lightDistanceLength); 
             L = normalize(pointDirection);
             lambertTerm = dot(N, -L);
-            if(lambertTerm > 0.0){
+            if(lambertTerm > 0.05){
                 ld += uPointLightColor[i] * texelColor_DIFFUSE * lambertTerm*attenuation;
                 R = reflect(L, N);
                 specular = pow( max(dot(R, -L), 0.0), uShininess);

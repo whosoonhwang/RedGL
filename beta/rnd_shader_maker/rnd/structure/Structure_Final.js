@@ -23,8 +23,6 @@ var Structure_Final;
             self = this;
             resultStr = ''
             finalDefineInfo = finalDefineInfo
-            finalDefineInfo['uniforms']['uSystemTime'] = 'uniform float uSystemTime'
-            finalDefineInfo['uniforms']['uSystemResolution'] = 'uniform vec2 uSystemResolution'
             console.log(finalDefineInfo)
             resultStr += Structure_Final_FS_Info['define'];
             //

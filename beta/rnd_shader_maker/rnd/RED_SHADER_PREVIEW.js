@@ -91,6 +91,7 @@ Recard.static('RED_SHADER_PREVIEW', (function () {
                                 break
                             case RedTextureIndex.DISPLACEMENT:
                                 t2['displacementInfo'] = tTextureDisplacement
+                                t2.uniforms[tTextureUniformKey] = t2['displacementInfo']
                                 break
                             case RedTextureIndex.ETC1:
                                 t2[tTextureUniformKey] = tEtc1
@@ -174,7 +175,9 @@ Recard.static('RED_SHADER_PREVIEW', (function () {
                     ])
                 )
                 testMat = testGL.createMaterialInfo('color')
-                tMesh = testGL.createMeshInfo('testMesh', RedPrimitive.sphere(testGL, 10, 32, 32, 32), testMat)
+                tMesh = testGL.createMeshInfo('testMesh', RedPrimitive.sphere(testGL, 20, 32, 32, 32), testMat)
+                // tMesh.drawMode = testGL.gl.LINES
+                // tMesh = testGL.createMeshInfo('testMesh', RedPrimitive.cube(testGL, 20, 20,20,32, 32, 32), testMat)
                 testScene.children.push(tMesh)
                 var renderer = testGL.createBaseRenderInfo(testScene, function (time) {
                     testCamera.setPosition(Math.sin(time / 3000) * 60, 60, Math.cos(time / 5000) * 40)
