@@ -63,9 +63,8 @@ var NodeBox;
                         'border', 0, 'outline', 'none',
                         'padding', 5,
                         'width', 200,
-                        'on', ['focusout', function (e) {
+                        'on', ['input', function (e) {
                             structureInfo['structureBase']['textureInfo']['textureUniformKey'] = this.S('@value')
-
                             Recard.query('[nodeType="Final"]')['parseDefine']()
                         }]
                     ),
@@ -79,7 +78,6 @@ var NodeBox;
                             console.log(this.__dom__.files)
                             structureInfo['structureBase']['textureInfo']['src'] = window.URL.createObjectURL(this.__dom__.files[0])
                             imageBox.S('@src', window.URL.createObjectURL(this.__dom__.files[0]))
-
                             Recard.query('[nodeType="Final"]')['parseDefine']()
                         }]
                     ),

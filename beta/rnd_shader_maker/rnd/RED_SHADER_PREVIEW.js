@@ -29,7 +29,7 @@ Recard.static('RED_SHADER_PREVIEW', (function () {
                         testGL.getShaderInfo(tName, RedShaderInfo.VERTEX_SHADER),
                         testGL.getShaderInfo(tName, RedShaderInfo.FRAGMENT_SHADER),
                         function (target) {
-                            target.uniforms.uUseDisplacementTexture = 0
+                          
                             target.uniforms.uShininess = 8
                             target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
 
@@ -172,7 +172,10 @@ Recard.static('RED_SHADER_PREVIEW', (function () {
                     ])
                 )
                 testMat = testGL.createMaterialInfo('color')
-                tMesh = testGL.createMeshInfo('testMesh', RedPrimitive.sphere(testGL, 20, 32, 32, 32), testMat)
+                tMesh = testGL.createMeshInfo('testMesh', RedPrimitive.sphere(testGL, 1, 32, 32, 32), testMat)
+                tMesh.scale[0] = 15
+                tMesh.scale[1] = 15
+                tMesh.scale[2] = 15
                 // tMesh.drawMode = testGL.gl.LINES
                 // tMesh = testGL.createMeshInfo('testMesh', RedPrimitive.cube(testGL, 20, 20,20,32, 32, 32), testMat)
                 testScene.children.push(tMesh)
@@ -185,6 +188,9 @@ Recard.static('RED_SHADER_PREVIEW', (function () {
                         testScene['lights']['directional'][i].direction[1] = Math.cos(time / 4400 + Math.PI * 2 / 2 * i) * 20 + Math.sin(time / 2700 + Math.PI * 2 / 2 * i) * 50
                         testScene['lights']['directional'][i].direction[2] = -Math.sin(time / 2200 + Math.PI * 2 / 2 * i) * 30
                     }
+                    tMesh.rotation[0] += 0.01
+                    tMesh.rotation[1] += 0.01
+                    tMesh.rotation[2] += 0.01
                 })
                 // 엠비언트 라이트 테스트
                 var testLight = testGL.createAmbientLight(testGL)

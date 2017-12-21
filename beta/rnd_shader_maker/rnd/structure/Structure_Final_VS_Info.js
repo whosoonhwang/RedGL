@@ -36,10 +36,10 @@ var Structure_Final_VS_Info;
             if(uUseDisplacementTexture == 1) {
                 vertexPositionEye4.xyz += normalize(vNormal) * texture2D(uDisplacementTexture,vTexcoord).x;
             }
+           
             vSystemTime = uSystemTime;
             vSystemResolution = uSystemResolution;
             // 포지션 결정
-
             gl_Position = uPMatrix * uCameraMatrix *  vertexPositionEye4;
 
            
