@@ -5,8 +5,7 @@ var Structure_Final_FS_Info;
     Structure_Final_FS_Info = {
         define:
         `
-precision highp float;
-precision highp int;
+precision lowp float;
 uniform int uUseNormalTexture; // 노말텍스쳐 사용여부
 uniform int uUseSpecularTexture; // 스페큘러텍스쳐 사용여부
 varying vec3 vEyeVec;

@@ -34,7 +34,7 @@ var Structure_Final_VS_Info;
             vNormal = vec3(uNMatrix * vec4(aVertexNormal,1.0)); 
             vEyeVec = -vertexPositionEye4.xyz;
             if(uUseDisplacementTexture == 1) {
-                vertexPositionEye4.xyz += normalize(vNormal) * texture2D(uDisplacementTexture,vTexcoord).x * length(vec3(uMVMatrix[0][0], uMVMatrix[1][1], uMVMatrix[2][2]));
+                vertexPositionEye4.xyz += normalize(vNormal) * texture2D(uDisplacementTexture,vTexcoord).x;
             }
             vSystemTime = uSystemTime;
             vSystemResolution = uSystemResolution;
