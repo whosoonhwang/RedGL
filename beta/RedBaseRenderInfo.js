@@ -483,7 +483,6 @@ var RedBaseRenderInfo;
                                 tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
                                 tGL.bindTexture(tGL.TEXTURE_2D, tUniformValue['texture'])
                                 cacheTexture_UUID[tUniformValue['__targetIndex']] = tUniformValue['__UUID']
-
                             }
                             cacheActiveTextureIndex_UUID[tUniformValue['__targetIndex']] != tUniformValue['__UUID'] ? tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
                             cacheActiveTextureIndex_UUID[tUniformValue['__targetIndex']] = tUniformValue['__UUID']

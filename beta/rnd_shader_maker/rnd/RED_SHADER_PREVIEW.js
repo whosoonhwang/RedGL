@@ -30,9 +30,6 @@ Recard.static('RED_SHADER_PREVIEW', (function () {
                         testGL.getShaderInfo(tName, RedShaderInfo.FRAGMENT_SHADER),
                         function (target) {
                             target.uniforms.uDisplacementTexture = target['displacementInfo']
-                            target.uniforms.uUseNormalTexture = 1
-                            target.uniforms.uUseSpecularTexture = 1
-                            target.uniforms.uUseDisplacementTexture = 1
                             target.uniforms.uShininess = 8
                             target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
 

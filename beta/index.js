@@ -136,9 +136,9 @@ start = function () {
 	i = max
 	while (i--) {
 		var tMesh = testGL.createMeshInfo('testMeshAdd1' + i, RedPrimitive.sphere(testGL, 1, 32, 32, 32), testMatBitmap)
-		tMesh.position[0] = Math.sin(Math.PI * 2 / max * i) * 30
+		tMesh.position[0] = Math.sin(Math.PI * 2 / max * i) * 40
 		tMesh.position[1] = 0
-		tMesh.position[2] = Math.cos(Math.PI * 2 / max * i) * 30
+		tMesh.position[2] = Math.cos(Math.PI * 2 / max * i) * 40
 		testScene.children.push(tMesh)
 	}
 
@@ -176,15 +176,15 @@ start = function () {
 	}
 
 	// 무작위로 가보자
-	var i = 40, j
+	var i = 60, j
 	while (i--) {
 		j = 30
 		while (j--) {
 			var tMesh = testGL.createMeshInfo('testMeshAdd2' + '_' + i + '_' + j, RedPrimitive.sphere(testGL, 0.5, 16, 16, 16), testMatBitmap)
 			// var tMesh = testGL.createMeshInfo('testMeshAdd1'+i, RedPrimitive.cube(testGL,1,1,1,32,32,32), testMatBitmap)
-			tMesh.position[0] = Math.sin(Math.PI * 2 * Math.random()) * 30
-			tMesh.position[1] = Math.sin(Math.PI * 2 * Math.random()) * 30
-			tMesh.position[2] = Math.cos(Math.PI * 2 * Math.random()) * 30
+			tMesh.position[0] = Math.sin(Math.PI * 2 * Math.random()) * 40
+			tMesh.position[1] = Math.sin(Math.PI * 2 * Math.random()) * 40
+			tMesh.position[2] = Math.cos(Math.PI * 2 * Math.random()) * 40
 			tMesh.rotation[0] = Math.random()*Math.PI*2
 			tMesh.rotation[1] = Math.random()*Math.PI*2
 			tMesh.rotation[2] = Math.random()*Math.PI*2
@@ -197,9 +197,9 @@ start = function () {
 		while (j--) {
 			var tMesh = testGL.createMeshInfo('testMeshAdd3' + '_' + i + '_' + j, RedPrimitive.sphere(testGL, 0.5, 16, 16, 16), testMatBitmap2)
 			// var tMesh = testGL.createMeshInfo('testMeshAdd1'+i, RedPrimitive.cube(testGL,1,1,1,32,32,32), testMatBitmap)
-			tMesh.position[0] = Math.sin(Math.PI * 2 * Math.random()) * 30
-			tMesh.position[1] = Math.sin(Math.PI * 2 * Math.random()) * 30
-			tMesh.position[2] = Math.cos(Math.PI * 2 * Math.random()) * 30
+			tMesh.position[0] = Math.sin(Math.PI * 2 * Math.random()) * 40
+			tMesh.position[1] = Math.sin(Math.PI * 2 * Math.random()) * 40
+			tMesh.position[2] = Math.cos(Math.PI * 2 * Math.random()) * 40
 			tMesh.rotation[0] = Math.random()*Math.PI*2
 			tMesh.rotation[1] = Math.random()*Math.PI*2
 			tMesh.rotation[2] = Math.random()*Math.PI*2
@@ -220,7 +220,7 @@ start = function () {
 			testScene['lights']['point'][i].position[0] = Math.sin(time / 6000 + Math.PI * 2 / testScene['lights']['point'].length * i) * 20
 			testScene['lights']['point'][i].position[1] = Math.tan(time / 3000 + Math.PI * 2 / testScene['lights']['point'].length * i) * 10 +
 				Math.atan(time / 2000 + Math.PI * 2 / testScene['lights']['point'].length * i) * 10
-			testScene['lights']['point'][i].position[2] = Math.cos(time / 2500 + Math.PI * 2 / testScene['lights']['point'].length * i) * 30
+			testScene['lights']['point'][i].position[2] = Math.cos(time / 2500 + Math.PI * 2 / testScene['lights']['point'].length * i) * 40
 		}
 		i = testScene['lights']['directional'].length
 		while (i--) {

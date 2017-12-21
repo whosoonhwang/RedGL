@@ -64,9 +64,6 @@ var RedTextureInfo;
 			format,
 			type,
 			new Uint8Array(
-				222, 222, 222, 255,
-				66, 66, 66, 255,
-				66, 66, 66, 255,
 				222, 222, 222, 255
 			)
 		)
@@ -86,7 +83,7 @@ var RedTextureInfo;
 			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_S, tGL.CLAMP_TO_EDGE);
 			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_T, tGL.CLAMP_TO_EDGE);
 			tGL.generateMipmap(tGL.TEXTURE_2D)
-
+			
 			// img.onload = null
 		});
 		// tGL.bindTexture(tGL.TEXTURE_2D, null)
