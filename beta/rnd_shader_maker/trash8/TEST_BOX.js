@@ -25,17 +25,9 @@ Recard.static('TEST_BOX', (function () {
             )
             Recard.Dom('div').S(
                 '@className', 'nodeItemButton',
-                'html', 'fragment 텍스쳐추가',
+                'html', '텍스쳐추가',
                 'on', ['down', function () {
-                    Recard.RED_SHADER_GRID.addNode(new Structure_Texture('fragment'))
-                }],
-                '<', rootBox
-            ),
-            Recard.Dom('div').S(
-                '@className', 'nodeItemButton',
-                'html', 'vertex 텍스쳐추가',
-                'on', ['down', function () {
-                    Recard.RED_SHADER_GRID.addNode(new Structure_Texture('vertex'))
+                    Recard.RED_SHADER_GRID.addNode(new Structure_Texture())
                 }],
                 '<', rootBox
             ),

@@ -60,34 +60,30 @@ var InputItem;
                     var tTempOutputItem;
                     tTempOutputItem = Recard.LINE_MANAGER.getTempOutputItem()
                     if (tTempOutputItem) {
-                        if (tTempOutputItem.query('[shaderTypeBox]').S('text') == rootBox.query('[shaderTypeBox]').S('text')) {
+                        // 계산아이템
+                        if (key.indexOf('INPUT') > -1) {
                             // 계산아이템
-                            if (key.indexOf('INPUT') > -1) {
-                                // 계산아이템
-                                if (info['from']) info['from'].delTo(rootBox)
-                                info['from'] = tTempOutputItem
-                                info['dataType'] = tTempOutputItem.S('@dataType')
-                                //TODO: 여기서 형시계산을 해줘야하는군...
-                                // 또 여길 외부주입해야하는군
-                                if (getPanel().S('@nodeType') == 'Add') {
-                                    getPanel()['structureInfo']['structureBase']['output']['OUTPUT']['dataType'] = info['dataType']
-                                    getPanel().query('[key="OUTPUT"]').S('@dataType', info['dataType'])
-                                    getPanel().query('[key="OUTPUT"] span').S('html', info['dataType'])
-                                }
-                                update()
-                                tTempOutputItem.addTo(rootBox)
+                            if (info['from']) info['from'].delTo(rootBox)
+                            info['from'] = tTempOutputItem
+                            info['dataType'] = tTempOutputItem.S('@dataType')
+                            //TODO: 여기서 형시계산을 해줘야하는군...
+                            // 또 여길 외부주입해야하는군
+                            if (getPanel().S('@nodeType') == 'Add') {
+                                getPanel()['structureInfo']['structureBase']['output']['OUTPUT']['dataType'] = info['dataType']
+                                getPanel().query('[key="OUTPUT"]').S('@dataType', info['dataType'])
+                                getPanel().query('[key="OUTPUT"] span').S('html', info['dataType'])
                             }
-                            // 일반아이템
-                            else if (tTempOutputItem.S('@dataType') == info['dataType']) {
-                                if (info['from']) info['from'].delTo(rootBox)
-                                info['from'] = tTempOutputItem
-                                tTempOutputItem.addTo(rootBox)
-                                update()
-                            }
-                            else console.log('같은 데이터 형식만 지정할 수 있습니다. ')
-                        }else {
-                            console.log('같은 쉐이더 종류만 지정할 수 있습니다.')
+                            update()
+                            tTempOutputItem.addTo(rootBox)
                         }
+                        // 일반아이템
+                        else if (tTempOutputItem.S('@dataType') == info['dataType']) {
+                            if (info['from']) info['from'].delTo(rootBox)
+                            info['from'] = tTempOutputItem
+                            tTempOutputItem.addTo(rootBox)
+                            update()
+                        }
+                        else console.log('같은 데이터 형식만 지정할 수 있습니다. ')
                     }
                 }]
             ),
@@ -119,7 +115,6 @@ var InputItem;
                 'color', 'rgb(242, 169, 113)'
             ),
             '>', shaderTypeBox = Recard.Dom('div').S(
-                '@shaderTypeBox','',
                 'display','inline-block',
                 'margin-left', 5,
                 'color', 'rgb(0, 200, 200)'

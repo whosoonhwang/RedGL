@@ -4,10 +4,8 @@ var Structure_Texture;
     var index;
     var tUniformKey, tVaryingKey, tVarKey;
     index = 0
-    Structure_Texture = function (shaderType) {
-        this['nodeType'] = shaderType+'_Texture'
-        this['nodeColor'] = shaderType == 'fragment' ? 'rgb(144, 74, 135)' : 'rgb(50, 100, 135)'
-        this['shaderType'] = shaderType
+    Structure_Texture = function () {
+        this['nodeType'] = 'Texture'
         this['index'] = index
         this['structureBase'] = {
             textureInfo: {
@@ -19,16 +17,15 @@ var Structure_Texture;
             input: {
                 UV: {
                     dataType: 'vec2',
-                    from: null,
-                    shaderType : shaderType
+                    from: null
                 }
             },
             output: {
-                COLOR: { dataType: 'vec4', to: {}, sourceKey: 'textureColor_' + this['index'], shaderType : shaderType },
-                R: { dataType: 'float', to: {}, sourceKey: 'textureColor_' + this['index'] + '.r', shaderType : shaderType },
-                G: { dataType: 'float', to: {}, sourceKey: 'textureColor_' + this['index'] + '.g', shaderType : shaderType },
-                B: { dataType: 'float', to: {}, sourceKey: 'textureColor_' + this['index'] + '.b', shaderType : shaderType },
-                A: { dataType: 'float', to: {}, sourceKey: 'textureColor_' + this['index'] + '.a', shaderType : shaderType }
+                COLOR: { dataType: 'vec4', to: {}, sourceKey: 'textureColor_' + this['index'] },
+                R: { dataType: 'float', to: {}, sourceKey: 'textureColor_' + this['index'] + '.r' },
+                G: { dataType: 'float', to: {}, sourceKey: 'textureColor_' + this['index'] + '.g' },
+                B: { dataType: 'float', to: {}, sourceKey: 'textureColor_' + this['index'] + '.b' },
+                A: { dataType: 'float', to: {}, sourceKey: 'textureColor_' + this['index'] + '.a' }
             }
         }
         Structure_util.structureBaseFill(this['structureBase'])

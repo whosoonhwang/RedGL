@@ -42,7 +42,7 @@ var NodeBox;
                 'border-bottom-right-radius', 8,
 
                 'background', 'rgba(19,18,26,0.8)',
-                'display', structureInfo['nodeType'].indexOf('Texture')>-1 ? 'block' : 'none',
+                'display', structureInfo['nodeType'] == 'Texture' ? 'block' : 'none',
                 '>', imageBox = Recard.Dom('img').S(
                     '@imageBox', '',
                     'float', 'left',
@@ -59,7 +59,7 @@ var NodeBox;
                     '>', uniformNameBox = Recard.Dom('input').S(
                         '@disabled', '',
                         '@type', 'text',
-                        '@value', structureInfo['nodeType'].indexOf('Texture')>-1 ? structureInfo['structureBase']['textureInfo']['textureUniformKey'] : (structureInfo['nodeType'] + structureInfo['index']),
+                        '@value', structureInfo['nodeType'] == 'Texture' ? structureInfo['structureBase']['textureInfo']['textureUniformKey'] : (structureInfo['nodeType'] + structureInfo['index']),
                         'border', 0, 'outline', 'none',
                         'padding', 5,
                         'width', 200,
@@ -136,7 +136,7 @@ var NodeBox;
                 'height', 30,
                 'border-top-left-radius', 8,
                 'border-top-right-radius', 8,
-                'background', structureInfo['nodeColor'] ? structureInfo['nodeColor'] : '#272530',
+                'background', structureInfo['nodeType'] == 'Texture' ? 'rgb(144, 74, 135)' : '#272530',
                 'line-height', 30,
                 'padding-left', 10,
                 '>', Recard.Dom('span').S(
@@ -198,20 +198,6 @@ var NodeBox;
             '>', inputBox = Recard.Dom('div').S('@className', 'inOutputBox', 'float', 'left'),
             '>', outputBox = Recard.Dom('div').S('@className', 'inOutputBox', 'float', 'right'),
             '>', Recard.Dom('div').S('clear', 'both'),
-            '>', Recard.Dom('div').S(
-                'display', structureInfo['nodeType'] == 'Final' ? 'block' : 'none',
-                'margin-top',10,
-                '>',Recard.Dom('button').S(
-                    'padding',10,
-                    'html','fragment'
-                ),
-                '>',Recard.Dom('button').S(
-                    'border-top-right-radius',10,
-                    'margin-left',1,
-                    'padding',10,
-                    'html','vertex'
-                )
-            ),
             '>', Recard.Dom('pre').S(
                 '@className', 'style-1',
                 'max-width', 500,
@@ -220,7 +206,7 @@ var NodeBox;
                 'margin', 0,
                 'background', 'transparent',
                 '>', Recard.Dom('code').S(
-                    '@code_fragment_Box', '',
+                    '@codeBox', '',
                     '@className', 'language-glsl',
                     'background', 'rgba(0,0,0,0.1)',
                     'padding', 10
@@ -229,7 +215,7 @@ var NodeBox;
         )
         rootBox['structureInfo'] = structureInfo
         rootBox['prism'] = function () {
-            Prism.highlightElement(rootBox.query('[code_fragment_Box]').__dom__)
+            Prism.highlightElement(rootBox.query('[codeBox]').__dom__)
         }
         rootBox['parseDefine'] = (function () {
             var makeNodeStack;
@@ -246,7 +232,7 @@ var NodeBox;
             }
             return function () {
                 console.log(this)
-                rootBox.query('[code_fragment_Box]').S(
+                rootBox.query('[codeBox]').S(
                     'html', ''
                 )
                 var tList = []
@@ -284,14 +270,14 @@ var NodeBox;
                 console.log('finalDefine', finalDefine)
                 if (structureInfo instanceof Structure_Final) {
                     Recard.RED_SHADER_PREVIEW.setTest(null, rootBox['structureInfo'].parse(finalDefine), finalDefine['textureInfo'])
-                    Recard.query('[nodeType="Final"]').query('[code_fragment_Box]').S(
+                    Recard.query('[nodeType="Final"]').query('[codeBox]').S(
                         'html', Recard.query('[nodeType="Final"]')['structureInfo'].parse(finalDefine)
                     )
                 } else {
-                    rootBox.query('[code_fragment_Box]').S(
+                    rootBox.query('[codeBox]').S(
                         'html', rootBox['structureInfo'].parse(finalDefine)
                     )
-                    Recard.query('[nodeType="Final"]').query('[code_fragment_Box]').S(
+                    Recard.query('[nodeType="Final"]').query('[codeBox]').S(
                         'html', Recard.query('[nodeType="Final"]')['parseDefine']()
                     )
                 }

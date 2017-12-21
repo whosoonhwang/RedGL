@@ -3,7 +3,7 @@ var OutputItem;
 (function () {
     OutputItem = function (key, info) {
         if (!(this instanceof OutputItem)) return new OutputItem(key, info)
-        var rootBox, toBox, pointBox, shaderTypeBox;
+        var rootBox, toBox, pointBox;
         var toInfo, update;
         var getPanel, getPanelTitle;
         getPanel = function () { return rootBox.parent().parent() }
@@ -36,7 +36,6 @@ var OutputItem;
                 pointBox.S('background', 'rgb(242, 169, 113)')
                 toBox.S('html', toList.join('<br>'))
             }
-            shaderTypeBox.S('html', info['shaderType'] ? info['shaderType'] : '')
             getPanel()['parseDefine']()
             Recard.LINE_MANAGER.render()
         }
@@ -68,12 +67,6 @@ var OutputItem;
                         
                     })
                 }]
-            ),
-            '>', shaderTypeBox = Recard.Dom('div').S(
-                '@shaderTypeBox','',
-                'display','inline-block',
-                'margin-right', 5,
-                'color', 'rgb(0, 200, 200)'
             ),
             '>', Recard.Dom('span').S(
                 'margin-right', 5,
