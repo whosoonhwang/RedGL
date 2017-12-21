@@ -184,16 +184,16 @@ Recard.static('RED_SHADER_PREVIEW', (function () {
                     testCamera.lookAt([0, 0, 0])
                     var i = testScene['lights']['directional'].length
                     while (i--) {
-                        testScene['lights']['directional'][i].direction[0] = Math.sin(time / 1700 + Math.PI * 2 / 2 * i) * 30
+                        testScene['lights']['directional'][i].direction[0] = -Math.sin(time / 1700 + Math.PI * 2 / 2 * i) * 30
                         testScene['lights']['directional'][i].direction[1] = Math.cos(time / 4400 + Math.PI * 2 / 2 * i) * 20 + Math.sin(time / 2700 + Math.PI * 2 / 2 * i) * 50
-                        testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200 + Math.PI * 2 / 2 * i) * 30
+                        testScene['lights']['directional'][i].direction[2] = -Math.sin(time / 2200 + Math.PI * 2 / 2 * i) * 30
                     }
                 })
                 // 엠비언트 라이트 테스트
                 var testLight = testGL.createAmbientLight(testGL)
                 testScene.addLight(testLight)
                 // 디렉셔널 라이트 테스트
-                var i = 1
+                var i = 2
                 while (i--) {
                     var testLight = testGL.createDirectionalLight(testGL)
                     testLight.direction[0] = -1

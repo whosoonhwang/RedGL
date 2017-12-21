@@ -47,7 +47,7 @@ float specularTextureValue; // 스페큘러 텍스쳐의 컬러값(r)
 vec3 pointDirection; // 방향            
 float lightDistanceLength; // 거리
 float attenuation;  // 감쇄
-
+vec4 nullVec4 = vec4(0.0);
 vec4 finalColor; // 최종컬러값
 `,
         lightBase:
@@ -61,13 +61,13 @@ vec4 finalColor; // 최종컬러값
     E = normalize(vEyeVec);
 
     // 노멀텍스쳐가 있을경우 노말 변경
-    if(uUseNormalTexture == 1) N = normalize(2.0 * (normalize(vNormal) + texelColor_NORMAL.rgb - 0.5));
+    if(texelColor_NORMAL != nullVec4) N = normalize(2.0 * (normalize(vNormal) + texelColor_NORMAL.rgb - 0.5));
     else N = normalize(vNormal);
 
     // 스페큘러값 설정
     specularTextureValue = 1.0;
     // 스페큘러텍스쳐가 있을경우 스페큘러값 변경
-    if(uUseSpecularTexture == 1) specularTextureValue = texelColor_SPECULAR.r;
+    if(texelColor_SPECULAR != nullVec4) specularTextureValue = texelColor_SPECULAR.r;
     // 재질의 스페큘러 컬러값 설정
     vec4 specularColor = vec4(1.0, 1.0, 1.0, 1.0);
 `,

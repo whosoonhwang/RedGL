@@ -143,7 +143,7 @@ var NodeBox;
                 'padding-left', 10,
                 '>', Recard.Dom('span').S(
                     '@titleBox', '',
-                    'html', structureInfo['nodeType'] + structureInfo['index'],
+                    'html', structureInfo['nodeType'] + '_'+structureInfo['index'],
                 ),
                 'cursor', 'move',
                 'on', ['down', function (e) {
