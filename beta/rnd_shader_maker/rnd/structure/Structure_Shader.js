@@ -31,9 +31,9 @@ vec4 ${this['nodeType']}_func_shaderTest_${this['index']} (vec2 currentTexcoord)
     }
     c /= float(func_shaderTestMAX_ITER );
     c = 1.5 - sqrt(c);
-    vec4 texColor = vec4(0.10, 0.55, 0.02, 1.);
+    vec4 texColor = vec4(0.10, 0.55, 0.02, 0.);
     texColor.rgb *= (1.0/ (1.0 - (c + 0.05)));
-    texColor.rgb *= 0.1;
+    texColor.rgb *= 0.3;
     return texColor;
 }
 `

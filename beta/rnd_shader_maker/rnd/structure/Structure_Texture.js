@@ -34,7 +34,6 @@ var Structure_Texture;
             var tUVKey;
             this['define']['uniforms'][tUniformKey = this['structureBase']['textureInfo']['textureUniformKey']] = 'uniform sampler2D ' + tUniformKey
             this['define']['textureInfo'][tUniformKey] = this['structureBase']['textureInfo']
-            this['define']['varyings'][tVaryingKey = 'vTexcoord'] = 'varying vec2 ' + tVaryingKey
             tUVKey = tVaryingKey
             this['define']['vars'][tVarKey = 'textureColor_' + this['index']] = 'vec4 ' + tVarKey
             // 인풋 UV가있으면 바라보는 UV값을 변경해야함
