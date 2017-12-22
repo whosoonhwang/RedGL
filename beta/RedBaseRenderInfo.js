@@ -569,7 +569,6 @@ var RedBaseRenderInfo;
                     }
                 }
                 if (tProgramInfo['uniforms']['uUseEtcFragmentTexture1']) {
-                    console.log('들어왔다!')
                     if (tMaterial['uEtcFragmentTexture1'] && tMaterial['uEtcFragmentTexture1']['loaded']) {
                         if (tMaterial['uEtcFragmentTexture1']['__targetIndex'] != RedTextureIndex.ETC_FRAGMENT_1) throw "ETC_FRAGMENT_1 인덱스타입이 아닙니다."
                         cacheUseTexture['cacheUseEtcFragmentTexture1'] == 1 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseEtcFragmentTexture1']['location'], 1)
