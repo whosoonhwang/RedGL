@@ -2314,8 +2314,8 @@ var RedMaterialInfo;
             1: 'uniform1iv'
         }
     }
-    RedMaterialInfo = function (redGL, typeName, diffuseInfo, normalInfo, displacementInfo, specularInfo) {
-        if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseInfo, normalInfo, displacementInfo, specularInfo)
+    RedMaterialInfo = function (redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture) {
+        if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
         if (typeof typeName != 'string') throw 'typeName은 문자열만 허용됩니다.'
         // 디파인더에서 재질정의를 찾고
@@ -2341,10 +2341,10 @@ var RedMaterialInfo;
 			return : 'RedTextureInfo or RedCubeTextureInfo'
         }
         :DOC*/
-        this['diffuseInfo'] = diffuseInfo
-        this['normalInfo'] = normalInfo
-        this['displacementInfo'] = displacementInfo
-        this['specularInfo'] = specularInfo
+        if(diffuseTexture) this['uDiffuseTexture'] = diffuseTexture
+        if(normalTexture) this['uNormalTexture'] = normalTexture
+        if(displacementTexture) this['uDisplacementTexture'] = displacementTexture
+        if(specularTexture) this['uSpecularTexture'] = specularTexture
         /**DOC:
 		{
             title :`uniforms`,
@@ -3242,9 +3242,7 @@ var RedBaseRenderInfo;
         var cacheActiveTextureIndex_UUID; // 액티브된 텍스쳐정보
         var cacheUAtlascoord_UUID; // 아틀라스 UV텍스쳐 정보
         var cacheIntFloat; // int형이나 float형 캐싱정보
-        var cacheUseNormalTexture; // 노말텍스쳐사용여부 캐싱정보
-        var cacheUseDisplacementTexture;//디스플레이스텍스쳐 사용여부 캐싱정보
-        var cacheUseSpecularTexture; //스페큘러텍스쳐 사용여부 캐싱정보
+        var cacheUseTexture; //텍스쳐사용여부 캐싱정보
         ///////////////////////////////////////////////////////////////////
         var cacheUseCullFace; // 컬페이스 사용여부 캐싱정보
         var cacheCullFace; // 컬페이스 캐싱정보
@@ -3261,6 +3259,7 @@ var RedBaseRenderInfo;
         cacheCubeTexture_UUID = {}
         cacheTextureAtlas_UUID = {}
         cacheActiveTextureIndex_UUID = {}
+        cacheUseTexture = {}
         k = 50
         while (k--) cacheActiveTextureIndex_UUID[k] = null
         cacheIntFloat = {
@@ -3437,7 +3436,7 @@ var RedBaseRenderInfo;
         })();
         // 기본 draw함수
         this.draw = function (renderList, time, parentMTX) {
-            var i, i2; // 루프변수
+            var i, i2,i3; // 루프변수
             i = renderList.length
             while (i--) {
                 self['numDrawCall']++
@@ -3534,14 +3533,11 @@ var RedBaseRenderInfo;
                     cacheCubeTexture_UUID = {}
                     cacheActiveTextureIndex_UUID = {}
                     cacheUAtlascoord_UUID = undefined
-                    
+                    cacheUseTexture = {}
                     cacheIntFloat = {
                         int: null,
                         float: null
                     }
-                    cacheUseNormalTexture = undefined
-                    cacheUseDisplacementTexture = undefined
-                    cacheUseSpecularTexture = undefined
                 }
                 cacheProgramInfo = tProgramInfo
                 cacheProgram = tProgram
@@ -3608,7 +3604,6 @@ var RedBaseRenderInfo;
                     else if (tUniformValue['__webglAtlasTexture']) {
                         var tTexture;
                         tTexture = tUniformValue['parentAtlasInfo']['textureInfo']
-
                         if (tTexture['loaded']) {
                             if (cacheTextureAtlas_UUID[tTexture['__targetIndex']] != tTexture['__UUID']) {
                                 // tTexture['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
@@ -3654,48 +3649,99 @@ var RedBaseRenderInfo;
                     }
                     // 이도저도아닌경우는 뭔가 잘못된거임
                     else throw '안되는 나쁜 타입인거야!!'
-                }
+                };
 
+                /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                /////////////////////////////////////////////////////////////////////////////////////////////////////////////
                 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
                 // TODO: 아래는 루프로 돌리자...
                 // 노말맵이있을경우
                 if (tProgramInfo['uniforms']['uUseNormalTexture']) {
-                    if (tMaterial['normalInfo'] && tMaterial['normalInfo']['loaded']) {
-                        if (tMaterial['normalInfo']['__targetIndex'] != RedTextureIndex.NORMAL) throw "노말 인덱스타입이 아닙니다."
-                        cacheUseNormalTexture == 1 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseNormalTexture']['location'], 1)
-                        cacheUseNormalTexture = 1
+                    if (tMaterial['uNormalTexture'] && tMaterial['uNormalTexture']['loaded']) {
+                        if (tMaterial['uNormalTexture']['__targetIndex'] != RedTextureIndex.NORMAL) throw "노말 인덱스타입이 아닙니다."
+                        cacheUseTexture['cacheUseNormalTexture'] == 1 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseNormalTexture']['location'], 1)
+                        cacheUseTexture['cacheUseNormalTexture'] = 1
                         // console.log('노말사용으로전환')
                     } else {
-                        cacheUseNormalTexture == 0 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseNormalTexture']['location'], 0)
-                        cacheUseNormalTexture = 0
+                        cacheUseTexture['cacheUseNormalTexture'] == 0 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseNormalTexture']['location'], 0)
+                        cacheUseTexture['cacheUseNormalTexture'] = 0
                         // console.log('노말미사용으로전환')
                     }
                 }
                 // displacementMap이 있을경우
                 if (tProgramInfo['uniforms']['uUseDisplacementTexture']) {
-                    if (tMaterial['displacementInfo'] && tMaterial['displacementInfo']['loaded']) {
-                        if (tMaterial['displacementInfo']['__targetIndex'] != RedTextureIndex.DISPLACEMENT) throw "DISPLACEMENT 인덱스타입이 아닙니다."
-                        cacheUseDisplacementTexture == 1 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseDisplacementTexture']['location'], 1)
-                        cacheUseDisplacementTexture = 1
+                    if (tMaterial['uDisplacementTexture'] && tMaterial['uDisplacementTexture']['loaded']) {
+                        if (tMaterial['uDisplacementTexture']['__targetIndex'] != RedTextureIndex.DISPLACEMENT) throw "DISPLACEMENT 인덱스타입이 아닙니다."
+                        cacheUseTexture['cacheUseDisplacementTexture'] == 1 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseDisplacementTexture']['location'], 1)
+                        cacheUseTexture['cacheUseDisplacementTexture'] = 1
                         // console.log('displacementMap 사용으로전환')
                     } else {
-                        cacheUseDisplacementTexture == 0 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseDisplacementTexture']['location'], 0)
-                        cacheUseDisplacementTexture = 0
+                        cacheUseTexture['cacheUseDisplacementTexture']== 0 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseDisplacementTexture']['location'], 0)
+                        cacheUseTexture['cacheUseDisplacementTexture'] = 0
                         // console.log('displacementMap 미사용으로전환')
                     }
                 }
                 // specularMap이 있을경우
                 if (tProgramInfo['uniforms']['uUseSpecularTexture']) {
-                    if (tMaterial['specularInfo'] && tMaterial['specularInfo']['loaded']) {
-                        if (tMaterial['specularInfo']['__targetIndex'] != RedTextureIndex.SPECULAR) throw "SPECULAR 인덱스타입이 아닙니다."
-                        cacheUseSpecularTexture == 1 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseSpecularTexture']['location'], 1)
-                        cacheUseSpecularTexture = 1
+                    if (tMaterial['uSpecularTexture'] && tMaterial['uSpecularTexture']['loaded']) {
+                        if (tMaterial['uSpecularTexture']['__targetIndex'] != RedTextureIndex.SPECULAR) throw "SPECULAR 인덱스타입이 아닙니다."
+                        cacheUseTexture['cacheUseSpecularTexture'] == 1 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseSpecularTexture']['location'], 1)
+                        cacheUseTexture['cacheUseSpecularTexture'] = 1
                     } else {
 
-                        cacheUseSpecularTexture == 0 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseSpecularTexture']['location'], 0)
-                        cacheUseSpecularTexture = 0
+                        cacheUseTexture['cacheUseSpecularTexture'] == 0 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseSpecularTexture']['location'], 0)
+                        cacheUseTexture['cacheUseSpecularTexture'] = 0
                     }
                 }
+                // etcVertex이 있을경우
+                if (tProgramInfo['uniforms']['uUseEtcVertexTexture1']) {
+                    if (tMaterial['uEtcVertextTexture1'] && tMaterial['uEtcVertextTexture1']['loaded']) {
+                        if (tMaterial['uEtcVertextTexture1']['__targetIndex'] != RedTextureIndex.ETC_VERTEXT_1) throw "ETC_VERTEXT_1 인덱스타입이 아닙니다."
+                        cacheUseTexture['cacheUseEtcVertexTexture1'] == 1 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseEtcVertexTexture1']['location'], 1)
+                        cacheUseTexture['cacheUseEtcVertexTexture1'] = 1
+                    } else {
+
+                        cacheUseTexture['cacheUseEtcVertexTexture1'] == 0 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseEtcVertexTexture1']['location'], 0)
+                        cacheUseTexture['cacheUseEtcVertexTexture1'] = 0
+                    }
+                }
+                if (tProgramInfo['uniforms']['uUseEtcVertexTexture2']) {
+                    if (tMaterial['uEtcVertextTexture2'] && tMaterial['uEtcVertextTexture2']['loaded']) {
+                        if (tMaterial['uEtcVertextTexture2']['__targetIndex'] != RedTextureIndex.ETC_VERTEXT_2) throw "ETC_VERTEXT_2 인덱스타입이 아닙니다."
+                        cacheUseTexture['cacheUseEtcVertexTexture2'] == 1 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseEtcVertexTexture2']['location'], 1)
+                        cacheUseTexture['cacheUseEtcVertexTexture2'] = 1
+                    } else {
+
+                        cacheUseTexture['cacheUseEtcVertexTexture2'] == 0 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseEtcVertexTexture2']['location'], 0)
+                        cacheUseTexture['cacheUseEtcVertexTexture2'] = 0
+                    }
+                }
+                if (tProgramInfo['uniforms']['uUseEtcFragmentTexture1']) {
+                    console.log('들어왔다!')
+                    if (tMaterial['uEtcFragmentTexture1'] && tMaterial['uEtcFragmentTexture1']['loaded']) {
+                        if (tMaterial['uEtcFragmentTexture1']['__targetIndex'] != RedTextureIndex.ETC_FRAGMENT_1) throw "ETC_FRAGMENT_1 인덱스타입이 아닙니다."
+                        cacheUseTexture['cacheUseEtcFragmentTexture1'] == 1 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseEtcFragmentTexture1']['location'], 1)
+                        cacheUseTexture['cacheUseEtcFragmentTexture1'] = 1
+                    } else {
+
+                        cacheUseTexture['cacheUseEtcFragmentTexture1'] == 0 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseEtcFragmentTexture1']['location'], 0)
+                        cacheUseTexture['cacheUseEtcFragmentTexture1'] = 0
+                    }
+                }
+                if (tProgramInfo['uniforms']['uUseEtcFragmentTexture2']) {
+                    if (tMaterial['uEtcFragmentTexture2'] && tMaterial['uEtcFragmentTexture2']['loaded']) {
+                        if (tMaterial['uEtcFragmentTexture2']['__targetIndex'] != RedTextureIndex.ETC_FRAGMENT_2) throw "ETC_FRAGMENT_2 인덱스타입이 아닙니다."
+                        cacheUseTexture['cacheUseEtcFragmentTexture2'] == 1 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseEtcFragmentTexture2']['location'], 1)
+                        cacheUseTexture['cacheUseEtcFragmentTexture2'] = 1
+                    } else {
+
+                        cacheUseTexture['cacheUseEtcFragmentTexture2'] == 0 ? 0 : tGL.uniform1i(tProgramInfo['uniforms']['uUseEtcFragmentTexture2']['location'], 0)
+                        cacheUseTexture['cacheUseEtcFragmentTexture2'] = 0
+                    }
+                }
+               
+                /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                /////////////////////////////////////////////////////////////////////////////////////////////////////////////
                 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
                 // 노말매트릭스를 사용할경우

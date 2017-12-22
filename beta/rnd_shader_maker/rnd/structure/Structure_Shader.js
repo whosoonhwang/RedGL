@@ -17,7 +17,7 @@ var Structure_Shader;
             `
 const int shaderTest_MAX_ITER = 4;
 vec4 shaderTest_${this['index']} (vec2 currentTexcoord){
-vec2 v_texCoord = ${shaderType == 'vertex' ? 'currentTexcoord.xy' : 'gl_FragCoord.xy'}/vSystemResolution ;
+vec2 v_texCoord = gl_FragCoord.xy/vSystemResolution ;
 vec2 p =  (v_texCoord) * 8.0 ;
 vec2 i = p;
 float c = 1.0;

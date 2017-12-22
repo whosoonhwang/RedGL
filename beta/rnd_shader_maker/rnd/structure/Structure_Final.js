@@ -93,12 +93,14 @@ gl_FragColor = finalColor;
         vTexcoord = uAtlascoord.xy + aTexcoord*uAtlascoord.zw;
         vNormal = vec3(uNMatrix * vec4(aVertexNormal,1.0)); 
         vEyeVec = -vertexPositionEye4.xyz;
+        vSystemTime = uSystemTime;
+        vSystemResolution = uSystemResolution;
         
         `
         vertexDefineInfo['headers'].forEach(function (v) { resultStr += v + ';\n' })
         if (resultStr.indexOf('texelColor_DISPLACEMENT') == -1) resultStr += '    vec4 texelColor_DISPLACEMENT;\n'
         resultStr += `
-        if(uUseDisplacementTexture == 1) {
+        if(texelColor_DISPLACEMENT != nullVec4) {
             vertexPositionEye4.xyz += normalize(vNormal) * texelColor_DISPLACEMENT.x;
         }
         `
@@ -108,10 +110,7 @@ gl_FragColor = finalColor;
         resultStr += '    //define footers;\n'
         vertexDefineInfo['footers'].forEach(function (v) { resultStr += v + ';\n' })
         resultStr += `
-        
-        vSystemTime = uSystemTime;
-        vSystemResolution = uSystemResolution;
-        // 포지션 결정
+         // 포지션 결정
         gl_Position = uPMatrix * uCameraMatrix *  vertexPositionEye4;
         `
         resultStr += '}\n'

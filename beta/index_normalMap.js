@@ -35,7 +35,7 @@ start = function () {
 			testGL.getShaderInfo('bitmap', RedShaderInfo.VERTEX_SHADER),
 			testGL.getShaderInfo('bitmap', RedShaderInfo.FRAGMENT_SHADER),
 			function (target) {
-				target.uniforms.uDiffuseTexture = target['diffuseInfo']
+				target.uniforms.uDiffuseTexture = target['uDiffuseTexture']
 				target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
 			}
 		)
@@ -44,10 +44,10 @@ start = function () {
 			testGL.getShaderInfo('bitmapPhong', RedShaderInfo.VERTEX_SHADER),
 			testGL.getShaderInfo('bitmapPhong', RedShaderInfo.FRAGMENT_SHADER),
 			function (target) {
-				target.uniforms.uDiffuseTexture = target['diffuseInfo']
-				target.uniforms.uNormalTexture = target['normalInfo']
-				target.uniforms.uDisplacementTexture = target['displacementInfo']
-				target.uniforms.uSpecularTexture = target['specularInfo']
+				target.uniforms.uDiffuseTexture = target['uDiffuseTexture']
+				target.uniforms.uNormalTexture = target['uNormalTexture']
+				target.uniforms.uDisplacementTexture = target['uDisplacementTexture']
+				target.uniforms.uSpecularTexture = target['uSpecularTexture']
 
 				target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
 				target.uniforms.uShininess = 16
@@ -58,7 +58,7 @@ start = function () {
 			testGL.getShaderInfo('skybox', RedShaderInfo.VERTEX_SHADER),
 			testGL.getShaderInfo('skybox', RedShaderInfo.FRAGMENT_SHADER),
 			function (target) {
-				target.uniforms.uSkybox = target['diffuseInfo']
+				target.uniforms.uSkybox = target['uDiffuseTexture']
 
 			}
 		)
@@ -67,10 +67,10 @@ start = function () {
 			testGL.getShaderInfo('environment', RedShaderInfo.VERTEX_SHADER),
 			testGL.getShaderInfo('environment', RedShaderInfo.FRAGMENT_SHADER),
 			function (target) {
-				target.uniforms.uDiffuseTexture = target['diffuseInfo']
-				target.uniforms.uNormalTexture = target['normalInfo']
-				target.uniforms.uDisplacementTexture = target['displacementInfo']
-				target.uniforms.uSpecularTexture = target['specularInfo']
+				target.uniforms.uDiffuseTexture = target['uDiffuseTexture']
+				target.uniforms.uNormalTexture = target['uNormalTexture']
+				target.uniforms.uDisplacementTexture = target['uDisplacementTexture']
+				target.uniforms.uSpecularTexture = target['uSpecularTexture']
 
 				target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
 				target.uniforms.uShininess = 16
