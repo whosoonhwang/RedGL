@@ -107,12 +107,12 @@ gl_FragColor = finalColor;
         //////////////////////////////////////////////////////////////////////
         resultStr += '    //define bodys;\n'
         vertexDefineInfo['bodys'].forEach(function (v) { resultStr += v + ';\n' })
-        resultStr += '    //define footers;\n'
-        vertexDefineInfo['footers'].forEach(function (v) { resultStr += v + ';\n' })
         resultStr += `
          // 포지션 결정
         gl_Position = uPMatrix * uCameraMatrix *  vertexPositionEye4;
         `
+        resultStr += '    //define footers;\n'
+        vertexDefineInfo['footers'].forEach(function (v) { resultStr += v + ';\n' })
         resultStr += '}\n'
         return resultStr
     }
