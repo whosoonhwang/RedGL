@@ -2,54 +2,56 @@
 var Structure_Shader2;
 (function () {
     var index;
-    var tVarKey;
     index = 0
-    Structure_Shader2 = function () {
-        this['nodeType'] = 'ShaderTest2'
+    Structure_Shader2 = function (shaderType) {
         this['index'] = index
         this['structureBase'] = {
-            functions: {
-                func_shaderTest2:
-                    `
-#define PI 3.14159265359
-#define T (vSystemTime/2.)
-vec3 ${this['nodeType']}_hsv2rgb_${this['index']} (vec3 c){
-    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
-    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
-
-}
-
-vec4 ${this['nodeType']}_func_shaderTest2_${this['index']} (){
-    vec2 position = (( gl_FragCoord.xy / vSystemResolution.xy ) - 1.0) +vTexcoord;
-	position.x *= vSystemResolution.x / vSystemResolution.y;
-    vec3 color = vec3(0.);
-    for (float i = 0.; i < PI*2.; i += PI/17.5) {
-		vec2 p = position - vec2(cos(i+T), sin(i+T)) * 0.25;
-		vec3 col = ${this['nodeType']}_hsv2rgb_${this['index']}(vec3((i)/(PI*2.), 1., mod(i-T*3.,PI*2.)/PI));
-		color += col * (1./1024.) / length(p);
-    }
-    return vec4(color,0.5);
-}
-`
-            },
             output: {
                 SHADER_TEST_OUTPUT: { dataType: 'vec4', to: {}, sourceKey: 'SHADER_TEST_OUTPUT_' + this['index'] }
             }
         }
-        Structure_util.structureBaseFill(this['structureBase'])
+        Structure_base.apply(this, ['ShaderTest2', shaderType])
+        this['structureBase']['functions']['shaderTest2'] =
+            `
+#define PI 3.14159265359
+#define T (vSystemTime/2.)
+vec3 hsv2rgb_${this['index']} (vec3 c){
+vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+
+}
+
+vec4 shaderTest2_${this['index']} (vec2 currentTexcoord){
+vec2 position = (( ${shaderType == 'vertex' ? 'currentTexcoord.xy' : 'gl_FragCoord.xy'} / vSystemResolution.xy ) - 1.0) +vTexcoord;
+position.x *= vSystemResolution.x / vSystemResolution.y;
+vec3 color = vec3(0.);
+for (float i = 0.; i < PI*2.; i += PI/17.5) {
+    vec2 p = position - vec2(cos(i+T), sin(i+T)) * 0.25;
+    vec3 col = hsv2rgb_${this['index']}(vec3((i)/(PI*2.), 1., mod(i-T*3.,PI*2.)/PI));
+    color += col * (1./1024.) / length(p);
+}
+return vec4(color,0.5);
+}
+`
         this['parse'] = function () {
-            this['define'] = new Structure_define()
-            var k, tData;
+            delete this['define_vertex']
+            delete this['define_fragment']
+            var tVarKey;
+            var tUVKey, tStructureBase;
+            var tDefineData;
+            var k;
             var tOutput
-            tOutput = this['structureBase']['output']['SHADER_TEST_OUTPUT']
-            console.log(this['define']['vars'])
-            this['define']['vars'][tVarKey = 'SHADER_TEST_OUTPUT_' + this['index']] = tOutput['dataType'] + ' ' + tVarKey
-            for (var k in this['structureBase']['functions']) {
-                this['define']['functions'][k] = this['structureBase']['functions'][k]
+            tStructureBase = this['structureBase']
+            tDefineData = this['define_' + shaderType] = new Structure_define()
+            tOutput = tStructureBase['output']['SHADER_TEST_OUTPUT']
+            console.log(tDefineData['vars'])
+            tDefineData['vars'][tVarKey = 'SHADER_TEST_OUTPUT_' + this['index']] = tOutput['dataType'] + ' ' + tVarKey
+            for (var k in tStructureBase['functions']) {
+                tDefineData['functions'][k] = tStructureBase['functions'][k]
             }
-            this['define']['headers'].push('    ' + tVarKey + ' = ' + `${this['nodeType']}_func_shaderTest2_${this['index']}()`)
-            return Structure_util.makeViewStr(this['define'])
+            tDefineData['headers'].push('    ' + tVarKey + ' = ' + `shaderTest2_${this['index']}(vTexcoord)`)
+            return Structure_util.makeViewStr(tDefineData)
         }
         index++
         console.log(this)

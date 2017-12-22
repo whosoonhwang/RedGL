@@ -39,6 +39,12 @@ var Structure_util;
             resultStr += '//define footers;\n'
             defineInfo['footers'].forEach(function (v) { resultStr += v + ';\n' })
             return resultStr
+        },
+        structureBaseFill: function (data) {
+            // 정보구조중 없는 놈 채워줌
+            ['functions', 'textureInfo', 'input', 'output'].forEach(function (k) {
+                if (!data[k]) data[k] = {}
+            })
         }
     }
     Object.freeze(Structure_util)

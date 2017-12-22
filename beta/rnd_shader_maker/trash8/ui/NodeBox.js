@@ -20,10 +20,8 @@ var NodeBox;
         var rootBox;
         var inputBox, outputBox;
         var imageBox, fileBox, uniformNameBox;
-        var code_vertex_Container, code_fragment_Container;
         rootBox = Recard.Dom('div').S(
             '@nodeType', structureInfo['nodeType'],
-            '@calcItemYn',structureInfo['calcItemYn'],
             'position', 'absolute',
             'top', 0,
             'left', 0,
@@ -44,7 +42,7 @@ var NodeBox;
                 'border-bottom-right-radius', 8,
 
                 'background', 'rgba(19,18,26,0.8)',
-                'display', structureInfo['nodeType'].indexOf('Texture') > -1 ? 'block' : 'none',
+                'display', structureInfo['nodeType'] == 'Texture' ? 'block' : 'none',
                 '>', imageBox = Recard.Dom('img').S(
                     '@imageBox', '',
                     'float', 'left',
@@ -61,7 +59,7 @@ var NodeBox;
                     '>', uniformNameBox = Recard.Dom('input').S(
                         '@disabled', '',
                         '@type', 'text',
-                        '@value', structureInfo['nodeType'].indexOf('Texture') > -1 ? structureInfo['structureBase']['textureInfo']['textureUniformKey'] : (structureInfo['nodeType'] + structureInfo['index']),
+                        '@value', structureInfo['nodeType'] == 'Texture' ? structureInfo['structureBase']['textureInfo']['textureUniformKey'] : (structureInfo['nodeType'] + structureInfo['index']),
                         'border', 0, 'outline', 'none',
                         'padding', 5,
                         'width', 200,
@@ -120,24 +118,8 @@ var NodeBox;
                                 Recard.query('[nodeType="Final"]')['parseDefine']()
                             }]
                         )
-                        var tKeyMap;
-                        if(structureInfo['shaderType']=='vertex'){
-                            tKeyMap = {
-                                DISPLACEMENT : 1,
-                                ETC_VERTEX_1 : 1,
-                                ETC_VERTEX_2 : 1
-                            }    
-                        }else {
-                            tKeyMap = {
-                                DIFFUSE : 1,
-                                NORMAL : 1,
-                                SPECULAR : 1,
-                                ETC_FRAGMENT_1 : 1,
-                                ETC_FRAGMENT_2 : 1
-                            }   
-                        }
                         for (var k in RedTextureIndex) {
-                            if (k != 'CREATE' && tKeyMap[k]) {
+                            if (k != 'CREATE') {
                                 Recard.Dom('option').S(
                                     '@value', RedTextureIndex[k],
                                     'html', k,
@@ -154,12 +136,12 @@ var NodeBox;
                 'height', 30,
                 'border-top-left-radius', 8,
                 'border-top-right-radius', 8,
-                'background', structureInfo['nodeType'] == 'Final' ? '#272530' : structureInfo['shaderType'] == 'fragment' ? 'rgb(144, 74, 135)' : 'rgb(50, 100, 135)',
+                'background', structureInfo['nodeType'] == 'Texture' ? 'rgb(144, 74, 135)' : '#272530',
                 'line-height', 30,
                 'padding-left', 10,
                 '>', Recard.Dom('span').S(
                     '@titleBox', '',
-                    'html', structureInfo['nodeType'] + '_' + structureInfo['index'],
+                    'html', structureInfo['nodeType'] + '_'+structureInfo['index'],
                 ),
                 'cursor', 'move',
                 'on', ['down', function (e) {
@@ -216,31 +198,7 @@ var NodeBox;
             '>', inputBox = Recard.Dom('div').S('@className', 'inOutputBox', 'float', 'left'),
             '>', outputBox = Recard.Dom('div').S('@className', 'inOutputBox', 'float', 'right'),
             '>', Recard.Dom('div').S('clear', 'both'),
-            '>', Recard.Dom('div').S(
-                'display', structureInfo['nodeType'] == 'Final' ? 'block' : 'none',
-                'margin-top', 10,
-                '>', Recard.Dom('button').S(
-                    'padding', 10,
-                    'html', 'fragment',
-                    'on', ['down', function () {
-                        code_fragment_Container.S('display', 'block')
-                        code_vertex_Container.S('display', 'none')
-                        console.log('오긴하나')
-                    }]
-                ),
-                '>', Recard.Dom('button').S(
-                    'border-top-right-radius', 10,
-                    'margin-left', 1,
-                    'padding', 10,
-                    'html', 'vertex',
-                    'on', ['down', function () {
-                        code_fragment_Container.S('display', 'none')
-                        code_vertex_Container.S('display', 'block')
-                        console.log('오긴하나2')
-                    }]
-                )
-            ),
-            '>', code_fragment_Container = Recard.Dom('pre').S(
+            '>', Recard.Dom('pre').S(
                 '@className', 'style-1',
                 'max-width', 500,
                 'max-height', 400,
@@ -248,22 +206,7 @@ var NodeBox;
                 'margin', 0,
                 'background', 'transparent',
                 '>', Recard.Dom('code').S(
-                    '@code_fragment_Box', '',
-                    '@className', 'language-glsl',
-                    'background', 'rgba(0,0,0,0.1)',
-                    'padding', 10
-                )
-            ),
-            '>', code_vertex_Container = Recard.Dom('pre').S(
-                '@className', 'style-1',
-                'max-width', 500,
-                'max-height', 400,
-                'overflow', 'auto',
-                'margin', 0,
-                'display', 'none',
-                'background', 'transparent',
-                '>', Recard.Dom('code').S(
-                    '@code_vertex_Box', '',
+                    '@codeBox', '',
                     '@className', 'language-glsl',
                     'background', 'rgba(0,0,0,0.1)',
                     'padding', 10
@@ -272,8 +215,7 @@ var NodeBox;
         )
         rootBox['structureInfo'] = structureInfo
         rootBox['prism'] = function () {
-            Prism.highlightElement(rootBox.query('[code_vertex_Box]').__dom__)
-            Prism.highlightElement(rootBox.query('[code_fragment_Box]').__dom__)
+            Prism.highlightElement(rootBox.query('[codeBox]').__dom__)
         }
         rootBox['parseDefine'] = (function () {
             var makeNodeStack;
@@ -290,76 +232,57 @@ var NodeBox;
             }
             return function () {
                 console.log(this)
-                rootBox.query('[code_fragment_Box]').S(
+                rootBox.query('[codeBox]').S(
                     'html', ''
                 )
-                var tNodeStack = []
-                var resultInfo_fragment = []
-                var resultInfo_vertex = []
-                var finalDefine_fragment = new Structure_define()
-                var finalDefine_vertex = new Structure_define()
-                var makeFinalDefineData;
-                makeFinalDefineData = function (targetResultInfo,targetFinalDefine, shaderKey) {
-                    // 하위부터 정보를 합한다.
-                    tNodeStack.forEach(function (item) {
-                        console.log(item['structureInfo'][shaderKey])
-                        if(item['structureInfo'][shaderKey]){
-                            var t0 = {uuid: item['structureInfo']['nodeType'] + item['structureInfo']['index']}
-                            t0[shaderKey] = item['structureInfo'][shaderKey]
-                            targetResultInfo.push(t0)
-                        }
-                        
-                    })
-                    console.log('최종결과', targetResultInfo)
-                    targetResultInfo.forEach(function (item) {
-                        var tData = item[shaderKey]
-                        console.log('key',shaderKey)
-                        console.log('item',item)
-                        console.log('tData',tData)
-                        for (var groupKey in tData) {
-                            var tGroupData = tData[groupKey]
-                            if (tGroupData instanceof Array) {
-                                tGroupData.forEach(function (v) {
-                                    targetFinalDefine[groupKey].push(v)
-                                })
-    
-                            } else {
-                                for (var key in tGroupData) {
-                                    targetFinalDefine[groupKey][key] = tGroupData[key]
-                                }
-                            }
-    
-                        }
-                    })
-                }
+                var tList = []
+                var resultInfo = []
+                var finalDefine = new Structure_define()
                 // 하위노드 리스트를 만들고
-                makeNodeStack(Recard.query('[nodeType="Final"]'), tNodeStack)
-                tNodeStack.reverse()
-                console.log('tNodeStack',tNodeStack)
-                ////
-               
-                ////
-                makeFinalDefineData(resultInfo_vertex, finalDefine_vertex, 'define_vertex')
-                makeFinalDefineData(resultInfo_fragment, finalDefine_fragment, 'define_fragment')
-                console.log('resultInfo_vertex', resultInfo_vertex)
-                console.log('resultInfo_fragment', resultInfo_fragment)
-                console.log('finalDefine_vertex', finalDefine_vertex)
-                console.log('finalDefine_fragment', finalDefine_fragment)
-                var finalNode;
-                var parseFianlStrList;
-                finalNode = Recard.query('[nodeType="Final"]')
-                parseFianlStrList = finalNode['structureInfo'].parse(finalDefine_vertex, finalDefine_fragment)
+                makeNodeStack(Recard.query('[nodeType="Final"]'), tList)
+                tList.reverse()
+                // 하위부터 정보를 합한다.
+                tList.forEach(function (item) {
+                    console.log(item['structureInfo']['define_fragment'])
+                    resultInfo.push({
+                        uuid: item['structureInfo']['nodeType'] + item['structureInfo']['index'],
+                        define_fragment: item['structureInfo']['define_fragment']
+                    })
+                })
+                console.log('최종결과', resultInfo)
+                resultInfo.forEach(function (item) {
+                    var tData = item['define_fragment']
+                    for (var groupKey in tData) {
+                        var tGroupData = tData[groupKey]
+                        if (tGroupData instanceof Array) {
+                            tGroupData.forEach(function (v) {
+                                finalDefine[groupKey].push(v)
+                            })
+
+                        } else {
+                            for (var key in tGroupData) {
+                                finalDefine[groupKey][key] = tGroupData[key]
+                            }
+                        }
+
+                    }
+                })
+                console.log('finalDefine', finalDefine)
                 if (structureInfo instanceof Structure_Final) {
-                    Recard.RED_SHADER_PREVIEW.setTest(parseFianlStrList[0], parseFianlStrList[1], finalDefine_vertex['textureInfo'], finalDefine_fragment['textureInfo'])
-                    // 파이널 노드에 프레그먼트, 버텍스쉐이더 파싱된  소스를 보여준다. 
+                    Recard.RED_SHADER_PREVIEW.setTest(null, rootBox['structureInfo'].parse(finalDefine), finalDefine['textureInfo'])
+                    Recard.query('[nodeType="Final"]').query('[codeBox]').S(
+                        'html', Recard.query('[nodeType="Final"]')['structureInfo'].parse(finalDefine)
+                    )
                 } else {
-                    var str = rootBox['structureInfo'].parse(rootBox['structureInfo']['shaderType']=='vertex' ? finalDefine_vertex : finalDefine_fragment)
-                    rootBox.query('[code_fragment_Box]').S('html',str )
+                    rootBox.query('[codeBox]').S(
+                        'html', rootBox['structureInfo'].parse(finalDefine)
+                    )
+                    Recard.query('[nodeType="Final"]').query('[codeBox]').S(
+                        'html', Recard.query('[nodeType="Final"]')['parseDefine']()
+                    )
                 }
-                finalNode.query('[code_vertex_Box]').S('html', parseFianlStrList[0])
-                finalNode.query('[code_fragment_Box]').S('html', parseFianlStrList[1])
                 rootBox['prism']()
-                finalNode['prism']()
+                Recard.query('[nodeType="Final"]')['prism']()
             }
         })()
         makeInputItems.call(inputBox, structureInfo['structureBase']['input'])

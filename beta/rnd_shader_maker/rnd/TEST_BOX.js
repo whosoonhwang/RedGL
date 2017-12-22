@@ -4,12 +4,15 @@ Recard.static('TEST_BOX', (function () {
     var rootBox;
     var contentBox;
     Recard.Css('.nodeItemButton').S(
-        'width', '100%',
-        'display', 'block',
-        'margin-bottom', 1,
+        'width', '50%',
         'cursor', 'pointer',
-        'border-bottom', '1px solid rgba(255,255,255,0.05)',
+        'border', 0,
+        'outline', 'none',
+        'border-bottom', '1px solid #000',
         'padding', 10
+    )
+    Recard.Css('div .nodeItemButton:nth-child(2n)').S(
+        'border-left', '1px solid #000'
     )
     result = {
         init: function () {
@@ -24,43 +27,88 @@ Recard.static('TEST_BOX', (function () {
                 '<', 'body'
             )
             Recard.Dom('div').S(
-                '@className', 'nodeItemButton',
-                'html', '텍스쳐추가',
-                'on', ['down', function () {
-                    Recard.RED_SHADER_GRID.addNode(new Structure_Texture())
-                }],
-                '<', rootBox
-            ),
-                Recard.Dom('div').S(
+                '>', Recard.Dom('button').S(
                     '@className', 'nodeItemButton',
-                    'html', '타입테스트추가',
+                    'html', 'fragment 텍스쳐추가',
                     'on', ['down', function () {
-                        Recard.RED_SHADER_GRID.addNode(new Structure_Test())
-                    }],
-                    '<', rootBox
+                        Recard.RED_SHADER_GRID.addNode(new Structure_Texture('fragment'))
+                    }]
                 ),
-                Recard.Dom('div').S(
+                '>', Recard.Dom('button').S(
                     '@className', 'nodeItemButton',
-                    'html', 'Add',
+                    'html', 'vertex 텍스쳐추가',
                     'on', ['down', function () {
-                        Recard.RED_SHADER_GRID.addNode(new Structure_Add())
-                    }],
-                    '<', rootBox
-                )
-            Recard.Dom('div').S(
-                '@className', 'nodeItemButton',
-                'html', 'ShaderTest',
-                'on', ['down', function () {
-                    Recard.RED_SHADER_GRID.addNode(new Structure_Shader())
-                }],
+                        Recard.RED_SHADER_GRID.addNode(new Structure_Texture('vertex'))
+                    }]
+                ),
                 '<', rootBox
             )
             Recard.Dom('div').S(
-                '@className', 'nodeItemButton',
-                'html', 'ShaderTest2',
-                'on', ['down', function () {
-                    Recard.RED_SHADER_GRID.addNode(new Structure_Shader2())
-                }],
+                '>', Recard.Dom('button').S(
+                    '@className', 'nodeItemButton',
+                    'html', 'fragment 타입테스트추가',
+                    'on', ['down', function () {
+                        Recard.RED_SHADER_GRID.addNode(new Structure_Test('fragment'))
+                    }]
+                ),
+                '>', Recard.Dom('button').S(
+                    '@className', 'nodeItemButton',
+                    'html', 'vertex 타입테스트추가',
+                    'on', ['down', function () {
+                        Recard.RED_SHADER_GRID.addNode(new Structure_Test('vertex'))
+                    }]
+                ),
+                '<', rootBox
+            )
+            Recard.Dom('div').S(
+                '>', Recard.Dom('button').S(
+                    '@className', 'nodeItemButton',
+                    'html', 'fragment Add',
+                    'on', ['down', function () {
+                        Recard.RED_SHADER_GRID.addNode(new Structure_Add('fragment'))
+                    }]
+                ),
+                '>', Recard.Dom('button').S(
+                    '@className', 'nodeItemButton',
+                    'html', 'vertex Add',
+                    'on', ['down', function () {
+                        Recard.RED_SHADER_GRID.addNode(new Structure_Add('vertex'))
+                    }]
+                ),
+                '<', rootBox
+            )
+            Recard.Dom('div').S(
+                '>', Recard.Dom('button').S(
+                    '@className', 'nodeItemButton',
+                    'html', 'fragment ShaderTest',
+                    'on', ['down', function () {
+                        Recard.RED_SHADER_GRID.addNode(new Structure_Shader('fragment'))
+                    }]
+                ),
+                '>', Recard.Dom('button').S(
+                    '@className', 'nodeItemButton',
+                    'html', 'vertex ShaderTest',
+                    'on', ['down', function () {
+                        Recard.RED_SHADER_GRID.addNode(new Structure_Shader('vertex'))
+                    }]
+                ),
+                '<', rootBox
+            )
+            Recard.Dom('div').S(
+                '>', Recard.Dom('button').S(
+                    '@className', 'nodeItemButton',
+                    'html', 'fragment ShaderTest2',
+                    'on', ['down', function () {
+                        Recard.RED_SHADER_GRID.addNode(new Structure_Shader2('fragment'))
+                    }]
+                ),
+                '>', Recard.Dom('button').S(
+                    '@className', 'nodeItemButton',
+                    'html', 'vertex ShaderTest2',
+                    'on', ['down', function () {
+                        Recard.RED_SHADER_GRID.addNode(new Structure_Shader2('vertex'))
+                    }]
+                ),
                 '<', rootBox
             )
             Recard.RED_SHADER_GRID.addNode(new Structure_Final())

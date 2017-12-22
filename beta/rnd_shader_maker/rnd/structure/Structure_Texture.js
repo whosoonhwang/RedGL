@@ -2,22 +2,22 @@
 var Structure_Texture;
 (function () {
     var index;
-    var tUniformKey, tVaryingKey, tVarKey;
+  
     index = 0
-    Structure_Texture = function () {
-        this['nodeType'] = 'Texture'
+    Structure_Texture = function (shaderType) {
         this['index'] = index
         this['structureBase'] = {
             textureInfo: {
-                textureUniformKey: 'uDiffuseTexture',
-                textureIndex: RedTextureIndex.DIFFUSE,
+                textureUniformKey: shaderType =='vertex' ? 'uDisplacementTexture': 'uDiffuseTexture',
+                textureIndex: shaderType =='vertex' ? RedTextureIndex.DISPLACEMENT : RedTextureIndex.DIFFUSE,
                 varStr: 'textureColor_' + this['index'],
                 src: 'images/noImage.jpg'
             },
             input: {
                 UV: {
                     dataType: 'vec2',
-                    from: null
+                    from: null,
+                    shaderType: shaderType
                 }
             },
             output: {
@@ -28,23 +28,28 @@ var Structure_Texture;
                 A: { dataType: 'float', to: {}, sourceKey: 'textureColor_' + this['index'] + '.a' }
             }
         }
-        Structure_util.structureBaseFill(this['structureBase'])
+        Structure_base.apply(this, ['Texture', shaderType])
         this['parse'] = function () {
-            this['define'] = new Structure_define()
-            var tUVKey;
-            this['define']['uniforms'][tUniformKey = this['structureBase']['textureInfo']['textureUniformKey']] = 'uniform sampler2D ' + tUniformKey
-            this['define']['textureInfo'][tUniformKey] = this['structureBase']['textureInfo']
-            this['define']['varyings'][tVaryingKey = 'vTexcoord'] = 'varying vec2 vTexcoord' + tVaryingKey
+            delete this['define_vertex']
+            delete this['define_fragment']
+            var tUniformKey, tVaryingKey, tVarKey;
+            var tUVKey, tStructureBase;
+            var tDefineData;
+            tStructureBase = this['structureBase']
+            tDefineData = this['define_' + shaderType] = new Structure_define()            
+            tDefineData['uniforms'][tUniformKey = tStructureBase['textureInfo']['textureUniformKey']] = 'uniform sampler2D ' + tUniformKey
+            tDefineData['textureInfo'][tUniformKey] = tStructureBase['textureInfo']
+            tDefineData['varyings'][tVaryingKey = 'vTexcoord'] = 'varying vec2 ' + tVaryingKey
             tUVKey = tVaryingKey
-            this['define']['vars'][tVarKey = 'textureColor_' + this['index']] = 'vec4 ' + tVarKey
+            tDefineData['vars'][tVarKey = 'textureColor_' + this['index']] = 'vec4 ' + tVarKey
             // 인풋 UV가있으면 바라보는 UV값을 변경해야함
-            if (this['structureBase']['input']['UV']['from']) {
-                this['define']['vars'][tVarKey = 'inputUV_' + this['index']] = 'vec2 ' + tVarKey
+            if (tStructureBase['input']['UV']['from']) {
+                tDefineData['vars'][tVarKey = 'inputUV_' + this['index']] = 'vec2 ' + tVarKey
                 tUVKey = tVarKey
-                this['define']['headers'].push(tUVKey + ' = ' + tVaryingKey)
+                tDefineData['headers'].push(tUVKey + ' = ' + tVaryingKey)
             }
-            this['define']['headers'].push('    ' + tVarKey + ' = texture2D(' + tUniformKey + ',' + tUVKey + ')')
-            return Structure_util.makeViewStr(this['define'])
+            tDefineData['headers'].push('    ' + tVarKey + ' = texture2D(' + tUniformKey + ',' + tUVKey + ')')
+            return Structure_util.makeViewStr(tDefineData)
         }
         index++
         console.log(this)

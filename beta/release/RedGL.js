@@ -2828,10 +2828,10 @@ var RedTextureIndex;
 		:DOC*/
 		SPECULAR : 5,
 		//아틀라스는 자동
-		ETC1 : 10,
-		ETC2 : 11,
-		ETC3 : 12,
-		ETC4 : 13
+		ETC_VERTEX_1 : 10,
+		ETC_VERTEX_2 : 11,
+		ETC_FRAGMENT_1 : 12,
+		ETC_FRAGMENT_2 : 13
 	}
 	Object.freeze(RedTextureIndex)
 })();
