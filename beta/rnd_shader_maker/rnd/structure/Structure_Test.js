@@ -2,33 +2,16 @@
 var Structure_Test;
 (function () {
     var index;
-    var tVarKey;
     index = 0
-    Structure_Test = function () {
-        this['nodeType'] = 'TypeTest'
+    Structure_Test = function (shaderType) {
         this['index'] = index
         this['structureBase'] = {
             input: {
-                FLOAT_TEST: {
-                    dataType: 'float',
-                    from: null
-                },
-                INT_TEST: {
-                    dataType: 'int',
-                    from: null
-                },
-                VEC2_TEST: {
-                    dataType: 'vec2',
-                    from: null
-                },
-                VEC3_TEST: {
-                    dataType: 'vec3',
-                    from: null
-                },
-                VEC4_TEST: {
-                    dataType: 'vec4',
-                    from: null
-                }
+                FLOAT_TEST: { dataType: 'float', from: null },
+                INT_TEST: { dataType: 'int', from: null },
+                VEC2_TEST: { dataType: 'vec2', from: null },
+                VEC3_TEST: { dataType: 'vec3', from: null },
+                VEC4_TEST: { dataType: 'vec4', from: null }
             },
             output: {
                 FLOAT_TEST: { dataType: 'float', to: {}, sourceKey: 'FLOAT_TEST_' + this['index'] },
@@ -38,22 +21,29 @@ var Structure_Test;
                 VEC4_TEST: { dataType: 'vec4', to: {}, sourceKey: 'VEC4_TEST_' + this['index'] }
             }
         }
-        Structure_util.structureBaseFill(this['structureBase'])
+        Structure_base.apply(this, ['TypeTest', shaderType])
+
         this['parse'] = function () {
-            this['define_fragment'] = new Structure_define()
+            delete this['define_vertex']
+            delete this['define_fragment']
+            var tUVKey, tStructureBase;
+            var tDefineData;
+            var tVarKey;
+            tStructureBase = this['structureBase']
+            tDefineData = this['define_' + shaderType] = new Structure_define()
             var k, tData;
             var tInput, tOutput
-            for (var k in this['structureBase']['output']) {
-                tInput = this['structureBase']['input'][k]
-                tOutput = this['structureBase']['output'][k]
-                console.log(this['define_fragment']['vars'])
-                this['define_fragment']['vars'][tVarKey = k + '_' + this['index']] = tOutput['dataType'] + ' ' + tVarKey
+            for (var k in tStructureBase['output']) {
+                tInput = tStructureBase['input'][k]
+                tOutput = tStructureBase['output'][k]
+                console.log(tDefineData['vars'])
+                tDefineData['vars'][tVarKey = k + '_' + this['index']] = tOutput['dataType'] + ' ' + tVarKey
                 if (tInput['from']) {
-                    this['define_fragment']['headers'].push('    ' + tVarKey + ' = ' + tInput['from']['info']['sourceKey'])
+                    tDefineData['headers'].push('    ' + tVarKey + ' = ' + tInput['from']['info']['sourceKey'])
                 }
             }
 
-            return Structure_util.makeViewStr(this['define_fragment'])
+            return Structure_util.makeViewStr(tDefineData)
         }
 
         index++

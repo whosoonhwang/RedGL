@@ -49,6 +49,7 @@ var InputItem;
             '@dataType', info['dataType'],
             'position', 'relative',
             'line-height', 20,
+            'white-space', 'noWrap',
             '>', pointBox = Recard.Dom('button').S(
                 'position', 'absolute',
                 'top', 5, 'left', 0,
@@ -69,7 +70,7 @@ var InputItem;
                                 info['dataType'] = tTempOutputItem.S('@dataType')
                                 //TODO: 여기서 형시계산을 해줘야하는군...
                                 // 또 여길 외부주입해야하는군
-                                if (getPanel().S('@nodeType') == 'Add') {
+                                if (getPanel().S('@calcItemYn') == 'true') {
                                     getPanel()['structureInfo']['structureBase']['output']['OUTPUT']['dataType'] = info['dataType']
                                     getPanel().query('[key="OUTPUT"]').S('@dataType', info['dataType'])
                                     getPanel().query('[key="OUTPUT"] span').S('html', info['dataType'])

@@ -10,37 +10,34 @@ Recard.static('RED_SHADER_PREVIEW', (function () {
     setTest = (function () {
         var index;
         index = 1
-        return function (v, f, textureInfo) {
+        return function (vSource, fSource, vertex_textureInfo, fragment_textureInfo) {
             var tName = 'testShader' + index
             index++
-            v = Structure_Final_VS_Info['draft']
-            console.log(v), console.log(f);
+            console.log(vSource), console.log(fSource);
             (function () {
                 var tTextureDiffuse
                 var tTextureNormal
                 var tTextureSpecular
                 var tTextureDisplacement
-                var tEtc1, tEtc2, tEtc3, tEtc4
+                var tEtc_VERTEX_1, tEtc_VERTEX_2, tEtc_FRAGMENT_1, tEtc_FRAGMENT_2
                 try {
-                    testGL.createShaderInfo(tName, RedShaderInfo.VERTEX_SHADER, v)
-                    testGL.createShaderInfo(tName, RedShaderInfo.FRAGMENT_SHADER, f)
+                    testGL.createShaderInfo(tName, RedShaderInfo.VERTEX_SHADER, vSource)
+                    testGL.createShaderInfo(tName, RedShaderInfo.FRAGMENT_SHADER, fSource)
                     testGL.createProgramInfo(
                         tName,
                         testGL.getShaderInfo(tName, RedShaderInfo.VERTEX_SHADER),
                         testGL.getShaderInfo(tName, RedShaderInfo.FRAGMENT_SHADER),
                         function (target) {
-                          
                             target.uniforms.uShininess = 8
                             target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
-
                             console.log('결과가', target)
                         }
                     );
-                    for (var k in textureInfo) {
-                        console.log('뭐가오냐', textureInfo[k])
-                        console.log(textureInfo[k]['src'])
-                        var tStc = textureInfo[k]['src']
-                        switch (textureInfo[k]['textureIndex']) {
+                    for (var k in fragment_textureInfo) {
+                        console.log('뭐가오냐', fragment_textureInfo[k])
+                        console.log(fragment_textureInfo[k]['src'])
+                        var tStc = fragment_textureInfo[k]['src']
+                        switch (fragment_textureInfo[k]['textureIndex']) {
                             case RedTextureIndex.DIFFUSE:
                                 tTextureDiffuse = testGL.createTextureInfo(tStc)
                                 break
@@ -50,30 +47,37 @@ Recard.static('RED_SHADER_PREVIEW', (function () {
                             case RedTextureIndex.SPECULAR:
                                 tTextureSpecular = testGL.createTextureInfo(tStc, RedTextureIndex.SPECULAR)
                                 break
+                            case RedTextureIndex.ETC_FRAGMENT_1:
+                                tEtc_FRAGMENT_1 = testGL.createTextureInfo(tStc, RedTextureIndex.ETC_FRAGMENT_1)
+                                break
+                            case RedTextureIndex.ETC_FRAGMENT_2:
+                                tEtc_FRAGMENT_2 = testGL.createTextureInfo(tStc, RedTextureIndex.ETC_FRAGMENT_2)
+                                break
+                        }
+                    }
+                    for (var k in vertex_textureInfo) {
+                        console.log('뭐가오냐', vertex_textureInfo[k])
+                        console.log(vertex_textureInfo[k]['src'])
+                        var tStc = vertex_textureInfo[k]['src']
+                        switch (vertex_textureInfo[k]['textureIndex']) {
                             case RedTextureIndex.DISPLACEMENT:
                                 tTextureDisplacement = testGL.createTextureInfo(tStc, RedTextureIndex.DISPLACEMENT)
                                 break
-                            case RedTextureIndex.ETC1:
-                                tEtc1 = testGL.createTextureInfo(tStc, RedTextureIndex.ETC1)
+                            case RedTextureIndex.ETC_VERTEX_1:
+                                tEtc_VERTEX_1 = testGL.createTextureInfo(tStc, RedTextureIndex.ETC_VERTEX_1)
                                 break
-                            case RedTextureIndex.ETC2:
-                                tEtc2 = testGL.createTextureInfo(tStc, RedTextureIndex.ETC2)
-                                break
-                            case RedTextureIndex.ETC3:
-                                tEtc3 = testGL.createTextureInfo(tStc, RedTextureIndex.ETC3)
-                                break
-                            case RedTextureIndex.ETC4:
-                                tEtc4 = testGL.createTextureInfo(tStc, RedTextureIndex.ETC4)
+                            case RedTextureIndex.ETC_VERTEX_2:
+                                tEtc_VERTEX_2 = testGL.createTextureInfo(tStc, RedTextureIndex.ETC_VERTEX_2)
                                 break
                         }
                     }
                     console.log(tTextureDiffuse, tTextureNormal, tTextureDisplacement, tTextureSpecular)
                     testGL.createMaterialDefine(testGL.getProgramInfo(tName))
                     var t2 = testGL.createMaterialInfo(tName)
-                    for (var k in textureInfo) {
+                    for (var k in fragment_textureInfo) {
                         var tTextureUniformKey;
-                        tTextureUniformKey = textureInfo[k]['textureUniformKey']
-                        switch (textureInfo[k]['textureIndex']) {
+                        tTextureUniformKey = fragment_textureInfo[k]['textureUniformKey']
+                        switch (fragment_textureInfo[k]['textureIndex']) {
                             case RedTextureIndex.DIFFUSE:
                                 t2['diffuseInfo'] = tTextureDiffuse
                                 t2.uniforms[tTextureUniformKey] = t2['diffuseInfo']
@@ -86,24 +90,30 @@ Recard.static('RED_SHADER_PREVIEW', (function () {
                                 t2['specularInfo'] = tTextureSpecular
                                 t2.uniforms[tTextureUniformKey] = t2['specularInfo']
                                 break
+                            case RedTextureIndex.ETC_FRAGMENT_1:
+                                t2[tTextureUniformKey] = tEtc_FRAGMENT_1
+                                t2.uniforms[tTextureUniformKey] = t2[tTextureUniformKey]
+                                break
+                            case RedTextureIndex.ETC_FRAGMENT_2:
+                                t2[tTextureUniformKey] = tEtc_FRAGMENT_2
+                                t2.uniforms[tTextureUniformKey] = t2[tTextureUniformKey]
+                                break
+                        }
+                    }
+                    for (var k in vertex_textureInfo) {
+                        var tTextureUniformKey;
+                        tTextureUniformKey = vertex_textureInfo[k]['textureUniformKey']
+                        switch (vertex_textureInfo[k]['textureIndex']) {
                             case RedTextureIndex.DISPLACEMENT:
                                 t2['displacementInfo'] = tTextureDisplacement
                                 t2.uniforms[tTextureUniformKey] = t2['displacementInfo']
                                 break
-                            case RedTextureIndex.ETC1:
-                                t2[tTextureUniformKey] = tEtc1
+                            case RedTextureIndex.ETC_VERTEX_1:
+                                t2[tTextureUniformKey] = tEtc_VERTEX_1
                                 t2.uniforms[tTextureUniformKey] = t2[tTextureUniformKey]
                                 break
-                            case RedTextureIndex.ETC2:
-                                t2[tTextureUniformKey] = tEtc2
-                                t2.uniforms[tTextureUniformKey] = t2[tTextureUniformKey]
-                                break
-                            case RedTextureIndex.ETC3:
-                                t2[tTextureUniformKey] = tEtc3
-                                t2.uniforms[tTextureUniformKey] = t2[tTextureUniformKey]
-                                break
-                            case RedTextureIndex.ETC4:
-                                t2[tTextureUniformKey] = tEtc4
+                            case RedTextureIndex.ETC_VERTEX_2:
+                                t2[tTextureUniformKey] = tEtc_VERTEX_2
                                 t2.uniforms[tTextureUniformKey] = t2[tTextureUniformKey]
                                 break
                         }
