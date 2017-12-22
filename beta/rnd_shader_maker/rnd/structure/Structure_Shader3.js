@@ -14,14 +14,14 @@ var Structure_Shader3;
         this['structureBase']['functions']['shaderTest3'] =
             `
 
-vec4 shaderTest3_${this['index']} (vec4 position){
+vec4 shaderTest3_${this['index']} (vec4 glPosition, vec3 normal){
  
     return normalize(vec4(
-        sin( vSystemTime ) * position.x  +  cos( vSystemTime ) * position.z , 
-        sin( vSystemTime ) * position.y  +  cos( vSystemTime ) * position.y ,
-        sin( vSystemTime ) * position.z  +  cos( vSystemTime ) * position.x ,
+        sin( vSystemTime ) * normal.x + cos( 1.0/vSystemTime ) * normal.y, 
+        sin( vSystemTime ) * normal.y + cos( 1.0/vSystemTime ) * normal.x,
+        sin( vSystemTime ) * normal.z + cos( 1.0/vSystemTime ) * normal.z,
         1.0
-    ));
+    )) * 10.0;
 }
 `
         this['parse'] = function () {
@@ -40,7 +40,7 @@ vec4 shaderTest3_${this['index']} (vec4 position){
             for (var k in tStructureBase['functions']) {
                 tDefineData['functions'][k] = tStructureBase['functions'][k]
             }
-            tDefineData['footers'].push('    gl_Position += ' + `shaderTest3_${this['index']}(gl_Position)`)
+            tDefineData['footers'].push('    gl_Position += ' + `shaderTest3_${this['index']}(gl_Position, vNormal)`)
             return Structure_util.makeViewStr(tDefineData)
         }
         index++
