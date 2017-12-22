@@ -80,8 +80,8 @@ var RedMaterialInfo;
             1: 'uniform1iv'
         }
     }
-    RedMaterialInfo = function (redGL, typeName, diffuseInfo, normalInfo, displacementInfo, specularInfo) {
-        if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseInfo, normalInfo, displacementInfo, specularInfo)
+    RedMaterialInfo = function (redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture) {
+        if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
         if (typeof typeName != 'string') throw 'typeName은 문자열만 허용됩니다.'
         // 디파인더에서 재질정의를 찾고
@@ -107,10 +107,10 @@ var RedMaterialInfo;
 			return : 'RedTextureInfo or RedCubeTextureInfo'
         }
         :DOC*/
-        this['diffuseInfo'] = diffuseInfo
-        this['normalInfo'] = normalInfo
-        this['displacementInfo'] = displacementInfo
-        this['specularInfo'] = specularInfo
+        if(diffuseTexture) this['uDiffuseTexture'] = diffuseTexture
+        if(normalTexture) this['uNormalTexture'] = normalTexture
+        if(displacementTexture) this['uDisplacementTexture'] = displacementTexture
+        if(specularTexture) this['uSpecularTexture'] = specularTexture
         /**DOC:
 		{
             title :`uniforms`,

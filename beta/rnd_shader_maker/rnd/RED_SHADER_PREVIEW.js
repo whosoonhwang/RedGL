@@ -79,24 +79,19 @@ Recard.static('RED_SHADER_PREVIEW', (function () {
                         tTextureUniformKey = fragment_textureInfo[k]['textureUniformKey']
                         switch (fragment_textureInfo[k]['textureIndex']) {
                             case RedTextureIndex.DIFFUSE:
-                                t2['diffuseInfo'] = tTextureDiffuse
-                                t2.uniforms[tTextureUniformKey] = t2['diffuseInfo']
+                                t2.uniforms[tTextureUniformKey] = tTextureDiffuse
                                 break
                             case RedTextureIndex.NORMAL:
-                                t2['normalInfo'] = tTextureNormal
-                                t2.uniforms[tTextureUniformKey] = t2['normalInfo']
+                                t2.uniforms[tTextureUniformKey] = tTextureNormal
                                 break
                             case RedTextureIndex.SPECULAR:
-                                t2['specularInfo'] = tTextureSpecular
-                                t2.uniforms[tTextureUniformKey] = t2['specularInfo']
+                                t2.uniforms[tTextureUniformKey] = tTextureSpecular
                                 break
                             case RedTextureIndex.ETC_FRAGMENT_1:
-                                t2[tTextureUniformKey] = tEtc_FRAGMENT_1
-                                t2.uniforms[tTextureUniformKey] = t2[tTextureUniformKey]
+                                t2.uniforms[tTextureUniformKey] = tEtc_FRAGMENT_1
                                 break
                             case RedTextureIndex.ETC_FRAGMENT_2:
-                                t2[tTextureUniformKey] = tEtc_FRAGMENT_2
-                                t2.uniforms[tTextureUniformKey] = t2[tTextureUniformKey]
+                                t2.uniforms[tTextureUniformKey] = tEtc_FRAGMENT_2
                                 break
                         }
                     }
@@ -105,16 +100,13 @@ Recard.static('RED_SHADER_PREVIEW', (function () {
                         tTextureUniformKey = vertex_textureInfo[k]['textureUniformKey']
                         switch (vertex_textureInfo[k]['textureIndex']) {
                             case RedTextureIndex.DISPLACEMENT:
-                                t2['displacementInfo'] = tTextureDisplacement
-                                t2.uniforms[tTextureUniformKey] = t2['displacementInfo']
+                                t2.uniforms[tTextureUniformKey] = tTextureDisplacement
                                 break
                             case RedTextureIndex.ETC_VERTEX_1:
-                                t2[tTextureUniformKey] = tEtc_VERTEX_1
-                                t2.uniforms[tTextureUniformKey] = t2[tTextureUniformKey]
+                                t2.uniforms[tTextureUniformKey] = tEtc_VERTEX_1
                                 break
                             case RedTextureIndex.ETC_VERTEX_2:
-                                t2[tTextureUniformKey] = tEtc_VERTEX_2
-                                t2.uniforms[tTextureUniformKey] = t2[tTextureUniformKey]
+                                t2.uniforms[tTextureUniformKey] =tEtc_VERTEX_2
                                 break
                         }
                     }

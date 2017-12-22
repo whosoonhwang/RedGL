@@ -87,9 +87,9 @@ Recard.static('TEST_BOX', (function () {
                 ),
                 '>', Recard.Dom('button').S(
                     '@className', 'nodeItemButton',
-                    'html', 'vertex ShaderTest',
+                    'html', 'vertex ShaderTest3',
                     'on', ['down', function () {
-                        Recard.RED_SHADER_GRID.addNode(new Structure_Shader('vertex'))
+                        Recard.RED_SHADER_GRID.addNode(new Structure_Shader3('vertex'))
                     }]
                 ),
                 '<', rootBox
@@ -100,13 +100,6 @@ Recard.static('TEST_BOX', (function () {
                     'html', 'fragment ShaderTest2',
                     'on', ['down', function () {
                         Recard.RED_SHADER_GRID.addNode(new Structure_Shader2('fragment'))
-                    }]
-                ),
-                '>', Recard.Dom('button').S(
-                    '@className', 'nodeItemButton',
-                    'html', 'vertex ShaderTest2',
-                    'on', ['down', function () {
-                        Recard.RED_SHADER_GRID.addNode(new Structure_Shader2('vertex'))
                     }]
                 ),
                 '<', rootBox

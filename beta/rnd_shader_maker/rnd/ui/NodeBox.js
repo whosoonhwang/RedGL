@@ -21,6 +21,7 @@ var NodeBox;
         var inputBox, outputBox;
         var imageBox, fileBox, uniformNameBox;
         var code_vertex_Container, code_fragment_Container;
+        var tabVertex,tabFragment
         rootBox = Recard.Dom('div').S(
             '@nodeType', structureInfo['nodeType'],
             '@calcItemYn',structureInfo['calcItemYn'],
@@ -91,7 +92,7 @@ var NodeBox;
                             'on', ['change', function (e) {
                                 console.log(this.__dom__.files)
                                 structureInfo['structureBase']['textureInfo']['textureIndex'] = +this.S('@value')
-                                uniformNameBox.S('@disabled', null)
+                                // uniformNameBox.S('@disabled', null)
                                 switch (structureInfo['structureBase']['textureInfo']['textureIndex']) {
                                     case RedTextureIndex.DIFFUSE:
                                         uniformNameBox.S('@disabled', '')
@@ -109,6 +110,22 @@ var NodeBox;
                                         uniformNameBox.S('@disabled', '')
                                         structureInfo['structureBase']['textureInfo']['textureUniformKey'] = 'uDisplacementTexture'
                                         break
+                                    case RedTextureIndex.ETC_VERTEX_1:
+                                        uniformNameBox.S('@disabled', '')
+                                        structureInfo['structureBase']['textureInfo']['textureUniformKey'] = 'uEtcVertexTexture1'
+                                        break
+                                    case RedTextureIndex.ETC_VERTEX_2:
+                                        uniformNameBox.S('@disabled', '')
+                                        structureInfo['structureBase']['textureInfo']['textureUniformKey'] = 'uEtcVertexTexture2'
+                                        break
+                                    case RedTextureIndex.ETC_FRAGMENT_1:
+                                        uniformNameBox.S('@disabled', '')
+                                        structureInfo['structureBase']['textureInfo']['textureUniformKey'] = 'uEtcFragmentTexture1'
+                                        break
+                                    case RedTextureIndex.ETC_FRAGMENT_2:
+                                        uniformNameBox.S('@disabled', '')
+                                        structureInfo['structureBase']['textureInfo']['textureUniformKey'] = 'uEtcFragmentTexture2'
+                                        break
                                     default:
                                         structureInfo['structureBase']['textureInfo']['textureUniformKey'] = 'uTexture_' + structureInfo['index']
                                         break
@@ -121,7 +138,7 @@ var NodeBox;
                             }]
                         )
                         var tKeyMap;
-                        if(structureInfo['shaderType']=='vertex'){
+                        if (structureInfo['shaderType'] == 'vertex') {
                             tKeyMap = {
                                 DISPLACEMENT : 1,
                                 ETC_VERTEX_1 : 1,
@@ -219,23 +236,32 @@ var NodeBox;
             '>', Recard.Dom('div').S(
                 'display', structureInfo['nodeType'] == 'Final' ? 'block' : 'none',
                 'margin-top', 10,
-                '>', Recard.Dom('button').S(
+                '>', tabFragment = Recard.Dom('button').S(
                     'padding', 10,
                     'html', 'fragment',
+                    'background', 'rgb(144, 74, 135)',
+                    'color', '#fff',
                     'on', ['down', function () {
-                        code_fragment_Container.S('display', 'block')
                         code_vertex_Container.S('display', 'none')
+                        code_fragment_Container.S('display', 'block')
+                        tabFragment.S('opacity', 1)
+                        tabVertex.S('opacity', 0.3)
                         console.log('오긴하나')
                     }]
                 ),
-                '>', Recard.Dom('button').S(
+                '>', tabVertex = Recard.Dom('button').S(
                     'border-top-right-radius', 10,
                     'margin-left', 1,
                     'padding', 10,
+                    'background', 'rgb(50, 100, 135)',
+                    'color', '#fff',
+                    'opacity', 0.3,
                     'html', 'vertex',
                     'on', ['down', function () {
-                        code_fragment_Container.S('display', 'none')
                         code_vertex_Container.S('display', 'block')
+                        code_fragment_Container.S('display', 'none')
+                        tabFragment.S('opacity', 0.3)
+                        tabVertex.S('opacity', 1)
                         console.log('오긴하나2')
                     }]
                 )

@@ -15,7 +15,7 @@ var Structure_Shader2;
             `
 #define PI 3.14159265359
 #define T (vSystemTime/2.)
-vec3 hsv2rgb_${this['index']} (vec3 c){
+vec3 shaderTest2_${this['index']}_hsv2rgb (vec3 c){
 vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
 vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
 return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
@@ -23,12 +23,12 @@ return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
 }
 
 vec4 shaderTest2_${this['index']} (vec2 currentTexcoord){
-vec2 position = (( ${shaderType == 'vertex' ? 'currentTexcoord.xy' : 'gl_FragCoord.xy'} / vSystemResolution.xy ) - 1.0) +vTexcoord;
+vec2 position = (( gl_FragCoord.xy / vSystemResolution.xy ) - 1.0) +vTexcoord;
 position.x *= vSystemResolution.x / vSystemResolution.y;
 vec3 color = vec3(0.);
 for (float i = 0.; i < PI*2.; i += PI/17.5) {
     vec2 p = position - vec2(cos(i+T), sin(i+T)) * 0.25;
-    vec3 col = hsv2rgb_${this['index']}(vec3((i)/(PI*2.), 1., mod(i-T*3.,PI*2.)/PI));
+    vec3 col = shaderTest2_${this['index']}_hsv2rgb(vec3((i)/(PI*2.), 1., mod(i-T*3.,PI*2.)/PI));
     color += col * (1./1024.) / length(p);
 }
 return vec4(color,0.5);

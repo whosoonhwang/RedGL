@@ -36,7 +36,7 @@ var Structure_Texture;
             var tUVKey, tStructureBase;
             var tDefineData;
             tStructureBase = this['structureBase']
-            tDefineData = this['define_' + shaderType] = new Structure_define()            
+            tDefineData = this['define_' + shaderType] = new Structure_define()
             tDefineData['uniforms'][tUniformKey = tStructureBase['textureInfo']['textureUniformKey']] = 'uniform sampler2D ' + tUniformKey
             tDefineData['textureInfo'][tUniformKey] = tStructureBase['textureInfo']
             tDefineData['varyings'][tVaryingKey = 'vTexcoord'] = 'varying vec2 ' + tVaryingKey
@@ -48,7 +48,20 @@ var Structure_Texture;
                 tUVKey = tVarKey
                 tDefineData['headers'].push(tUVKey + ' = ' + tVaryingKey)
             }
-            tDefineData['headers'].push('    ' + tVarKey + ' = texture2D(' + tUniformKey + ',' + tUVKey + ')')
+            var tUseKeyMap;
+            tUseKeyMap = {}
+            if (this['shaderType'] == 'vertex') {
+                tUseKeyMap[RedTextureIndex.DISPLACEMENT] = 'if(uUseDisplacementTexture == 1)'
+                tUseKeyMap[RedTextureIndex.ETC_VERTEX_1] = 'if(uUseEtcVertexTexture1 == 1)'
+                tUseKeyMap[RedTextureIndex.ETC_VERTEX_2] = 'if(uUseEtcVertexTexture2 == 1)'
+            } else {
+                tUseKeyMap[RedTextureIndex.NORMAL] = 'if(uUseNormalTexture == 1)'
+                tUseKeyMap[RedTextureIndex.SPECULAR] = 'if(uUseSpecularTexture == 1)'
+                tUseKeyMap[RedTextureIndex.DIFFUSE] = ''
+                tUseKeyMap[RedTextureIndex.ETC_FRAGMENT_1] = 'if(uUseEtcFragmentTexture1 == 1)'
+                tUseKeyMap[RedTextureIndex.ETC_FRAGMENT_2] = 'if(uUseEtcFragmentTexture2 == 1)'
+            }
+            tDefineData['headers'].push(`    ${tUseKeyMap[tStructureBase['textureInfo']['textureIndex']]} ` + tVarKey + ' = texture2D(' + tUniformKey + ',' + tUVKey + ')')
             return Structure_util.makeViewStr(tDefineData)
         }
         index++
