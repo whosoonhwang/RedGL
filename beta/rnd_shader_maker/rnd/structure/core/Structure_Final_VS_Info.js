@@ -30,7 +30,7 @@ vec4 vertexPositionEye4;
 
 varying float vSystemTime;
 varying vec2 vSystemResolution;
-
+varying vec2 vScreenXY ;
 const vec4 nullVec4 = vec4(0.0);
         `
     }

@@ -19,6 +19,7 @@ varying vec3 vNormal;
 varying vec2 vTexcoord;
 varying float vSystemTime;
 varying vec2 vSystemResolution;
+varying vec2 vScreenXY ;
 
 // 암비안트
 uniform vec4 uAmbientLightColor;
