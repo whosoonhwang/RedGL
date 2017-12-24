@@ -68,8 +68,6 @@ var InputItem;
                                 if (info['from']) info['from'].delTo(rootBox)
                                 info['from'] = tTempOutputItem
                                 info['dataType'] = tTempOutputItem.S('@dataType')
-                                //TODO: 여기서 형시계산을 해줘야하는군...
-                                // 또 여길 외부주입해야하는군
                                 if (getPanel().S('@calcItemYn') == 'true') {
                                     getPanel()['structureInfo']['structureBase']['output']['OUTPUT']['dataType'] = info['dataType']
                                     getPanel().query('[key="OUTPUT"]').S('@dataType', info['dataType'])

@@ -196,7 +196,7 @@ Recard.static('RED_SHADER_PREVIEW', (function () {
                 var testLight = testGL.createAmbientLight(testGL)
                 testScene.addLight(testLight)
                 // 디렉셔널 라이트 테스트
-                var i = 2
+                var i = 3
                 while (i--) {
                     var testLight = testGL.createDirectionalLight(testGL)
                     testLight.direction[0] = -1

@@ -200,6 +200,7 @@ var NodeBox;
                         Recard.EVENT_EMITTER.off(window, 'mouseup')
                         Recard.LINE_MANAGER.setNeedRender(false)
                     })
+                    Recard.PROPERTY_BOX.makePanel(rootBox)
                 }],
                 '>', Recard.Dom('button').S(
                     'display', 'block',
@@ -375,9 +376,10 @@ var NodeBox;
                 var parseFianlStrList;
                 finalNode = Recard.query('[nodeType="Final"]')
                 parseFianlStrList = finalNode['structureInfo'].parse(finalDefine_vertex, finalDefine_fragment)
+                Recard.RED_SHADER_PREVIEW.setTest(parseFianlStrList[0], parseFianlStrList[1], finalDefine_vertex['textureInfo'], finalDefine_fragment['textureInfo'])
+                   
                 if (structureInfo instanceof Structure_Final) {
-                    Recard.RED_SHADER_PREVIEW.setTest(parseFianlStrList[0], parseFianlStrList[1], finalDefine_vertex['textureInfo'], finalDefine_fragment['textureInfo'])
-                    // 파이널 노드에 프레그먼트, 버텍스쉐이더 파싱된  소스를 보여준다. 
+                     // 파이널 노드에 프레그먼트, 버텍스쉐이더 파싱된  소스를 보여준다. 
                 } else {
                     var str = rootBox['structureInfo'].parse(rootBox['structureInfo']['shaderType']=='vertex' ? finalDefine_vertex : finalDefine_fragment)
                     rootBox.query('[code_fragment_Box]').S('html',str )
