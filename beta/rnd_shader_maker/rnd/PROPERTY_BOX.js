@@ -9,29 +9,35 @@ Recard.static('PROPERTY_BOX', (function () {
         var t0;
         t0 = Recard.Dom('div').S('padding', 10)
         for (var k in userDefineInfo['data']) {
-            (function(){
+            (function () {
                 var tKey;
                 var valueBox;
                 tKey = k
+                userDefineInfo['data'][tKey] = userDefineInfo['dataType'] == 'int'
+                    ? parseInt(userDefineInfo['data'][tKey])
+                    : parseFloat(userDefineInfo['data'][tKey]).toFixed(5)
                 Recard.Dom('label').S(
                     'position', 'relative',
                     'display', 'block',
                     '>', Recard.Dom('div').S(
                         'display', 'inline-block',
                         'width', '20%',
-                        'text-align','center',
-                        'html', k,
+                        'text-align', 'center',
+                        'html', tKey,
                     ),
                     '>', Recard.Dom('input').S(
-                        'vertical-align','middle',
+                        'vertical-align', 'middle',
                         'width', '60%',
                         '@type', 'range',
                         '@step', userDefineInfo['step'],
                         '@min', userDefineInfo['min'],
                         '@max', userDefineInfo['max'],
-                        '@value', userDefineInfo['data'][k],
+                        '@value', userDefineInfo['data'][tKey],
                         'on', ['change', function () {
                             userDefineInfo['data'][tKey] = +this.S('@value')
+                            userDefineInfo['data'][tKey] = userDefineInfo['dataType'] == 'int'
+                            ? parseInt(userDefineInfo['data'][tKey])
+                            : parseFloat(userDefineInfo['data'][tKey]).toFixed(5)
                             valueBox.S(
                                 'html', userDefineInfo['data'][tKey]
                             )
@@ -43,7 +49,7 @@ Recard.static('PROPERTY_BOX', (function () {
                     '>', valueBox = Recard.Dom('div').S(
                         'display', 'inline-block',
                         'width', '10%',
-                        'text-align','center',
+                        'text-align', 'center',
                         'html', userDefineInfo['data'][k],
                     ),
                     '<', t0

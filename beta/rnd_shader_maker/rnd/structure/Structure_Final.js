@@ -95,6 +95,9 @@ gl_FragColor = finalColor;
         vEyeVec = -vertexPositionEye4.xyz;
         vSystemTime = uSystemTime;
         vSystemResolution = uSystemResolution;
+        vScreenXY = vec2(0.0);
+        vScreenXY.x = (  vertexPositionEye4.x + 1.0 ) * vSystemResolution[0]  / 2.0;
+	    vScreenXY.y = ( -vertexPositionEye4.y + 1.0 ) * vSystemResolution[1] / 2.0;
         
         `
         vertexDefineInfo['headers'].forEach(function (v) { resultStr += v + ';\n' })

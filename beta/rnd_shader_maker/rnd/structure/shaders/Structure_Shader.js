@@ -13,6 +13,7 @@ var Structure_Shader;
                 min: 0,
                 max: 1,
                 step: 0.01,
+                dataType:'float',
                 data: {
                     r: 0.9,
                     g: 0.55,
@@ -28,6 +29,7 @@ var Structure_Shader;
                 min: 1,
                 max: 16,
                 step: 1,
+                dataType:'int',
                 data: {
                     MAX_ITER: 4
                 },
@@ -71,7 +73,7 @@ var Structure_Shader;
         this['structureBase']['functions']['shaderTest_' + this['index']]  = `
         const int shaderTest_${this['index']}_MAX_ITER = ${this['userDefineInfo']['MAX_ITER']['data']['MAX_ITER']};
         vec4 shaderTest_${this['index']} (){
-            vec2 v_texCoord = gl_FragCoord.xy/vSystemResolution  ;
+            vec2 v_texCoord = vScreenXY.xy/vSystemResolution  ;
             vec2 p =  (v_texCoord) * 8.0 ;
             vec2 i = p;
             float c = 1.0;
