@@ -80,8 +80,9 @@ var RedMaterialInfo;
             1: 'uniform1iv'
         }
     }
-    RedMaterialInfo = function (redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture) {
-        if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture)
+    RedMaterialInfo = function (redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture, reflectionTexture) {
+        if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture,reflectionTexture)
+        //TODO: 
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
         if (typeof typeName != 'string') throw 'typeName은 문자열만 허용됩니다.'
         // 디파인더에서 재질정의를 찾고
@@ -111,17 +112,19 @@ var RedMaterialInfo;
         if(normalTexture) this['uNormalTexture'] = normalTexture
         if(displacementTexture) this['uDisplacementTexture'] = displacementTexture
         if(specularTexture) this['uSpecularTexture'] = specularTexture
+        if(reflectionTexture) this['uReflectionTexture'] = reflectionTexture
+        
         /**DOC:
 		{
-            title :`uniforms`,
+            title :`materialUniforms`,
             description : `
                 - 렌더링시 참고할 유니폼데이터
             `,
-			example : `인스턴스.uniforms`,
+			example : `인스턴스.materialUniforms`,
 			return : 'Object'
         }
         :DOC*/
-        this['uniforms'] = tUniform = {}
+        this['materialUniforms'] = tUniform = {}
         // 유니폼은 프로그램에 의하여 생성되고, 재질정보를 토대로 렌더시 참조
         tDegineData['programInfo'].makeUniformValue(this)
         /**DOC:
@@ -157,7 +160,7 @@ var RedMaterialInfo;
             } else if (t0 instanceof RedAtlasUVInfo) {
             } else if (t0 instanceof RedTextureInfo || t0 instanceof RedCubeTextureInfo) {
             } else if (t0 instanceof RedAtlasTextureInfo) {
-                this['uniforms']['uAtlascoord'] = t0['atlasUVInfo']
+                this['materialUniforms']['uAtlascoord'] = t0['atlasUVInfo']
             } else throw k + '는 올바르지 않은 타입입니다.'
         }
         this.updateUniformList()
@@ -167,7 +170,7 @@ var RedMaterialInfo;
         // 프로그램 정보를 처리
         if (this['needUniformList']) {
             this['__uniformList'] = []
-            var tUniformGroup = this['uniforms']
+            var tUniformGroup = this['materialUniforms']
             var tUniformLocationGroup = this['programInfo']['uniforms']
             for (k in tUniformGroup) {
                 console.log('//////////////////////////////////////')

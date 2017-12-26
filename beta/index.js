@@ -23,7 +23,7 @@ start = function () {
 			testGL.getShaderInfo('color', RedShaderInfo.VERTEX_SHADER),
 			testGL.getShaderInfo('color', RedShaderInfo.FRAGMENT_SHADER),
 			function (target) {
-				target.uniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random(), 255])
+				target.materialUniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random(), 255])
 			}
 		)
 		testGL.createProgramInfo(
@@ -31,13 +31,13 @@ start = function () {
 			testGL.getShaderInfo('bitmapPhong', RedShaderInfo.VERTEX_SHADER),
 			testGL.getShaderInfo('bitmapPhong', RedShaderInfo.FRAGMENT_SHADER),
 			function (target) {
-				target.uniforms.uDiffuseTexture = target['uDiffuseTexture']
-				target.uniforms.uNormalTexture = target['uNormalTexture']
-				target.uniforms.uDisplacementTexture = target['uDisplacementTexture']
-				target.uniforms.uSpecularTexture = target['uSpecularTexture']
+				target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
+				target.materialUniforms.uNormalTexture = target['uNormalTexture']
+				target.materialUniforms.uDisplacementTexture = target['uDisplacementTexture']
+				target.materialUniforms.uSpecularTexture = target['uSpecularTexture']
 
-				target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
-				target.uniforms.uShininess = 16
+				target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
+				target.materialUniforms.uShininess = 16
 			}
 		)
 		testGL.createProgramInfo(
@@ -45,7 +45,7 @@ start = function () {
 			testGL.getShaderInfo('skybox', RedShaderInfo.VERTEX_SHADER),
 			testGL.getShaderInfo('skybox', RedShaderInfo.FRAGMENT_SHADER),
 			function (target) {
-				target.uniforms.uSkybox = target['uDiffuseTexture']
+				target.materialUniforms.uSkybox = target['uDiffuseTexture']
 
 			}
 		)

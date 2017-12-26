@@ -27,7 +27,7 @@ start = function () {
 			testGL.getShaderInfo('color', RedShaderInfo.VERTEX_SHADER),
 			testGL.getShaderInfo('color', RedShaderInfo.FRAGMENT_SHADER),
 			function (target) {
-				target.uniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random(), 255])
+				target.materialUniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random(), 255])
 			}
 		)
 		testGL.createProgramInfo(
@@ -35,8 +35,8 @@ start = function () {
 			testGL.getShaderInfo('bitmap', RedShaderInfo.VERTEX_SHADER),
 			testGL.getShaderInfo('bitmap', RedShaderInfo.FRAGMENT_SHADER),
 			function (target) {
-				target.uniforms.uDiffuseTexture = target['uDiffuseTexture']
-				target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
+				target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
+				target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
 			}
 		)
 		testGL.createProgramInfo(
@@ -44,13 +44,13 @@ start = function () {
 			testGL.getShaderInfo('bitmapPhong', RedShaderInfo.VERTEX_SHADER),
 			testGL.getShaderInfo('bitmapPhong', RedShaderInfo.FRAGMENT_SHADER),
 			function (target) {
-				target.uniforms.uDiffuseTexture = target['uDiffuseTexture']
-				target.uniforms.uNormalTexture = target['uNormalTexture']
-				target.uniforms.uDisplacementTexture = target['uDisplacementTexture']
-				target.uniforms.uSpecularTexture = target['uSpecularTexture']
+				target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
+				target.materialUniforms.uNormalTexture = target['uNormalTexture']
+				target.materialUniforms.uDisplacementTexture = target['uDisplacementTexture']
+				target.materialUniforms.uSpecularTexture = target['uSpecularTexture']
 
-				target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
-				target.uniforms.uShininess = 16
+				target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
+				target.materialUniforms.uShininess = 16
 			}
 		)
 		testGL.createProgramInfo(
@@ -58,7 +58,7 @@ start = function () {
 			testGL.getShaderInfo('skybox', RedShaderInfo.VERTEX_SHADER),
 			testGL.getShaderInfo('skybox', RedShaderInfo.FRAGMENT_SHADER),
 			function (target) {
-				target.uniforms.uSkybox = target['uDiffuseTexture']
+				target.materialUniforms.uSkybox = target['uDiffuseTexture']
 
 			}
 		)
@@ -67,13 +67,15 @@ start = function () {
 			testGL.getShaderInfo('environment', RedShaderInfo.VERTEX_SHADER),
 			testGL.getShaderInfo('environment', RedShaderInfo.FRAGMENT_SHADER),
 			function (target) {
-				target.uniforms.uDiffuseTexture = target['uDiffuseTexture']
-				target.uniforms.uNormalTexture = target['uNormalTexture']
-				target.uniforms.uDisplacementTexture = target['uDisplacementTexture']
-				target.uniforms.uSpecularTexture = target['uSpecularTexture']
+				target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
+				target.materialUniforms.uNormalTexture = target['uNormalTexture']
+				target.materialUniforms.uDisplacementTexture = target['uDisplacementTexture']
+				target.materialUniforms.uSpecularTexture = target['uSpecularTexture']
+				target.materialUniforms.uReflectionTexture = target['uReflectionTexture']
+				
 
-				target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
-				target.uniforms.uShininess = 16
+				target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
+				target.materialUniforms.uShininess = 16
 			}
 		)
 	}
@@ -176,12 +178,13 @@ start = function () {
 	tMesh.position[2] = -7
 	testScene.children.push(tMesh)
 	var earth = testGL.createMeshInfo('testMeshAdd5', RedPrimitive.sphere(testGL, 5, 32, 32, 32), testMatBitmapSpecular)
-	earth.position[2] = 12
-	earth.position[0] = 12
+	earth.position[2] = 14
+	earth.position[0] = 14
 	testScene.children.push(earth)
 
 	var testEnvironmentMap = testGL.createMaterialInfo(
 		'environment',
+		earthDiffuse, null, earthDisplacement, earthSpecular,
 		RedCubeTextureInfo(testGL, [
 			'asset/cubemap/posx.jpg',
 			'asset/cubemap/negx.jpg',
@@ -189,14 +192,13 @@ start = function () {
 			'asset/cubemap/negy.jpg',
 			'asset/cubemap/posz.jpg',
 			'asset/cubemap/negz.jpg'
-		]),
-		null, earthDisplacement, earthSpecular
+		])
 	)
 	console.log(testEnvironmentMap)
 
 	var cubeTest = testGL.createMeshInfo('testMeshAdd6', RedPrimitive.sphere(testGL, 5, 32, 32, 32), testEnvironmentMap)
-	cubeTest.position[2] = -12
-	cubeTest.position[0] = -12
+	cubeTest.position[2] = -14
+	cubeTest.position[0] = -14
 	testScene.children.push(cubeTest)
 
 	// 중앙 테스트용 구체...정렬
@@ -225,7 +227,7 @@ start = function () {
 		testScene.addLight(testLight)
 	}
 	// 포인트 라이트 테스트
-	i = 5
+	i = 1
 	while (i--) {
 		var testLight = testGL.createPointLight(testGL)
 		testLight.color[0] = Math.random()
