@@ -44,20 +44,20 @@ float distanceLength; // 거리
 float attenuation;  // 감쇄
 vec4 finalColor; // 최종컬러값
 
-uniform float useFragmentTextures[16]; // 텍스쳐 사용여부
+uniform int useFragmentTextures[16]; // 텍스쳐 사용여부
 void main(void) {
     la = uAmbientLightColor;
     ld = vec4(0.0, 0.0, 0.0, 1.0);
     ls = vec4(0.0, 0.0, 0.0, 1.0);
-    if(useFragmentTextures[1] == 1.0) texelColor = texture2D(uDiffuseTexture, vTexcoord);
+    if(useFragmentTextures[0] == 1) texelColor = texture2D(uDiffuseTexture, vTexcoord);
     if(texelColor.a==0.0) discard;
     E = normalize(vEyeVec);
     
-    if(useFragmentTextures[2] == 1.0) N = normalize(2.0 * (normalize(vNormal)+texture2D(uNormalTexture, vTexcoord).rgb - 0.5));
+    if(useFragmentTextures[2] == 1) N = normalize(2.0 * (normalize(vNormal)+texture2D(uNormalTexture, vTexcoord).rgb - 0.5));
     else N = normalize(vNormal);
  
     specularTextureValue = 1.0;
-    if(useFragmentTextures[3] == 1.0) specularTextureValue = texture2D(uSpecularTexture, vTexcoord).r ;
+    if(useFragmentTextures[3] == 1) specularTextureValue = texture2D(uSpecularTexture, vTexcoord).r ;
 
     vec4 specularLightColor = vec4(1.0, 1.0, 1.0, 1.0);
     if(uDirectionalNum>0){

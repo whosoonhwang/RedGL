@@ -429,10 +429,10 @@ var RedBaseRenderInfo;
                 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
                 // TODO: 아래는 루프로 돌리자...
                 // 노말맵이있을경우
-                useFragmentTextures[0] = useFragmentTextures[1] = useFragmentTextures[2] = useFragmentTextures[3] = 0.0
-                useFragmentTextures[4] = useFragmentTextures[5] = useFragmentTextures[6] = useFragmentTextures[7] = 0.0
-                useFragmentTextures[8] = useFragmentTextures[9] = useFragmentTextures[10] = useFragmentTextures[11] = 0.0
-                useFragmentTextures[12] = useFragmentTextures[13] = useFragmentTextures[14] = useFragmentTextures[15] = 0.0
+                useFragmentTextures[0] = useFragmentTextures[1] = useFragmentTextures[2] = useFragmentTextures[3] = 0
+                useFragmentTextures[4] = useFragmentTextures[5] = useFragmentTextures[6] = useFragmentTextures[7] = 0
+                useFragmentTextures[8] = useFragmentTextures[9] = useFragmentTextures[10] = useFragmentTextures[11] = 0
+                useFragmentTextures[12] = useFragmentTextures[13] = useFragmentTextures[14] = useFragmentTextures[15] = 0
                 if (tMaterial['uDiffuseTexture'] && tMaterial['uDiffuseTexture']['loaded']) {
                     // if (tMaterial['uDiffuseTexture']['__targetIndex'] != RedTextureIndex.DIFFUSE) throw "DIFFUSE 인덱스타입이 아닙니다."
                     useFragmentTextures[RedTextureIndex.DIFFUSE] = 1
@@ -484,7 +484,7 @@ var RedBaseRenderInfo;
                 if(tProgramInfo['uniforms']['useFragmentTextures']){
                     tLocation = tProgramInfo['uniforms']['useFragmentTextures']['location']
                     // console.log(tLocation,useFragmentTextures)
-                    tGL.uniform1fv(tLocation,new Float32Array(useFragmentTextures))
+                    tGL.uniform1i(tLocation,new Uint8Array(useFragmentTextures))
                 }
                 
                 ////////////////////
