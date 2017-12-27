@@ -21,10 +21,11 @@ void main(void) {
     vertexPositionEye4 = uMVMatrix * vec4(aVertexPosition, 1.0);
     vTexcoord = uAtlascoord.xy + aTexcoord*uAtlascoord.zw;
     vNormal = vec3(uNMatrix * vec4(aVertexNormal,1.0)); 
-    vEyeVec = -vertexPositionEye4.xyz;
+ 
     if(uUseDisplacementTexture == 1) {
         vertexPositionEye4.xyz += normalize(vNormal) * texture2D(uDisplacementTexture,vTexcoord).x;
     }
+       vEyeVec = -vertexPositionEye4.xyz;
     // 포지션 결정
     gl_Position = uPMatrix * uCameraMatrix *  vertexPositionEye4;
 }

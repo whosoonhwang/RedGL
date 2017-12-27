@@ -184,7 +184,7 @@ start = function () {
 
 	var testEnvironmentMap = testGL.createMaterialInfo(
 		'environment',
-		earthDiffuse, null, earthDisplacement, earthSpecular,
+		null, null, null, null,
 		RedCubeTextureInfo(testGL, [
 			'asset/cubemap/posx.jpg',
 			'asset/cubemap/negx.jpg',
@@ -209,6 +209,7 @@ start = function () {
 		tMesh.position[0] = Math.sin(Math.PI * 2 / max * i) * 30
 		tMesh.position[1] = 0
 		tMesh.position[2] = Math.cos(Math.PI * 2 / max * i) * 30
+	
 		testScene.children.push(tMesh)
 	}
 

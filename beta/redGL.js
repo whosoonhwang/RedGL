@@ -23,7 +23,7 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		return function (cvs) {
 			i = checkList.length
 			while (i--) {
-				if (t0 = cvs.getContext(checkList[i], option)) return t0
+				if (t0 = cvs.getContext(checkList[i], option)) return console.log(checkList[i]),t0
 			}
 			throw "웹지엘을 사용할수없습니다."
 		}

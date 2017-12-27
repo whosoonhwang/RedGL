@@ -5,6 +5,7 @@ uniform samplerCube uReflectionTexture; //
 uniform sampler2D uDiffuseTexture; // 노말텍스쳐
 uniform sampler2D uNormalTexture; // 노말텍스쳐
 uniform sampler2D uSpecularTexture; // 노말텍스쳐
+uniform int uUseDiffuseTexture; // 노말텍스쳐 사용여부
 uniform int uUseNormalTexture; // 노말텍스쳐 사용여부
 uniform int uUseSpecularTexture; // 노말텍스쳐 사용여부
 varying vec2 vTexcoord;
@@ -49,25 +50,28 @@ float distanceLength; // 거리
 float attenuation;  // 감쇄
 
 vec4 finalColor; // 최종컬러값
+varying vec3 vCameraVec;  
 void main(void) {
     la = uAmbientLightColor;
     ld = vec4(0.0, 0.0, 0.0, 1.0);
     ls = vec4(0.0, 0.0, 0.0, 1.0);
-    texelColor = texture2D(uDiffuseTexture, vTexcoord);
+    if(uUseDiffuseTexture == 1) texelColor = texture2D(uDiffuseTexture, vTexcoord);
+    E = normalize(vEyeVec);
+    if(uUseNormalTexture == 1) N = normalize(2.0 * (normalize(vNormal)+texture2D(uNormalTexture, vTexcoord).rgb - 0.5));
+    else N = normalize(vNormal);
 
-    reflectionColor = textureCube(uReflectionTexture, vCubeCoord);
-    float reflectPower =0.3;
+    // reflectionColor = textureCube(uReflectionTexture, vCubeCoord);
+    reflectionColor = textureCube(uReflectionTexture, refract(-E,N,1.0));
+    float reflectPower =0.5;
     reflectionColor.rgb *= reflectPower;
-
     texelColor = (texelColor * (1.0 - reflectPower)  + reflectionColor) ;
     // texelColor +=reflectionColor;
   
 
     if(texelColor.a==0.0) discard;
-    E = normalize(vEyeVec);
+
     
-    if(uUseNormalTexture == 1) N = normalize(2.0 * (normalize(vNormal)+texture2D(uNormalTexture, vTexcoord).rgb - 0.5));
-    else N = normalize(vNormal);
+
  
     specularTextureValue = 1.0;
     if(uUseSpecularTexture == 1) specularTextureValue = texture2D(uSpecularTexture, vTexcoord).r ;

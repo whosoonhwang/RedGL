@@ -3,6 +3,7 @@ precision lowp float;
 uniform sampler2D uDiffuseTexture; // 디뷰프텍스쳐
 uniform sampler2D uNormalTexture; // 노말텍스쳐
 uniform sampler2D uSpecularTexture; // 노말텍스쳐
+uniform int uUseDiffuseTexture; // 노말텍스쳐 사용여부
 uniform int uUseNormalTexture; // 노말텍스쳐 사용여부
 uniform int uUseSpecularTexture; // 노말텍스쳐 사용여부
 varying vec2 vTexcoord;
@@ -50,7 +51,7 @@ void main(void) {
     la = uAmbientLightColor;
     ld = vec4(0.0, 0.0, 0.0, 1.0);
     ls = vec4(0.0, 0.0, 0.0, 1.0);
-    texelColor = texture2D(uDiffuseTexture, vTexcoord);
+    if(uUseDiffuseTexture == 1) texelColor = texture2D(uDiffuseTexture, vTexcoord);
     if(texelColor.a==0.0) discard;
     E = normalize(vEyeVec);
     

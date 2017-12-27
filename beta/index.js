@@ -174,7 +174,7 @@ start = function () {
 	}
 
 	// 무작위로 가보자
-	var i = 60, j
+	var i = 55, j
 	while (i--) {
 		j = 30
 		while (j--) {
@@ -222,9 +222,15 @@ start = function () {
 		}
 		i = testScene['lights']['directional'].length
 		while (i--) {
-			// testScene['lights']['directional'][i].direction[0] = Math.sin(time / 1700 + i) * 20
-			// testScene['lights']['directional'][i].direction[1] = Math.cos(time / 1400 + i) * 20 + Math.sin(time / 2700 + i) * 50
-			// testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200 + i) * 20
+			testScene['lights']['directional'][i].direction[0] = Math.sin(time / 1700 + i) * 20
+			testScene['lights']['directional'][i].direction[1] = Math.cos(time / 1400 + i) * 20 + Math.sin(time / 2700 + i) * 50
+			testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200 + i) * 20
+		}
+		i = parseInt(testScene.children.length)
+		while (i--) {
+			testScene.children[i]['rotation'][0] +=0.01
+			testScene.children[i]['rotation'][1] +=0.01
+			testScene.children[i]['rotation'][2] +=0.01
 		}
 		checkCallBox.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
 	})

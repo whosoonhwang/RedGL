@@ -24,10 +24,11 @@ void main(void) {
     vertexPositionEye4 = uMVMatrix * vec4(aVertexPosition, 1.0);
     vTexcoord = uAtlascoord.xy + aTexcoord*uAtlascoord.zw;
     vNormal = vec3(uNMatrix * vec4(aVertexNormal,1.0)); 
-    vEyeVec = -vertexPositionEye4.xyz;
     if(uUseDisplacementTexture == 1) {
         vertexPositionEye4.xyz += normalize(vNormal) * texture2D(uDisplacementTexture,vTexcoord).x;
     }
+    vEyeVec = -vertexPositionEye4.xyz;
+   
     cubeNormal =  uMVMatrix *vec4(-aVertexPosition, 0.0);
     vCubeCoord = cubeNormal.xyz;
     // 포지션 결정
