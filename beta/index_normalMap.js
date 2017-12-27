@@ -249,10 +249,10 @@ start = function () {
 		testCamera.lookAt([0, 0, 0])
 		i = testScene['lights']['directional'].length
 		while (i--) {
-			testScene['lights']['directional'][i].direction[0] = Math.sin(time / 1700 + i) * 30
-			testScene['lights']['directional'][i].direction[1] = Math.cos(time / 4400 + i) * 20 + Math.sin(time / 2700 + i) * 50
-			testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200 + i) * 30
-		}
+			testScene['lights']['directional'][i].direction[0] = -Math.sin(time / 1700 + Math.PI * 2 / 2 * i) * 30
+			testScene['lights']['directional'][i].direction[1] = Math.cos(time / 4400 + Math.PI * 2 / 2 * i) * 20 + Math.sin(time / 2700 + Math.PI * 2 / 2 * i) * 50
+			testScene['lights']['directional'][i].direction[2] = -Math.sin(time / 2200 + Math.PI * 2 / 2 * i) * 30
+	  }
 		earth.rotation[0] += 0.01
 		earth.rotation[1] += 0.01
 		earth.rotation[2] += 0.01

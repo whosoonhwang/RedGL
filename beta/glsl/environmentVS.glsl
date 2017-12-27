@@ -17,6 +17,7 @@ varying vec2 vTexcoord;
 varying vec3 vEyeVec;
 varying vec3 vNormal;
 varying vec3 vCubeCoord;  
+varying vec3 vCameraPosition;  
 // 변수선언
 vec4 vertexPositionEye4;
 vec4 cubeNormal;
@@ -28,8 +29,8 @@ void main(void) {
         vertexPositionEye4.xyz += normalize(vNormal) * texture2D(uDisplacementTexture,vTexcoord).x;
     }
     vEyeVec = -vertexPositionEye4.xyz;
-   
-    cubeNormal =  uMVMatrix *vec4(-aVertexPosition, 0.0);
+    vCameraPosition = vec3(uCameraMatrix[3][0], uCameraMatrix[3][1], uCameraMatrix[3]);
+    cubeNormal =  uMVMatrix *vec4(aVertexPosition, 0.0);
     vCubeCoord = cubeNormal.xyz;
     // 포지션 결정
     gl_Position = uPMatrix * uCameraMatrix *  vertexPositionEye4;

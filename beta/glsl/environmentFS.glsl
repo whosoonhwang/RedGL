@@ -12,7 +12,7 @@ varying vec2 vTexcoord;
 varying vec3 vEyeVec;
 varying vec3 vNormal;
 varying vec3 vCubeCoord;
-
+varying vec3 vCameraPosition;  
 // 암비안트
 uniform vec4 uAmbientLightColor;
 
@@ -61,8 +61,8 @@ void main(void) {
     else N = normalize(vNormal);
 
     // reflectionColor = textureCube(uReflectionTexture, vCubeCoord);
-    reflectionColor = textureCube(uReflectionTexture, refract(-E,N,1.0));
-    float reflectPower =0.5;
+    reflectionColor = textureCube(uReflectionTexture, vCubeCoord+refract(normalize(-vEyeVec-vCameraPosition),vNormal,0.6));
+    float reflectPower =1.0;
     reflectionColor.rgb *= reflectPower;
     texelColor = (texelColor * (1.0 - reflectPower)  + reflectionColor) ;
     // texelColor +=reflectionColor;
