@@ -23,7 +23,7 @@ start = function () {
 			testGL.getShaderInfo('color', RedShaderInfo.VERTEX_SHADER),
 			testGL.getShaderInfo('color', RedShaderInfo.FRAGMENT_SHADER),
 			function (target) {
-				target.uniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random(), 255])
+				target.materialUniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random(), 255])
 			}
 		)
 		testGL.createProgramInfo(
@@ -31,13 +31,14 @@ start = function () {
 			testGL.getShaderInfo('bitmapPhong', RedShaderInfo.VERTEX_SHADER),
 			testGL.getShaderInfo('bitmapPhong', RedShaderInfo.FRAGMENT_SHADER),
 			function (target) {
-				target.uniforms.uDiffuseTexture = target['uDiffuseTexture']
-				target.uniforms.uNormalTexture = target['uNormalTexture']
-				target.uniforms.uDisplacementTexture = target['uDisplacementTexture']
-				target.uniforms.uSpecularTexture = target['uSpecularTexture']
-
-				target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
-				target.uniforms.uShininess = 16
+				target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
+				target.materialUniforms.uNormalTexture = target['uNormalTexture']
+				target.materialUniforms.uDisplacementTexture = target['uDisplacementTexture']
+				target.materialUniforms.uSpecularTexture = target['uSpecularTexture']
+				target.materialUniforms.uReflectionTexture = target['uReflectionTexture']
+				
+				target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
+				target.materialUniforms.uShininess = 16
 			}
 		)
 		testGL.createProgramInfo(
@@ -45,7 +46,7 @@ start = function () {
 			testGL.getShaderInfo('skybox', RedShaderInfo.VERTEX_SHADER),
 			testGL.getShaderInfo('skybox', RedShaderInfo.FRAGMENT_SHADER),
 			function (target) {
-				target.uniforms.uSkybox = target['uDiffuseTexture']
+				target.materialUniforms.uSkybox = target['uDiffuseTexture']
 
 			}
 		)
@@ -101,26 +102,33 @@ start = function () {
 	var testDisplacementTexture = testGL.createTextureInfo('asset/displacement.jpg',RedTextureIndex.DISPLACEMENT)
 	
 	// 재질생성	
-	var testMatBitmap = testGL.createMaterialInfo('bitmapPhong', testTexture, testNormalTexture, testDisplacementTexture)
-	var testMatBitmap2 = testGL.createMaterialInfo('bitmapPhong', testTexture, testNormalTexture)
+	var testMatBitmap = testGL.createMaterialInfo('bitmapPhong',
+		testTexture, testNormalTexture, testDisplacementTexture
+	)
+	var testMatBitmap2 = testGL.createMaterialInfo(
+		'bitmapPhong', 
+		testTexture, 
+		testNormalTexture
+	)
 	testMatBitmap.uShininess = 8
 	testMatBitmap2.uShininess = 8
 
+	console.log(testMatBitmap,testMatBitmap2)
 	// 그리드 생성
 	var grid = testGL.createMeshInfo('grid1', RedPrimitive.grid(testGL), testGL.createMaterialInfo('color'))
 	grid.drawMode = testGL.gl.LINES
 	// testScene.setGrid(grid)
 	// 스카이박스 생성
-	testScene.setSkyBox(
-		testGL.createSkyBoxInfo([
-			'asset/cubemap/posx.jpg',
-			'asset/cubemap/negx.jpg',
-			'asset/cubemap/posy.jpg',
-			'asset/cubemap/negy.jpg',
-			'asset/cubemap/posz.jpg',
-			'asset/cubemap/negz.jpg'
-		])
-	)
+	// testScene.setSkyBox(
+	// 	testGL.createSkyBoxInfo([
+	// 		'asset/cubemap/posx.jpg',
+	// 		'asset/cubemap/negx.jpg',
+	// 		'asset/cubemap/posy.jpg',
+	// 		'asset/cubemap/negy.jpg',
+	// 		'asset/cubemap/posz.jpg',
+	// 		'asset/cubemap/negz.jpg'
+	// 	])
+	// )
 
 	// 중앙 테스트용 큰 구체...작성
 	var tMesh = testGL.createMeshInfo('testMeshAdd2', RedPrimitive.sphere(testGL, 1, 32, 32, 32), testMatBitmap)
@@ -130,7 +138,7 @@ start = function () {
 	testScene.children.push(tMesh)
 
 	// 중앙 테스트용 구체...정렬
-	var i, max = 50
+	var i, max = 1
 	i = max
 	while (i--) {
 		var tMesh = testGL.createMeshInfo('testMeshAdd1' + i, RedPrimitive.sphere(testGL, 1, 32, 32, 32), testMatBitmap)
@@ -207,6 +215,17 @@ start = function () {
 			testScene.children.push(tMesh)
 		}
 	}
+		// 스카이박스 생성
+		testScene.setSkyBox(
+			testGL.createSkyBoxInfo([
+				'asset/cubemap/posx.jpg',
+				'asset/cubemap/negx.jpg',
+				'asset/cubemap/posy.jpg',
+				'asset/cubemap/negy.jpg',
+				'asset/cubemap/posz.jpg',
+				'asset/cubemap/negz.jpg'
+			])
+		)
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	// 렌더러 생성!!!!
@@ -222,10 +241,16 @@ start = function () {
 		}
 		i = testScene['lights']['directional'].length
 		while (i--) {
-			// testScene['lights']['directional'][i].direction[0] = Math.sin(time / 1700 + i) * 20
-			// testScene['lights']['directional'][i].direction[1] = Math.cos(time / 1400 + i) * 20 + Math.sin(time / 2700 + i) * 50
-			// testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200 + i) * 20
+			testScene['lights']['directional'][i].direction[0] = Math.sin(time / 1700 + i) * 20
+			testScene['lights']['directional'][i].direction[1] = Math.cos(time / 1400 + i) * 20 + Math.sin(time / 2700 + i) * 50
+			testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200 + i) * 20
 		}
+		// i = parseInt(testScene.children.length)
+		// while (i--) {
+		// 	testScene.children[i]['rotation'][0] +=0.01
+		// 	testScene.children[i]['rotation'][1] +=0.01
+		// 	testScene.children[i]['rotation'][2] +=0.01
+		// }
 		checkCallBox.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
 	})
 	renderer.start()
