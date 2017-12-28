@@ -112,7 +112,12 @@ var RedAtlasTextureManager;
 						console.log("v['atlas']['__targetIndex']",v['atlas']['__targetIndex'])
 						if (!v['textureInfo']) v['textureInfo'] = RedTextureInfo(redGL, v['atlas']['canvas'], v['atlas']['__targetIndex'])
 						else v['textureInfo'].updateTexture(v['atlas']['canvas'])
+						
 					})
+					// for(var k in atlasKeyMap){
+					// 	console.log(atlasKeyMap[k])
+					// 	atlasKeyMap[k]['atlasUVInfo'] = atlasKeyMap[k]['setAtlasUVInfo'](tAtlas.uv()[k])
+					// }
 					if (callback) callback()
 				}
 			};

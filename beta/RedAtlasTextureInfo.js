@@ -29,22 +29,28 @@ var RedAtlasTextureInfo;
             return : 'RedAtlasTextureInfo Instance'
         }
     :DOC*/
+    var t0;
+    var tKey;
+    var setAtlasUVInfo
+    setAtlasUVInfo = function (atlasUVInfo) {
+        t0 = [
+            atlasUVInfo[0][0],
+            1.0 - atlasUVInfo[2][1],
+            (atlasUVInfo[1][0] - atlasUVInfo[0][0]),
+            (atlasUVInfo[2][1] - atlasUVInfo[0][1])
+        ]
+        tKey = t0.toString()
+        if (checkMap[tKey]) atlasUVInfo = checkMap[tKey]
+        else atlasUVInfo = checkMap[tKey] = RedAtlasUVInfo(t0)
+        return atlasUVInfo
+    }
     RedAtlasTextureInfo = (function () {
-        var t0;
-        var tKey;
+
         return function (atlasUVInfo, parentAtlasInfo) {
             if (!(this instanceof RedAtlasTextureInfo)) return new RedAtlasTextureInfo(atlasUVInfo, parentAtlasInfo)
             if (!(atlasUVInfo instanceof Array)) throw 'atlasUVInfo는 Array만 허용합니다.'
             if (!(parentAtlasInfo instanceof RedAtlasInfo)) throw 'parentAtlasInfo는 RedAtlasInfo  인스턴스만 허용합니다.'
-            t0 = [
-                atlasUVInfo[0][0],
-                1.0-atlasUVInfo[2][1],
-                (atlasUVInfo[1][0] - atlasUVInfo[0][0]),
-                (atlasUVInfo[2][1] - atlasUVInfo[0][1])
-            ]
-            tKey = t0.toString()
-            if (checkMap[tKey]) atlasUVInfo = checkMap[tKey]
-            else atlasUVInfo = checkMap[tKey] = RedAtlasUVInfo(t0)
+            atlasUVInfo = setAtlasUVInfo(atlasUVInfo)
             console.log(atlasUVInfo)
             /**DOC:
                 {
@@ -75,7 +81,8 @@ var RedAtlasTextureInfo;
             :DOC*/
             this['parentAtlasInfo'] = parentAtlasInfo
             this['__webglAtlasTexture'] = 1
-            Object.freeze(this)
+            // Object.seal(this)
         }
     })()
+    RedAtlasTextureInfo.prototype.setAtlasUVInfo = setAtlasUVInfo
 })();
