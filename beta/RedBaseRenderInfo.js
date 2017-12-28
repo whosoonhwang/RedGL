@@ -461,14 +461,15 @@ var RedBaseRenderInfo;
                     // 아틀라스텍스쳐인경우
                     else if (tUniformValue['__webglAtlasTexture']) {
                         var tTexture;
-                        tTexture = tUniformValue['parentAtlasInfo']['textureInfo']
+                        tTexture = tUniformValue['parentAtlasInfo']['textureInfo']                        
                         if (tTexture['loaded']) {
                             if (cacheTexture_UUID[tTexture['__targetIndex']] != tTexture['__UUID']) {
                                 tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
                                 tGL.bindTexture(tGL.TEXTURE_2D, tTexture['texture'])
+                                tGL.uniform1i(tLocation, tTexture['__targetIndex'])
                                 cacheTexture_UUID[tTexture['__targetIndex']] == undefined ? tGL.uniform1i(tLocation, tTexture['__targetIndex']) : 0
                                 cacheTexture_UUID[tTexture['__targetIndex']] = tTexture['__UUID']
-
+                                delete cacheTexture_UUID[tTexture['__targetIndex']] 
                             }
 
                         } else if (cacheTexture_UUID[tTexture['__targetIndex']] == undefined) bitmapRenderable = false

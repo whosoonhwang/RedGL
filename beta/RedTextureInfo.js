@@ -44,6 +44,7 @@ var RedTextureInfo;
 		var height = 1;
 		var border = 0;
 		var self;
+		console.log(src)
 		self = this
 		tGL = redGL.gl
 		internalFormat = internalFormat ? internalFormat : tGL.RGBA;

@@ -154,7 +154,7 @@ start = function () {
 	testScene.addLight(testLight)
 
 	// 디렉셔널 라이트 테스트
-	var i = 3
+	var i = 1
 	while (i--) {
 		var testLight = testGL.createDirectionalLight(testGL)
 		testLight.direction[0] = Math.random() * 2 - 1
@@ -168,7 +168,7 @@ start = function () {
 		testScene.addLight(testLight)
 	}
 	// 포인트 라이트 테스트
-	i = 6
+	i = 16
 	while (i--) {
 		var testLight = testGL.createPointLight(testGL)
 		testLight.color[0] = Math.random()
@@ -230,7 +230,7 @@ start = function () {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	// 렌더러 생성!!!!
 	var renderer = testGL.createBaseRenderInfo(testScene, function (time) {
-		testCamera.setPosition(Math.sin(time / 3000) * 60, 60, Math.cos(time / 5000) * 40)
+		testCamera.setPosition(Math.sin(time / 3000) * 60, Math.sin(time / 3000)*30+Math.cos(time / 6000) * 50, Math.cos(time / 5000) * 40)
 		testCamera.lookAt([0, 0, 0])
 		i = testScene['lights']['point'].length
 		while (i--) {
@@ -245,12 +245,12 @@ start = function () {
 			testScene['lights']['directional'][i].direction[1] = Math.cos(time / 1400 + i) * 20 + Math.sin(time / 2700 + i) * 50
 			testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200 + i) * 20
 		}
-		// i = parseInt(testScene.children.length)
-		// while (i--) {
-		// 	testScene.children[i]['rotation'][0] +=0.01
-		// 	testScene.children[i]['rotation'][1] +=0.01
-		// 	testScene.children[i]['rotation'][2] +=0.01
-		// }
+		i = parseInt(testScene.children.length)
+		while (i--) {
+			testScene.children[i]['rotation'][0] +=0.01
+			testScene.children[i]['rotation'][1] +=0.01
+			testScene.children[i]['rotation'][2] +=0.01
+		}
 		checkCallBox.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
 	})
 	renderer.start()

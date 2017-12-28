@@ -6,7 +6,7 @@
     "return": "Integer"
   },
   {
-    "title": "CUBE",
+    "title": "CUBE_REFLECTION",
     "code": "CONST",
     "description": "\n- 큐브 텍스쳐 인덱스\n",
     "return": "Integer"
