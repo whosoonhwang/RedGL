@@ -30,6 +30,7 @@ var RedTextureIndex;
 		}
 		:DOC*/
 		CREATE : 0,
+		CUBE_CREATE: 2,
 		/**DOC:
 		{
 			title :`DIFFUSE`,
@@ -44,17 +45,6 @@ var RedTextureIndex;
 		DIFFUSE : 1,
 		/**DOC:
 		{
-			title :`CUBE`,
-			code : 'CONST',
-			description : `
-				- 큐브 텍스쳐 인덱스
-			`,
-			return : 'Integer'
-		}
-		:DOC*/
-		CUBE : 2,
-		/**DOC:
-		{
 			title :`NORMAL`,
 			code : 'CONST',
 			description : `
@@ -63,6 +53,17 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
+		/**DOC:
+	{
+		title :`CUBE_REFLECTION`,
+		code : 'CONST',
+		description : `
+			- 큐브 텍스쳐 인덱스
+		`,
+		return : 'Integer'
+	}
+	:DOC*/
+		CUBE_REFLECTION: 2,
 		NORMAL : 3,
 		/**DOC:
 		{
@@ -91,6 +92,9 @@ var RedTextureIndex;
 		ETC_VERTEX_2 : 11,
 		ETC_FRAGMENT_1 : 12,
 		ETC_FRAGMENT_2 : 13
+
+		/////////////////////
+	
 	}
 	Object.freeze(RedTextureIndex)
 })();

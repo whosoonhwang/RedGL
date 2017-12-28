@@ -114,6 +114,7 @@ var RedBaseRenderInfo;
             ['uUseEtcVertexTexture2','uEtcVertextTexture2'],
             ['uUseEtcFragmentTexture1','uEtcFragmentTexture1'],
             ['uUseEtcFragmentTexture2','uEtcFragmentTexture2']
+            
         ]
 
 

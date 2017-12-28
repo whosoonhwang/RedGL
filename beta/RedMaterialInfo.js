@@ -60,6 +60,7 @@ var RedMaterialInfo;
     var tUniform;
     var typeMAP;
     var k, t0;
+    var tGL;
     typeMAP = {
         f: {
             16: 'uniformMatrix4fv',
@@ -81,13 +82,14 @@ var RedMaterialInfo;
         }
     }
     RedMaterialInfo = function (redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture, reflectionTexture) {
-        if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture,reflectionTexture)
+        if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture, reflectionTexture)
         //TODO: 
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
         if (typeof typeName != 'string') throw 'typeName은 문자열만 허용됩니다.'
         // 디파인더에서 재질정의를 찾고
         tDefineMap = redGL['__datas']['RedMaterialDefine']
         tDegineData = tDefineMap[typeName]
+        tGL = redGL.gl
         if (!tDegineData) throw typeName + '재질은 존재하지않습니다.'
         /**DOC:
 		{
@@ -108,11 +110,11 @@ var RedMaterialInfo;
 			return : 'RedTextureInfo or RedCubeTextureInfo'
         }
         :DOC*/
-        if(diffuseTexture) this['uDiffuseTexture'] = diffuseTexture
-        if(normalTexture) this['uNormalTexture'] = normalTexture
-        if(displacementTexture) this['uDisplacementTexture'] = displacementTexture
-        if(specularTexture) this['uSpecularTexture'] = specularTexture
-        if(reflectionTexture) this['uReflectionTexture'] = reflectionTexture
+        if (diffuseTexture) this['uDiffuseTexture'] = diffuseTexture
+        if (normalTexture) this['uNormalTexture'] = normalTexture
+        if (displacementTexture) this['uDisplacementTexture'] = displacementTexture
+        if (specularTexture) this['uSpecularTexture'] = specularTexture
+        if (reflectionTexture) this['uReflectionTexture'] = reflectionTexture
         
         /**DOC:
 		{
@@ -173,15 +175,19 @@ var RedMaterialInfo;
             var tUniformGroup = this['materialUniforms']
             var tUniformLocationGroup = this['programInfo']['uniforms']
             for (k in tUniformGroup) {
-                console.log('//////////////////////////////////////')
-                console.log(k)
-                console.log(tUniformLocationGroup)
-                console.log(tUniformLocationGroup[k])
-                console.log(tUniformLocationGroup[k]['type'])
-                console.log(tUniformGroup[k])
-                console.log(tUniformLocationGroup[k]['location'])
-                console.log(tUniformLocationGroup)
-                console.log('//////////////////////////////////////')
+                // console.log('//////////////////////////////////////')
+                // console.log(k)
+                // console.log(tUniformLocationGroup)
+                // console.log(tUniformLocationGroup[k])
+                // console.log(tUniformLocationGroup[k]['type'])
+                // console.log(tUniformGroup[k])
+                // console.log(tUniformLocationGroup[k]['location'])
+                // console.log(tUniformLocationGroup)
+                // console.log('//////////////////////////////////////')
+                if (tUniformLocationGroup[k]['type'] == 'samplerCube') {
+                    console.log('큐브닷!')
+                 
+                }
                 this['__uniformList'].push({
                     key: k,
                     type: tUniformLocationGroup[k]['type'],

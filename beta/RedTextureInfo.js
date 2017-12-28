@@ -76,6 +76,7 @@ var RedTextureInfo;
 			self['loaded'] = 1
 			// 타겟인덱스를 설정함		
 			self['__targetIndex'] = targetIndex
+			tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CREATE)
 			tGL.bindTexture(tGL.TEXTURE_2D, self['texture'])
 			tGL.texImage2D(tGL.TEXTURE_2D, 0, tGL.RGBA, tGL.RGBA, tGL.UNSIGNED_BYTE, self['__img'])
 			tGL.texParameterf(tGL.TEXTURE_2D, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR);
@@ -83,7 +84,6 @@ var RedTextureInfo;
 			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_S, tGL.CLAMP_TO_EDGE);
 			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_T, tGL.CLAMP_TO_EDGE);
 			tGL.generateMipmap(tGL.TEXTURE_2D)
-			
 			// img.onload = null
 		});
 		// tGL.bindTexture(tGL.TEXTURE_2D, null)

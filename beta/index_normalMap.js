@@ -14,9 +14,7 @@ start = function () {
 		console.log(testGL.createShaderInfo('bitmapPhong', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('bitmapPhongVS')))
 		console.log(testGL.createShaderInfo('bitmapPhong', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('bitmapPhongFS')))
 
-		console.log(testGL.createShaderInfo('environment', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('environmentVS')))
-		console.log(testGL.createShaderInfo('environment', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('environmentFS')))
-
+		
 		console.log(testGL.createShaderInfo('skybox', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('skyBoxVS')))
 		console.log(testGL.createShaderInfo('skybox', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('skyBoxFS')))
 
@@ -48,6 +46,7 @@ start = function () {
 				target.materialUniforms.uNormalTexture = target['uNormalTexture']
 				target.materialUniforms.uDisplacementTexture = target['uDisplacementTexture']
 				target.materialUniforms.uSpecularTexture = target['uSpecularTexture']
+				target.materialUniforms.uReflectionTexture = target['uReflectionTexture']				
 
 				target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
 				target.materialUniforms.uShininess = 16
@@ -62,29 +61,12 @@ start = function () {
 
 			}
 		)
-		testGL.createProgramInfo(
-			'environment',
-			testGL.getShaderInfo('environment', RedShaderInfo.VERTEX_SHADER),
-			testGL.getShaderInfo('environment', RedShaderInfo.FRAGMENT_SHADER),
-			function (target) {
-				target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
-				target.materialUniforms.uNormalTexture = target['uNormalTexture']
-				target.materialUniforms.uDisplacementTexture = target['uDisplacementTexture']
-				target.materialUniforms.uSpecularTexture = target['uSpecularTexture']
-				target.materialUniforms.uReflectionTexture = target['uReflectionTexture']
-				
-
-				target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
-				target.materialUniforms.uShininess = 16
-			}
-		)
 	}
 	defineMaterials = function () {
 		testGL.createMaterialDefine(testGL.getProgramInfo('skybox'))
 		testGL.createMaterialDefine(testGL.getProgramInfo('color'))
 		testGL.createMaterialDefine(testGL.getProgramInfo('bitmap'))
 		testGL.createMaterialDefine(testGL.getProgramInfo('bitmapPhong'))
-		testGL.createMaterialDefine(testGL.getProgramInfo('environment'))
 	}
 	makeCheckRenderInfo = function () {
 		checkCallBox = document.createElement('div')
@@ -183,8 +165,11 @@ start = function () {
 	testScene.children.push(earth)
 
 	var testEnvironmentMap = testGL.createMaterialInfo(
-		'environment',
-		null, null, null, null,
+		'bitmapPhong',
+		testPhongDiffuseTexture,
+		testNormalTexture,
+		testDisplacementTexture,
+		null,
 		RedCubeTextureInfo(testGL, [
 			'asset/cubemap/posx.jpg',
 			'asset/cubemap/negx.jpg',
@@ -196,7 +181,8 @@ start = function () {
 	)
 	console.log(testEnvironmentMap)
 
-	var cubeTest = testGL.createMeshInfo('testMeshAdd6', RedPrimitive.sphere(testGL, 5, 32, 32, 32), testEnvironmentMap)
+	var cubeTest = testGL.createMeshInfo('testMeshAdd6', RedPrimitive.sphere(testGL, 5, 64, 64, 64), testEnvironmentMap)
+	cubeTest.scale[0] = 0.5
 	cubeTest.position[2] = -14
 	cubeTest.position[0] = -14
 	testScene.children.push(cubeTest)
@@ -219,12 +205,12 @@ start = function () {
 	testScene.addLight(testLight)
 
 	// 디렉셔널 라이트 테스트
-	var i = 3
+	var i = 2
 	while (i--) {
 		var testLight = testGL.createDirectionalLight(testGL)
-		testLight.color[0] = Math.random()
-		testLight.color[1] = Math.random()
-		testLight.color[2] = Math.random()
+		// testLight.color[0] = Math.random()
+		// testLight.color[1] = Math.random()
+		// testLight.color[2] = Math.random()
 		testScene.addLight(testLight)
 	}
 	// 포인트 라이트 테스트
@@ -245,13 +231,13 @@ start = function () {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	// 렌더러 생성!!!!
 	var renderer = testGL.createBaseRenderInfo(testScene, function (time) {
-		testCamera.setPosition(Math.sin(time / 3000) * 60, 60, Math.cos(time / 5000) * 40)
+		testCamera.setPosition(Math.sin(time / 2000) * 60,  50, Math.cos(time / 5000) * 40)
 		testCamera.lookAt([0, 0, 0])
 		i = testScene['lights']['directional'].length
 		while (i--) {
 			testScene['lights']['directional'][i].direction[0] = -Math.sin(time / 1700 + Math.PI * 2 / 2 * i) * 30
-			testScene['lights']['directional'][i].direction[1] = Math.cos(time / 4400 + Math.PI * 2 / 2 * i) * 20 + Math.sin(time / 2700 + Math.PI * 2 / 2 * i) * 50
-			testScene['lights']['directional'][i].direction[2] = -Math.sin(time / 2200 + Math.PI * 2 / 2 * i) * 30
+			testScene['lights']['directional'][i].direction[1] = Math.cos(time / 1400 + Math.PI * 2 / 2 * i) * 20 + Math.sin(time / 2700 + Math.PI * 2 / 2 * i) * 50
+			testScene['lights']['directional'][i].direction[2] = -Math.sin(time / 1200 + Math.PI * 2 / 2 * i) * 30
 	  }
 		earth.rotation[0] += 0.01
 		earth.rotation[1] += 0.01
@@ -273,7 +259,5 @@ testGL = RedGL(document.getElementById('test'), start, true, [
 	{ id: 'bitmapPhongVS', src: 'glsl/bitmapPhongVS.glsl' },
 	{ id: 'bitmapPhongFS', src: 'glsl/bitmapPhongFS.glsl' },
 	{ id: 'skyBoxVS', src: 'glsl/skyBoxVS.glsl' },
-	{ id: 'skyBoxFS', src: 'glsl/skyBoxFS.glsl' },
-	{ id: 'environmentFS', src: 'glsl/environmentFS.glsl' },
-	{ id: 'environmentVS', src: 'glsl/environmentVS.glsl' }
+	{ id: 'skyBoxFS', src: 'glsl/skyBoxFS.glsl' }
 ])

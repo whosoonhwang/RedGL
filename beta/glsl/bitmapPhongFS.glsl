@@ -1,15 +1,18 @@
 precision lowp float;
 
-uniform sampler2D uDiffuseTexture; // 디뷰프텍스쳐
+
+uniform sampler2D uDiffuseTexture; // 노말텍스쳐
 uniform sampler2D uNormalTexture; // 노말텍스쳐
 uniform sampler2D uSpecularTexture; // 노말텍스쳐
+uniform samplerCube uReflectionTexture; 
 uniform int uUseDiffuseTexture; // 노말텍스쳐 사용여부
 uniform int uUseNormalTexture; // 노말텍스쳐 사용여부
 uniform int uUseSpecularTexture; // 노말텍스쳐 사용여부
+uniform int uUseReflectionTexture; // 노말텍스쳐 사용여부
 varying vec2 vTexcoord;
 varying vec3 vEyeVec;
 varying vec3 vNormal;
-
+varying vec3 vReflectionCubeCoord;  
 
 // 암비안트
 uniform vec4 uAmbientLightColor;
@@ -33,6 +36,7 @@ vec4 la; // 암비언트
 vec4 ld; // 디퓨즈
 vec4 ls; // 스페큘러
 vec4 texelColor; // 디퓨즈텍스쳐컬러
+vec4 reflectionColor;
 vec3 N; // 노말벡터의 노말라이징
 vec3 L; // 라이트 디렉션의 노말라이징
 vec3 R; // 입사각에대한 반사값
@@ -52,7 +56,7 @@ void main(void) {
     ld = vec4(0.0, 0.0, 0.0, 1.0);
     ls = vec4(0.0, 0.0, 0.0, 1.0);
     if(uUseDiffuseTexture == 1) texelColor = texture2D(uDiffuseTexture, vTexcoord);
-    if(texelColor.a==0.0) discard;
+    // if(texelColor.a==0.0) discard;
     E = normalize(vEyeVec);
     
     if(uUseNormalTexture == 1) N = normalize(2.0 * (normalize(vNormal)+texture2D(uNormalTexture, vTexcoord).rgb - 0.5));
@@ -60,6 +64,13 @@ void main(void) {
  
     specularTextureValue = 1.0;
     if(uUseSpecularTexture == 1) specularTextureValue = texture2D(uSpecularTexture, vTexcoord).r ;
+
+    if(uUseReflectionTexture == 1) {
+        float reflectPower =1.0;
+        reflectionColor = textureCube(uReflectionTexture, vReflectionCubeCoord);
+        reflectionColor.rgb *= reflectPower;
+        texelColor = (texelColor * (1.0 - reflectPower)  + reflectionColor) ;
+    }
 
     vec4 specularLightColor = vec4(1.0, 1.0, 1.0, 1.0);
     if(uDirectionalNum>0){
@@ -94,6 +105,6 @@ void main(void) {
     }           
     
     finalColor = la + ld + ls;
-    finalColor.a = texelColor.a;            
+    // finalColor.a = texelColor.a;            
     gl_FragColor = finalColor;   
 }

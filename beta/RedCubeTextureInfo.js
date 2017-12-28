@@ -1,3 +1,4 @@
+
 "use strict";
 var RedCubeTextureInfo;
 (function () {
@@ -20,29 +21,29 @@ var RedCubeTextureInfo;
 		if (!(srcList instanceof Array)) throw 'srcList는 Array만 허용됩니다.'
 		var texture;
 		var i;
-		var loadedNum ;
+		var loadedNum;
 		var self;
 		self = this
 		tGL = redGL.gl
 		loadedNum = 0
-		
+
 		var i = srcList.length
 		this['__imgList'] = []
 		while (i--) {
 			var img = new Image()
 			img.src = srcList[i]
-			img.onload = function(){
+			img.onload = function () {
 				loadedNum++
 				this.onload = null
-				if(loadedNum==6){
+				if (loadedNum == 6) {
 					self.__allLoaed(tGL)
 				}
 			}
 			this['__imgList'][i] = img
 		}
-	
+
 		// 인덱스 번호 지정 - 초기생성전담은 0번 인덱스를 사용함
-		this['__targetIndex'] = RedTextureIndex.CREATE
+		this['__targetIndex'] = RedTextureIndex.CUBE_REFLECTION
 		// 로딩이 다되었는지
 		this['loaded'] = 0
 		// 액티브된적이있는지
@@ -50,20 +51,22 @@ var RedCubeTextureInfo;
 		// 웹지엘 텍스쳐인지
 		this['__webglCubeTexture'] = 1
 		this['__UUID'] = REDGL_UUID++
-		tGL.activeTexture(tGL.TEXTURE0+RedTextureIndex.CREATE)
 		this['texture'] = tGL.createTexture()
 
+		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CUBE_CREATE)
+		tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, this['texture'])
 	}
 	RedCubeTextureInfo.prototype['__allLoaed'] = function () {
 		// 로딩상태 플래그를 완료로 설정
-		this['loaded'] = 1
-		// 타겟인덱스를 설정함		
-		this['__targetIndex'] = RedTextureIndex.CUBE 
+
+		// 타겟인덱스를 설정함	
+		var self
+		self = this
+		this['__targetIndex'] = RedTextureIndex.CUBE_REFLECTION
 		console.log(this)
-		tGL.activeTexture(tGL.TEXTURE0+RedTextureIndex.CREATE)
-		tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, this['texture'])
+		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CUBE_CREATE)
+		tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, self['texture'])
 		this['__imgList'].forEach(function (img, index) {
-			
 			// console.log(
 			// 	tGL.TEXTURE_CUBE_MAP_POSITIVE_X,
 			// 	tGL.TEXTURE_CUBE_MAP_NEGATIVE_X,
@@ -80,13 +83,16 @@ var RedCubeTextureInfo;
 				tGL.UNSIGNED_BYTE,
 				img
 			);
+
 		})
 		
-		tGL.texParameterf(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR);
-		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_MIN_FILTER, tGL.LINEAR_MIPMAP_NEAREST);
-		tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_S, tGL.CLAMP_TO_EDGE);
-		tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_T, tGL.CLAMP_TO_EDGE);
+		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_MIN_FILTER, tGL.LINEAR);
+		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR);
+		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_WRAP_S, tGL.CLAMP_TO_EDGE);
+		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_WRAP_T, tGL.CLAMP_TO_EDGE);
 		tGL.generateMipmap(tGL.TEXTURE_CUBE_MAP);
-
+		
+		self['loaded'] = 1
+		
 	}
 })();

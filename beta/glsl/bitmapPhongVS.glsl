@@ -13,10 +13,13 @@ uniform int uUseDisplacementTexture; // DisplacementTexture 사용여부
 
 // 베어링들
 varying vec2 vTexcoord;  
+varying vec3 vReflectionCubeCoord;  
 
 varying vec3 vEyeVec;
 varying vec3 vNormal;
 vec4 vertexPositionEye4;
+vec4 cubeNormal;
+
 void main(void) {
     vertexPositionEye4 = uMVMatrix * vec4(aVertexPosition, 1.0);
     vTexcoord = uAtlascoord.xy + aTexcoord*uAtlascoord.zw;
@@ -25,7 +28,9 @@ void main(void) {
     if(uUseDisplacementTexture == 1) {
         vertexPositionEye4.xyz += normalize(vNormal) * texture2D(uDisplacementTexture,vTexcoord).x;
     }
-       vEyeVec = -vertexPositionEye4.xyz;
+    vEyeVec = -vertexPositionEye4.xyz;
+    cubeNormal =  uMVMatrix *vec4(aVertexPosition, 0.0);
+    vReflectionCubeCoord = -cubeNormal.xyz;
     // 포지션 결정
     gl_Position = uPMatrix * uCameraMatrix *  vertexPositionEye4;
 }
