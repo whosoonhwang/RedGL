@@ -73,6 +73,7 @@ var RedTextureInfo;
 		if (src != undefined) img.src = src instanceof Element ? src.toDataURL() : src
 		img.crossOrigin = 'anonymous'
 		img.addEventListener('load', function () {
+			console.log('여기')
 			// 로딩상태 플래그를 완료로 설정
 			self['loaded'] = 1
 			// 타겟인덱스를 설정함		
@@ -103,6 +104,7 @@ var RedTextureInfo;
 	RedTextureInfo.prototype.updateTexture = function (src) {
 		console.log('업데이트', src)
 		self['loaded'] = 0
+		
 		this['__img'].src = src instanceof Element ? src.toDataURL() : src
 	}
 })();

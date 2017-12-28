@@ -76,7 +76,7 @@ var RedAtlasTextureManager;
 			}
 		}
 		// RedAtlasTextureInfo를 생성하고 맵에 담아둠
-		console.log(tAtlas.uv()[targetImage.id])
+		console.log(tAtlas,tAtlas.uv())
 		atlasKeyMap[targetImage.id] = new RedAtlasTextureInfo(
 			tAtlas.uv()[targetImage.id],
 			tAtlas['atlasInfo']
@@ -90,8 +90,8 @@ var RedAtlasTextureManager;
 		tRedGL = redGL
 		MAX_TEXTURE_SIZE = redGL['detect']['MAX_TEXTURE_SIZE']
 		MAX_TEXTURE_IMAGE_UNITS = redGL['detect']['MAX_TEXTURE_IMAGE_UNITS']
-		if (tTextureUnitIndex == undefined) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 2)
-		if (MAX_TEXTURE_SIZE > 4096) MAX_TEXTURE_SIZE = 4096
+		if (tTextureUnitIndex == undefined) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 4)
+		if (MAX_TEXTURE_SIZE > 2048) MAX_TEXTURE_SIZE = 2048
 		console.log('MAX_TEXTURE_SIZE', MAX_TEXTURE_SIZE)
 		console.log('MAX_TEXTURE_IMAGE_UNITS', MAX_TEXTURE_IMAGE_UNITS)
 		if (!tAtlas) createAtlas()
@@ -109,6 +109,7 @@ var RedAtlasTextureManager;
 				loaded++
 				if (targetNum == loaded) {
 					atlasInfoList.forEach(function (v) {
+						console.log("v['atlas']['__targetIndex']",v['atlas']['__targetIndex'])
 						if (!v['textureInfo']) v['textureInfo'] = RedTextureInfo(redGL, v['atlas']['canvas'], v['atlas']['__targetIndex'])
 						else v['textureInfo'].updateTexture(v['atlas']['canvas'])
 					})
