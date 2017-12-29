@@ -185,8 +185,7 @@ var RedMaterialInfo;
                 // console.log(tUniformLocationGroup)
                 // console.log('//////////////////////////////////////')
                 if (tUniformLocationGroup[k]['type'] == 'samplerCube') {
-                    console.log('큐브닷!')
-                 
+                    
                 }
                 this['__uniformList'].push({
                     key: k,

@@ -91,19 +91,20 @@ var RedAtlasTextureManager;
 		MAX_TEXTURE_SIZE = redGL['detect']['MAX_TEXTURE_SIZE']
 		MAX_TEXTURE_IMAGE_UNITS = redGL['detect']['MAX_TEXTURE_IMAGE_UNITS']
 		if (tTextureUnitIndex == undefined) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 4)
-		if (MAX_TEXTURE_SIZE > 2048) MAX_TEXTURE_SIZE = 2048
+		if (MAX_TEXTURE_SIZE > 4096) MAX_TEXTURE_SIZE = 4096
 		console.log('MAX_TEXTURE_SIZE', MAX_TEXTURE_SIZE)
 		console.log('MAX_TEXTURE_IMAGE_UNITS', MAX_TEXTURE_IMAGE_UNITS)
 		if (!tAtlas) createAtlas()
 		var loaded, targetNum;
 		loaded = 0
-		targetNum = srcList.length
+		targetNum = 0
 		srcList.forEach(function (src) {
 			var img = new Image();
 			var id = src
 			if (atlasKeyMap[id]) return // 이미존재하면 나가리..
 			img.id = id
 			img.src = src
+			targetNum++
 			img.onload = function () {
 				var node = atlasPack(this)
 				loaded++

@@ -60,5 +60,5 @@ RedAtlasInfo = function (redGL, targetAtlas) {
     }
     :DOC*/
     this['textureInfo'] = null
-    Object.seal(this)
+    // Object.seal(this)
 }

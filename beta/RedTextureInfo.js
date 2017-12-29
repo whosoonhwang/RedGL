@@ -103,8 +103,7 @@ var RedTextureInfo;
 	}
 	RedTextureInfo.prototype.updateTexture = function (src) {
 		console.log('업데이트', src)
-		self['loaded'] = 0
-		
+		this['loaded'] = 0		
 		this['__img'].src = src instanceof Element ? src.toDataURL() : src
 	}
 })();

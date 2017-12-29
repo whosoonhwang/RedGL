@@ -155,8 +155,9 @@ start = function () {
 				console.log('아틀라스 추가!되었음!')
 				var i = 90, i2, i3;
 				// testScene.children.reverse()
+				var testMatBitmap9 = testGL.createMaterialInfo('bitmapPhong', RedAtlasTextureManager.getByKey('asset/addTest.png'))
+					
 				while (i--) {
-					var testMatBitmap9 = testGL.createMaterialInfo('bitmapPhong', RedAtlasTextureManager.getByKey('asset/addTest.png'))
 					var tMesh = testGL.createMeshInfo('testMeshAdd' + i, RedPrimitive.cube(testGL, 1,1,1, 32, 32, 32), testMatBitmap9)
 					tMesh.position[0] = Math.random() * 80 - 40
 					tMesh.position[1] = Math.random() * 80 - 40
@@ -174,7 +175,7 @@ start = function () {
 		}, 3000)
 		///////////////////////////////////////////////////////////////////////////////////////////
 		// 데모
-		var i = 10, i2, i3;
+		var i = 1, i2, i3;
 		while (i--) {
 			var tMesh = testGL.createMeshInfo('testMesh' + i, RedPrimitive.cube(testGL, 3,3,3, 32, 32, 32), Math.random() > 0.5 ? testMatBitmap : testMatBitmap5)
 			tMesh.position[0] = Math.random() * 80 - 40
