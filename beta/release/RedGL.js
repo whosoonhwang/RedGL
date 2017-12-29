@@ -300,6 +300,7 @@ var RedProgramInfo;
                         self['attributes'][v[2]] = tInfo
                     } else {
                         tInfo['location'] = tGL.getUniformLocation(tProgram, v[2]);
+                        if(tInfo['location']) tInfo['location']['__UUID'] = REDGL_UUID++
                         tInfo['type'] = v[1]
                         self['uniforms'][v[2]] = tInfo
                     }
@@ -2425,8 +2426,7 @@ var RedMaterialInfo;
                 // console.log(tUniformLocationGroup)
                 // console.log('//////////////////////////////////////')
                 if (tUniformLocationGroup[k]['type'] == 'samplerCube') {
-                    console.log('큐브닷!')
-                 
+                    
                 }
                 this['__uniformList'].push({
                     key: k,
@@ -2722,6 +2722,7 @@ var RedTextureInfo;
 		if (src != undefined) img.src = src instanceof Element ? src.toDataURL() : src
 		img.crossOrigin = 'anonymous'
 		img.addEventListener('load', function () {
+			console.log('여기')
 			// 로딩상태 플래그를 완료로 설정
 			self['loaded'] = 1
 			// 타겟인덱스를 설정함		
@@ -2751,7 +2752,7 @@ var RedTextureInfo;
 	}
 	RedTextureInfo.prototype.updateTexture = function (src) {
 		console.log('업데이트', src)
-		self['loaded'] = 0
+		this['loaded'] = 0		
 		this['__img'].src = src instanceof Element ? src.toDataURL() : src
 	}
 })();
@@ -2845,10 +2846,10 @@ var RedTextureIndex;
 		:DOC*/
 		SPECULAR : 5,
 		//아틀라스는 자동
-		ETC_VERTEX_1 : 10,
-		ETC_VERTEX_2 : 11,
-		ETC_FRAGMENT_1 : 12,
-		ETC_FRAGMENT_2 : 13
+		ETC_VERTEX_1 : 7,
+		ETC_VERTEX_2 : 8,
+		ETC_FRAGMENT_1 : 9,
+		ETC_FRAGMENT_2 : 10
 
 		/////////////////////
 	
@@ -2944,8 +2945,7 @@ RedAtlasInfo = function (redGL, targetAtlas) {
         return : 'RedAtlasTextureInfo를 Instance'
     }
     :DOC*/
-    this['textureInfo'] = null
-    Object.seal(this)
+    // Object.seal(this)
 }
 "use strict";
 /**DOC:
@@ -2997,11 +2997,11 @@ var RedAtlasTextureManager;
 		canvas.style.background = 'transparent', canvas.style.margin = '3px', canvas.style.display = 'inline-block'
 		// document.body.appendChild(canvas)
 		// 아틀라스 생성
-		tAtlas = new Atlas(canvas);
-		tAtlas['atlasInfo'] = RedAtlasInfo(tRedGL, tAtlas)
 		tTextureUnitIndex++
-		if (tTextureUnitIndex == MAX_TEXTURE_IMAGE_UNITS) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 4)
-		tAtlas['__targetIndex'] = tTextureUnitIndex // console.log(tAtlas)
+		tAtlas = new Atlas(canvas);
+		tAtlas['atlasInfo'] = RedAtlasInfo(tRedGL, tAtlas)		
+		tAtlas['atlasInfo']['textureInfo'] = RedTextureInfo(tRedGL, tAtlas['canvas'], tTextureUnitIndex)
+		tAtlas['atlasInfo']['__targetIndex'] = tTextureUnitIndex
 		atlasInfoList.push(tAtlas['atlasInfo'])
 
 	}
@@ -3025,7 +3025,7 @@ var RedAtlasTextureManager;
 			}
 		}
 		// RedAtlasTextureInfo를 생성하고 맵에 담아둠
-		console.log(tAtlas.uv()[targetImage.id])
+		console.log(tAtlas,tAtlas.uv())
 		atlasKeyMap[targetImage.id] = new RedAtlasTextureInfo(
 			tAtlas.uv()[targetImage.id],
 			tAtlas['atlasInfo']
@@ -3039,31 +3039,40 @@ var RedAtlasTextureManager;
 		tRedGL = redGL
 		MAX_TEXTURE_SIZE = redGL['detect']['MAX_TEXTURE_SIZE']
 		MAX_TEXTURE_IMAGE_UNITS = redGL['detect']['MAX_TEXTURE_IMAGE_UNITS']
-		if (tTextureUnitIndex == undefined) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 2)
+		if (tTextureUnitIndex == undefined) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 4)
 		if (MAX_TEXTURE_SIZE > 4096) MAX_TEXTURE_SIZE = 4096
 		console.log('MAX_TEXTURE_SIZE', MAX_TEXTURE_SIZE)
 		console.log('MAX_TEXTURE_IMAGE_UNITS', MAX_TEXTURE_IMAGE_UNITS)
 		if (!tAtlas) createAtlas()
 		var loaded, targetNum;
 		loaded = 0
-		targetNum = srcList.length
+		targetNum = 0
 		srcList.forEach(function (src) {
 			var img = new Image();
 			var id = src
 			if (atlasKeyMap[id]) return // 이미존재하면 나가리..
 			img.id = id
 			img.src = src
+			targetNum++
 			img.onload = function () {
 				var node = atlasPack(this)
 				loaded++
 				if (targetNum == loaded) {
 					atlasInfoList.forEach(function (v) {
-						if (!v['textureInfo']) v['textureInfo'] = RedTextureInfo(redGL, v['atlas']['canvas'], v['atlas']['__targetIndex'])
-						else v['textureInfo'].updateTexture(v['atlas']['canvas'])
+						console.log("atlasInfo", v)
+						// if (!v['textureInfo']) v['textureInfo'] = RedTextureInfo(redGL, v['atlas']['canvas'], v['__targetIndex'])
+						// else v['textureInfo'].updateTexture(v['atlas']['canvas'])
+						v['textureInfo'].updateTexture(v['atlas']['canvas'])
+						
 					})
+					// for(var k in atlasKeyMap){
+					// 	console.log(atlasKeyMap[k])
+					// 	atlasKeyMap[k]['atlasUVInfo'] = atlasKeyMap[k]['setAtlasUVInfo'](tAtlas.uv()[k])
+					// }
 					if (callback) callback()
 				}
 			};
+			
 		})
 		return RedAtlasTextureManager
 	}
@@ -3116,22 +3125,28 @@ var RedAtlasTextureInfo;
             return : 'RedAtlasTextureInfo Instance'
         }
     :DOC*/
+    var t0;
+    var tKey;
+    var setAtlasUVInfo
+    setAtlasUVInfo = function (atlasUVInfo) {
+        t0 = [
+            atlasUVInfo[0][0],
+            1.0 - atlasUVInfo[2][1],
+            (atlasUVInfo[1][0] - atlasUVInfo[0][0]),
+            (atlasUVInfo[2][1] - atlasUVInfo[0][1])
+        ]
+        tKey = t0.toString()
+        if (checkMap[tKey]) atlasUVInfo = checkMap[tKey]
+        else atlasUVInfo = checkMap[tKey] = RedAtlasUVInfo(t0)
+        return atlasUVInfo
+    }
     RedAtlasTextureInfo = (function () {
-        var t0;
-        var tKey;
+
         return function (atlasUVInfo, parentAtlasInfo) {
             if (!(this instanceof RedAtlasTextureInfo)) return new RedAtlasTextureInfo(atlasUVInfo, parentAtlasInfo)
             if (!(atlasUVInfo instanceof Array)) throw 'atlasUVInfo는 Array만 허용합니다.'
             if (!(parentAtlasInfo instanceof RedAtlasInfo)) throw 'parentAtlasInfo는 RedAtlasInfo  인스턴스만 허용합니다.'
-            t0 = [
-                atlasUVInfo[0][0],
-                1.0-atlasUVInfo[2][1],
-                (atlasUVInfo[1][0] - atlasUVInfo[0][0]),
-                (atlasUVInfo[2][1] - atlasUVInfo[0][1])
-            ]
-            tKey = t0.toString()
-            if (checkMap[tKey]) atlasUVInfo = checkMap[tKey]
-            else atlasUVInfo = checkMap[tKey] = RedAtlasUVInfo(t0)
+            atlasUVInfo = setAtlasUVInfo(atlasUVInfo)
             console.log(atlasUVInfo)
             /**DOC:
                 {
@@ -3163,8 +3178,10 @@ var RedAtlasTextureInfo;
             this['parentAtlasInfo'] = parentAtlasInfo
             this['__webglAtlasTexture'] = 1
             Object.freeze(this)
+            console.log(this)
         }
     })()
+    RedAtlasTextureInfo.prototype.setAtlasUVInfo = setAtlasUVInfo
 })();
 "use strict";
 var RedBaseRenderInfo;
@@ -3628,42 +3645,52 @@ var RedBaseRenderInfo;
                     }
                     // 아틀라스텍스쳐인경우
                     else if (tUniformValue['__webglAtlasTexture']) {
-                        var tTexture;
-                        tTexture = tUniformValue['parentAtlasInfo']['textureInfo']                        
-                        if (tTexture['loaded']) {
-                            if (cacheTexture_UUID[tTexture['__targetIndex']] != tTexture['__UUID']) {
-                                tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
-                                tGL.bindTexture(tGL.TEXTURE_2D, tTexture['texture'])
-                                tGL.uniform1i(tLocation, tTexture['__targetIndex'])
-                                cacheTexture_UUID[tTexture['__targetIndex']] == undefined ? tGL.uniform1i(tLocation, tTexture['__targetIndex']) : 0
-                                cacheTexture_UUID[tTexture['__targetIndex']] = tTexture['__UUID']
-                                delete cacheTexture_UUID[tTexture['__targetIndex']] 
+                        var tTextureInfo;
+                        tTextureInfo = tUniformValue['parentAtlasInfo']['textureInfo']
+                        if (tTextureInfo['loaded']) {
+                            if (cacheTexture_UUID[tLocation['__UUID']] != tTextureInfo['__UUID']) {
+                                tGL.activeTexture(tGL.TEXTURE0 + tTextureInfo['__targetIndex'])
+                                tGL.bindTexture(tGL.TEXTURE_2D, tTextureInfo['texture'])
+                                cacheTexture_UUID[tLocation['__UUID']] == tTextureInfo['__UUID'] ? 0 : tGL.uniform1i(tLocation, tTextureInfo['__targetIndex'])
+                                cacheTexture_UUID[tLocation['__UUID']] = tTextureInfo['__UUID']
                             }
+                    
+                           
+                        } else {
+                            cacheTexture_UUID[tLocation['__UUID']] = undefined
+                        }
+                        if (cacheTexture_UUID[tLocation['__UUID']] == undefined) bitmapRenderable = false
 
-                        } else if (cacheTexture_UUID[tTexture['__targetIndex']] == undefined) bitmapRenderable = false
                     }
                     // 일반 텍스쳐인경우
                     else if (tUniformValue['__webglTexture']) {
                         if (tUniformValue['loaded']) {
-                            if (cacheTexture_UUID[tUniformValue['__targetIndex']] != tUniformValue['__UUID']) {
+                            if (cacheTexture_UUID[tLocation['__UUID']] != tUniformValue['__UUID']) {
                                 tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
                                 tGL.bindTexture(tGL.TEXTURE_2D, tUniformValue['texture'])
-                                cacheTexture_UUID[tUniformValue['__targetIndex']] == undefined ? tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
-                                cacheTexture_UUID[tUniformValue['__targetIndex']] = tUniformValue['__UUID']
-                            }
-                        } else if (cacheTexture_UUID[tUniformValue['__targetIndex']] == undefined) bitmapRenderable = false
+                                cacheTexture_UUID[tLocation['__UUID']] == tUniformValue['__UUID'] ? 0 : tGL.uniform1i(tLocation, tUniformValue['__targetIndex'])
+                                cacheTexture_UUID[tLocation['__UUID']] = tUniformValue['__UUID']
+                            }                        
+                      
+                        } else {
+                            cacheTexture_UUID[tLocation['__UUID']] = undefined
+                        }
+                        if (cacheTexture_UUID[tLocation['__UUID']] == undefined) bitmapRenderable = false
                     }
                     // 큐브텍스쳐인경우
                     else if (tUniformValue['__webglCubeTexture']) {
                         if (tUniformValue['loaded']) {
-                            if (cacheTexture_UUID[tUniformValue['__targetIndex']] != tUniformValue['__UUID']) {
+                            if (cacheTexture_UUID[tLocation['__UUID']] != tUniformValue['__UUID']) {
                                 tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
                                 tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, tUniformValue['texture'])
-                                cacheTexture_UUID[tUniformValue['__targetIndex']] == undefined ? tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
-                                cacheTexture_UUID[tUniformValue['__targetIndex']] = tUniformValue['__UUID']
+                                cacheTexture_UUID[tLocation['__UUID']] == tUniformValue['__UUID'] ? 0 : tGL.uniform1i(tLocation, tUniformValue['__targetIndex'])
+                                cacheTexture_UUID[tLocation['__UUID']] = tUniformValue['__UUID']
                             }
+                   
+                        } else {
+                            cacheTexture_UUID[tLocation['__UUID']] = undefined
                         }
-                        else if (cacheTexture_UUID[tUniformValue['__targetIndex']] == undefined) bitmapRenderable = false
+                        if (cacheTexture_UUID[tLocation['__UUID']] == undefined) bitmapRenderable = false
                     }
                     // 이도저도아닌경우는 뭔가 잘못된거임
                     else throw '안되는 나쁜 타입인거야!!'
@@ -3672,8 +3699,7 @@ var RedBaseRenderInfo;
                 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
                 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
                 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                // TODO: 아래는 루프로 돌리자...
-                // 노말맵이있을경우
+          
                 
                 i3 = useMap.length
                 while (i3--) {
@@ -3686,15 +3712,19 @@ var RedBaseRenderInfo;
                                 var t;
                                 t = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NzMxRDhBQzRFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NzMxRDhBQzVFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo3MzFEOEFDMkU1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo3MzFEOEFDM0U1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuojYFUAAAAQSURBVHjaYvj//z8DQIABAAj8Av7bok0WAAAAAElFTkSuQmCC'
                                 emptyCube = redGL.createCubeTextureInfo([t, t, t, t, t, t])
+                                //TODO: 큐브전략짜야함
                                 tGL.activeTexture(tGL.TEXTURE0 + 2)
                                 tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, emptyCube['texture'])
                                 tGL.uniform1i(tProgramInfo['uniforms'][tUseMapTextureKey]['location'], 2)
                                 // emptyCube ['uUseReflectionTexture', 'uReflectionTexture', 'CUBE_REFLECTION']
                             }
                         }
-
+                       
                         if (tMaterial[tUseMapTextureKey] && tMaterial[tUseMapTextureKey]['loaded']) {
-                            if (tMaterial[tUseMapTextureKey] && tMaterial[tUseMapTextureKey]['__targetIndex'] != RedTextureIndex[useMap[i3][2]]) {
+                            if (
+                                tMaterial[tUseMapTextureKey]['__targetIndex'] !=undefined
+                                && tMaterial[tUseMapTextureKey]['__targetIndex'] != RedTextureIndex[useMap[i3][2]]
+                            ) {
                                 console.log(tUseMapKey, tUseMapTextureKey, tMaterial[tUseMapTextureKey]['__targetIndex'], RedTextureIndex[useMap[i3][2]])
                                 throw useMap[i3][2] + " 인덱스타입이 아닙니다."
                             }
@@ -3706,6 +3736,7 @@ var RedBaseRenderInfo;
                             cacheUseTexture[tUseMapTextureKey] == 0 ? 0 : tGL.uniform1i(tProgramInfo['uniforms'][[tUseMapKey]]['location'], 0)
                             cacheUseTexture[tUseMapTextureKey] = 0
                         }
+                        
                     }
                 }
                 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -3714,7 +3745,6 @@ var RedBaseRenderInfo;
 
                 // 노말매트릭스를 사용할경우
                 if (tProgramUniformLocationGroup['uNMatrix']) {
-                  
                     //클론
                     tNMatrix[0] = tMVMatrix[0], tNMatrix[1] = tMVMatrix[1], tNMatrix[2] = tMVMatrix[2], tNMatrix[3] = tMVMatrix[3],
                     tNMatrix[4] = tMVMatrix[4], tNMatrix[5] = tMVMatrix[5], tNMatrix[6] = tMVMatrix[6], tNMatrix[7] = tMVMatrix[7],

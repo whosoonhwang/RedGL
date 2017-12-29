@@ -175,7 +175,7 @@ start = function () {
 		}, 3000)
 		///////////////////////////////////////////////////////////////////////////////////////////
 		// 데모
-		var i = 5, i2, i3;
+		var i = 25, i2, i3;
 		while (i--) {
 			var tMesh = testGL.createMeshInfo('testMesh' + i, RedPrimitive.cube(testGL, 2,2,2, 1,1,1), Math.random() > 0.5 ? testMatBitmap3 : testMatBitmap4)
 			tMesh.position[0] = Math.random() * 80 - 40
