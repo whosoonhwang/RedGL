@@ -55,8 +55,9 @@ void main(void) {
     la = uAmbientLightColor;
     ld = vec4(0.0, 0.0, 0.0, 1.0);
     ls = vec4(0.0, 0.0, 0.0, 1.0);
-    if(uUseDiffuseTexture == 1) texelColor = texture2D(uDiffuseTexture, vTexcoord);
-    // if(texelColor.a==0.0) discard;
+    // if(uUseDiffuseTexture == 1)  
+    texelColor = texture2D(uDiffuseTexture, vTexcoord);
+    if(texelColor.a==0.0) discard;
     E = normalize(vEyeVec);
     
     if(uUseNormalTexture == 1) N = normalize(2.0 * (normalize(vNormal)+texture2D(uNormalTexture, vTexcoord).rgb - 0.5));

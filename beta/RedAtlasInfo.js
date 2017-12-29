@@ -59,6 +59,5 @@ RedAtlasInfo = function (redGL, targetAtlas) {
         return : 'RedAtlasTextureInfo를 Instance'
     }
     :DOC*/
-    this['textureInfo'] = null
-    Object.seal(this)
+    // Object.seal(this)
 }

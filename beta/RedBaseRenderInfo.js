@@ -460,41 +460,52 @@ var RedBaseRenderInfo;
                     }
                     // 아틀라스텍스쳐인경우
                     else if (tUniformValue['__webglAtlasTexture']) {
-                        var tTexture;
-                        tTexture = tUniformValue['parentAtlasInfo']['textureInfo']
-                        if (tTexture['loaded']) {
-                            if (cacheTexture_UUID[tTexture['__targetIndex']] != tTexture['__UUID']) {
-                                tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
-                                tGL.bindTexture(tGL.TEXTURE_2D, tTexture['texture'])
-                                cacheTexture_UUID[tTexture['__targetIndex']] == undefined ? tGL.uniform1i(tLocation, tTexture['__targetIndex']) : 0
-                                cacheTexture_UUID[tTexture['__targetIndex']] = tTexture['__UUID']
-
+                        var tTextureInfo;
+                        tTextureInfo = tUniformValue['parentAtlasInfo']['textureInfo']
+                        if (tTextureInfo['loaded']) {
+                            if (cacheTexture_UUID[tLocation['__UUID']] != tTextureInfo['__UUID']) {
+                                tGL.activeTexture(tGL.TEXTURE0 + tTextureInfo['__targetIndex'])
+                                tGL.bindTexture(tGL.TEXTURE_2D, tTextureInfo['texture'])
+                                cacheTexture_UUID[tLocation['__UUID']] == tTextureInfo['__UUID'] ? 0 : tGL.uniform1i(tLocation, tTextureInfo['__targetIndex'])
+                                cacheTexture_UUID[tLocation['__UUID']] = tTextureInfo['__UUID']
                             }
+                    
+                           
+                        } else {
+                            cacheTexture_UUID[tLocation['__UUID']] = undefined
+                        }
+                        if (cacheTexture_UUID[tLocation['__UUID']] == undefined) bitmapRenderable = false
 
-                        } else if (cacheTexture_UUID[tTexture['__targetIndex']] == undefined) bitmapRenderable = false
                     }
                     // 일반 텍스쳐인경우
                     else if (tUniformValue['__webglTexture']) {
                         if (tUniformValue['loaded']) {
-                            if (cacheTexture_UUID[tUniformValue['__targetIndex']] != tUniformValue['__UUID']) {
+                            if (cacheTexture_UUID[tLocation['__UUID']] != tUniformValue['__UUID']) {
                                 tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
                                 tGL.bindTexture(tGL.TEXTURE_2D, tUniformValue['texture'])
-                                cacheTexture_UUID[tUniformValue['__targetIndex']] == undefined ? tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
-                                cacheTexture_UUID[tUniformValue['__targetIndex']] = tUniformValue['__UUID']
-                            }
-                        } else if (cacheTexture_UUID[tUniformValue['__targetIndex']] == undefined) bitmapRenderable = false
+                                cacheTexture_UUID[tLocation['__UUID']] == tUniformValue['__UUID'] ? 0 : tGL.uniform1i(tLocation, tUniformValue['__targetIndex'])
+                                cacheTexture_UUID[tLocation['__UUID']] = tUniformValue['__UUID']
+                            }                        
+                      
+                        } else {
+                            cacheTexture_UUID[tLocation['__UUID']] = undefined
+                        }
+                        if (cacheTexture_UUID[tLocation['__UUID']] == undefined) bitmapRenderable = false
                     }
                     // 큐브텍스쳐인경우
                     else if (tUniformValue['__webglCubeTexture']) {
                         if (tUniformValue['loaded']) {
-                            if (cacheTexture_UUID[tUniformValue['__targetIndex']] != tUniformValue['__UUID']) {
+                            if (cacheTexture_UUID[tLocation['__UUID']] != tUniformValue['__UUID']) {
                                 tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
                                 tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, tUniformValue['texture'])
-                                cacheTexture_UUID[tUniformValue['__targetIndex']] == undefined ? tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
-                                cacheTexture_UUID[tUniformValue['__targetIndex']] = tUniformValue['__UUID']
+                                cacheTexture_UUID[tLocation['__UUID']] == tUniformValue['__UUID'] ? 0 : tGL.uniform1i(tLocation, tUniformValue['__targetIndex'])
+                                cacheTexture_UUID[tLocation['__UUID']] = tUniformValue['__UUID']
                             }
+                   
+                        } else {
+                            cacheTexture_UUID[tLocation['__UUID']] = undefined
                         }
-                        else if (cacheTexture_UUID[tUniformValue['__targetIndex']] == undefined) bitmapRenderable = false
+                        if (cacheTexture_UUID[tLocation['__UUID']] == undefined) bitmapRenderable = false
                     }
                     // 이도저도아닌경우는 뭔가 잘못된거임
                     else throw '안되는 나쁜 타입인거야!!'
@@ -503,8 +514,7 @@ var RedBaseRenderInfo;
                 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
                 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
                 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-                // TODO: 아래는 루프로 돌리자...
-                // 노말맵이있을경우
+          
                 
                 i3 = useMap.length
                 while (i3--) {
@@ -517,15 +527,19 @@ var RedBaseRenderInfo;
                                 var t;
                                 t = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NzMxRDhBQzRFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NzMxRDhBQzVFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo3MzFEOEFDMkU1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo3MzFEOEFDM0U1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuojYFUAAAAQSURBVHjaYvj//z8DQIABAAj8Av7bok0WAAAAAElFTkSuQmCC'
                                 emptyCube = redGL.createCubeTextureInfo([t, t, t, t, t, t])
+                                //TODO: 큐브전략짜야함
                                 tGL.activeTexture(tGL.TEXTURE0 + 2)
                                 tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, emptyCube['texture'])
                                 tGL.uniform1i(tProgramInfo['uniforms'][tUseMapTextureKey]['location'], 2)
                                 // emptyCube ['uUseReflectionTexture', 'uReflectionTexture', 'CUBE_REFLECTION']
                             }
                         }
-
+                       
                         if (tMaterial[tUseMapTextureKey] && tMaterial[tUseMapTextureKey]['loaded']) {
-                            if (tMaterial[tUseMapTextureKey] && tMaterial[tUseMapTextureKey]['__targetIndex'] != RedTextureIndex[useMap[i3][2]]) {
+                            if (
+                                tMaterial[tUseMapTextureKey]['__targetIndex'] !=undefined
+                                && tMaterial[tUseMapTextureKey]['__targetIndex'] != RedTextureIndex[useMap[i3][2]]
+                            ) {
                                 console.log(tUseMapKey, tUseMapTextureKey, tMaterial[tUseMapTextureKey]['__targetIndex'], RedTextureIndex[useMap[i3][2]])
                                 throw useMap[i3][2] + " 인덱스타입이 아닙니다."
                             }
@@ -537,6 +551,7 @@ var RedBaseRenderInfo;
                             cacheUseTexture[tUseMapTextureKey] == 0 ? 0 : tGL.uniform1i(tProgramInfo['uniforms'][[tUseMapKey]]['location'], 0)
                             cacheUseTexture[tUseMapTextureKey] = 0
                         }
+                        
                     }
                 }
                 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -545,7 +560,6 @@ var RedBaseRenderInfo;
 
                 // 노말매트릭스를 사용할경우
                 if (tProgramUniformLocationGroup['uNMatrix']) {
-                  
                     //클론
                     tNMatrix[0] = tMVMatrix[0], tNMatrix[1] = tMVMatrix[1], tNMatrix[2] = tMVMatrix[2], tNMatrix[3] = tMVMatrix[3],
                     tNMatrix[4] = tMVMatrix[4], tNMatrix[5] = tMVMatrix[5], tNMatrix[6] = tMVMatrix[6], tNMatrix[7] = tMVMatrix[7],

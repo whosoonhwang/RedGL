@@ -44,6 +44,7 @@ var RedTextureInfo;
 		var height = 1;
 		var border = 0;
 		var self;
+		console.log(src)
 		self = this
 		tGL = redGL.gl
 		internalFormat = internalFormat ? internalFormat : tGL.RGBA;
@@ -72,6 +73,7 @@ var RedTextureInfo;
 		if (src != undefined) img.src = src instanceof Element ? src.toDataURL() : src
 		img.crossOrigin = 'anonymous'
 		img.addEventListener('load', function () {
+			console.log('여기')
 			// 로딩상태 플래그를 완료로 설정
 			self['loaded'] = 1
 			// 타겟인덱스를 설정함		
@@ -101,7 +103,7 @@ var RedTextureInfo;
 	}
 	RedTextureInfo.prototype.updateTexture = function (src) {
 		console.log('업데이트', src)
-		self['loaded'] = 0
+		this['loaded'] = 0		
 		this['__img'].src = src instanceof Element ? src.toDataURL() : src
 	}
 })();

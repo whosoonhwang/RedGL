@@ -468,7 +468,7 @@ var RedBaseRenderInfo;
                     else if (tUniformValue['__webglAtlasTexture']) {
                         var tTexture;
                         tTexture = tUniformValue['parentAtlasInfo']['textureInfo']
-                        if (tTexture['loaded']) {
+                        if (tTexture['loaded']) {                        
                             if (cacheTextureAtlas_UUID[tTexture['__targetIndex']] != tTexture['__UUID']) {
                                 // tTexture['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
                                 // tTexture['actived'] = 1
