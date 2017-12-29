@@ -48,11 +48,11 @@ var RedAtlasTextureManager;
 		canvas.style.background = 'transparent', canvas.style.margin = '3px', canvas.style.display = 'inline-block'
 		// document.body.appendChild(canvas)
 		// 아틀라스 생성
-		tAtlas = new Atlas(canvas);
-		tAtlas['atlasInfo'] = RedAtlasInfo(tRedGL, tAtlas)
 		tTextureUnitIndex++
-		if (tTextureUnitIndex == MAX_TEXTURE_IMAGE_UNITS) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 4)
-		tAtlas['__targetIndex'] = tTextureUnitIndex // console.log(tAtlas)
+		tAtlas = new Atlas(canvas);
+		tAtlas['atlasInfo'] = RedAtlasInfo(tRedGL, tAtlas)		
+		tAtlas['atlasInfo']['textureInfo'] = RedTextureInfo(tRedGL, tAtlas['canvas'], tTextureUnitIndex)
+		tAtlas['atlasInfo']['__targetIndex'] = tTextureUnitIndex
 		atlasInfoList.push(tAtlas['atlasInfo'])
 
 	}
@@ -110,9 +110,10 @@ var RedAtlasTextureManager;
 				loaded++
 				if (targetNum == loaded) {
 					atlasInfoList.forEach(function (v) {
-						console.log("v['atlas']['__targetIndex']",v['atlas']['__targetIndex'])
-						if (!v['textureInfo']) v['textureInfo'] = RedTextureInfo(redGL, v['atlas']['canvas'], v['atlas']['__targetIndex'])
-						else v['textureInfo'].updateTexture(v['atlas']['canvas'])
+						console.log("atlasInfo", v)
+						// if (!v['textureInfo']) v['textureInfo'] = RedTextureInfo(redGL, v['atlas']['canvas'], v['__targetIndex'])
+						// else v['textureInfo'].updateTexture(v['atlas']['canvas'])
+						v['textureInfo'].updateTexture(v['atlas']['canvas'])
 						
 					})
 					// for(var k in atlasKeyMap){
@@ -122,6 +123,7 @@ var RedAtlasTextureManager;
 					if (callback) callback()
 				}
 			};
+			
 		})
 		return RedAtlasTextureManager
 	}

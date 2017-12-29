@@ -118,9 +118,9 @@ start = function () {
 	var testMatBitmap = testGL.createMaterialInfo('bitmapPhong', testTexture)
 	var testMatBitmap2 = testGL.createMaterialInfo('bitmapPhong', testTexture2)
 	// 그리드 생성
-	var grid = testGL.createMeshInfo('grid1', RedPrimitive.grid(testGL), testGL.createMaterialInfo('color'))
-	grid.drawMode = testGL.gl.LINES
-	testScene.setGrid(grid)
+	// var grid = testGL.createMeshInfo('grid1', RedPrimitive.grid(testGL), testGL.createMaterialInfo('color'))
+	// grid.drawMode = testGL.gl.LINES
+	// testScene.setGrid(grid)
 	// 스카이박스 생성
 	testScene.setSkyBox(
 		testGL.createSkyBoxInfo([
@@ -158,7 +158,7 @@ start = function () {
 				var testMatBitmap9 = testGL.createMaterialInfo('bitmapPhong', RedAtlasTextureManager.getByKey('asset/addTest.png'))
 					
 				while (i--) {
-					var tMesh = testGL.createMeshInfo('testMeshAdd' + i, RedPrimitive.cube(testGL, 1,1,1, 32, 32, 32), testMatBitmap9)
+					var tMesh = testGL.createMeshInfo('testMeshAdd' + i, RedPrimitive.cube(testGL, 2,2,2, 32, 32, 32), testMatBitmap9)
 					tMesh.position[0] = Math.random() * 80 - 40
 					tMesh.position[1] = Math.random() * 80 - 40
 					tMesh.position[2] = Math.random() * 80 - 40
@@ -175,9 +175,9 @@ start = function () {
 		}, 3000)
 		///////////////////////////////////////////////////////////////////////////////////////////
 		// 데모
-		var i = 1, i2, i3;
+		var i = 5, i2, i3;
 		while (i--) {
-			var tMesh = testGL.createMeshInfo('testMesh' + i, RedPrimitive.cube(testGL, 3,3,3, 32, 32, 32), Math.random() > 0.5 ? testMatBitmap : testMatBitmap5)
+			var tMesh = testGL.createMeshInfo('testMesh' + i, RedPrimitive.cube(testGL, 2,2,2, 1,1,1), Math.random() > 0.5 ? testMatBitmap3 : testMatBitmap4)
 			tMesh.position[0] = Math.random() * 80 - 40
 			tMesh.position[1] = Math.random() * 80 - 40
 			tMesh.position[2] = Math.random() * 80 - 40
@@ -188,28 +188,34 @@ start = function () {
 			i2 = 6
 			var tt = Math.random() > 0.5 ? testMatBitmap5 : testMatBitmap6
 			while (i2--) {
-				var tSub = testGL.createMeshInfo('testMesh_' + i + '_' + i2, RedPrimitive.cube(testGL, 2,2,2, 32, 32, 32), tt)
+				var tSub = testGL.createMeshInfo('testMesh_' + i + '_' + i2, RedPrimitive.cube(testGL, 2,2,2, 1,1,1), tt)
 				tSub.position[0] = Math.random() * 80 - 40
 				tSub.position[1] = Math.random() * 80 - 40
 				tSub.position[2] = Math.random() * 80 - 40
+				tSub.rotation[0] = Math.random() * Math.PI * 2
+				tSub.rotation[1] = Math.random() * Math.PI * 2
+				tSub.rotation[2] = Math.random() * Math.PI * 2
 				// var tScale = Math.random() + 0.1
 				// tSub.scale[0] = tScale
 				// tSub.scale[1] = tScale
 				// tSub.scale[2] = tScale
 				// tSub.blendFactor2 = Math.random() > 0.5 ? testGL.gl.ONE_MINUS_SRC_ALPHA : testGL.gl.ONE
-				tMesh.children.push(tSub)
+				testScene.children.push(tSub)
 				i3 = 5
 				var tt = Math.random() > 0.5 ? testMatBitmap7 : testMatBitmap8
 				while (i3--) {
-					var tSub2 = testGL.createMeshInfo('testMesh_' + i + '_' + i2 + '_' + i3, RedPrimitive.cube(testGL, 1,1,1, 32, 32, 32), tt)
-					tSub2.position[0] = Math.random() * 20 - 10
-					tSub2.position[1] = Math.random() * 20 - 10
-					tSub2.position[2] = Math.random() * 20 - 10
+					var tSub2 = testGL.createMeshInfo('testMesh_' + i + '_' + i2 + '_' + i3, RedPrimitive.cube(testGL, 2,2,2, 1,1,1), tt)
+					tSub2.position[0] = Math.random() * 80 - 40
+					tSub2.position[1] = Math.random() * 80 - 40
+					tSub2.position[2] = Math.random() * 80 - 40
+					tSub2.rotation[0] = Math.random() * Math.PI * 2
+					tSub2.rotation[1] = Math.random() * Math.PI * 2
+					tSub2.rotation[2] = Math.random() * Math.PI * 2
 					// var tScale = Math.random() + 0.1
 					// tSub2.scale[0] = tScale
 					// tSub2.scale[1] = tScale
 					// tSub2.scale[2] = tScale
-					tSub.children.push(tSub2)
+					testScene.children.push(tSub2)
 				}
 			}
 			testScene.children.push(tMesh)
@@ -224,10 +230,10 @@ start = function () {
 		testLight.direction[0] = Math.random() * 2 - 1
 		testLight.direction[1] = Math.random() * 2 - 1
 		testLight.direction[2] = Math.random() * 2 - 1
-		testLight.color[0] = Math.random()
-		testLight.color[1] = Math.random()
-		testLight.color[2] = Math.random()
-		testLight.color[3] = Math.random()
+		// testLight.color[0] = Math.random()
+		// testLight.color[1] = Math.random()
+		// testLight.color[2] = Math.random()
+		// testLight.color[3] = Math.random()
 
 		testScene.addLight(testLight)
 	}
@@ -246,7 +252,7 @@ start = function () {
 	}
 	
 	var renderer = testGL.createBaseRenderInfo(testScene, function (time) {
-		testCamera.setPosition(Math.sin(time / 2000) * 60, 50, Math.cos(time / 5000) * 40)
+		testCamera.setPosition(Math.sin(time / 2000) * 90, 50, Math.cos(time / 5000) * 90)
 		testCamera.lookAt([0, 0, 0])
 		var i = testScene['lights']['directional'].length
 		while (i--) {

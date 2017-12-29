@@ -82,6 +82,7 @@ var RedAtlasTextureInfo;
             this['parentAtlasInfo'] = parentAtlasInfo
             this['__webglAtlasTexture'] = 1
             Object.freeze(this)
+            console.log(this)
         }
     })()
     RedAtlasTextureInfo.prototype.setAtlasUVInfo = setAtlasUVInfo

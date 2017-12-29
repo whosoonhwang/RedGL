@@ -115,6 +115,7 @@ var RedProgramInfo;
                         self['attributes'][v[2]] = tInfo
                     } else {
                         tInfo['location'] = tGL.getUniformLocation(tProgram, v[2]);
+                        if(tInfo['location']) tInfo['location']['__UUID'] = REDGL_UUID++
                         tInfo['type'] = v[1]
                         self['uniforms'][v[2]] = tInfo
                     }
