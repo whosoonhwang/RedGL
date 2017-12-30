@@ -96,7 +96,7 @@ start = function () {
 	testScene.addLight(testLight)
 
 	// 디렉셔널 라이트 테스트
-	var i = 5
+	var i = 3
 	while (i--) {
 		var testLight = testGL.createDirectionalLight(testGL)
 		testLight.direction[0] = Math.random() * 2 - 1
@@ -219,6 +219,11 @@ testGL = RedGL(document.getElementById('test'), start, true, [
 		initUniformValue: function (target) {
 			target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
 			target.materialUniforms.uShininess = 16
+			//TODO: lambertPower
+			//TODO: normalPower
+			//TODO: spercularPower
+			//TODO: displacementPower
+			//TODO: reflectPower
 		},
 		defineTexture: function (target) {
 			target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']

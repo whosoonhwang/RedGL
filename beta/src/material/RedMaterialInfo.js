@@ -125,22 +125,20 @@ var RedMaterialInfo;
 			return : 'Object'
         }
         :DOC*/
-        this['materialUniforms'] =  {}
-        // 유니폼은 프로그램에 의하여 생성되고, 재질정보를 토대로 렌더시 참조
+        this['materialUniforms'] = {}
+        // 재질에 초기유니폼정의를 반영함
         this['programInfo'].initUniformValue(this)
         /**DOC:
 		{
             title :`needUniformList`,
             description : `
                 - 렌더링시 유니폼리스트를 다시 만들어야할지 여부
-                - 시스템에서 자동으로 설정한다.
             `,
 			example : `인스턴스.needUniformList`,
 			return : 'Boolean'
         }
         :DOC*/
         this['needUniformList'] = true
-        
         this.updateUniformList()
         this['__UUID'] = REDGL_UUID++
     }
