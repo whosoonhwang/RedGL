@@ -48,11 +48,11 @@ var RedProgramInfo;
     var self;
     var tList;
     tList = []
-    RedProgramInfo = function (redGL, key, vShaderInfo, fShaderInfo, makeUniformValue) {
-        if (!(this instanceof RedProgramInfo)) return new RedProgramInfo(redGL, key, vShaderInfo, fShaderInfo, makeUniformValue)
+    RedProgramInfo = function (redGL, key, vShaderInfo, fShaderInfo, initUniformValue, defineTexture) {
+        if (!(this instanceof RedProgramInfo)) return new RedProgramInfo(redGL, key, vShaderInfo, fShaderInfo, initUniformValue, defineTexture)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
         if (typeof key != 'string') throw 'key - 문자열만 허용됩니다.'
-        if( !makeUniformValue) throw 'makeUniformValue - 반드시 정의해야합니다.'
+        if (!initUniformValue) throw 'initUniformValue - 반드시 정의해야합니다.'
         if (!vShaderInfo instanceof RedShaderInfo) throw 'vShaderInfo - RedShaderInfo만 허용됩니다.'
         if (!fShaderInfo instanceof RedShaderInfo) throw 'fShaderInfo - RedShaderInfo만 허용됩니다.'
         // 저장할 공간확보하고
@@ -99,7 +99,7 @@ var RedProgramInfo;
         tGL.linkProgram(tProgram)
         // 프로그램 링크 확인
         if (!tGL.getProgramParameter(tProgram, tGL.LINK_STATUS)) throw "프로그램을 초기화 할 수 없습니다." +
-        tGL.useProgram(tProgram);
+            tGL.useProgram(tProgram);
         info = {}
         tList.length = 0
         tList.push(vShaderInfo, fShaderInfo)
@@ -116,7 +116,7 @@ var RedProgramInfo;
                         self['attributes'][v[2]] = tInfo
                     } else {
                         tInfo['location'] = tGL.getUniformLocation(tProgram, v[2]);
-                        if(tInfo['location']) tInfo['location']['__UUID'] = REDGL_UUID++
+                        if (tInfo['location']) tInfo['location']['__UUID'] = REDGL_UUID++
                         tInfo['type'] = v[1]
                         self['uniforms'][v[2]] = tInfo
                     }
@@ -147,16 +147,26 @@ var RedProgramInfo;
         this['__UUID'] = REDGL_UUID++
         /**DOC:
 		{
-            title :`makeUniformValue`,
+            title :`initUniformValue`,
             description : `
-             - 재질마다 필요한 유니폼에대한 정의를 내리는 함수.
-             - RedMaterialDefine에 의해 재질을 정의할때 이 함수가 호출되어 재질이 알고있어야 할 유니폼정보가 추가된다. 
+             - 재질 초기화시 필요한 초기 값들선언.
             `,
-			example : `인스턴스.makeUniformValue`,
+			example : `인스턴스.initUniformValue`,
 			return : 'Object'
 		}
 	    :DOC*/
-        this['makeUniformValue'] = makeUniformValue
+        this['initUniformValue'] = initUniformValue
+        /**DOC:
+		{
+            title :`defineTexture`,
+            description : `
+             - 재질의 텍스쳐 갱신시 실행할 매서드
+            `,
+			example : `인스턴스.defineTexture`,
+			return : 'Object'
+		}
+	    :DOC*/
+        this['defineTexture'] = defineTexture
         // 캐싱
         tDatas[key] = this
         Object.freeze(this)

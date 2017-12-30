@@ -105,19 +105,18 @@ start = function () {
 		testLight.color[0] = Math.random()
 		testLight.color[1] = Math.random()
 		testLight.color[2] = Math.random()
-		testLight.color[3] = Math.random()
 
 		testScene.addLight(testLight)
 	}
 	// 포인트 라이트 테스트
-	i = 1
+	i = 5
 	while (i--) {
 		var testLight = testGL.createPointLight(testGL)
 		testLight.color[0] = Math.random()
 		testLight.color[1] = Math.random()
 		testLight.color[2] = Math.random()
 		testLight.position[1] = Math.random() * 20 - 10
-		testLight.radius = Math.random() * 10 + 5
+		testLight.radius = Math.random() * 15 + 5
 		testLight.useDebugMode = true
 		testScene.addLight(testLight)
 
@@ -194,8 +193,8 @@ testGL = RedGL(document.getElementById('test'), start, true, [
 			vs: { id: 'colorVS', src: 'glsl/colorVS.glsl' },
 			fs: { id: 'colorFS', src: 'glsl/colorFS.glsl' }
 		},
-		makeUniformValue: function (target) {
-			target.materialUniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random(), 255])
+		initUniformValue: function (target) {
+			target.materialUniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random(), 1])
 		}
 	},
 	{
@@ -204,9 +203,11 @@ testGL = RedGL(document.getElementById('test'), start, true, [
 			vs: { id: 'bitmapVS', src: 'glsl/bitmapVS.glsl' },
 			fs: { id: 'bitmapFS', src: 'glsl/bitmapFS.glsl' }
 		},
-		makeUniformValue: function (target) {
-			target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
+		initUniformValue: function (target) {
 			target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
+		},
+		defineTexture: function (target) {
+			target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
 		}
 	},
 	{
@@ -215,15 +216,16 @@ testGL = RedGL(document.getElementById('test'), start, true, [
 			vs: { id: 'bitmapPhongVS', src: 'glsl/bitmapPhongVS.glsl' },
 			fs: { id: 'bitmapPhongFS', src: 'glsl/bitmapPhongFS.glsl' }
 		},
-		makeUniformValue: function (target) {
+		initUniformValue: function (target) {
+			target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
+			target.materialUniforms.uShininess = 16
+		},
+		defineTexture: function (target) {
 			target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
 			target.materialUniforms.uNormalTexture = target['uNormalTexture']
 			target.materialUniforms.uDisplacementTexture = target['uDisplacementTexture']
 			target.materialUniforms.uSpecularTexture = target['uSpecularTexture']
 			target.materialUniforms.uReflectionTexture = target['uReflectionTexture']
-
-			target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
-			target.materialUniforms.uShininess = 16
 		}
 	},
 	{
@@ -232,7 +234,10 @@ testGL = RedGL(document.getElementById('test'), start, true, [
 			vs: { id: 'skyBoxVS', src: 'glsl/skyBoxVS.glsl' },
 			fs: { id: 'skyBoxFS', src: 'glsl/skyBoxFS.glsl' }
 		},
-		makeUniformValue: function (target) {
+		initUniformValue: function (target) {
+
+		},
+		defineTexture: function (target) {
 			target.materialUniforms.uSkybox = target['uDiffuseTexture']
 		}
 	}

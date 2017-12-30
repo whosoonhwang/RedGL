@@ -125,7 +125,9 @@ var RedMaterialInfo;
 			return : 'Object'
         }
         :DOC*/
-        this['materialUniforms'] = {}
+        this['materialUniforms'] =  {}
+        // 유니폼은 프로그램에 의하여 생성되고, 재질정보를 토대로 렌더시 참조
+        this['programInfo'].initUniformValue(this)
         /**DOC:
 		{
             title :`needUniformList`,
@@ -138,14 +140,15 @@ var RedMaterialInfo;
         }
         :DOC*/
         this['needUniformList'] = true
+        
         this.updateUniformList()
         this['__UUID'] = REDGL_UUID++
     }
     RedMaterialInfo.prototype.updateUniformList = function () {
+        console.log(this['programInfo'])
+        if (this['programInfo']['defineTexture']) this['programInfo']['defineTexture'](this)
+        ////////////////////////////////////////////////////////////////////////////////////////
         // 유니폼을 업데이트할 glMethod를 찾는다. 
-        this['materialUniforms'] = {}
-        // 유니폼은 프로그램에 의하여 생성되고, 재질정보를 토대로 렌더시 참조
-        tDefineData['programInfo'].makeUniformValue(this)
         for (k in this['materialUniforms']) {
             t0 = this['materialUniforms'][k]
             if (t0 instanceof Float32Array || t0 instanceof Float64Array) {
@@ -170,6 +173,7 @@ var RedMaterialInfo;
                 this['materialUniforms']['uAtlascoord'] = t0['atlasUVInfo']
             } else throw k + '는 올바르지 않은 타입입니다.'
         }
+        ////////////////////////////////////////////////////////////////////////////////////////
         // 프로그램 정보를 처리
         if (this['needUniformList']) {
             this['__uniformList'] = []

@@ -265,8 +265,8 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			description : `프로그램 생성 단축 매서드`
 		}
 		:DOC*/
-		createProgramInfo: function (key, vShaderInfo, fShaderInfo, makeUniformValue) {
-			return new RedProgramInfo(this, key, vShaderInfo, fShaderInfo, makeUniformValue)
+		createProgramInfo: function (key, vShaderInfo, fShaderInfo, initUniformValue, defineTexture) {
+			return new RedProgramInfo(this, key, vShaderInfo, fShaderInfo, initUniformValue, defineTexture)
 		},
 		/**DOC:
 		{

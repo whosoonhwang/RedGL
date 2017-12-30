@@ -6,16 +6,22 @@
     "return": "Object"
   },
   {
+    "title": "defineTexture",
+    "description": "\n - 재질의 텍스쳐 갱신시 실행할 매서드\n",
+    "example": "인스턴스.defineTexture",
+    "return": "Object"
+  },
+  {
+    "title": "initUniformValue",
+    "description": "\n - 재질 초기화시 필요한 초기 값들선언.\n",
+    "example": "인스턴스.initUniformValue",
+    "return": "Object"
+  },
+  {
     "title": "key",
     "description": "고유키",
     "example": "인스턴스.key",
     "return": "String"
-  },
-  {
-    "title": "makeUniformValue",
-    "description": "\n - 재질마다 필요한 유니폼에대한 정의를 내리는 함수.\n - RedMaterialDefine에 의해 재질을 정의할때 이 함수가 호출되어 재질이 알고있어야 할 유니폼정보가 추가된다. \n",
-    "example": "인스턴스.makeUniformValue",
-    "return": "Object"
   },
   {
     "title": "program",

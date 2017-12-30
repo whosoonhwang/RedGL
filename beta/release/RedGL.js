@@ -233,11 +233,11 @@ var RedProgramInfo;
     var self;
     var tList;
     tList = []
-    RedProgramInfo = function (redGL, key, vShaderInfo, fShaderInfo, makeUniformValue) {
-        if (!(this instanceof RedProgramInfo)) return new RedProgramInfo(redGL, key, vShaderInfo, fShaderInfo, makeUniformValue)
+    RedProgramInfo = function (redGL, key, vShaderInfo, fShaderInfo, initUniformValue, defineTexture) {
+        if (!(this instanceof RedProgramInfo)) return new RedProgramInfo(redGL, key, vShaderInfo, fShaderInfo, initUniformValue, defineTexture)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
         if (typeof key != 'string') throw 'key - 문자열만 허용됩니다.'
-        if( !makeUniformValue) throw 'makeUniformValue - 반드시 정의해야합니다.'
+        if (!initUniformValue) throw 'initUniformValue - 반드시 정의해야합니다.'
         if (!vShaderInfo instanceof RedShaderInfo) throw 'vShaderInfo - RedShaderInfo만 허용됩니다.'
         if (!fShaderInfo instanceof RedShaderInfo) throw 'fShaderInfo - RedShaderInfo만 허용됩니다.'
         // 저장할 공간확보하고
@@ -284,7 +284,7 @@ var RedProgramInfo;
         tGL.linkProgram(tProgram)
         // 프로그램 링크 확인
         if (!tGL.getProgramParameter(tProgram, tGL.LINK_STATUS)) throw "프로그램을 초기화 할 수 없습니다." +
-        tGL.useProgram(tProgram);
+            tGL.useProgram(tProgram);
         info = {}
         tList.length = 0
         tList.push(vShaderInfo, fShaderInfo)
@@ -301,7 +301,7 @@ var RedProgramInfo;
                         self['attributes'][v[2]] = tInfo
                     } else {
                         tInfo['location'] = tGL.getUniformLocation(tProgram, v[2]);
-                        if(tInfo['location']) tInfo['location']['__UUID'] = REDGL_UUID++
+                        if (tInfo['location']) tInfo['location']['__UUID'] = REDGL_UUID++
                         tInfo['type'] = v[1]
                         self['uniforms'][v[2]] = tInfo
                     }
@@ -332,16 +332,26 @@ var RedProgramInfo;
         this['__UUID'] = REDGL_UUID++
         /**DOC:
 		{
-            title :`makeUniformValue`,
+            title :`initUniformValue`,
             description : `
-             - 재질마다 필요한 유니폼에대한 정의를 내리는 함수.
-             - RedMaterialDefine에 의해 재질을 정의할때 이 함수가 호출되어 재질이 알고있어야 할 유니폼정보가 추가된다. 
+             - 재질 초기화시 필요한 초기 값들선언.
             `,
-			example : `인스턴스.makeUniformValue`,
+			example : `인스턴스.initUniformValue`,
 			return : 'Object'
 		}
 	    :DOC*/
-        this['makeUniformValue'] = makeUniformValue
+        this['initUniformValue'] = initUniformValue
+        /**DOC:
+		{
+            title :`defineTexture`,
+            description : `
+             - 재질의 텍스쳐 갱신시 실행할 매서드
+            `,
+			example : `인스턴스.defineTexture`,
+			return : 'Object'
+		}
+	    :DOC*/
+        this['defineTexture'] = defineTexture
         // 캐싱
         tDatas[key] = this
         Object.freeze(this)
@@ -1500,7 +1510,9 @@ var RedMaterialInfo;
 			return : 'Object'
         }
         :DOC*/
-        this['materialUniforms'] = {}
+        this['materialUniforms'] =  {}
+        // 유니폼은 프로그램에 의하여 생성되고, 재질정보를 토대로 렌더시 참조
+        this['programInfo'].initUniformValue(this)
         /**DOC:
 		{
             title :`needUniformList`,
@@ -1513,14 +1525,15 @@ var RedMaterialInfo;
         }
         :DOC*/
         this['needUniformList'] = true
+        
         this.updateUniformList()
         this['__UUID'] = REDGL_UUID++
     }
     RedMaterialInfo.prototype.updateUniformList = function () {
+        console.log(this['programInfo'])
+        if (this['programInfo']['defineTexture']) this['programInfo']['defineTexture'](this)
+        ////////////////////////////////////////////////////////////////////////////////////////
         // 유니폼을 업데이트할 glMethod를 찾는다. 
-        this['materialUniforms'] = {}
-        // 유니폼은 프로그램에 의하여 생성되고, 재질정보를 토대로 렌더시 참조
-        tDefineData['programInfo'].makeUniformValue(this)
         for (k in this['materialUniforms']) {
             t0 = this['materialUniforms'][k]
             if (t0 instanceof Float32Array || t0 instanceof Float64Array) {
@@ -1545,6 +1558,7 @@ var RedMaterialInfo;
                 this['materialUniforms']['uAtlascoord'] = t0['atlasUVInfo']
             } else throw k + '는 올바르지 않은 타입입니다.'
         }
+        ////////////////////////////////////////////////////////////////////////////////////////
         // 프로그램 정보를 처리
         if (this['needUniformList']) {
             this['__uniformList'] = []
@@ -4304,7 +4318,8 @@ var RedShaderLoader;
 				tData['name'],
 				redGL.getShaderInfo(tData['name'], RedShaderInfo.VERTEX_SHADER),
 				redGL.getShaderInfo(tData['name'], RedShaderInfo.FRAGMENT_SHADER),
-				tData['makeUniformValue']
+				tData['initUniformValue'],
+				tData['defineTexture']
 			)
 			redGL.createMaterialDefine(redGL.getProgramInfo(tData['name']))
 		}
@@ -4611,8 +4626,8 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			description : `프로그램 생성 단축 매서드`
 		}
 		:DOC*/
-		createProgramInfo: function (key, vShaderInfo, fShaderInfo, makeUniformValue) {
-			return new RedProgramInfo(this, key, vShaderInfo, fShaderInfo, makeUniformValue)
+		createProgramInfo: function (key, vShaderInfo, fShaderInfo, initUniformValue, defineTexture) {
+			return new RedProgramInfo(this, key, vShaderInfo, fShaderInfo, initUniformValue, defineTexture)
 		},
 		/**DOC:
 		{
