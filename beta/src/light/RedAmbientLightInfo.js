@@ -43,6 +43,7 @@ var RedAmbientLightInfo;
         :DOC*/
         this['color'] = new Float32Array([0.03, 0.03, 0.03, 1])
         this['__UUID'] = REDGL_UUID++
+        Object.seal(this)
     }
     RedAmbientLightInfo['TYPE'] = 'ambient'
     Object.freeze(RedAmbientLightInfo)

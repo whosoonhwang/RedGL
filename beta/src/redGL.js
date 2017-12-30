@@ -13,17 +13,17 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			alpha: false,
 			depth: true,
 			stencil: false,
-			antialias:true,
+			antialias: true,
 			premultipliedAlpha: false,
 			preserveDrawingBuffer: false,
-			powerPreference  : 'default', // default, high-performance, low-power
+			powerPreference: 'default', // default, high-performance, low-power
 			failIfMajorPerformanceCaveat: false
 		}
 		checkList = 'experimental-webgl,webgl,webkit-3d,moz-webgl,3d'.split(',')
 		return function (cvs) {
 			i = checkList.length
 			while (i--) {
-				if (t0 = cvs.getContext(checkList[i], option)) return console.log(checkList[i]),t0
+				if (t0 = cvs.getContext(checkList[i], option)) return console.log(checkList[i]), t0
 			}
 			throw "웹지엘을 사용할수없습니다."
 		}
@@ -33,7 +33,16 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			constructorYn : true,
 			title :`RedGL`,
 			description : `
-				- RedGL 인스턴스 생성자
+				RedGL 인스턴스 생성자
+				<b>초기화 옵션</b>
+				alpha: false,
+				depth: true,
+				stencil: false,
+				antialias: true,
+				premultipliedAlpha: false,
+				preserveDrawingBuffer: false,
+				powerPreference: 'default', // default, high-performance, low-power
+				failIfMajorPerformanceCaveat: false
 			`,
 			params : {
 				canvas : [
@@ -41,7 +50,7 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 				],
 				callback :[
 					{type:'function'},
-					'컨텐스트초기화이후 실행될 콜백'
+					'컨텍스트 초기화이후 실행될 콜백'
 				],
 				fullMode : [
 					{type:'Boolean'},
@@ -54,7 +63,22 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 				]
 			},
 			example : `
-				RedGL(document.getElementById('test'))
+				// 기초 초기화
+				RedGL(document.getElementById('test'), function(){ 콜백내용 })
+				// 풀스크린 초기화
+				RedGL(document.getElementById('test'), function(){ 콜백내용 }, true)
+				// 쉐이더 추가 초기화
+				RedGL(document.getElementById('test'), function(){ 콜백내용 }, true, [
+					// 추가할 쉐이더 소스를 아래의 형식으로 입력
+					{ id: 'colorVS', src: 'glsl/colorVS.glsl' },
+					{ id: 'colorFS', src: 'glsl/colorFS.glsl' },
+					{ id: 'bitmapVS', src: 'glsl/bitmapVS.glsl' },
+					{ id: 'bitmapFS', src: 'glsl/bitmapFS.glsl' },
+					{ id: 'bitmapPhongVS', src: 'glsl/bitmapPhongVS.glsl' },
+					{ id: 'bitmapPhongFS', src: 'glsl/bitmapPhongFS.glsl' },
+					{ id: 'skyBoxVS', src: 'glsl/skyBoxVS.glsl' },
+					{ id: 'skyBoxFS', src: 'glsl/skyBoxFS.glsl' }
+				])
 			`,
 			return : 'RedGL Instance'
 		}
@@ -71,11 +95,8 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		this['detect'] = redGLDetect(this)
 		console.log('RedGL 생성완료')
 		// 초기상태정의
-		// tGL.clearColor(0,0,0,0)
-		// set the depthTest
 		tGL.enable(tGL.DEPTH_TEST);
 		tGL.depthFunc(tGL.LESS)
-		// tGL.depthMask(false)
 		// 컬링 페이스 설정
 		tGL.frontFace(tGL.CCW)
 		tGL.enable(tGL.CULL_FACE);
@@ -83,7 +104,6 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		// 블렌드모드설정
 		tGL.enable(tGL.BLEND);
 		tGL.blendFunc(tGL.ONE, tGL.ONE_MINUS_SRC_ALPHA);
-		// tGL.blendFuncSeparate(tGL.SRC_ALPHA, tGL.ONE_MINUS_SRC_ALPHA,tGL.ZERO, tGL.ONE);
 		// 픽셀 블렌딩 결정
 		tGL.pixelStorei(tGL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 		// 픽셀 플립 기본설정
@@ -96,7 +116,7 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 
 		instanceList.push(this)
 		console.log(shaderSourceInfo, callback)
-		if (shaderSourceInfo) RedShaderLoader(shaderSourceInfo, callback)
+		if (shaderSourceInfo) RedShaderLoader(this,shaderSourceInfo, callback)
 		else callback ? callback() : 0
 
 		// this.createTextureInfo('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NzMxRDhBQzRFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NzMxRDhBQzVFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo3MzFEOEFDMkU1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo3MzFEOEFDM0U1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuojYFUAAAAQSURBVHjaYvj//z8DQIABAAj8Av7bok0WAAAAAElFTkSuQmCC')
@@ -110,7 +130,6 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		// 		'asset/cubemap/negz.jpg'
 		// 	]
 		// )
-	
 	}
 	window.addEventListener('resize', function () {
 		instanceList.forEach(function (v) {
@@ -141,86 +160,21 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			`
 		}
 		:DOC*/
-		setSize: function (width, height) {
-			console.log('실행을했냐!')
+		setSize: (function () {
 			var gl;
 			var W, H;
-			W = width ? width : (document.documentElement ? document.documentElement.clientWidth : document.body.clientWidth)
-			H = height ? height : (document.documentElement ? document.documentElement.clientHeight : document.body.clientHeight)
-			gl = this.gl
-			W = W
-			H = H
-			this.__canvas.width = W * window.devicePixelRatio
-			this.__canvas.height = H * window.devicePixelRatio
-			this.__canvas.style.width = W
-			this.__canvas.style.height = H
-			gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-			// set the scissor rectangle
-			gl.enable(gl.SCISSOR_TEST);
-			gl.scissor(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-		},
-		/**DOC:
-		{
-			title :`calcNormal`,
-			code: 'FUNCTION',
-			description : `
-				- 버텍스 정보와 인덱스정보를 토대로 노말데이터(Float32Array생성.
-				- <span style="color:red">이놈음 다른곳으로 옮겨야할듯</span>
-			`,
-			params : {
-				pos : [
-					{type:'Float32Array'},
-					'버덱스 데이터 정보'
-				],
-				idx : [
-					{type:'Uint16Array'},
-					'인덱스 데이터 정보'
-				]
-			},
-			example : `
-				var vs = new Float32Array(10)
-				var is = new Uint16Array(10)
-				RedGL인스턴스.calcNormal(vs,is)
-			`,
-			return : 'Float32Array Instance'
-		}
-		:DOC*/
-		calcNormal: (function () {
-			var sqrt, v1, v2;
-			sqrt = Math.sqrt,
-				v1 = { x: 0, y: 0, z: 0 }, v2 = { x: 0, y: 0, z: 0 };
-			return function calcNormal(pos, idx) {
-				var i, j, k, l;
-				var ns = new Float32Array(pos.length)
-				for (i = 0, j = pos.length; i < j; i++) ns[i] = 0.0;
-				for (i = 0, j = idx.length; i < j; i += 3) {
-					k = 3 * idx[i + 1],
-						l = 3 * idx[i],
-						v1.x = pos[k] - pos[l],
-						v1.y = pos[k + 1] - pos[l + 1],
-						v1.z = pos[k + 2] - pos[l + 2],
-						l = 3 * idx[i + 2],
-						v2.x = pos[l] - pos[k],
-						v2.y = pos[l + 1] - pos[k + 1],
-						v2.z = pos[l + 2] - pos[k + 2];
-					for (k = 0; k < 3; k++) {
-						l = 3 * idx[i + k],
-							ns[l] += v1.y * v2.z - v1.z * v2.y,
-							ns[l + 1] += v1.z * v2.x - v1.x * v2.z,
-							ns[l + 2] += v1.x * v2.y - v1.y * v2.x;
-					}
-				}
-				for (i = 0, j = pos.length; i < j; i += 3) {
-					v1.x = ns[i],
-						v1.y = ns[i + 1],
-						v1.z = ns[i + 2],
-						k = sqrt(v1.x * v1.x + v1.y * v1.y + v1.z * v1.z) || 0.00001,
-						ns[i] = v1.x / k,
-						ns[i + 1] = v1.y / k,
-						ns[i + 2] = v1.z / k;
-				}
-				return ns;
-			};
+			return function (width, height) {
+				W = width ? width : (document.documentElement ? document.documentElement.clientWidth : document.body.clientWidth)
+				H = height ? height : (document.documentElement ? document.documentElement.clientHeight : document.body.clientHeight)
+				gl = this.gl
+				this.__canvas.width = W * window.devicePixelRatio
+				this.__canvas.height = H * window.devicePixelRatio
+				this.__canvas.style.width = W
+				this.__canvas.style.height = H
+				gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+				// set the scissor rectangle
+				gl.scissor(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+			}
 		})(),
 		/**DOC:
 		{
@@ -444,7 +398,7 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		createCubeTextureInfo: function (srcList) {
 			return new RedCubeTextureInfo(this, srcList)
 		},
-		
+
 		/**DOC:
 		{
 			title :`createMeshInfo`,

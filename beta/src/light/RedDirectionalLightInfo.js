@@ -27,7 +27,7 @@ var RedDirectionalLightInfo;
         // 저장할 공간확보하고
         if (!redGL['__datas']['RedDirectionalLightInfo']) redGL['__datas']['RedDirectionalLightInfo'] = {}
         tDatas = redGL['__datas']['RedDirectionalLightInfo']
-       
+
         /**DOC:
 		{
             title :`color`,
@@ -41,17 +41,20 @@ var RedDirectionalLightInfo;
         }
         :DOC*/
         this['color'] = new Float32Array([1, 1, 1, 1])
-         /**DOC:
-		{
-            title :`direction`,
-            description : `라이트 디렉션`,
-            code:'PROPERTY',
-            example : `인스턴스.color`,
-            return : 'Float32(vec3)'
-        }
-        :DOC*/
+        /**DOC:
+       {
+           title :`direction`,
+           description : `
+            - 라이트 디렉션
+           `,
+           code:'PROPERTY',
+           example : `인스턴스.color`,
+           return : 'Float32(vec3)'
+       }
+       :DOC*/
         this['direction'] = new Float32Array([0, 0, 0])
         this['__UUID'] = REDGL_UUID++
+        Object.seal(this)
     }
     RedDirectionalLightInfo['TYPE'] = 'directional'
     Object.freeze(RedDirectionalLightInfo)

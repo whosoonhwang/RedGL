@@ -48,7 +48,7 @@ var RedSkyBoxInfo;
         if (!(srcList instanceof Array)) throw 'srcList는 Array만 허용됩니다.'
         if (srcList.length != 6) throw 'srcList는 6개여야 합니다.'
         RedMeshBaseInfo.call(this, redGL)
-        this['materialInfo'] = RedMaterialInfo(redGL, 'skybox', RedCubeTextureInfo(redGL, srcList))
+        this['materialInfo'] = RedMaterialInfo(redGL, 'skyBox', RedCubeTextureInfo(redGL, srcList))
         this['geometryInfo'] = RedPrimitive.cube(redGL)
         this['scale'][0] = 1000//TODO: 카메라 far 물어야함
         this['scale'][1] = 1000

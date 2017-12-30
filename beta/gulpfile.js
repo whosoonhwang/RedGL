@@ -60,34 +60,44 @@ gulp.task('make-doc', function () {
 	console.log('-------------------------------------------');
 	console.log('시작!');
 	return gulp.src([
-		"RedShaderInfo.js",
-		"RedProgramInfo.js",
-		"RedBaseCameraInfo.js",
-		"RedCubeTextureInfo.js",
-		"RedBufferInfo.js",
-		"RedFixedAttributeKey.js",
-		"RedGeometryInfo.js",
-		"RedMeshInfo.js",
-		"RedMeshBaseInfo.js",
-		"RedPrimitive.js",
-		"RedAmbientLightInfo.js",
-		"RedDirectionalLightInfo.js",
-		"RedPointLightInfo.js",
-		"RedMaterialInfo.js",
-		"RedMaterialDefine.js",
-		"RedSceneInfo.js",
-		"RedTextureInfo.js",
-		"RedTextureIndex.js",
-		"RedAtlasUVInfo.js",
-		"RedAtlasInfo.js",
-		"RedAtlasTextureManager.js",
-		"RedAtlasTextureInfo.js",
-		"RedBaseRenderInfo.js",
-		"RedGLDetect.js",
-		"RedSkyBoxInfo.js",
-		"RedShaderLoader.js",    
-		"redGL.js",
-		"Atlas.js",
+		"src/program/RedShaderInfo.js",
+		"src/program/RedProgramInfo.js",
+
+		"src/geometry/RedBufferInfo.js",
+		"src/geometry/RedFixedAttributeKey.js",
+		"src/geometry/RedGeometryInfo.js",
+		"src/geometry/RedPrimitive.js",
+
+		"src/material/RedMaterialInfo.js",
+		"src/material/RedMaterialDefine.js",
+
+		"src/mesh/RedMeshBaseInfo.js",
+		"src/mesh/RedMeshInfo.js",
+
+		"src/camera/RedBaseCameraInfo.js",
+
+		"src/light/RedAmbientLightInfo.js",
+		"src/light/RedDirectionalLightInfo.js",
+		"src/light/RedPointLightInfo.js",
+
+		"src/texture/RedTextureIndex.js",
+		"src/texture/RedTextureInfo.js",
+		"src/texture/RedCubeTextureInfo.js",
+		"src/texture/Atlas.js",
+		"src/texture/RedAtlasUVInfo.js",
+		"src/texture/RedAtlasInfo.js",
+		"src/texture/RedAtlasTextureManager.js",
+		"src/texture/RedAtlasTextureInfo.js",
+
+		"src/skyBox/RedSkyBoxInfo.js",
+
+		"src/scene/RedSceneInfo.js",
+
+		"src/renderer/RedBaseRenderInfo.js",
+
+		"src/RedGLDetect.js",
+		"src/RedShaderLoader.js",
+		"src/redGL.js",
 	])
 		.pipe(myTransformation()) // 병합한다.
 		.pipe(rename(function (path) {
@@ -101,34 +111,44 @@ gulp.task('combine-js', function () {
 	var name = "RedGL"
 	return gulp.src([
 		"lib/gl-matrix-min.js",
-		"RedShaderInfo.js",
-		"RedProgramInfo.js",
-		"RedBaseCameraInfo.js",
-		"RedCubeTextureInfo.js",
-		"RedBufferInfo.js",
-		"RedFixedAttributeKey.js",
-		"RedGeometryInfo.js",
-		"RedMeshInfo.js",
-		"RedMeshBaseInfo.js",
-		"RedPrimitive.js",
-		"RedAmbientLightInfo.js",
-		"RedDirectionalLightInfo.js",
-		"RedPointLightInfo.js",
-		"RedMaterialInfo.js",
-		"RedMaterialDefine.js",
-		"RedSceneInfo.js",
-		"RedTextureInfo.js",
-		"RedTextureIndex.js",
-		"RedAtlasUVInfo.js",
-		"RedAtlasInfo.js",
-		"RedAtlasTextureManager.js",
-		"RedAtlasTextureInfo.js",
-		"RedBaseRenderInfo.js",
-		"RedGLDetect.js",
-		"RedSkyBoxInfo.js",
-		"RedShaderLoader.js",    
-		"redGL.js",
-		"Atlas.js",
+		"src/program/RedShaderInfo.js",
+		"src/program/RedProgramInfo.js",
+
+		"src/geometry/RedBufferInfo.js",
+		"src/geometry/RedFixedAttributeKey.js",
+		"src/geometry/RedGeometryInfo.js",
+		"src/geometry/RedPrimitive.js",
+
+		"src/material/RedMaterialInfo.js",
+		"src/material/RedMaterialDefine.js",
+
+		"src/mesh/RedMeshBaseInfo.js",
+		"src/mesh/RedMeshInfo.js",
+
+		"src/camera/RedBaseCameraInfo.js",
+
+		"src/light/RedAmbientLightInfo.js",
+		"src/light/RedDirectionalLightInfo.js",
+		"src/light/RedPointLightInfo.js",
+
+		"src/texture/RedTextureIndex.js",
+		"src/texture/RedTextureInfo.js",
+		"src/texture/RedCubeTextureInfo.js",
+		"src/texture/Atlas.js",
+		"src/texture/RedAtlasUVInfo.js",
+		"src/texture/RedAtlasInfo.js",
+		"src/texture/RedAtlasTextureManager.js",
+		"src/texture/RedAtlasTextureInfo.js",
+
+		"src/skyBox/RedSkyBoxInfo.js",
+
+		"src/scene/RedSceneInfo.js",
+
+		"src/renderer/RedBaseRenderInfo.js",
+
+		"src/RedGLDetect.js",
+		"src/RedShaderLoader.js",
+		"src/redGL.js",
 	])
 		.pipe(concat(name + '.js')) // 병합한다.
 		.pipe(gulp.dest('release')) //
@@ -141,7 +161,7 @@ gulp.task('combine-js', function () {
 		.pipe(insert.append("console.log('" + 'LOGIN' + " Release. last update(" + d + ")'" + ");"))
 		.pipe(gulp.dest('release'));
 });
-gulp.task('default', ['make-doc','combine-js'], function () {
+gulp.task('default', ['make-doc', 'combine-js'], function () {
 	console.log('-------------------------------------------');
 	console.log('성공!');
 	console.log('-------------------------------------------');

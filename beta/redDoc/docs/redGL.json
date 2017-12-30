@@ -1,26 +1,5 @@
 [
   {
-    "title": "calcNormal",
-    "code": "FUNCTION",
-    "description": "\n- 버텍스 정보와 인덱스정보를 토대로 노말데이터(Float32Array생성.\n- <span style=\"color:red\">이놈음 다른곳으로 옮겨야할듯</span>\n",
-    "params": {
-      "pos": [
-        {
-          "type": "Float32Array"
-        },
-        "버덱스 데이터 정보"
-      ],
-      "idx": [
-        {
-          "type": "Uint16Array"
-        },
-        "인덱스 데이터 정보"
-      ]
-    },
-    "example": "\nvar vs = new Float32Array(10)\nvar is = new Uint16Array(10)\nRedGL인스턴스.calcNormal(vs,is)\n",
-    "return": "Float32Array Instance"
-  },
-  {
     "title": "createArrayBufferInfo",
     "code": "FUNCTION",
     "description": "Array버퍼 생성 단축 매서드"
@@ -199,7 +178,7 @@
   {
     "constructorYn": true,
     "title": "RedGL",
-    "description": "\n- RedGL 인스턴스 생성자\n",
+    "description": "\nRedGL 인스턴스 생성자\n<b>초기화 옵션</b>\nalpha: false,\ndepth: true,\nstencil: false,\nantialias: true,\npremultipliedAlpha: false,\npreserveDrawingBuffer: false,\npowerPreference: 'default', // default, high-performance, low-power\nfailIfMajorPerformanceCaveat: false\n",
     "params": {
       "canvas": [
         {
@@ -210,7 +189,7 @@
         {
           "type": "function"
         },
-        "컨텐스트초기화이후 실행될 콜백"
+        "컨텍스트 초기화이후 실행될 콜백"
       ],
       "fullMode": [
         {
@@ -226,7 +205,7 @@
         "미리로드할 쉐이더 소스정보"
       ]
     },
-    "example": "\nRedGL(document.getElementById('test'))\n",
+    "example": "\n// 기초 초기화\nRedGL(document.getElementById('test'), function(){ 콜백내용 })\n// 풀스크린 초기화\nRedGL(document.getElementById('test'), function(){ 콜백내용 }, true)\n// 쉐이더 추가 초기화\nRedGL(document.getElementById('test'), function(){ 콜백내용 }, true, [\n// 추가할 쉐이더 소스를 아래의 형식으로 입력\n{ id: 'colorVS', src: 'glsl/colorVS.glsl' },\n{ id: 'colorFS', src: 'glsl/colorFS.glsl' },\n{ id: 'bitmapVS', src: 'glsl/bitmapVS.glsl' },\n{ id: 'bitmapFS', src: 'glsl/bitmapFS.glsl' },\n{ id: 'bitmapPhongVS', src: 'glsl/bitmapPhongVS.glsl' },\n{ id: 'bitmapPhongFS', src: 'glsl/bitmapPhongFS.glsl' },\n{ id: 'skyBoxVS', src: 'glsl/skyBoxVS.glsl' },\n{ id: 'skyBoxFS', src: 'glsl/skyBoxFS.glsl' }\n])\n",
     "return": "RedGL Instance"
   },
   {

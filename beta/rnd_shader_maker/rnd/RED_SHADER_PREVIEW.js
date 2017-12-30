@@ -28,8 +28,8 @@ Recard.static('RED_SHADER_PREVIEW', (function () {
                         testGL.getShaderInfo(tName, RedShaderInfo.VERTEX_SHADER),
                         testGL.getShaderInfo(tName, RedShaderInfo.FRAGMENT_SHADER),
                         function (target) {
-                            target.uniforms.uShininess = 8
-                            target.uniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
+                            target.materialUniforms.uShininess = 8
+                            target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
                             console.log('결과가', target)
                         }
                     );
@@ -79,19 +79,19 @@ Recard.static('RED_SHADER_PREVIEW', (function () {
                         tTextureUniformKey = fragment_textureInfo[k]['textureUniformKey']
                         switch (fragment_textureInfo[k]['textureIndex']) {
                             case RedTextureIndex.DIFFUSE:
-                                t2.uniforms[tTextureUniformKey] = tTextureDiffuse
+                                t2.materialUniforms[tTextureUniformKey] = tTextureDiffuse
                                 break
                             case RedTextureIndex.NORMAL:
-                                t2.uniforms[tTextureUniformKey] = tTextureNormal
+                                t2.materialUniforms[tTextureUniformKey] = tTextureNormal
                                 break
                             case RedTextureIndex.SPECULAR:
-                                t2.uniforms[tTextureUniformKey] = tTextureSpecular
+                                t2.materialUniforms[tTextureUniformKey] = tTextureSpecular
                                 break
                             case RedTextureIndex.ETC_FRAGMENT_1:
-                                t2.uniforms[tTextureUniformKey] = tEtc_FRAGMENT_1
+                                t2.materialUniforms[tTextureUniformKey] = tEtc_FRAGMENT_1
                                 break
                             case RedTextureIndex.ETC_FRAGMENT_2:
-                                t2.uniforms[tTextureUniformKey] = tEtc_FRAGMENT_2
+                                t2.materialUniforms[tTextureUniformKey] = tEtc_FRAGMENT_2
                                 break
                         }
                     }
@@ -100,13 +100,13 @@ Recard.static('RED_SHADER_PREVIEW', (function () {
                         tTextureUniformKey = vertex_textureInfo[k]['textureUniformKey']
                         switch (vertex_textureInfo[k]['textureIndex']) {
                             case RedTextureIndex.DISPLACEMENT:
-                                t2.uniforms[tTextureUniformKey] = tTextureDisplacement
+                                t2.materialUniforms[tTextureUniformKey] = tTextureDisplacement
                                 break
                             case RedTextureIndex.ETC_VERTEX_1:
-                                t2.uniforms[tTextureUniformKey] = tEtc_VERTEX_1
+                                t2.materialUniforms[tTextureUniformKey] = tEtc_VERTEX_1
                                 break
                             case RedTextureIndex.ETC_VERTEX_2:
-                                t2.uniforms[tTextureUniformKey] =tEtc_VERTEX_2
+                                t2.materialUniforms[tTextureUniformKey] =tEtc_VERTEX_2
                                 break
                         }
                     }
@@ -137,27 +137,27 @@ Recard.static('RED_SHADER_PREVIEW', (function () {
             testGL = RedGL(testCvs.__dom__, function () {
                 testGL.createShaderInfo('color', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('colorVS'))
                 testGL.createShaderInfo('color', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('colorFS'))
-                testGL.createShaderInfo('skybox', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('skyBoxVS'))
-                testGL.createShaderInfo('skybox', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('skyBoxFS'))
+                testGL.createShaderInfo('skyBox', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('skyBoxVS'))
+                testGL.createShaderInfo('skyBox', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('skyBoxFS'))
                 testGL.createProgramInfo(
                     'color',
                     testGL.getShaderInfo('color', RedShaderInfo.VERTEX_SHADER),
                     testGL.getShaderInfo('color', RedShaderInfo.FRAGMENT_SHADER),
                     function (target) {
-                        target.uniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random(), 255])
+                        target.materialUniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random(), 255])
                     }
                 )
                 testGL.createProgramInfo(
-                    'skybox',
-                    testGL.getShaderInfo('skybox', RedShaderInfo.VERTEX_SHADER),
-                    testGL.getShaderInfo('skybox', RedShaderInfo.FRAGMENT_SHADER),
+                    'skyBox',
+                    testGL.getShaderInfo('skyBox', RedShaderInfo.VERTEX_SHADER),
+                    testGL.getShaderInfo('skyBox', RedShaderInfo.FRAGMENT_SHADER),
                     function (target) {
-                        target.uniforms.uSkybox = target['diffuseInfo']
+                        target.materialUniforms.uSkybox = target['diffuseInfo']
 
                     }
                 )
                 testGL.createMaterialDefine(testGL.getProgramInfo('color'))
-                testGL.createMaterialDefine(testGL.getProgramInfo('skybox'))
+                testGL.createMaterialDefine(testGL.getProgramInfo('skyBox'))
                 // 카메라생성
                 testCamera = testGL.createBaseCameraInfo('testCamera')
                 // Scene 생성

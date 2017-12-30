@@ -93,6 +93,7 @@ var RedProgramInfo;
         self = this;
         // 프로그램생성!
         tProgram = tGL.createProgram();
+        console.log(key)
         tGL.attachShader(tProgram, vShaderInfo['shader'])
         tGL.attachShader(tProgram, fShaderInfo['shader'])
         tGL.linkProgram(tProgram)

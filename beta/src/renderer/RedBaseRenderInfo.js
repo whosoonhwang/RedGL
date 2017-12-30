@@ -38,9 +38,9 @@ var RedBaseRenderInfo;
 (function () {
     var tDatas;
     var SIN, COS;
-    var emptyCube
+    var emptyCube;
+    var checkCallBox;
     SIN = Math.sin, COS = Math.cos
-
     RedBaseRenderInfo = function (redGL, redScene, callback) {
         if (!(this instanceof RedBaseRenderInfo)) return new RedBaseRenderInfo(redGL, redScene, callback)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
