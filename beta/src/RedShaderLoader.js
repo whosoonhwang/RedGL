@@ -37,12 +37,34 @@ var RedShaderLoader;
     }
 :DOC*/
 (function () {
-	RedShaderLoader = function (list, callback) {
-		console.log(list, callback)
-		if (!(this instanceof RedShaderLoader)) return new RedShaderLoader(list, callback)
+	var makeShaders;
+	makeShaders = function (redGL, datas) {
+		var k, tData;
+		for (k in datas) {
+			tData = datas[k]
+			console.log(tData)
+			console.log(redGL.createShaderInfo(tData['name'], RedShaderInfo.VERTEX_SHADER, redGL.getSourceFromScript(tData['shaderInfo']['vs']['id'])))
+			console.log(redGL.createShaderInfo(tData['name'], RedShaderInfo.FRAGMENT_SHADER, redGL.getSourceFromScript(tData['shaderInfo']['fs']['id'])))
+			redGL.createProgramInfo(
+				tData['name'],
+				redGL.getShaderInfo(tData['name'], RedShaderInfo.VERTEX_SHADER),
+				redGL.getShaderInfo(tData['name'], RedShaderInfo.FRAGMENT_SHADER),
+				tData['makeUniformValue']
+			)
+			redGL.createMaterialDefine(redGL.getProgramInfo(tData['name']))
+		}
+	}
+	RedShaderLoader = function (redGL, shaderInfos, callback) {
+		if (!(this instanceof RedShaderLoader)) return new RedShaderLoader(redGL, shaderInfos, callback)
 		var cnt = 0;
-		list['callback'] = callback
-		list.forEach(function (v, idx) {
+		var tList = [];
+		for (var k in shaderInfos) {
+			tList.push(shaderInfos[k]['shaderInfo']['vs'])
+			tList.push(shaderInfos[k]['shaderInfo']['fs'])
+		}
+		console.log(tList)
+		tList['callback'] = callback
+		tList.forEach(function (v, idx) {
 			var xhr = new XMLHttpRequest();
 			xhr.open('GET', v['src'], true);
 			xhr.onreadystatechange = function () {
@@ -50,12 +72,16 @@ var RedShaderLoader;
 				if (xhr.readyState == 4 && xhr.status == 200) {
 					scr = document.createElement('script');
 					scr.setAttribute('id', v['id'])
-					scr.setAttribute('type','glsl')
+					scr.setAttribute('type', 'glsl')
 					scr.text = xhr.responseText;
-					console.log(v['id'],scr.text);
-					console.log(list)
+					console.log(v['id'], scr.text);
+					console.log(shaderInfos)
 					document.body.appendChild(scr);
-					if (++cnt == list.length && list['callback']) list['callback']();
+
+					if (++cnt == tList.length) {
+						makeShaders(redGL, shaderInfos)
+						if (tList['callback']) tList['callback']();
+					}
 				}
 			};
 			xhr.send(null);

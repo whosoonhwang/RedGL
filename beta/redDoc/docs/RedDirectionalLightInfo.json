@@ -8,7 +8,7 @@
   },
   {
     "title": "direction",
-    "description": "라이트 디렉션",
+    "description": "\n - 라이트 디렉션\n",
     "code": "PROPERTY",
     "example": "인스턴스.color",
     "return": "Float32(vec3)"

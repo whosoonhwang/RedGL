@@ -64,14 +64,14 @@ var RedPointLightInfo;
         this['radius'] = 1
         /**DOC:
 		{
-            title :`usedebugMode`,
+            title :`useDebugMode`,
             description : `디버그모드 사용여부`,
             code:'PROPERTY',
-            example : `인스턴스.usedebugMode`,
+            example : `인스턴스.useDebugMode`,
             return : 'Boolean'
         }
         :DOC*/
-        this['usedebugMode'] = false
+        this['useDebugMode'] = false
         this['__UUID'] = REDGL_UUID++
         this['__debugMesh'] = redGL.createMeshInfo(
             'RedPointLightInfo__debugMesh' + this['__UUID'],
@@ -87,7 +87,7 @@ var RedPointLightInfo;
         )        
         this['__debugMesh'].drawMode = redGL.gl.LINE_STRIP
         this['__debugMesh']['children'][0].drawMode = redGL.gl.LINE_STRIP
-
+        Object.seal(RedAmbientLightInfo)
     }
     RedPointLightInfo['TYPE'] = 'point'
     Object.freeze(RedPointLightInfo)

@@ -143,8 +143,8 @@ void main(void) {
             testGL = RedGL(testCvs.__dom__, function () {
                 testGL.createShaderInfo('color', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('colorVS'))
                 testGL.createShaderInfo('color', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('colorFS'))
-                testGL.createShaderInfo('skybox', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('skyBoxVS'))
-                testGL.createShaderInfo('skybox', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('skyBoxFS'))
+                testGL.createShaderInfo('skyBox', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('skyBoxVS'))
+                testGL.createShaderInfo('skyBox', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('skyBoxFS'))
                 testGL.createProgramInfo(
                     'color',
                     testGL.getShaderInfo('color', RedShaderInfo.VERTEX_SHADER),
@@ -154,16 +154,16 @@ void main(void) {
                     }
                 )
                 testGL.createProgramInfo(
-                    'skybox',
-                    testGL.getShaderInfo('skybox', RedShaderInfo.VERTEX_SHADER),
-                    testGL.getShaderInfo('skybox', RedShaderInfo.FRAGMENT_SHADER),
+                    'skyBox',
+                    testGL.getShaderInfo('skyBox', RedShaderInfo.VERTEX_SHADER),
+                    testGL.getShaderInfo('skyBox', RedShaderInfo.FRAGMENT_SHADER),
                     function (target) {
                         target.uniforms.uSkybox = target['diffuseInfo']
 
                     }
                 )
                 testGL.createMaterialDefine(testGL.getProgramInfo('color'))
-                testGL.createMaterialDefine(testGL.getProgramInfo('skybox'))
+                testGL.createMaterialDefine(testGL.getProgramInfo('skyBox'))
                 // 카메라생성
                 testCamera = testGL.createBaseCameraInfo('testCamera')
                 // Scene 생성

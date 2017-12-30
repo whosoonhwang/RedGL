@@ -2,72 +2,9 @@
 var testGL, start;
 start = function () {
 	console.log('안온다는거냐?')
-	var makeShaders, makePrograms, defineMaterials, makeCheckRenderInfo;
+	var makeCheckRenderInfo;
 	var checkCallBox;
-	makeShaders = function () {
-		console.log(testGL.createShaderInfo('color', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('colorVS')))
-		console.log(testGL.createShaderInfo('color', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('colorFS')))
 
-		console.log(testGL.createShaderInfo('bitmap', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('bitmapVS')))
-		console.log(testGL.createShaderInfo('bitmap', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('bitmapFS')))
-
-		console.log(testGL.createShaderInfo('bitmapPhong', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('bitmapPhongVS')))
-		console.log(testGL.createShaderInfo('bitmapPhong', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('bitmapPhongFS')))
-
-		
-		console.log(testGL.createShaderInfo('skybox', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('skyBoxVS')))
-		console.log(testGL.createShaderInfo('skybox', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('skyBoxFS')))
-
-	}
-	makePrograms = function () {
-		testGL.createProgramInfo(
-			'color',
-			testGL.getShaderInfo('color', RedShaderInfo.VERTEX_SHADER),
-			testGL.getShaderInfo('color', RedShaderInfo.FRAGMENT_SHADER),
-			function (target) {
-				target.materialUniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random(), 255])
-			}
-		)
-		testGL.createProgramInfo(
-			'bitmap',
-			testGL.getShaderInfo('bitmap', RedShaderInfo.VERTEX_SHADER),
-			testGL.getShaderInfo('bitmap', RedShaderInfo.FRAGMENT_SHADER),
-			function (target) {
-				target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
-				target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
-			}
-		)
-		testGL.createProgramInfo(
-			'bitmapPhong',
-			testGL.getShaderInfo('bitmapPhong', RedShaderInfo.VERTEX_SHADER),
-			testGL.getShaderInfo('bitmapPhong', RedShaderInfo.FRAGMENT_SHADER),
-			function (target) {
-				target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
-				target.materialUniforms.uNormalTexture = target['uNormalTexture']
-				target.materialUniforms.uDisplacementTexture = target['uDisplacementTexture']
-				target.materialUniforms.uSpecularTexture = target['uSpecularTexture']
-				target.materialUniforms.uReflectionTexture = target['uReflectionTexture']				
-
-				target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
-				target.materialUniforms.uShininess = 16
-			}
-		)
-		testGL.createProgramInfo(
-			'skybox',
-			testGL.getShaderInfo('skybox', RedShaderInfo.VERTEX_SHADER),
-			testGL.getShaderInfo('skybox', RedShaderInfo.FRAGMENT_SHADER),
-			function (target) {
-				target.materialUniforms.uSkybox = target['uDiffuseTexture']
-
-			}
-		)
-	}
-	defineMaterials = function () {
-		testGL.createMaterialDefine(testGL.getProgramInfo('skybox'))
-		testGL.createMaterialDefine(testGL.getProgramInfo('color'))
-		testGL.createMaterialDefine(testGL.getProgramInfo('bitmap'))
-		testGL.createMaterialDefine(testGL.getProgramInfo('bitmapPhong'))
-	}
 	makeCheckRenderInfo = function () {
 		checkCallBox = document.createElement('div')
 		document.body.appendChild(checkCallBox)
@@ -96,9 +33,7 @@ start = function () {
 	}
 	console.log('이힝!')
 	/// 기반준비
-	makeShaders()
-	makePrograms()
-	defineMaterials()
+
 	makeCheckRenderInfo()
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -195,7 +130,7 @@ start = function () {
 		tMesh.position[0] = Math.sin(Math.PI * 2 / max * i) * 30
 		tMesh.position[1] = 0
 		tMesh.position[2] = Math.cos(Math.PI * 2 / max * i) * 30
-	
+
 		testScene.children.push(tMesh)
 	}
 
@@ -231,14 +166,14 @@ start = function () {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	// 렌더러 생성!!!!
 	var renderer = testGL.createBaseRenderInfo(testScene, function (time) {
-		testCamera.setPosition(Math.sin(time / 2000) * 60,  50, Math.cos(time / 5000) * 40)
+		testCamera.setPosition(Math.sin(time / 2000) * 60, 50, Math.cos(time / 5000) * 40)
 		testCamera.lookAt([0, 0, 0])
 		i = testScene['lights']['directional'].length
 		while (i--) {
 			testScene['lights']['directional'][i].direction[0] = -Math.sin(time / 1700 + Math.PI * 2 / 2 * i) * 30
 			testScene['lights']['directional'][i].direction[1] = Math.cos(time / 1400 + Math.PI * 2 / 2 * i) * 20 + Math.sin(time / 2700 + Math.PI * 2 / 2 * i) * 50
 			testScene['lights']['directional'][i].direction[2] = -Math.sin(time / 1200 + Math.PI * 2 / 2 * i) * 30
-	  }
+		}
 		earth.rotation[0] += 0.01
 		earth.rotation[1] += 0.01
 		earth.rotation[2] += 0.01
@@ -252,12 +187,52 @@ start = function () {
 	renderer.start()
 }
 testGL = RedGL(document.getElementById('test'), start, true, [
-	{ id: 'colorVS', src: 'glsl/colorVS.glsl' },
-	{ id: 'colorFS', src: 'glsl/colorFS.glsl' },
-	{ id: 'bitmapVS', src: 'glsl/bitmapVS.glsl' },
-	{ id: 'bitmapFS', src: 'glsl/bitmapFS.glsl' },
-	{ id: 'bitmapPhongVS', src: 'glsl/bitmapPhongVS.glsl' },
-	{ id: 'bitmapPhongFS', src: 'glsl/bitmapPhongFS.glsl' },
-	{ id: 'skyBoxVS', src: 'glsl/skyBoxVS.glsl' },
-	{ id: 'skyBoxFS', src: 'glsl/skyBoxFS.glsl' }
+	{
+		name: 'color',
+		shaderInfo: {
+			vs: { id: 'colorVS', src: 'glsl/colorVS.glsl' },
+			fs: { id: 'colorFS', src: 'glsl/colorFS.glsl' }
+		},
+		makeUniformValue: function (target) {
+			target.materialUniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random(), 255])
+		}
+	},
+	{
+		name: 'bitmap',
+		shaderInfo: {
+			vs: { id: 'bitmapVS', src: 'glsl/bitmapVS.glsl' },
+			fs: { id: 'bitmapFS', src: 'glsl/bitmapFS.glsl' }
+		},
+		makeUniformValue: function (target) {
+			target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
+			target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
+		}
+	},
+	{
+		name: 'bitmapPhong',
+		shaderInfo: {
+			vs: { id: 'bitmapPhongVS', src: 'glsl/bitmapPhongVS.glsl' },
+			fs: { id: 'bitmapPhongFS', src: 'glsl/bitmapPhongFS.glsl' }
+		},
+		makeUniformValue: function (target) {
+			target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
+			target.materialUniforms.uNormalTexture = target['uNormalTexture']
+			target.materialUniforms.uDisplacementTexture = target['uDisplacementTexture']
+			target.materialUniforms.uSpecularTexture = target['uSpecularTexture']
+			target.materialUniforms.uReflectionTexture = target['uReflectionTexture']
+
+			target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
+			target.materialUniforms.uShininess = 16
+		}
+	},
+	{
+		name: 'skyBox',
+		shaderInfo: {
+			vs: { id: 'skyBoxVS', src: 'glsl/skyBoxVS.glsl' },
+			fs: { id: 'skyBoxFS', src: 'glsl/skyBoxFS.glsl' }
+		},
+		makeUniformValue: function (target) {
+			target.materialUniforms.uSkybox = target['uDiffuseTexture']
+		}
+	}
 ])

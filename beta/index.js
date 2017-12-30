@@ -2,60 +2,8 @@
 var testGL, start;
 start = function () {
 	console.log('안온다는거냐?')
-	var makeShaders, makePrograms, defineMaterials, makeCheckRenderInfo;
+	var makeCheckRenderInfo;
 	var checkCallBox;
-	makeShaders = function () {
-		console.log(testGL.createShaderInfo('color', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('colorVS')))
-		console.log(testGL.createShaderInfo('color', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('colorFS')))
-
-		console.log(testGL.createShaderInfo('bitmap', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('bitmapVS')))
-		console.log(testGL.createShaderInfo('bitmap', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('bitmapFS')))
-
-		console.log(testGL.createShaderInfo('bitmapPhong', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('bitmapPhongVS')))
-		console.log(testGL.createShaderInfo('bitmapPhong', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('bitmapPhongFS')))
-
-		console.log(testGL.createShaderInfo('skybox', RedShaderInfo.VERTEX_SHADER, testGL.getSourceFromScript('skyBoxVS')))
-		console.log(testGL.createShaderInfo('skybox', RedShaderInfo.FRAGMENT_SHADER, testGL.getSourceFromScript('skyBoxFS')))
-	}
-	makePrograms = function () {
-		testGL.createProgramInfo(
-			'color',
-			testGL.getShaderInfo('color', RedShaderInfo.VERTEX_SHADER),
-			testGL.getShaderInfo('color', RedShaderInfo.FRAGMENT_SHADER),
-			function (target) {
-				target.materialUniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random(), 255])
-			}
-		)
-		testGL.createProgramInfo(
-			'bitmapPhong',
-			testGL.getShaderInfo('bitmapPhong', RedShaderInfo.VERTEX_SHADER),
-			testGL.getShaderInfo('bitmapPhong', RedShaderInfo.FRAGMENT_SHADER),
-			function (target) {
-				target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
-				target.materialUniforms.uNormalTexture = target['uNormalTexture']
-				target.materialUniforms.uDisplacementTexture = target['uDisplacementTexture']
-				target.materialUniforms.uSpecularTexture = target['uSpecularTexture']
-				target.materialUniforms.uReflectionTexture = target['uReflectionTexture']
-				
-				target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
-				target.materialUniforms.uShininess = 16
-			}
-		)
-		testGL.createProgramInfo(
-			'skybox',
-			testGL.getShaderInfo('skybox', RedShaderInfo.VERTEX_SHADER),
-			testGL.getShaderInfo('skybox', RedShaderInfo.FRAGMENT_SHADER),
-			function (target) {
-				target.materialUniforms.uSkybox = target['uDiffuseTexture']
-
-			}
-		)
-	}
-	defineMaterials = function () {
-		testGL.createMaterialDefine(testGL.getProgramInfo('skybox'))
-		testGL.createMaterialDefine(testGL.getProgramInfo('color'))
-		testGL.createMaterialDefine(testGL.getProgramInfo('bitmapPhong'))
-	}
 	makeCheckRenderInfo = function () {
 		checkCallBox = document.createElement('div')
 		document.body.appendChild(checkCallBox)
@@ -83,10 +31,6 @@ start = function () {
 		doc.innerHTML = 'RedGL Document'
 	}
 	console.log('이힝!')
-	/// 기반준비
-	makeShaders()
-	makePrograms()
-	defineMaterials()
 	makeCheckRenderInfo()
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -98,37 +42,37 @@ start = function () {
 	var testScene = testGL.createSceneInfo('testScene', testCamera)
 	// 재질정의
 	var testTexture = testGL.createTextureInfo('asset/fieldstone.jpg')
-	var testNormalTexture = testGL.createTextureInfo('asset/fieldstone-normal.jpg',RedTextureIndex.NORMAL)
-	var testDisplacementTexture = testGL.createTextureInfo('asset/displacement.jpg',RedTextureIndex.DISPLACEMENT)
-	
+	var testNormalTexture = testGL.createTextureInfo('asset/fieldstone-normal.jpg', RedTextureIndex.NORMAL)
+	var testDisplacementTexture = testGL.createTextureInfo('asset/displacement.jpg', RedTextureIndex.DISPLACEMENT)
+
 	// 재질생성	
 	var testMatBitmap = testGL.createMaterialInfo('bitmapPhong',
 		testTexture, testNormalTexture, testDisplacementTexture
 	)
 	var testMatBitmap2 = testGL.createMaterialInfo(
-		'bitmapPhong', 
-		testTexture, 
+		'bitmapPhong',
+		testTexture,
 		testNormalTexture
 	)
 	testMatBitmap.uShininess = 8
 	testMatBitmap2.uShininess = 8
 
-	console.log(testMatBitmap,testMatBitmap2)
+	console.log(testMatBitmap, testMatBitmap2)
 	// 그리드 생성
 	var grid = testGL.createMeshInfo('grid1', RedPrimitive.grid(testGL), testGL.createMaterialInfo('color'))
 	grid.drawMode = testGL.gl.LINES
-	// testScene.setGrid(grid)
+	testScene.setGrid(grid)
 	// 스카이박스 생성
-	// testScene.setSkyBox(
-	// 	testGL.createSkyBoxInfo([
-	// 		'asset/cubemap/posx.jpg',
-	// 		'asset/cubemap/negx.jpg',
-	// 		'asset/cubemap/posy.jpg',
-	// 		'asset/cubemap/negy.jpg',
-	// 		'asset/cubemap/posz.jpg',
-	// 		'asset/cubemap/negz.jpg'
-	// 	])
-	// )
+	testScene.setSkyBox(
+		testGL.createSkyBoxInfo([
+			'asset/cubemap/posx.jpg',
+			'asset/cubemap/negx.jpg',
+			'asset/cubemap/posy.jpg',
+			'asset/cubemap/negy.jpg',
+			'asset/cubemap/posz.jpg',
+			'asset/cubemap/negz.jpg'
+		])
+	)
 
 	// 중앙 테스트용 큰 구체...작성
 	var tMesh = testGL.createMeshInfo('testMeshAdd2', RedPrimitive.sphere(testGL, 1, 32, 32, 32), testMatBitmap)
@@ -191,9 +135,9 @@ start = function () {
 			tMesh.position[0] = Math.sin(Math.PI * 2 * Math.random()) * 40
 			tMesh.position[1] = Math.sin(Math.PI * 2 * Math.random()) * 40
 			tMesh.position[2] = Math.cos(Math.PI * 2 * Math.random()) * 40
-			tMesh.rotation[0] = Math.random()*Math.PI*2
-			tMesh.rotation[1] = Math.random()*Math.PI*2
-			tMesh.rotation[2] = Math.random()*Math.PI*2
+			tMesh.rotation[0] = Math.random() * Math.PI * 2
+			tMesh.rotation[1] = Math.random() * Math.PI * 2
+			tMesh.rotation[2] = Math.random() * Math.PI * 2
 			var tScale = Math.random() * 3
 			tMesh.scale[0] = tMesh.scale[1] = tMesh.scale[2] = tScale
 
@@ -206,31 +150,21 @@ start = function () {
 			tMesh.position[0] = Math.sin(Math.PI * 2 * Math.random()) * 40
 			tMesh.position[1] = Math.sin(Math.PI * 2 * Math.random()) * 40
 			tMesh.position[2] = Math.cos(Math.PI * 2 * Math.random()) * 40
-			tMesh.rotation[0] = Math.random()*Math.PI*2
-			tMesh.rotation[1] = Math.random()*Math.PI*2
-			tMesh.rotation[2] = Math.random()*Math.PI*2
+			tMesh.rotation[0] = Math.random() * Math.PI * 2
+			tMesh.rotation[1] = Math.random() * Math.PI * 2
+			tMesh.rotation[2] = Math.random() * Math.PI * 2
 			var tScale = Math.random() * 3
 			tMesh.scale[0] = tMesh.scale[1] = tMesh.scale[2] = tScale
 
 			testScene.children.push(tMesh)
 		}
 	}
-		// 스카이박스 생성
-		testScene.setSkyBox(
-			testGL.createSkyBoxInfo([
-				'asset/cubemap/posx.jpg',
-				'asset/cubemap/negx.jpg',
-				'asset/cubemap/posy.jpg',
-				'asset/cubemap/negy.jpg',
-				'asset/cubemap/posz.jpg',
-				'asset/cubemap/negz.jpg'
-			])
-		)
+
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	// 렌더러 생성!!!!
 	var renderer = testGL.createBaseRenderInfo(testScene, function (time) {
-		testCamera.setPosition(Math.sin(time / 3000) * 60, Math.sin(time / 3000)*30+Math.cos(time / 6000) * 50, Math.cos(time / 5000) * 40)
+		testCamera.setPosition(Math.sin(time / 3000) * 60, Math.sin(time / 3000) * 30 + Math.cos(time / 6000) * 50, Math.cos(time / 5000) * 40)
 		testCamera.lookAt([0, 0, 0])
 		i = testScene['lights']['point'].length
 		while (i--) {
@@ -256,12 +190,52 @@ start = function () {
 	renderer.start()
 }
 testGL = RedGL(document.getElementById('test'), start, true, [
-	{ id: 'colorVS', src: 'glsl/colorVS.glsl' },
-	{ id: 'colorFS', src: 'glsl/colorFS.glsl' },
-	{ id: 'bitmapVS', src: 'glsl/bitmapVS.glsl' },
-	{ id: 'bitmapFS', src: 'glsl/bitmapFS.glsl' },
-	{ id: 'bitmapPhongVS', src: 'glsl/bitmapPhongVS.glsl' },
-	{ id: 'bitmapPhongFS', src: 'glsl/bitmapPhongFS.glsl' },
-	{ id: 'skyBoxVS', src: 'glsl/skyBoxVS.glsl' },
-	{ id: 'skyBoxFS', src: 'glsl/skyBoxFS.glsl' }
+	{
+		name: 'color',
+		shaderInfo: {
+			vs: { id: 'colorVS', src: 'glsl/colorVS.glsl' },
+			fs: { id: 'colorFS', src: 'glsl/colorFS.glsl' }
+		},
+		makeUniformValue: function (target) {
+			target.materialUniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random(), 255])
+		}
+	},
+	{
+		name: 'bitmap',
+		shaderInfo: {
+			vs: { id: 'bitmapVS', src: 'glsl/bitmapVS.glsl' },
+			fs: { id: 'bitmapFS', src: 'glsl/bitmapFS.glsl' }
+		},
+		makeUniformValue: function (target) {
+			target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
+			target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
+		}
+	},
+	{
+		name: 'bitmapPhong',
+		shaderInfo: {
+			vs: { id: 'bitmapPhongVS', src: 'glsl/bitmapPhongVS.glsl' },
+			fs: { id: 'bitmapPhongFS', src: 'glsl/bitmapPhongFS.glsl' }
+		},
+		makeUniformValue: function (target) {
+			target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
+			target.materialUniforms.uNormalTexture = target['uNormalTexture']
+			target.materialUniforms.uDisplacementTexture = target['uDisplacementTexture']
+			target.materialUniforms.uSpecularTexture = target['uSpecularTexture']
+			target.materialUniforms.uReflectionTexture = target['uReflectionTexture']
+
+			target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
+			target.materialUniforms.uShininess = 16
+		}
+	},
+	{
+		name: 'skyBox',
+		shaderInfo: {
+			vs: { id: 'skyBoxVS', src: 'glsl/skyBoxVS.glsl' },
+			fs: { id: 'skyBoxFS', src: 'glsl/skyBoxFS.glsl' }
+		},
+		makeUniformValue: function (target) {
+			target.materialUniforms.uSkybox = target['uDiffuseTexture']
+		}
+	}
 ])
