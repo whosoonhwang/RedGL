@@ -54,8 +54,6 @@ start = function () {
 		testTexture,
 		testNormalTexture
 	)
-	testMatBitmap.uShininess = 8
-	testMatBitmap2.uShininess = 8
 
 	console.log(testMatBitmap, testMatBitmap2)
 	// 그리드 생성

@@ -56,8 +56,7 @@
 var RedMaterialInfo;
 (function () {
     var tDefineMap
-    var tDegineData;
-    var tUniform;
+    var tDefineData;
     var typeMAP;
     var k, t0;
     var tGL;
@@ -88,9 +87,9 @@ var RedMaterialInfo;
         if (typeof typeName != 'string') throw 'typeName은 문자열만 허용됩니다.'
         // 디파인더에서 재질정의를 찾고
         tDefineMap = redGL['__datas']['RedMaterialDefine']
-        tDegineData = tDefineMap[typeName]
+        tDefineData = tDefineMap[typeName]
         tGL = redGL.gl
-        if (!tDegineData) throw typeName + '재질은 존재하지않습니다.'
+        if (!tDefineData) throw typeName + '재질은 존재하지않습니다.'
         /**DOC:
 		{
             title :`programInfo`,
@@ -99,7 +98,7 @@ var RedMaterialInfo;
 			return : 'RedProgramInfo'
         }
         :DOC*/
-        this['programInfo'] = tDegineData['programInfo']
+        this['programInfo'] = tDefineData['programInfo']
         /**DOC:
 		{
             title :`diffuseInfo`,
@@ -115,7 +114,7 @@ var RedMaterialInfo;
         if (displacementTexture) this['uDisplacementTexture'] = displacementTexture
         if (specularTexture) this['uSpecularTexture'] = specularTexture
         if (reflectionTexture) this['uReflectionTexture'] = reflectionTexture
-        
+
         /**DOC:
 		{
             title :`materialUniforms`,
@@ -126,9 +125,7 @@ var RedMaterialInfo;
 			return : 'Object'
         }
         :DOC*/
-        this['materialUniforms'] = tUniform = {}
-        // 유니폼은 프로그램에 의하여 생성되고, 재질정보를 토대로 렌더시 참조
-        tDegineData['programInfo'].makeUniformValue(this)
+        this['materialUniforms'] = {}
         /**DOC:
 		{
             title :`needUniformList`,
@@ -141,9 +138,16 @@ var RedMaterialInfo;
         }
         :DOC*/
         this['needUniformList'] = true
+        this.updateUniformList()
+        this['__UUID'] = REDGL_UUID++
+    }
+    RedMaterialInfo.prototype.updateUniformList = function () {
         // 유니폼을 업데이트할 glMethod를 찾는다. 
-        for (k in tUniform) {
-            t0 = tUniform[k]
+        this['materialUniforms'] = {}
+        // 유니폼은 프로그램에 의하여 생성되고, 재질정보를 토대로 렌더시 참조
+        tDefineData['programInfo'].makeUniformValue(this)
+        for (k in this['materialUniforms']) {
+            t0 = this['materialUniforms'][k]
             if (t0 instanceof Float32Array || t0 instanceof Float64Array) {
                 t0['__uniformMethod'] = typeMAP['f'][t0.length]
                 t0['__isMatrix'] = t0['__uniformMethod'].length > 11
@@ -157,18 +161,15 @@ var RedMaterialInfo;
             ) {
                 t0['__uniformMethod'] = typeMAP['i'][t0.length]
                 t0['__isMatrix'] = t0['__uniformMethod'].length > 11
-            } else if (t0 == null ) {
+            } else if (t0 == null) {
             } else if (typeof t0 == 'number') {
             } else if (t0 instanceof RedAtlasUVInfo) {
             } else if (t0 instanceof RedTextureInfo || t0 instanceof RedCubeTextureInfo) {
+
             } else if (t0 instanceof RedAtlasTextureInfo) {
                 this['materialUniforms']['uAtlascoord'] = t0['atlasUVInfo']
             } else throw k + '는 올바르지 않은 타입입니다.'
         }
-        this.updateUniformList()
-        this['__UUID'] = REDGL_UUID++
-    }
-    RedMaterialInfo.prototype.updateUniformList = function () {
         // 프로그램 정보를 처리
         if (this['needUniformList']) {
             this['__uniformList'] = []
@@ -185,7 +186,7 @@ var RedMaterialInfo;
                 // console.log(tUniformLocationGroup)
                 // console.log('//////////////////////////////////////')
                 if (tUniformLocationGroup[k]['type'] == 'samplerCube') {
-                    
+
                 }
                 this['__uniformList'].push({
                     key: k,
@@ -197,6 +198,14 @@ var RedMaterialInfo;
                 this[k] = tUniformGroup[k]
             }
             this['needUniformList'] = false
+        }
+    }
+    RedMaterialInfo.prototype.setTexture = function (key, texture) {
+        if (texture instanceof RedTextureInfo || texture instanceof RedCubeTextureInfo || texture instanceof RedAtlasUVInfo) {
+            this[key] = texture
+            this.updateUniformList()
+        } else {
+            throw '텍스쳐 형식이 아닙니다.'
         }
     }
     Object.freeze(RedMaterialInfo)
