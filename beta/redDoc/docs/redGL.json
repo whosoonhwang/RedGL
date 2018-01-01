@@ -1,5 +1,10 @@
 [
   {
+    "title": "createAmbientLight",
+    "code": "FUNCTION",
+    "description": "암비언트라이트 단축 생성 매서드"
+  },
+  {
     "title": "createArrayBufferInfo",
     "code": "FUNCTION",
     "description": "Array버퍼 생성 단축 매서드"
@@ -8,6 +13,21 @@
     "title": "createBaseCameraInfo",
     "code": "FUNCTION",
     "description": "베이스카메라 단축 생성 매서드"
+  },
+  {
+    "title": "createBaseRenderInfo",
+    "code": "FUNCTION",
+    "description": "렌더러 단축 생성 매서드"
+  },
+  {
+    "title": "createCubeTextureInfo",
+    "code": "FUNCTION",
+    "description": "큐브 텍스쳐정보 생성 단축 매서드"
+  },
+  {
+    "title": "createDirectionalLight",
+    "code": "FUNCTION",
+    "description": "방향광 단축 생성 매서드"
   },
   {
     "title": "createGeometryInfo",
@@ -33,6 +53,11 @@
     "title": "createMeshInfo",
     "code": "FUNCTION",
     "description": "매시정보 단축 생성 매서드"
+  },
+  {
+    "title": "createPointLight",
+    "code": "FUNCTION",
+    "description": "점광 단축 생성 매서드"
   },
   {
     "title": "createProgram",
@@ -71,6 +96,11 @@
     },
     "example": "\nvar test;\ntest = RedGL(Canvas Element)\n// basic이라는 이름으로 버텍스 쉐이더를 만든다. \ntest.createShaderInfo('basic', RedShaderInfo.VERTEX_SHADER, 쉐이더소스)\n",
     "return": "RedShaderInfo Instance"
+  },
+  {
+    "title": "createSkyBoxInfo",
+    "code": "FUNCTION",
+    "description": "스카이박스 단축 생성 매서드"
   },
   {
     "title": "createTextureInfo",
@@ -172,7 +202,7 @@
         "아이디"
       ]
     },
-    "example": "\nRedShaderInfo.getSourceFromScript(id)\n",
+    "example": "\n인스턴스.getSourceFromScript(id)\n",
     "return": "String"
   },
   {

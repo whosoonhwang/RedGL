@@ -112,7 +112,7 @@ start = function () {
 			'asset/cubemap/negy.jpg',
 			'asset/cubemap/posz.jpg',
 			'asset/cubemap/negz.jpg'
-		])
+		],RedTextureIndex.CUBE_REFLECTION)
 	)
 	console.log(testEnvironmentMap)
 
@@ -193,8 +193,8 @@ testGL = RedGL(document.getElementById('test'), start, true, [
 			vs: { id: 'colorVS', src: 'glsl/colorVS.glsl' },
 			fs: { id: 'colorFS', src: 'glsl/colorFS.glsl' }
 		},
-		makeUniformValue: function (target) {
-			target.materialUniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random(), 255])
+		initUniformValue: function (target) {
+			target.materialUniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random(), 1])
 		}
 	},
 	{
@@ -203,9 +203,11 @@ testGL = RedGL(document.getElementById('test'), start, true, [
 			vs: { id: 'bitmapVS', src: 'glsl/bitmapVS.glsl' },
 			fs: { id: 'bitmapFS', src: 'glsl/bitmapFS.glsl' }
 		},
-		makeUniformValue: function (target) {
-			target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
+		initUniformValue: function (target) {
 			target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
+		},
+		defineTexture: function (target) {
+			target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
 		}
 	},
 	{
@@ -214,15 +216,16 @@ testGL = RedGL(document.getElementById('test'), start, true, [
 			vs: { id: 'bitmapPhongVS', src: 'glsl/bitmapPhongVS.glsl' },
 			fs: { id: 'bitmapPhongFS', src: 'glsl/bitmapPhongFS.glsl' }
 		},
-		makeUniformValue: function (target) {
+		initUniformValue: function (target) {
+			target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
+			target.materialUniforms.uShininess = 16
+		},
+		defineTexture: function (target) {
 			target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
 			target.materialUniforms.uNormalTexture = target['uNormalTexture']
 			target.materialUniforms.uDisplacementTexture = target['uDisplacementTexture']
 			target.materialUniforms.uSpecularTexture = target['uSpecularTexture']
 			target.materialUniforms.uReflectionTexture = target['uReflectionTexture']
-
-			target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
-			target.materialUniforms.uShininess = 16
 		}
 	},
 	{
@@ -231,7 +234,10 @@ testGL = RedGL(document.getElementById('test'), start, true, [
 			vs: { id: 'skyBoxVS', src: 'glsl/skyBoxVS.glsl' },
 			fs: { id: 'skyBoxFS', src: 'glsl/skyBoxFS.glsl' }
 		},
-		makeUniformValue: function (target) {
+		initUniformValue: function (target) {
+
+		},
+		defineTexture: function (target) {
 			target.materialUniforms.uSkybox = target['uDiffuseTexture']
 		}
 	}

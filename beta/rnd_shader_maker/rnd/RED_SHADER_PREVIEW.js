@@ -31,7 +31,7 @@ Recard.static('RED_SHADER_PREVIEW', (function () {
                             target.materialUniforms.uShininess = 8
                             target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
                             console.log('결과가', target)
-                        }
+                        },
                     );
                     for (var k in fragment_textureInfo) {
                         console.log('뭐가오냐', fragment_textureInfo[k])
@@ -190,7 +190,7 @@ Recard.static('RED_SHADER_PREVIEW', (function () {
                             vs: { id: 'colorVS', src: '../../glsl/colorVS.glsl' },
                             fs: { id: 'colorFS', src: '../../glsl/colorFS.glsl' }
                         },
-                        makeUniformValue: function (target) {
+                        initUniformValue: function (target) {
                             target.materialUniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random(), 255])
                         }
                     },
@@ -200,7 +200,7 @@ Recard.static('RED_SHADER_PREVIEW', (function () {
                             vs: { id: 'skyBoxVS', src: '../../glsl/skyBoxVS.glsl' },
                             fs: { id: 'skyBoxFS', src: '../../glsl/skyBoxFS.glsl' }
                         },
-                        makeUniformValue: function (target) {
+                        initUniformValue: function (target) {
                             target.materialUniforms.uSkybox = target['uDiffuseTexture']
                         }
                     }

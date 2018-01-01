@@ -49,7 +49,8 @@ var RedShaderLoader;
 				tData['name'],
 				redGL.getShaderInfo(tData['name'], RedShaderInfo.VERTEX_SHADER),
 				redGL.getShaderInfo(tData['name'], RedShaderInfo.FRAGMENT_SHADER),
-				tData['makeUniformValue']
+				tData['initUniformValue'],
+				tData['defineTexture']
 			)
 			redGL.createMaterialDefine(redGL.getProgramInfo(tData['name']))
 		}

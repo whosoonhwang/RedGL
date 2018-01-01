@@ -5,7 +5,7 @@
         title :`RedProgramInfo`,
         description : `
             - RedProgramInfo 인스턴스 생성자
-            - <b>유일키</b>만 지원하며 키 중복일경우 기존 캐싱된 프로그램 정보를 반환함.
+            - <b>유일키</b>만 지원.
             - 프로그램 정보는 <b>Object.freeze</b> 상태로 반환됨.
         `,
         params : {
@@ -33,7 +33,14 @@
             test.createProgramInfo(
                 'basic',
                 test.getShaderInfo('basic', RedProgramInfo.VERTEX_SHADER),
-                test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER)
+                test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER),
+                function (target) {
+                    target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
+                },
+                function (target) {
+                    target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
+                }
+
             )
         `,
         return : 'RedProgramInfo Instance'
@@ -48,20 +55,21 @@ var RedProgramInfo;
     var self;
     var tList;
     tList = []
-    RedProgramInfo = function (redGL, key, vShaderInfo, fShaderInfo, makeUniformValue) {
-        if (!(this instanceof RedProgramInfo)) return new RedProgramInfo(redGL, key, vShaderInfo, fShaderInfo, makeUniformValue)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof key != 'string') throw 'key - 문자열만 허용됩니다.'
-        if( !makeUniformValue) throw 'makeUniformValue - 반드시 정의해야합니다.'
-        if (!vShaderInfo instanceof RedShaderInfo) throw 'vShaderInfo - RedShaderInfo만 허용됩니다.'
-        if (!fShaderInfo instanceof RedShaderInfo) throw 'fShaderInfo - RedShaderInfo만 허용됩니다.'
+    RedProgramInfo = function (redGL, key, vShaderInfo, fShaderInfo, initUniformValue, defineTexture) {
+        if (!(this instanceof RedProgramInfo)) return new RedProgramInfo(redGL, key, vShaderInfo, fShaderInfo, initUniformValue, defineTexture)
+        if (!(redGL instanceof RedGL)) throw 'RedProgramInfo : RedGL 인스턴스만 허용됩니다.'
+        if (typeof key != 'string') throw 'RedProgramInfo : key - 문자열만 허용됩니다.'
+        if (!initUniformValue) throw 'RedProgramInfo : initUniformValue - 반드시 정의해야합니다.'
+        if (!vShaderInfo instanceof RedShaderInfo) throw 'RedProgramInfo : vShaderInfo - RedShaderInfo만 허용됩니다.'
+        if (!fShaderInfo instanceof RedShaderInfo) throw 'RedProgramInfo : fShaderInfo - RedShaderInfo만 허용됩니다.'
+        if (vShaderInfo['type'] != RedShaderInfo.VERTEX_SHADER) throw 'RedProgramInfo : vShaderInfo - VERTEX_SHADER 타입만 허용됩니다.'
+        if (fShaderInfo['type'] != RedShaderInfo.FRAGMENT_SHADER) throw 'RedProgramInfo : fShaderInfo - FRAGMENT_SHADER 타입만 허용됩니다.'
         // 저장할 공간확보하고
-        if (!redGL['__datas']['RedProgramInfo']) {
-            redGL['__datas']['RedProgramInfo'] = {}
-        }
+        if (!redGL['__datas']['RedProgramInfo']) redGL['__datas']['RedProgramInfo'] = {}
         tDatas = redGL['__datas']['RedProgramInfo']
-        // 기존에 등록된 녀석이면 기존 데이터 리턴
-        if (tDatas[key]) return console.log('캐싱프로그램 리턴!', key), tDatas[key]
+        // 기존에 등록된 녀석이면 퐈이어!
+        if (tDatas[key]) throw key + '는 이미 존재하는 RedProgramInfo key 입니다.'
+        self = this;
         tGL = redGL.gl
         /**DOC:
 		{
@@ -90,7 +98,7 @@ var RedProgramInfo;
 		}
 	    :DOC*/
         this['uniforms'] = {}
-        self = this;
+
         // 프로그램생성!
         tProgram = tGL.createProgram();
         console.log(key)
@@ -99,7 +107,7 @@ var RedProgramInfo;
         tGL.linkProgram(tProgram)
         // 프로그램 링크 확인
         if (!tGL.getProgramParameter(tProgram, tGL.LINK_STATUS)) throw "프로그램을 초기화 할 수 없습니다." +
-        tGL.useProgram(tProgram);
+            tGL.useProgram(tProgram);
         info = {}
         tList.length = 0
         tList.push(vShaderInfo, fShaderInfo)
@@ -116,7 +124,7 @@ var RedProgramInfo;
                         self['attributes'][v[2]] = tInfo
                     } else {
                         tInfo['location'] = tGL.getUniformLocation(tProgram, v[2]);
-                        if(tInfo['location']) tInfo['location']['__UUID'] = REDGL_UUID++
+                        if (tInfo['location']) tInfo['location']['__UUID'] = REDGL_UUID++
                         tInfo['type'] = v[1]
                         self['uniforms'][v[2]] = tInfo
                     }
@@ -147,16 +155,26 @@ var RedProgramInfo;
         this['__UUID'] = REDGL_UUID++
         /**DOC:
 		{
-            title :`makeUniformValue`,
+            title :`initUniformValue`,
             description : `
-             - 재질마다 필요한 유니폼에대한 정의를 내리는 함수.
-             - RedMaterialDefine에 의해 재질을 정의할때 이 함수가 호출되어 재질이 알고있어야 할 유니폼정보가 추가된다. 
+             - 재질 초기화시 필요한 초기 값들선언.
             `,
-			example : `인스턴스.makeUniformValue`,
-			return : 'Object'
+			example : `인스턴스.initUniformValue`,
+			return : 'void'
 		}
 	    :DOC*/
-        this['makeUniformValue'] = makeUniformValue
+        this['initUniformValue'] = initUniformValue
+        /**DOC:
+		{
+            title :`defineTexture`,
+            description : `
+             - 재질의 텍스쳐 갱신시 실행할 매서드
+            `,
+			example : `인스턴스.defineTexture`,
+			return : 'void'
+		}
+	    :DOC*/
+        this['defineTexture'] = defineTexture
         // 캐싱
         tDatas[key] = this
         Object.freeze(this)

@@ -5,7 +5,7 @@
         title :`RedMaterialDefine`,
         description : `
             - RedGL에서 사용할 재질정보를 정의.
-            - <b>유일키</b>만 지원하며 키 중복일경우 에러발생.
+            - <b>유일키</b>만 지원.
             - <b>Object.freeze</b> 상태로 정의됨.
         `,
         params : {
