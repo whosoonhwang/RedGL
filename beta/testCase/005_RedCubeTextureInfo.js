@@ -90,7 +90,7 @@ redSuite(
                 testTexture
             ])
             t1 = setInterval(function () {
-            
+
                 if (t0['loaded']) {
                     unit.run(t0['__targetIndex'])
                     clearInterval(t1)

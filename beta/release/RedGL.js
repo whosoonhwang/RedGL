@@ -3155,9 +3155,7 @@ RedAtlasUVInfo = function (uvArray) {
             - <b>RedAtlasTextureManager</b>에 의해 자동 생성된 <b>RedAtlasInfo</b>.
             - 고유값으로 캐싱되며, 사용자 생성은 금지한다.
             - 하드웨어가 지원하는 최대크기(최대 4096*4096으로 제한)의 <b>Atlas</b>객체를 가진다.
-            - 소스맵을 기반으로 <b>RedAtlasTextureInfo</b>를 내부적으로 가진다.
             - <b>Atlas</b>정보가 업데이트되면 자동 갱신된다.
-            - Object.seal 상태로 반환.
         `,
         params : {
             redGL : [
@@ -3179,10 +3177,11 @@ RedAtlasUVInfo = function (uvArray) {
 var RedAtlasInfo;
 RedAtlasInfo = function (redGL, targetAtlas) {
     if (!(this instanceof RedAtlasInfo)) return new RedAtlasInfo(redGL, targetAtlas)
-    if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+    if (!(redGL instanceof RedGL)) throw 'RedAtlasInfo : RedGL 인스턴스만 허용됩니다.'
+    if (!(targetAtlas instanceof Atlas)) throw 'RedAtlasInfo : Atlas 인스턴스만 허용됩니다.'
     /**DOC:
     {
-        title :`RedAtlasInfo`,
+        title :`atlas`,
         code : 'PROPERTY',
         description : `
             Atlas정보(Atlas).
@@ -3199,15 +3198,16 @@ RedAtlasInfo = function (redGL, targetAtlas) {
         title :`textureInfo`,
         code : 'PROPERTY',
         description : `
-            텍스쳐 정보(RedAtlasTextureInfo)
+            - 텍스쳐 정보(RedTextureInfo)
+            - 시스템에서 자동으로 생성관리함.
         `,
         example : `
             인스턴스.textureInfo
         `,
-        return : 'RedAtlasTextureInfo를 Instance'
+        return : 'RedTextureInfo Instance'
     }
     :DOC*/
-    // Object.seal(this)
+    this['textureInfo'] = undefined
 }
 "use strict";
 /**DOC:
@@ -3215,7 +3215,8 @@ RedAtlasInfo = function (redGL, targetAtlas) {
         constructorYn : true,
         title :`RedAtlasTextureManager`,
         description : `
-            - <b>Atlas를 생성하고 텍스쳐관련작업을 자동으로 관리하는 오브젝트</b>
+			- <b>Atlas를 생성하고 텍스쳐관련작업을 자동으로 관리하는 오브젝트</b>
+			- 아틀라스 사이즈는 하드웨어지원 최대크기로 자동설정된다(최대 4096)
         `,
         params : {
             redGL : [
@@ -3234,14 +3235,14 @@ RedAtlasInfo = function (redGL, targetAtlas) {
         example : `
             RedAtlasTextureManager(redGLInstance, 원하는경로, 콜백이필요하면 콜백)
         `,
-        return : 'RedAtlasTextureManager OBJECT'
+        return : 'void'
     }
 :DOC*/
 var RedAtlasTextureManager;
 (function () {
 	var MAX_TEXTURE_SIZE;
 	var MAX_TEXTURE_IMAGE_UNITS; // 최대 허용 이미지유닛수
-	var atlasInfoList; // 아틀라스 객체 리스트
+	var atlasInfoList; // 아틀라스정보 객체 리스트
 	var atlasKeyMap; // 아틀라스에 등록된 이미지 맵정보
 	var tRedGL;
 	var tTextureUnitIndex; // 텍스쳐 유닛인덱스
@@ -3261,7 +3262,7 @@ var RedAtlasTextureManager;
 		// 아틀라스 생성
 		tTextureUnitIndex++
 		tAtlas = new Atlas(canvas);
-		tAtlas['atlasInfo'] = RedAtlasInfo(tRedGL, tAtlas)		
+		tAtlas['atlasInfo'] = RedAtlasInfo(tRedGL, tAtlas)
 		tAtlas['atlasInfo']['textureInfo'] = RedTextureInfo(tRedGL, tAtlas['canvas'], tTextureUnitIndex)
 		tAtlas['atlasInfo']['__targetIndex'] = tTextureUnitIndex
 		atlasInfoList.push(tAtlas['atlasInfo'])
@@ -3287,7 +3288,7 @@ var RedAtlasTextureManager;
 			}
 		}
 		// RedAtlasTextureInfo를 생성하고 맵에 담아둠
-		console.log(tAtlas,tAtlas.uv())
+		console.log(tAtlas, tAtlas.uv())
 		atlasKeyMap[targetImage.id] = new RedAtlasTextureInfo(
 			tAtlas.uv()[targetImage.id],
 			tAtlas['atlasInfo']
@@ -3296,8 +3297,9 @@ var RedAtlasTextureManager;
 	}
 	RedAtlasTextureManager = function (redGL, srcList, callback) {
 		if (!(this instanceof RedAtlasTextureManager)) return new RedAtlasTextureManager(redGL, srcList, callback)
-		if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-		if (!(srcList instanceof Array)) srcList = [srcList]
+		if (!(redGL instanceof RedGL)) throw 'RedAtlasTextureManager : RedGL 인스턴스만 허용됩니다.'
+		if (typeof srcList == 'string') srcList = [srcList]
+		if (!(srcList instanceof Array) && typeof srcList !='string') throw 'RedAtlasTextureManager : srcList는 문자열 또는 Array만 허용됩니다.'
 		tRedGL = redGL
 		MAX_TEXTURE_SIZE = redGL['detect']['MAX_TEXTURE_SIZE']
 		MAX_TEXTURE_IMAGE_UNITS = redGL['detect']['MAX_TEXTURE_IMAGE_UNITS']
@@ -3322,19 +3324,13 @@ var RedAtlasTextureManager;
 				if (targetNum == loaded) {
 					atlasInfoList.forEach(function (v) {
 						console.log("atlasInfo", v)
-						// if (!v['textureInfo']) v['textureInfo'] = RedTextureInfo(redGL, v['atlas']['canvas'], v['__targetIndex'])
-						// else v['textureInfo'].updateTexture(v['atlas']['canvas'])
 						v['textureInfo'].updateTexture(v['atlas']['canvas'])
-						
+
 					})
-					// for(var k in atlasKeyMap){
-					// 	console.log(atlasKeyMap[k])
-					// 	atlasKeyMap[k]['atlasUVInfo'] = atlasKeyMap[k]['setAtlasUVInfo'](tAtlas.uv()[k])
-					// }
-					if (callback) callback()
+					if (callback) callback(srcList)
 				}
 			};
-			
+
 		})
 		return RedAtlasTextureManager
 	}
@@ -3351,9 +3347,7 @@ var RedAtlasTextureManager;
 			return : 'RedAtlasTextureInfo instance'
 		}
 	:DOC*/
-	RedAtlasTextureManager.getByKey = function (key) {
-		return atlasKeyMap[key]
-	}
+	RedAtlasTextureManager.getByKey = function (key) { return atlasKeyMap[key] }
 	Object.freeze(RedAtlasTextureManager)
 })();
 "use strict";

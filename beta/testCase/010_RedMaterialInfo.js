@@ -11,7 +11,7 @@ testGL.createProgramInfo(
     vShaderInfo,
     fShaderInfo,
     function(target){
-        target.uniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random()])
+        target.materialUniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random()])
     }
 )
 RedMaterialDefine(testGL, testGL.getProgramInfo('basic'))
@@ -55,17 +55,11 @@ redSuite(
             t0 = testGL.createMaterialInfo('basic')
             unit.run(t0['programInfo'] instanceof RedProgramInfo)
         }, true),
-        redTest("RedMaterialInfo - needUniformList 초기값확인", function (unit) {
-            var t0;
-            t0 = testGL.createMaterialInfo('basic')
-
-            unit.run(t0['needUniformList'])
-        }, true),
         redTest("RedMaterialInfo - 유니폼정보가 잘들어오는지확인", function (unit) {
             var t0;
             t0 = testGL.createMaterialInfo('basic')
             console.log(t0)
-            unit.run(t0['uniforms'].hasOwnProperty('uColor'))
+            unit.run(t0['materialUniforms'].hasOwnProperty('uColor'))
         }, true)
     )
 )
