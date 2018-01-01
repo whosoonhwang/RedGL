@@ -20,7 +20,7 @@ var RedTextureInfo;
 				targetIndex : [
 					{type:'Integer'},
 					'- 타겟 인덱스를 지정한다.',
-					'- 기본값 : 1 (기본인덱스는 1번을 사용함)',
+					'- 기본값 : RedTextureIndex.DIFFUSE',
 					'- RedTextureIndex의 목록을 사용한다.',
 					'- 아틀라스텍스쳐의 경우 시스템에서 자동으로 부여함.'
 				]
@@ -90,7 +90,6 @@ var RedTextureInfo;
 		});
 		// tGL.bindTexture(tGL.TEXTURE_2D, null)
 
-		// 인덱스 번호 지정 - 초기생성전담은 0번 인덱스를 사용함
 		/**DOC:
 		{
 			title :`loaded`,
@@ -122,7 +121,8 @@ var RedTextureInfo;
 		this['__img'] = img
 		// 웹지엘 텍스쳐인지
 		this['__webglTexture'] = 1
-		this['__UUID'] = REDGL_UUID++
+		this['__UUID'] = REDGL_UUID++		
+		// 인덱스 번호 지정 - 초기생성전담은 0번 인덱스를 사용함
 		this['__targetIndex'] = RedTextureIndex.CREATE
 	}
 	/**DOC:

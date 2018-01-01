@@ -112,7 +112,7 @@ start = function () {
 			'asset/cubemap/negy.jpg',
 			'asset/cubemap/posz.jpg',
 			'asset/cubemap/negz.jpg'
-		])
+		],RedTextureIndex.CUBE_REFLECTION)
 	)
 	console.log(testEnvironmentMap)
 

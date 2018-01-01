@@ -29,8 +29,7 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		CREATE : 0,
-		CUBE_CREATE: 2,
+		CREATE: 0,
 		/**DOC:
 		{
 			title :`DIFFUSE`,
@@ -42,7 +41,7 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		DIFFUSE : 1,
+		DIFFUSE: 1,
 		/**DOC:
 		{
 			title :`NORMAL`,
@@ -53,18 +52,7 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		/**DOC:
-	{
-		title :`CUBE_REFLECTION`,
-		code : 'CONST',
-		description : `
-			- 큐브 텍스쳐 인덱스
-		`,
-		return : 'Integer'
-	}
-	:DOC*/
-		CUBE_REFLECTION: 2,
-		NORMAL : 3,
+		NORMAL: 2,
 		/**DOC:
 		{
 			title :`DISPLACEMENT`,
@@ -75,7 +63,7 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		DISPLACEMENT : 4,
+		DISPLACEMENT: 3,
 		/**DOC:
 		{
 			title :`SPECULAR`,
@@ -86,15 +74,25 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		SPECULAR : 5,
+		SPECULAR: 4,
 		//아틀라스는 자동
-		ETC_VERTEX_1 : 7,
-		ETC_VERTEX_2 : 8,
-		ETC_FRAGMENT_1 : 9,
-		ETC_FRAGMENT_2 : 10
-
+		ETC_VERTEX_1: 5,
+		ETC_VERTEX_2: 6,
+		ETC_FRAGMENT_1: 7,
+		ETC_FRAGMENT_2: 8,
 		/////////////////////
-	
+		CUBE_CREATE: 9,
+		/**DOC:
+			{
+			title :`CUBE_REFLECTION`,
+			code : 'CONST',
+			description : `
+				- 큐브 텍스쳐 인덱스
+			`,
+			return : 'Integer'
+		}
+		:DOC*/
+		CUBE_REFLECTION: 10
 	}
 	Object.freeze(RedTextureIndex)
 })();

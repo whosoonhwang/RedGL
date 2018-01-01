@@ -2509,8 +2509,7 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		CREATE : 0,
-		CUBE_CREATE: 2,
+		CREATE: 0,
 		/**DOC:
 		{
 			title :`DIFFUSE`,
@@ -2522,7 +2521,7 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		DIFFUSE : 1,
+		DIFFUSE: 1,
 		/**DOC:
 		{
 			title :`NORMAL`,
@@ -2533,18 +2532,7 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		/**DOC:
-	{
-		title :`CUBE_REFLECTION`,
-		code : 'CONST',
-		description : `
-			- 큐브 텍스쳐 인덱스
-		`,
-		return : 'Integer'
-	}
-	:DOC*/
-		CUBE_REFLECTION: 2,
-		NORMAL : 3,
+		NORMAL: 2,
 		/**DOC:
 		{
 			title :`DISPLACEMENT`,
@@ -2555,7 +2543,7 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		DISPLACEMENT : 4,
+		DISPLACEMENT: 3,
 		/**DOC:
 		{
 			title :`SPECULAR`,
@@ -2566,15 +2554,25 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		SPECULAR : 5,
+		SPECULAR: 4,
 		//아틀라스는 자동
-		ETC_VERTEX_1 : 7,
-		ETC_VERTEX_2 : 8,
-		ETC_FRAGMENT_1 : 9,
-		ETC_FRAGMENT_2 : 10
-
+		ETC_VERTEX_1: 5,
+		ETC_VERTEX_2: 6,
+		ETC_FRAGMENT_1: 7,
+		ETC_FRAGMENT_2: 8,
 		/////////////////////
-	
+		CUBE_CREATE: 9,
+		/**DOC:
+			{
+			title :`CUBE_REFLECTION`,
+			code : 'CONST',
+			description : `
+				- 큐브 텍스쳐 인덱스
+			`,
+			return : 'Integer'
+		}
+		:DOC*/
+		CUBE_REFLECTION: 10
 	}
 	Object.freeze(RedTextureIndex)
 })();
@@ -2600,7 +2598,7 @@ var RedTextureInfo;
 				targetIndex : [
 					{type:'Integer'},
 					'- 타겟 인덱스를 지정한다.',
-					'- 기본값 : 1 (기본인덱스는 1번을 사용함)',
+					'- 기본값 : RedTextureIndex.DIFFUSE',
 					'- RedTextureIndex의 목록을 사용한다.',
 					'- 아틀라스텍스쳐의 경우 시스템에서 자동으로 부여함.'
 				]
@@ -2670,7 +2668,6 @@ var RedTextureInfo;
 		});
 		// tGL.bindTexture(tGL.TEXTURE_2D, null)
 
-		// 인덱스 번호 지정 - 초기생성전담은 0번 인덱스를 사용함
 		/**DOC:
 		{
 			title :`loaded`,
@@ -2702,7 +2699,8 @@ var RedTextureInfo;
 		this['__img'] = img
 		// 웹지엘 텍스쳐인지
 		this['__webglTexture'] = 1
-		this['__UUID'] = REDGL_UUID++
+		this['__UUID'] = REDGL_UUID++		
+		// 인덱스 번호 지정 - 초기생성전담은 0번 인덱스를 사용함
 		this['__targetIndex'] = RedTextureIndex.CREATE
 	}
 	/**DOC:
@@ -2736,20 +2734,42 @@ var RedCubeTextureInfo;
 			title :`RedCubeTextureInfo`,
 			description : `
 				- Cube 텍스쳐 생성기
-				- <h1>실험중...이거하면서 프레임버퍼도 생성해봐야곘군..</h1>
-				- 큐브맵은 tGL.TEXTURE2 인덱스를 전용으로 쓴다.
 			`,
+			params : {
+				redGL : [
+					{type:'RedGL Instance'},
+					'텍스쳐경로나 캔버스 오브젝트만 사용가능'
+				],
+				src : [
+					{type:'Array'},
+					`
+						TEXTURE_CUBE_MAP_POSITIVE_X,
+						TEXTURE_CUBE_MAP_NEGATIVE_X,
+						TEXTURE_CUBE_MAP_POSITIVE_Y, 
+						TEXTURE_CUBE_MAP_NEGATIVE_Y,
+						TEXTURE_CUBE_MAP_POSITIVE_Z,
+						TEXTURE_CUBE_MAP_NEGATIVE_Z
+					`
+				],
+				targetIndex : [
+					{type:'Integer'},
+					'- 타겟 인덱스를 지정한다.',
+					'- 기본값 : RedTextureIndex.CUBE_REFLECTION',
+					'- RedTextureIndex.CUBE_XXX의 목록을 사용한다.'
+				]
+			},
 			return : 'RedCubeTextureInfo Instance'
 		}
 	:DOC*/
-	RedCubeTextureInfo = function (redGL, srcList) {
-		if (!(this instanceof RedCubeTextureInfo)) return new RedCubeTextureInfo(redGL, srcList)
+	RedCubeTextureInfo = function (redGL, srcList, textureIndex) {
+		if (!(this instanceof RedCubeTextureInfo)) return new RedCubeTextureInfo(redGL, srcList, textureIndex)
 		if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
 		if (!(srcList instanceof Array)) throw 'srcList는 Array만 허용됩니다.'
 		var texture;
 		var i;
 		var loadedNum;
 		var self;
+		var textureIndex;
 		self = this
 		tGL = redGL.gl
 		loadedNum = 0
@@ -2768,15 +2788,41 @@ var RedCubeTextureInfo;
 			}
 			this['__imgList'][i] = img
 		}
-
-		// 인덱스 번호 지정 - 초기생성전담은 0번 인덱스를 사용함
-		this['__targetIndex'] = RedTextureIndex.CUBE_REFLECTION
-		// 로딩이 다되었는지
+		/**DOC:
+		{
+			title :`loaded`,
+			code : 'PROPERTY',
+			description : `
+			- 텍스쳐 로딩완료여부
+			`,
+			example : `
+			인스턴스.loaded
+			`,
+			return : '0 or 1'
+		}
+		:DOC*/
 		this['loaded'] = 0
+		/**DOC:
+		{
+			title :`texture`,
+			code : 'PROPERTY',
+			description : `
+				- WebGLTexture 인스턴스
+			`,
+			example : `
+				인스턴스.loaded
+			`,
+			return : 'WebGLTexture Instance'
+		}
+		:DOC*/
+		this['texture'] = tGL.createTexture()
+		// 인덱스 번호 지정 - 초기생성전담은 0번 인덱스를 사용함
+		textureIndex = textureIndex ? textureIndex : RedTextureIndex.CUBE_REFLECTION
+		this['__targetIndex'] = RedTextureIndex.CUBE_CREATE
+		this['__allLoadedTargetIndex'] = textureIndex
 		// 웹지엘 텍스쳐인지
 		this['__webglCubeTexture'] = 1
 		this['__UUID'] = REDGL_UUID++
-		this['texture'] = tGL.createTexture()
 
 		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CUBE_CREATE)
 		tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, this['texture'])
@@ -2787,7 +2833,7 @@ var RedCubeTextureInfo;
 		// 타겟인덱스를 설정함	
 		var self
 		self = this
-		this['__targetIndex'] = RedTextureIndex.CUBE_REFLECTION
+		this['__targetIndex'] = this['__allLoadedTargetIndex']
 		console.log(this)
 		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CUBE_CREATE)
 		tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, self['texture'])
@@ -2810,15 +2856,15 @@ var RedCubeTextureInfo;
 			);
 
 		})
-		
+
 		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_MIN_FILTER, tGL.LINEAR);
 		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR);
 		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_WRAP_S, tGL.CLAMP_TO_EDGE);
 		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_WRAP_T, tGL.CLAMP_TO_EDGE);
 		tGL.generateMipmap(tGL.TEXTURE_CUBE_MAP);
-		
+
 		self['loaded'] = 1
-		
+
 	}
 })();
 "use strict";
@@ -4111,16 +4157,17 @@ var RedBaseRenderInfo;
                     tUseMapTextureKey = useMap[i3][1]
 
                     if (tProgramInfo['uniforms'][tUseMapKey]) {
-                        if (RedTextureIndex[useMap[i3][2]] == RedTextureIndex.CUBE_CREATE) {
+                        if (RedTextureIndex[useMap[i3][2]] == RedTextureIndex.CUBE_REFLECTION) {
                             if (!emptyCube) {
                                 var t;
                                 t = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NzMxRDhBQzRFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NzMxRDhBQzVFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo3MzFEOEFDMkU1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo3MzFEOEFDM0U1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuojYFUAAAAQSURBVHjaYvj//z8DQIABAAj8Av7bok0WAAAAAElFTkSuQmCC'
                                 emptyCube = redGL.createCubeTextureInfo([t, t, t, t, t, t])
                                 //TODO: 큐브전략짜야함
-                                tGL.activeTexture(tGL.TEXTURE0 + 2)
+                                tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CUBE_CREATE)
                                 tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, emptyCube['texture'])
-                                tGL.uniform1i(tProgramInfo['uniforms'][tUseMapTextureKey]['location'], 2)
+                                tGL.uniform1i(tProgramInfo['uniforms'][tUseMapTextureKey]['location'], RedTextureIndex.CUBE_CREATE)
                                 // emptyCube ['uUseReflectionTexture', 'uReflectionTexture', 'CUBE_REFLECTION']
+                               
                             }
                         }
                        
@@ -4129,6 +4176,7 @@ var RedBaseRenderInfo;
                                 tMaterial[tUseMapTextureKey]['__targetIndex'] !=undefined
                                 && tMaterial[tUseMapTextureKey]['__targetIndex'] != RedTextureIndex[useMap[i3][2]]
                             ) {
+                                console.log(tMaterial[tUseMapTextureKey])
                                 console.log(tUseMapKey, tUseMapTextureKey, tMaterial[tUseMapTextureKey]['__targetIndex'], RedTextureIndex[useMap[i3][2]])
                                 throw useMap[i3][2] + " 인덱스타입이 아닙니다."
                             }
