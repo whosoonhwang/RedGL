@@ -55,10 +55,8 @@ var RedShaderInfo;
             redGL['__datas']['shaderInfo'][RedShaderInfo.FRAGMENT_SHADER] = {}
             redGL['__datas']['shaderInfo'][RedShaderInfo.VERTEX_SHADER] = {}
         }
-        tDatas = redGL['__datas']['shaderInfo']
-        // 기존에 등록된 녀석이면 퐈이어!
-        if (tDatas[type][key]) throw key + '는 '+type+'정보에 이미 존재하는 RedShaderInfo 입니다.'
         tGL = redGL.gl
+        tDatas = redGL['__datas']['shaderInfo']
         // 쉐이더생성
         switch (type) {
             case RedShaderInfo.VERTEX_SHADER:
@@ -71,6 +69,9 @@ var RedShaderInfo;
                 throw '쉐이더 타입을 확인하세요!'
                 break
         }
+        // 기존에 등록된 녀석이면 퐈이어!
+        if (tDatas[type][key]) throw key + '는 ' + type + '정보에 이미 존재하는 RedShaderInfo 입니다.'
+        // 소스입력 및 컴파일        
         tGL.shaderSource(tShader, source)
         tGL.compileShader(tShader)
         if (!tGL.getShaderParameter(tShader, tGL.COMPILE_STATUS)) {
@@ -78,7 +79,7 @@ var RedShaderInfo;
             throw '쉐이더 컴파일에 실패하였습니다.';
         }
         parseData = source.match(/attribute[\s\S]+?\;|uniform[\s\S]+?\;/g)
-        console.log(source,parseData)
+        console.log(source, parseData)
         parseData = parseData ? parseData : []
         parseData.forEach(function (v, index) {
             parseData[index] = v.trim().replace(';', '').split('[')[0]
@@ -104,7 +105,7 @@ var RedShaderInfo;
         /**DOC:
 		{
             title :`shader`,
-			description : `실제 쉐이더`,
+			description : `실제 쉐이더(WebGLShader instance)`,
 			example : `인스턴스.shader`,
 			return : 'String'
 		}
@@ -113,7 +114,10 @@ var RedShaderInfo;
         /**DOC:
 		{
             title :`parseData`,
-			description : `쉐이더소스 내부의 attribute와 uniform정보를 추출하여 가짐.(인스턴스.parseData)`,
+            description : `
+            - 쉐이더소스 내부의 attribute와 uniform정보를 추출하여 가짐.
+            - (인스턴스.parseData)
+            `,
 			example : `인스턴스.parseData`,
 			return : 'String'
 		}
@@ -125,6 +129,34 @@ var RedShaderInfo;
         Object.freeze(this)
         // console.log(this)
     }
+    /**DOC:
+		{
+            title :`RedShaderInfo.getSourceFromScript`,
+            code: 'FUNCTION',
+			description : `
+				Script태그로보터 소스 문자열을 가져오는 스타틱 매서드
+			`,
+			example : `
+				RedShaderInfo.getSourceFromScript
+			`,
+			return : 'String'
+		}
+	:DOC*/
+    RedShaderInfo.getSourceFromScript = (function () {
+        var shaderScript
+        var str, k;
+        return function (id) {
+            shaderScript = document.getElementById(id)
+            if (!shaderScript) throw "쉐이더소스가 없음!"
+            str = "";
+            k = shaderScript.firstChild;
+            while (k) {
+                if (k.nodeType == 3) str += k.textContent;
+                k = k.nextSibling;
+            }
+            return str
+        }
+    })()
     /**DOC:
 		{
             title :`FRAGMENT_SHADER`,

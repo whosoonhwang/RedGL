@@ -5,7 +5,7 @@
         title :`RedProgramInfo`,
         description : `
             - RedProgramInfo 인스턴스 생성자
-            - <b>유일키</b>만 지원하며 키 중복일경우 기존 캐싱된 프로그램 정보를 반환함.
+            - <b>유일키</b>만 지원.
             - 프로그램 정보는 <b>Object.freeze</b> 상태로 반환됨.
         `,
         params : {
@@ -33,7 +33,14 @@
             test.createProgramInfo(
                 'basic',
                 test.getShaderInfo('basic', RedProgramInfo.VERTEX_SHADER),
-                test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER)
+                test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER),
+                function (target) {
+                    target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
+                },
+                function (target) {
+                    target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
+                }
+
             )
         `,
         return : 'RedProgramInfo Instance'
@@ -55,13 +62,14 @@ var RedProgramInfo;
         if (!initUniformValue) throw 'initUniformValue - 반드시 정의해야합니다.'
         if (!vShaderInfo instanceof RedShaderInfo) throw 'vShaderInfo - RedShaderInfo만 허용됩니다.'
         if (!fShaderInfo instanceof RedShaderInfo) throw 'fShaderInfo - RedShaderInfo만 허용됩니다.'
+        if (vShaderInfo['type'] != RedShaderInfo.VERTEX_SHADER) throw 'vShaderInfo - VERTEX_SHADER 타입만 허용됩니다.'
+        if (fShaderInfo['type'] != RedShaderInfo.FRAGMENT_SHADER) throw 'fShaderInfo - FRAGMENT_SHADER 타입만 허용됩니다.'
         // 저장할 공간확보하고
-        if (!redGL['__datas']['RedProgramInfo']) {
-            redGL['__datas']['RedProgramInfo'] = {}
-        }
+        if (!redGL['__datas']['RedProgramInfo']) redGL['__datas']['RedProgramInfo'] = {}
         tDatas = redGL['__datas']['RedProgramInfo']
-        // 기존에 등록된 녀석이면 기존 데이터 리턴
-        if (tDatas[key]) return console.log('캐싱프로그램 리턴!', key), tDatas[key]
+        // 기존에 등록된 녀석이면 퐈이어!
+        if (tDatas[key]) throw key + '는 이미 존재하는 RedProgramInfo key 입니다.'
+        self = this;
         tGL = redGL.gl
         /**DOC:
 		{
@@ -90,7 +98,7 @@ var RedProgramInfo;
 		}
 	    :DOC*/
         this['uniforms'] = {}
-        self = this;
+
         // 프로그램생성!
         tProgram = tGL.createProgram();
         console.log(key)
@@ -152,7 +160,7 @@ var RedProgramInfo;
              - 재질 초기화시 필요한 초기 값들선언.
             `,
 			example : `인스턴스.initUniformValue`,
-			return : 'Object'
+			return : 'void'
 		}
 	    :DOC*/
         this['initUniformValue'] = initUniformValue
@@ -163,7 +171,7 @@ var RedProgramInfo;
              - 재질의 텍스쳐 갱신시 실행할 매서드
             `,
 			example : `인스턴스.defineTexture`,
-			return : 'Object'
+			return : 'void'
 		}
 	    :DOC*/
         this['defineTexture'] = defineTexture

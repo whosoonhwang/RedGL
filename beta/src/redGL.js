@@ -116,20 +116,8 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 
 		instanceList.push(this)
 		console.log(shaderSourceInfo, callback)
-		if (shaderSourceInfo) RedShaderLoader(this,shaderSourceInfo, callback)
+		if (shaderSourceInfo) RedShaderLoader(this, shaderSourceInfo, callback)
 		else callback ? callback() : 0
-
-		// this.createTextureInfo('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NzMxRDhBQzRFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NzMxRDhBQzVFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo3MzFEOEFDMkU1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo3MzFEOEFDM0U1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuojYFUAAAAQSURBVHjaYvj//z8DQIABAAj8Av7bok0WAAAAAElFTkSuQmCC')
-		// this.createCubeTextureInfo(
-		// 	[
-		// 		'asset/cubemap/posx.jpg',
-		// 		'asset/cubemap/negx.jpg',
-		// 		'asset/cubemap/posy.jpg',
-		// 		'asset/cubemap/negy.jpg',
-		// 		'asset/cubemap/posz.jpg',
-		// 		'asset/cubemap/negz.jpg'
-		// 	]
-		// )
 	}
 	window.addEventListener('resize', function () {
 		instanceList.forEach(function (v) {
@@ -190,26 +178,12 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 				]
 			},
 			example : `
-				RedShaderInfo.getSourceFromScript(id)
+				인스턴스.getSourceFromScript(id)
 			`,
 			return : 'String'
 		}
 		:DOC*/
-		getSourceFromScript: (function () {
-			var shaderScript
-			var str, k;
-			return function (id) {
-				shaderScript = document.getElementById(id)
-				if (!shaderScript) throw "쉐이더소스가 없음!"
-				str = "";
-				k = shaderScript.firstChild;
-				while (k) {
-					if (k.nodeType == 3) str += k.textContent;
-					k = k.nextSibling;
-				}
-				return str
-			}
-		})(),
+		getSourceFromScript: RedShaderInfo.getSourceFromScript,
 		/**DOC:
 		{
 			title :`createShaderInfo`,
@@ -395,6 +369,13 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		createTextureInfo: function (src, targetIndex, internalFormat, format, type, callback) {
 			return new RedTextureInfo(this, src, targetIndex, internalFormat, format, type, callback)
 		},
+		/**DOC:
+		{
+			title :`createCubeTextureInfo`,
+			code : 'FUNCTION',
+			description : `큐브 텍스쳐정보 생성 단축 매서드`
+		}
+		:DOC*/
 		createCubeTextureInfo: function (srcList) {
 			return new RedCubeTextureInfo(this, srcList)
 		},
@@ -435,15 +416,43 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		createSceneInfo: function (key, camera) {
 			return new RedSceneInfo(this, key, camera)
 		},
+		/**DOC:
+		{
+			title :`createAmbientLight`,
+			code : 'FUNCTION',
+			description : `암비언트라이트 단축 생성 매서드`
+		}
+		:DOC*/
 		createAmbientLight: function () {
 			return new RedAmbientLightInfo(this)
 		},
+		/**DOC:
+		{
+			title :`createDirectionalLight`,
+			code : 'FUNCTION',
+			description : `방향광 단축 생성 매서드`
+		}
+		:DOC*/
 		createDirectionalLight: function () {
 			return new RedDirectionalLightInfo(this)
 		},
+		/**DOC:
+		{
+			title :`createPointLight`,
+			code : 'FUNCTION',
+			description : `점광 단축 생성 매서드`
+		}
+		:DOC*/
 		createPointLight: function () {
 			return new RedPointLightInfo(this)
 		},
+		/**DOC:
+		{
+			title :`createSkyBoxInfo`,
+			code : 'FUNCTION',
+			description : `스카이박스 단축 생성 매서드`
+		}
+		:DOC*/
 		createSkyBoxInfo: function (srcList) {
 			return new RedSkyBoxInfo(this, srcList)
 		},
@@ -473,6 +482,13 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		getBaseCameraInfo: function (key) {
 			return this['__datas']['RedBaseCameraInfo'][key]
 		},
+		/**DOC:
+		{
+			title :`createBaseRenderInfo`,
+			code : 'FUNCTION',
+			description : `렌더러 단축 생성 매서드`
+		}
+		:DOC*/
 		createBaseRenderInfo: function (redScene, callback) {
 			return new RedBaseRenderInfo(this, redScene, callback)
 		}
