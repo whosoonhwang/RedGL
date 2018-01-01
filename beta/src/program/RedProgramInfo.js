@@ -57,13 +57,13 @@ var RedProgramInfo;
     tList = []
     RedProgramInfo = function (redGL, key, vShaderInfo, fShaderInfo, initUniformValue, defineTexture) {
         if (!(this instanceof RedProgramInfo)) return new RedProgramInfo(redGL, key, vShaderInfo, fShaderInfo, initUniformValue, defineTexture)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof key != 'string') throw 'key - 문자열만 허용됩니다.'
-        if (!initUniformValue) throw 'initUniformValue - 반드시 정의해야합니다.'
-        if (!vShaderInfo instanceof RedShaderInfo) throw 'vShaderInfo - RedShaderInfo만 허용됩니다.'
-        if (!fShaderInfo instanceof RedShaderInfo) throw 'fShaderInfo - RedShaderInfo만 허용됩니다.'
-        if (vShaderInfo['type'] != RedShaderInfo.VERTEX_SHADER) throw 'vShaderInfo - VERTEX_SHADER 타입만 허용됩니다.'
-        if (fShaderInfo['type'] != RedShaderInfo.FRAGMENT_SHADER) throw 'fShaderInfo - FRAGMENT_SHADER 타입만 허용됩니다.'
+        if (!(redGL instanceof RedGL)) throw 'RedProgramInfo : RedGL 인스턴스만 허용됩니다.'
+        if (typeof key != 'string') throw 'RedProgramInfo : key - 문자열만 허용됩니다.'
+        if (!initUniformValue) throw 'RedProgramInfo : initUniformValue - 반드시 정의해야합니다.'
+        if (!vShaderInfo instanceof RedShaderInfo) throw 'RedProgramInfo : vShaderInfo - RedShaderInfo만 허용됩니다.'
+        if (!fShaderInfo instanceof RedShaderInfo) throw 'RedProgramInfo : fShaderInfo - RedShaderInfo만 허용됩니다.'
+        if (vShaderInfo['type'] != RedShaderInfo.VERTEX_SHADER) throw 'RedProgramInfo : vShaderInfo - VERTEX_SHADER 타입만 허용됩니다.'
+        if (fShaderInfo['type'] != RedShaderInfo.FRAGMENT_SHADER) throw 'RedProgramInfo : fShaderInfo - FRAGMENT_SHADER 타입만 허용됩니다.'
         // 저장할 공간확보하고
         if (!redGL['__datas']['RedProgramInfo']) redGL['__datas']['RedProgramInfo'] = {}
         tDatas = redGL['__datas']['RedProgramInfo']

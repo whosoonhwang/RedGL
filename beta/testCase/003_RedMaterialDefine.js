@@ -18,12 +18,12 @@ redSuite(
     "RedMaterialDefine Test",
     redGroup(
         "RedMaterialDefine Test",
-        redTest("RedMaterialDefine - 정의 테스트", function (unit) {
+        redTest("정의 테스트", function (unit) {
             var t0;
             t0 = RedMaterialDefine(testGL, testGL.getProgramInfo('basic'))
             unit.run(t0.programInfo)
         }, testGL.getProgramInfo('basic')),
-        redTest("RedMaterialDefine - 중복정의 방지 테스트", function (unit) {
+        redTest("중복정의 방지 테스트", function (unit) {
             var t0;
             t0 = true
             try {
@@ -36,7 +36,7 @@ redSuite(
     ),
     redGroup(
         '벨리데이션 확인',
-        redTest("RedMaterialDefine - RedGL 인스턴스만허용 : redGL", function (unit) {
+        redTest("RedGL 인스턴스만허용 : redGL", function (unit) {
             var t0;
             t0 = true
             testGL.createProgramInfo(
@@ -52,7 +52,7 @@ redSuite(
             }
             unit.run(t0)
         }, false),
-        redTest("RedMaterialDefine - RedProgramInfo 인스턴스만허용 : type", function (unit) {
+        redTest("RedProgramInfo 인스턴스만허용 : programInfo", function (unit) {
             var t0;
             t0 = true
             testGL.createProgramInfo(
@@ -71,7 +71,7 @@ redSuite(
     ),
     redGroup(
         'Object.freeze 확인',
-        redTest("RedMaterialDefine - 인스턴스 freeze 확인", function (unit) {
+        redTest("인스턴스 freeze 확인", function (unit) {
             var t0, t1;
             testGL.createProgramInfo(
                 'test3',

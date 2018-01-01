@@ -46,8 +46,6 @@ var RedCubeTextureInfo;
 		this['__targetIndex'] = RedTextureIndex.CUBE_REFLECTION
 		// 로딩이 다되었는지
 		this['loaded'] = 0
-		// 액티브된적이있는지
-		this['actived'] = 0
 		// 웹지엘 텍스쳐인지
 		this['__webglCubeTexture'] = 1
 		this['__UUID'] = REDGL_UUID++

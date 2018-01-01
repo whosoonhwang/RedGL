@@ -45,10 +45,10 @@ var RedShaderInfo;
     var tDatas;
     RedShaderInfo = function (redGL, key, type, source) {
         if (!(this instanceof RedShaderInfo)) return new RedShaderInfo(redGL, key, type, source)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof key != 'string') throw 'key - 문자열만 허용됩니다.'
-        if (typeof type != 'string') throw 'type - 문자열만 허용됩니다.'
-        if (typeof source != 'string') throw 'source - 문자열만 허용됩니다.'
+        if (!(redGL instanceof RedGL)) throw 'RedShaderInfo : RedGL 인스턴스만 허용됩니다.'
+        if (typeof key != 'string') throw 'RedShaderInfo : key - 문자열만 허용됩니다.'
+        if (typeof type != 'string') throw 'RedShaderInfo : type - 문자열만 허용됩니다.'
+        if (typeof source != 'string') throw 'RedShaderInfo : source - 문자열만 허용됩니다.'
         // 저장할 공간확보하고
         if (!redGL['__datas']['shaderInfo']) {
             redGL['__datas']['shaderInfo'] = {}
@@ -66,7 +66,7 @@ var RedShaderInfo;
                 tShader = tGL.createShader(tGL.FRAGMENT_SHADER);
                 break
             default:
-                throw '쉐이더 타입을 확인하세요!'
+                throw 'RedShaderInfo : 쉐이더 타입을 확인하세요!'
                 break
         }
         // 기존에 등록된 녀석이면 퐈이어!
