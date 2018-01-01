@@ -38,8 +38,8 @@ var RedCubeTextureInfo;
 	:DOC*/
 	RedCubeTextureInfo = function (redGL, srcList, textureIndex) {
 		if (!(this instanceof RedCubeTextureInfo)) return new RedCubeTextureInfo(redGL, srcList, textureIndex)
-		if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-		if (!(srcList instanceof Array)) throw 'srcList는 Array만 허용됩니다.'
+		if (!(redGL instanceof RedGL)) throw 'RedCubeTextureInfo : RedGL 인스턴스만 허용됩니다.'
+		if (!(srcList instanceof Array)) throw 'RedCubeTextureInfo : srcList는 Array만 허용됩니다.'
 		var texture;
 		var i;
 		var loadedNum;
@@ -53,7 +53,11 @@ var RedCubeTextureInfo;
 		this['__imgList'] = []
 		while (i--) {
 			var img = new Image()
-			img.src = srcList[i]
+			var tSrc
+			tSrc = srcList[i]
+			if (tSrc != undefined && typeof tSrc != 'string' && !(tSrc instanceof Element && tSrc.nodeName == 'CANVAS')) throw 'RedTextureInfo : src는 문자열과 캔버스 오브젝트만 허용됩니다.'
+			img.src = tSrc instanceof Element ? tSrc.toDataURL() : tSrc
+			console.log(img.src)
 			img.onload = function () {
 				loadedNum++
 				this.onload = null

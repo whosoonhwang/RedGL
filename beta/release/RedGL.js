@@ -2614,6 +2614,7 @@ var RedTextureInfo;
 	RedTextureInfo = function (redGL, src, targetIndex, internalFormat, format, type) {
 		if (!(this instanceof RedTextureInfo)) return new RedTextureInfo(redGL, src, targetIndex, internalFormat, format, type)
 		if (!(redGL instanceof RedGL)) throw 'RedTextureInfo : RedGL 인스턴스만 허용됩니다.'
+		if (src == undefined) throw 'RedTextureInfo : src는 문자열과 캔버스 오브젝트만 허용됩니다.'
 		if (src != undefined && typeof src != 'string' && !(src instanceof Element && src.nodeName == 'CANVAS')) throw 'RedTextureInfo : src는 문자열과 캔버스 오브젝트만 허용됩니다.'
 		var texture;
 		var img;
@@ -2622,6 +2623,7 @@ var RedTextureInfo;
 		var height = 1;
 		var border = 0;
 		var self;
+		
 		console.log(src)
 		self = this
 		tGL = redGL.gl
@@ -2648,7 +2650,9 @@ var RedTextureInfo;
 		)
 		img = new Image();
 		// 캔버스 일경우 캔버스이미지데이터를 활용함
+		console.log('src instanceof Element',src,src instanceof Element)
 		if (src != undefined) img.src = src instanceof Element ? src.toDataURL() : src
+	
 		img.crossOrigin = 'anonymous'
 		img.addEventListener('load', function () {
 			console.log('여기')
@@ -2763,8 +2767,8 @@ var RedCubeTextureInfo;
 	:DOC*/
 	RedCubeTextureInfo = function (redGL, srcList, textureIndex) {
 		if (!(this instanceof RedCubeTextureInfo)) return new RedCubeTextureInfo(redGL, srcList, textureIndex)
-		if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-		if (!(srcList instanceof Array)) throw 'srcList는 Array만 허용됩니다.'
+		if (!(redGL instanceof RedGL)) throw 'RedCubeTextureInfo : RedGL 인스턴스만 허용됩니다.'
+		if (!(srcList instanceof Array)) throw 'RedCubeTextureInfo : srcList는 Array만 허용됩니다.'
 		var texture;
 		var i;
 		var loadedNum;
@@ -2778,7 +2782,11 @@ var RedCubeTextureInfo;
 		this['__imgList'] = []
 		while (i--) {
 			var img = new Image()
-			img.src = srcList[i]
+			var tSrc
+			tSrc = srcList[i]
+			if (tSrc != undefined && typeof tSrc != 'string' && !(tSrc instanceof Element && tSrc.nodeName == 'CANVAS')) throw 'RedTextureInfo : src는 문자열과 캔버스 오브젝트만 허용됩니다.'
+			img.src = tSrc instanceof Element ? tSrc.toDataURL() : tSrc
+			console.log(img.src)
 			img.onload = function () {
 				loadedNum++
 				this.onload = null

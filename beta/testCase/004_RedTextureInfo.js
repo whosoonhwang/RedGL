@@ -1,6 +1,6 @@
 "use strict";
 var testGL = RedGL(Recard.Dom('canvas').S('width', 1000, 'height', 1000).__dom__)
-var testTexture = RedGL(Recard.Dom('canvas').S('width', 512, 'height', 512).__dom__)
+var testTexture = Recard.Dom('canvas').S('width', 512, 'height', 512).__dom__
 redSuite(
     "RedTextureInfo Test",
     redGroup(
@@ -23,7 +23,7 @@ redSuite(
             var t0;
             t0 = true
             try {
-                RedTextureInfo(testGL, testTexture.__dom__)
+                RedTextureInfo(testGL, testTexture)
             } catch (error) {
                 t0 = false
             }
@@ -61,6 +61,17 @@ redSuite(
                 }
             })
         }, RedTextureIndex.NORMAL),
+        redTest("정의 테스트 : __targetIndex (정의값)", function (unit) {
+            var t0;
+            var t1;
+            t0 = RedTextureInfo(testGL, testTexture, RedTextureIndex.NORMAL)
+            t1 = setInterval(function () {
+                if (t0['loaded']) {
+                    unit.run(t0['__targetIndex'])
+                    clearInterval(t1)
+                }
+            })
+        }, RedTextureIndex.NORMAL),
         redTest("정의 테스트 : updateTexture", function (unit) {
             var t0;
             var t1;
@@ -72,7 +83,7 @@ redSuite(
                     t1 = setInterval(function () {
                         if (t0['loaded']) {
                             clearInterval(t1)
-                            console.log(t0['__img'])
+                            // console.log(t0['__img'])
                             unit.run(t0['__img'].src.indexOf('draft1.png') > -1)
                         }
                     })
