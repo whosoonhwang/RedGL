@@ -9,7 +9,9 @@ start = function () {
 	var testEnvironmentMap
 	setTestUI = function () {
 		var gui = new dat.GUI();
-		gui.add(testEnvironmentMap, 'uShininess', 1, 255);		
+		gui.add(testEnvironmentMap, 'uShininess', 1, 255);
+		gui.add(testEnvironmentMap, 'uSpecularPower', -1, 1);
+				
 		gui.add(testEnvironmentMap, 'uDisplacementPower', -2, 2);
 		gui.add(testEnvironmentMap, 'uReflectionPower', 0, 1);
 		gui.add(testEnvironmentMap, 'uNormalPower', -1, 1);
@@ -55,6 +57,7 @@ start = function () {
 	// 재질정의
 	var testPhongDiffuseTexture = testGL.createTextureInfo('asset/fieldstone.jpg')
 	var testNormalTexture = testGL.createTextureInfo('asset/fieldstone-normal.jpg', RedTextureIndex.NORMAL)
+	var testSpecularTexture = testGL.createTextureInfo('asset/tile/specular.png', RedTextureIndex.SPECULAR)
 	var testDisplacementTexture = testGL.createTextureInfo('asset/displacement.jpg', RedTextureIndex.DISPLACEMENT)
 	testScene.setSkyBox(
 		testGL.createSkyBoxInfo([
@@ -71,7 +74,7 @@ start = function () {
 		testPhongDiffuseTexture,
 		testNormalTexture,
 		testDisplacementTexture,
-		null,
+		testSpecularTexture,
 		RedCubeTextureInfo(testGL, [
 			'asset/cubemap/posx.jpg',
 			'asset/cubemap/negx.jpg',
@@ -94,7 +97,7 @@ start = function () {
 	testScene.addLight(testLight)
 
 	// 디렉셔널 라이트 테스트
-	var i = 1
+	var i = 3
 	while (i--) {
 		var testLight = testGL.createDirectionalLight(testGL)
 		// testLight.color[0] = Math.random()
@@ -107,7 +110,7 @@ start = function () {
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	// 렌더러 생성!!!!
 	var renderer = testGL.createBaseRenderInfo(testScene, function (time) {
-		testCamera.setPosition(Math.sin(time / 2000) * 60, 50, Math.cos(time / 5000) * 40)
+		testCamera.setPosition(Math.sin(time / 2000) * 30, 30, Math.cos(time / 5000) * 30)
 		testCamera.lookAt([0, 0, 0])
 		var max = testScene['lights']['directional'].length
 		i = testScene['lights']['directional'].length
@@ -155,9 +158,12 @@ testGL = RedGL(document.getElementById('test'), start, true, [
 		initUniformValue: function (target) {
 			target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
 			target.materialUniforms.uShininess = 16
+			target.materialUniforms.uSpecularPower = 1
 			target.materialUniforms.uReflectionPower = 0.5
 			target.materialUniforms.uNormalPower = 1
 			target.materialUniforms.uDisplacementPower = 1
+			
+			
 		},
 		defineTexture: function (target) {
 			target.materialUniforms[RedMaterialInfo.DIFFUSE_TEXTURE] = target['uDiffuseTexture']

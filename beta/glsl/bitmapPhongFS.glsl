@@ -11,6 +11,8 @@ uniform int uUseSpecularTexture; // 노말텍스쳐 사용여부
 uniform int uUseReflectionTexture; // 노말텍스쳐 사용여부
 uniform float uReflectionPower; // 반사강도
 uniform float uNormalPower; // 노멀강도
+uniform float uSpecularPower; // 스페큘러강도
+
 varying vec2 vTexcoord;
 varying vec3 vEyeVec;
 varying vec3 vNormal;
@@ -62,11 +64,11 @@ void main(void) {
     if(texelColor.a==0.0) discard;
     E = normalize(vEyeVec);
     
-    if(uUseNormalTexture == 1) N = normalize(2.0 * (normalize(vNormal) + texture2D(uNormalTexture, vTexcoord).rgb - 0.5)) * uNormalPower;
+    if(uUseNormalTexture == 1) N = normalize(2.0 * (normalize(vNormal) + texture2D(uNormalTexture, vTexcoord).rgb * uNormalPower - 0.5)) ;
     else N = normalize(vNormal);
 
     specularTextureValue = 1.0;
-    if(uUseSpecularTexture == 1) specularTextureValue = texture2D(uSpecularTexture, vTexcoord).r ;
+    if(uUseSpecularTexture == 1) specularTextureValue = texture2D(uSpecularTexture, vTexcoord).r * uSpecularPower ;
 
     if(uUseReflectionTexture == 1) {
         reflectionColor = textureCube(uReflectionTexture, vReflectionCubeCoord+N);

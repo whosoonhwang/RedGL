@@ -235,6 +235,7 @@ testGL = RedGL(document.getElementById('test'), start, true, [
 		initUniformValue: function (target) {
 			target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
 			target.materialUniforms.uShininess = 16
+			target.materialUniforms.uSpecularPower = 1
 			target.materialUniforms.uReflectionPower = 0.5
 			target.materialUniforms.uNormalPower = 1
 			target.materialUniforms.uDisplacementPower = 1
