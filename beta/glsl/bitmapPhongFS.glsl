@@ -64,7 +64,10 @@ void main(void) {
     if(texelColor.a==0.0) discard;
     E = normalize(vEyeVec);
     
-    if(uUseNormalTexture == 1) N = normalize(2.0 * (normalize(vNormal) + texture2D(uNormalTexture, vTexcoord).rgb * uNormalPower - 0.5)) ;
+    if(uUseNormalTexture == 1) {
+        N = normalize(2.0 * (normalize(vNormal) + texture2D(uNormalTexture, vTexcoord).rgb  - 0.5));
+        N.xy *= uNormalPower;
+     }
     else N = normalize(vNormal);
 
     specularTextureValue = 1.0;
