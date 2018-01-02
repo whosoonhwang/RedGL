@@ -73,20 +73,18 @@ var RedShaderInfo;
     var tDatas;
     RedShaderInfo = function (redGL, key, type, source) {
         if (!(this instanceof RedShaderInfo)) return new RedShaderInfo(redGL, key, type, source)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof key != 'string') throw 'key - 문자열만 허용됩니다.'
-        if (typeof type != 'string') throw 'type - 문자열만 허용됩니다.'
-        if (typeof source != 'string') throw 'source - 문자열만 허용됩니다.'
+        if (!(redGL instanceof RedGL)) throw 'RedShaderInfo : RedGL 인스턴스만 허용됩니다.'
+        if (typeof key != 'string') throw 'RedShaderInfo : key - 문자열만 허용됩니다.'
+        if (typeof type != 'string') throw 'RedShaderInfo : type - 문자열만 허용됩니다.'
+        if (typeof source != 'string') throw 'RedShaderInfo : source - 문자열만 허용됩니다.'
         // 저장할 공간확보하고
         if (!redGL['__datas']['shaderInfo']) {
             redGL['__datas']['shaderInfo'] = {}
             redGL['__datas']['shaderInfo'][RedShaderInfo.FRAGMENT_SHADER] = {}
             redGL['__datas']['shaderInfo'][RedShaderInfo.VERTEX_SHADER] = {}
         }
-        tDatas = redGL['__datas']['shaderInfo']
-        // 기존에 등록된 녀석이면 퐈이어!
-        if (tDatas[type][key]) throw key + '는 '+type+'정보에 이미 존재하는 RedShaderInfo 입니다.'
         tGL = redGL.gl
+        tDatas = redGL['__datas']['shaderInfo']
         // 쉐이더생성
         switch (type) {
             case RedShaderInfo.VERTEX_SHADER:
@@ -96,9 +94,12 @@ var RedShaderInfo;
                 tShader = tGL.createShader(tGL.FRAGMENT_SHADER);
                 break
             default:
-                throw '쉐이더 타입을 확인하세요!'
+                throw 'RedShaderInfo : 쉐이더 타입을 확인하세요!'
                 break
         }
+        // 기존에 등록된 녀석이면 퐈이어!
+        if (tDatas[type][key]) throw key + '는 ' + type + '정보에 이미 존재하는 RedShaderInfo 입니다.'
+        // 소스입력 및 컴파일        
         tGL.shaderSource(tShader, source)
         tGL.compileShader(tShader)
         if (!tGL.getShaderParameter(tShader, tGL.COMPILE_STATUS)) {
@@ -106,7 +107,7 @@ var RedShaderInfo;
             throw '쉐이더 컴파일에 실패하였습니다.';
         }
         parseData = source.match(/attribute[\s\S]+?\;|uniform[\s\S]+?\;/g)
-        console.log(source,parseData)
+        console.log(source, parseData)
         parseData = parseData ? parseData : []
         parseData.forEach(function (v, index) {
             parseData[index] = v.trim().replace(';', '').split('[')[0]
@@ -132,7 +133,7 @@ var RedShaderInfo;
         /**DOC:
 		{
             title :`shader`,
-			description : `실제 쉐이더`,
+			description : `실제 쉐이더(WebGLShader instance)`,
 			example : `인스턴스.shader`,
 			return : 'String'
 		}
@@ -141,7 +142,10 @@ var RedShaderInfo;
         /**DOC:
 		{
             title :`parseData`,
-			description : `쉐이더소스 내부의 attribute와 uniform정보를 추출하여 가짐.(인스턴스.parseData)`,
+            description : `
+            - 쉐이더소스 내부의 attribute와 uniform정보를 추출하여 가짐.
+            - (인스턴스.parseData)
+            `,
 			example : `인스턴스.parseData`,
 			return : 'String'
 		}
@@ -153,6 +157,34 @@ var RedShaderInfo;
         Object.freeze(this)
         // console.log(this)
     }
+    /**DOC:
+		{
+            title :`RedShaderInfo.getSourceFromScript`,
+            code: 'FUNCTION',
+			description : `
+				Script태그로보터 소스 문자열을 가져오는 스타틱 매서드
+			`,
+			example : `
+				RedShaderInfo.getSourceFromScript
+			`,
+			return : 'String'
+		}
+	:DOC*/
+    RedShaderInfo.getSourceFromScript = (function () {
+        var shaderScript
+        var str, k;
+        return function (id) {
+            shaderScript = document.getElementById(id)
+            if (!shaderScript) throw "쉐이더소스가 없음!"
+            str = "";
+            k = shaderScript.firstChild;
+            while (k) {
+                if (k.nodeType == 3) str += k.textContent;
+                k = k.nextSibling;
+            }
+            return str
+        }
+    })()
     /**DOC:
 		{
             title :`FRAGMENT_SHADER`,
@@ -190,7 +222,7 @@ var RedShaderInfo;
         title :`RedProgramInfo`,
         description : `
             - RedProgramInfo 인스턴스 생성자
-            - <b>유일키</b>만 지원하며 키 중복일경우 기존 캐싱된 프로그램 정보를 반환함.
+            - <b>유일키</b>만 지원.
             - 프로그램 정보는 <b>Object.freeze</b> 상태로 반환됨.
         `,
         params : {
@@ -218,7 +250,14 @@ var RedShaderInfo;
             test.createProgramInfo(
                 'basic',
                 test.getShaderInfo('basic', RedProgramInfo.VERTEX_SHADER),
-                test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER)
+                test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER),
+                function (target) {
+                    target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
+                },
+                function (target) {
+                    target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
+                }
+
             )
         `,
         return : 'RedProgramInfo Instance'
@@ -233,20 +272,21 @@ var RedProgramInfo;
     var self;
     var tList;
     tList = []
-    RedProgramInfo = function (redGL, key, vShaderInfo, fShaderInfo, makeUniformValue) {
-        if (!(this instanceof RedProgramInfo)) return new RedProgramInfo(redGL, key, vShaderInfo, fShaderInfo, makeUniformValue)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof key != 'string') throw 'key - 문자열만 허용됩니다.'
-        if( !makeUniformValue) throw 'makeUniformValue - 반드시 정의해야합니다.'
-        if (!vShaderInfo instanceof RedShaderInfo) throw 'vShaderInfo - RedShaderInfo만 허용됩니다.'
-        if (!fShaderInfo instanceof RedShaderInfo) throw 'fShaderInfo - RedShaderInfo만 허용됩니다.'
+    RedProgramInfo = function (redGL, key, vShaderInfo, fShaderInfo, initUniformValue, defineTexture) {
+        if (!(this instanceof RedProgramInfo)) return new RedProgramInfo(redGL, key, vShaderInfo, fShaderInfo, initUniformValue, defineTexture)
+        if (!(redGL instanceof RedGL)) throw 'RedProgramInfo : RedGL 인스턴스만 허용됩니다.'
+        if (typeof key != 'string') throw 'RedProgramInfo : key - 문자열만 허용됩니다.'
+        if (!initUniformValue) throw 'RedProgramInfo : initUniformValue - 반드시 정의해야합니다.'
+        if (!vShaderInfo instanceof RedShaderInfo) throw 'RedProgramInfo : vShaderInfo - RedShaderInfo만 허용됩니다.'
+        if (!fShaderInfo instanceof RedShaderInfo) throw 'RedProgramInfo : fShaderInfo - RedShaderInfo만 허용됩니다.'
+        if (vShaderInfo['type'] != RedShaderInfo.VERTEX_SHADER) throw 'RedProgramInfo : vShaderInfo - VERTEX_SHADER 타입만 허용됩니다.'
+        if (fShaderInfo['type'] != RedShaderInfo.FRAGMENT_SHADER) throw 'RedProgramInfo : fShaderInfo - FRAGMENT_SHADER 타입만 허용됩니다.'
         // 저장할 공간확보하고
-        if (!redGL['__datas']['RedProgramInfo']) {
-            redGL['__datas']['RedProgramInfo'] = {}
-        }
+        if (!redGL['__datas']['RedProgramInfo']) redGL['__datas']['RedProgramInfo'] = {}
         tDatas = redGL['__datas']['RedProgramInfo']
-        // 기존에 등록된 녀석이면 기존 데이터 리턴
-        if (tDatas[key]) return console.log('캐싱프로그램 리턴!', key), tDatas[key]
+        // 기존에 등록된 녀석이면 퐈이어!
+        if (tDatas[key]) throw key + '는 이미 존재하는 RedProgramInfo key 입니다.'
+        self = this;
         tGL = redGL.gl
         /**DOC:
 		{
@@ -275,15 +315,16 @@ var RedProgramInfo;
 		}
 	    :DOC*/
         this['uniforms'] = {}
-        self = this;
+
         // 프로그램생성!
         tProgram = tGL.createProgram();
+        console.log(key)
         tGL.attachShader(tProgram, vShaderInfo['shader'])
         tGL.attachShader(tProgram, fShaderInfo['shader'])
         tGL.linkProgram(tProgram)
         // 프로그램 링크 확인
         if (!tGL.getProgramParameter(tProgram, tGL.LINK_STATUS)) throw "프로그램을 초기화 할 수 없습니다." +
-        tGL.useProgram(tProgram);
+            tGL.useProgram(tProgram);
         info = {}
         tList.length = 0
         tList.push(vShaderInfo, fShaderInfo)
@@ -300,7 +341,7 @@ var RedProgramInfo;
                         self['attributes'][v[2]] = tInfo
                     } else {
                         tInfo['location'] = tGL.getUniformLocation(tProgram, v[2]);
-                        if(tInfo['location']) tInfo['location']['__UUID'] = REDGL_UUID++
+                        if (tInfo['location']) tInfo['location']['__UUID'] = REDGL_UUID++
                         tInfo['type'] = v[1]
                         self['uniforms'][v[2]] = tInfo
                     }
@@ -331,16 +372,26 @@ var RedProgramInfo;
         this['__UUID'] = REDGL_UUID++
         /**DOC:
 		{
-            title :`makeUniformValue`,
+            title :`initUniformValue`,
             description : `
-             - 재질마다 필요한 유니폼에대한 정의를 내리는 함수.
-             - RedMaterialDefine에 의해 재질을 정의할때 이 함수가 호출되어 재질이 알고있어야 할 유니폼정보가 추가된다. 
+             - 재질 초기화시 필요한 초기 값들선언.
             `,
-			example : `인스턴스.makeUniformValue`,
-			return : 'Object'
+			example : `인스턴스.initUniformValue`,
+			return : 'void'
 		}
 	    :DOC*/
-        this['makeUniformValue'] = makeUniformValue
+        this['initUniformValue'] = initUniformValue
+        /**DOC:
+		{
+            title :`defineTexture`,
+            description : `
+             - 재질의 텍스쳐 갱신시 실행할 매서드
+            `,
+			example : `인스턴스.defineTexture`,
+			return : 'void'
+		}
+	    :DOC*/
+        this['defineTexture'] = defineTexture
         // 캐싱
         tDatas[key] = this
         Object.freeze(this)
@@ -348,370 +399,6 @@ var RedProgramInfo;
     }
 
     Object.freeze(RedProgramInfo)
-})();
-"use strict";
-var RedBaseCameraInfo;
-/**DOC:
-    {
-        constructorYn : true,
-        title :`RedBaseCameraInfo`,
-        description : `
-            - RedBaseCameraInfo 가장 기본적인 카메라 생성기
-        `,
-        example : `
-            testGL.createBaseCameraInfo('testCamera')
-        `,
-        return : 'RedBaseCameraInfo Instance'
-    }
-:DOC*/
-(function () {
-    var tDatas;
-    RedBaseCameraInfo = function (redGL, key) {
-        if (!(this instanceof RedBaseCameraInfo)) return new RedBaseCameraInfo(redGL, key)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof key != 'string') throw 'key는 문자열만 허용됩니다.'
-        var aspect
-        // 저장할 공간확보하고
-        if (!redGL['__datas']['RedBaseCameraInfo']) redGL['__datas']['RedBaseCameraInfo'] = {}
-        tDatas = redGL['__datas']['RedBaseCameraInfo']
-        // 기존에 등록된 녀석이면 퐈이어!
-        if (tDatas[key]) throw key + '는 이미 존재하는 RedBaseCameraInfo 입니다.'
-        /**DOC:
-            {
-                title :`uPMatrix`,
-                code : 'PROPERTY',
-                description : `
-                    - 퍼스펙티브 매트릭스
-                    - 고정유니폼으로서 쉐이더내에 uPMatrix 유니폼과 연동된다.
-                `,
-                return : 'mat4(Float32Arrat)'
-            }
-        :DOC*/
-        Object.defineProperty(this, 'uPMatrix', {
-            value: mat4.create(),
-            enumerable: true
-        })
-        /**DOC:
-            {
-                title :`uCameraMatrix`,
-                description : `
-                    - 카메라 매트릭스
-                    - 고정유니폼으로서 쉐이더내에 uCameraMatrix 유니폼과 연동된다.
-                `,
-                return : 'mat4(Float32Arrat)'
-            }
-        :DOC*/
-        Object.defineProperty(this, 'uCameraMatrix', {
-            value: mat4.create(),
-            enumerable: true
-        })
-        /**DOC:
-            {
-                title :`fov`,
-                description : `
-                    - 카메라 fov
-                    - 기본값 45(실제 연산시에는 라디안으로 적용해서 계산됨)
-                `,
-                return : 'Number'
-            }
-        :DOC*/
-        this['fov'] = 45
-        /**DOC:
-            {
-                title :`aspect`,
-                description : `- 카메라 aspect`,
-                return : 'Number'
-            }
-        :DOC*/
-        this['aspect'] = 0.1;
-        /**DOC:
-            {
-                title :`near`,
-                description : `
-                    - 카메라 near
-                    - 기본값 0.1
-                `,
-                return : 'Number'
-            }
-        :DOC*/
-        this['near'] = 0.1
-        /**DOC:
-            {
-                title :`far`,
-                description : `
-                    - 카메라 far
-                    - 기본값 1000.0
-                `,
-                return : 'Number'
-            }
-        :DOC*/
-        this['far'] = 1000.0
-        Object.defineProperty(this, '__desiredCoords', {
-            value: new Float32Array([0, 0, 0]),
-            enumerable: true
-        })
-        Object.defineProperty(this, '__desiredRotation', {
-            value: new Float32Array([0, 0, 0]),
-            enumerable: true
-        })
-        this['__UUID'] = REDGL_UUID++
-        this['__canvas'] = redGL.__canvas
-        this.update()
-        // 캐싱
-        tDatas[key] = this
-    }
-    var tempRotationMTX = mat4.create()
-    RedBaseCameraInfo.prototype = {
-        /**DOC:
-            {
-                title :`setPosition`,
-                code : 'FUNCTION',
-                description : `
-                    - 포지션 설정매서드.
-                `,
-                params : {
-                    x : [
-                        {type:'Number'},
-                        `x포지션`
-                    ],
-                    y : [
-                        {type:'Number'},
-                        `y포지션`
-                    ],
-                    z : [
-                        {type:'Number'},
-                        `z포지션`
-                    ]
-                },
-                return : 'RedBaseCameraInfo Instance'
-            }
-        :DOC*/
-        setPosition: function (x, y, z) {
-            this['__desiredCoords'][0] = x
-            this['__desiredCoords'][1] = y
-            this['__desiredCoords'][2] = z
-            return this
-        },
-        /**DOC:
-            {
-                title :`moveForward`,
-                code : 'FUNCTION',
-                description : `
-                    - TODO: 카메라 시점에서 앞으로 이동
-                `,
-                return : 'RedBaseCameraInfo Instance'
-            }
-        :DOC*/
-        moveForward: function (v) {
-            //TODO:
-        },
-        /**DOC:
-            {
-                title :`moveBack`,
-                code : 'FUNCTION',
-                description : `
-                    - TODO: 카메라 시점에서 뒤로 이동
-                `,
-                return : 'RedBaseCameraInfo Instance'
-            }
-        :DOC*/
-        moveBack: function (v) {
-            //TODO:
-        },
-        /**DOC:
-            {
-                title :`moveLeft`,
-                code : 'FUNCTION',
-                description : `
-                    - TODO: 카메라 시점에서 왼쪽으로 이동
-                `,
-                return : 'RedBaseCameraInfo Instance'
-            }
-        :DOC*/
-        moveLeft: function (v) {
-            //TODO:
-        },
-        /**DOC:
-            {
-                title :`moveRight`,
-                code : 'FUNCTION',
-                description : `
-                    - TODO: 카메라 시점에서 오른쪽으로 이동
-                `,
-                return : 'RedBaseCameraInfo Instance'
-            }
-        :DOC*/
-        moveRight: function (v) {
-            //TODO:
-        },
-        /**DOC:
-            {
-                title :`moveUp`,
-                code : 'FUNCTION',
-                description : `
-                    - TODO: 카메라 시점에서 위로 이동
-                `,
-                return : 'RedBaseCameraInfo Instance'
-            }
-        :DOC*/
-        moveUp: function (v) {
-            //TODO:
-        },
-        /**DOC:
-            {
-                title :`moveDown`,
-                code : 'FUNCTION',
-                description : `
-                    - TODO: 카메라 시점에서 아래로 이동
-                `,
-                return : 'RedBaseCameraInfo Instance'
-            }
-        :DOC*/
-        moveDown: function (v) {
-            //TODO:
-        },
-        /**DOC:
-            {
-                title :`lookAt`,
-                code : 'FUNCTION',
-                description : `
-                    - 카메라가 targetPosition을 바라보게 설정함.
-                `,
-                params : {
-                    targetPosition : [
-                        {type:'position vec3(Float32Array)'},
-                        `바라볼 포지션`
-                    ]
-                },
-                return : 'RedBaseCameraInfo Instance'
-            }
-        :DOC*/
-        lookAt: (function () {
-            var up = new Float32Array([0, 1, 0]);
-            return function (targetPosition) {
-                //out, eye, center, up
-                mat4.lookAt(this['uCameraMatrix'], this['__desiredCoords'], targetPosition, up);
-            }
-        })(),
-        /**DOC:
-            {
-                title :`update`,
-                code : 'FUNCTION',
-                description : `
-                    - 퍼스팩티브업데이트
-                `,
-                return : 'RedBaseCameraInfo Instance'
-            }
-        :DOC*/
-        update: (function () {
-            return function () {
-                // 퍼스펙티브만 관여
-                this['aspect'] = this['__canvas'].clientWidth / this['__canvas'].clientHeight
-                mat4.identity(this['uPMatrix'])
-                mat4.perspective(this['uPMatrix'], this['fov'] * Math.PI / 180, this['aspect'], this['near'], this['far'])
-                return this
-            }
-        })()
-    }
-    Object.freeze(RedBaseCameraInfo)
-})();
-
-"use strict";
-var RedCubeTextureInfo;
-(function () {
-	var tGL;
-	/**DOC:
-		{
-			constructorYn : true,
-			title :`RedCubeTextureInfo`,
-			description : `
-				- Cube 텍스쳐 생성기
-				- <h1>실험중...이거하면서 프레임버퍼도 생성해봐야곘군..</h1>
-				- 큐브맵은 tGL.TEXTURE2 인덱스를 전용으로 쓴다.
-			`,
-			return : 'RedCubeTextureInfo Instance'
-		}
-	:DOC*/
-	RedCubeTextureInfo = function (redGL, srcList) {
-		if (!(this instanceof RedCubeTextureInfo)) return new RedCubeTextureInfo(redGL, srcList)
-		if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-		if (!(srcList instanceof Array)) throw 'srcList는 Array만 허용됩니다.'
-		var texture;
-		var i;
-		var loadedNum;
-		var self;
-		self = this
-		tGL = redGL.gl
-		loadedNum = 0
-
-		var i = srcList.length
-		this['__imgList'] = []
-		while (i--) {
-			var img = new Image()
-			img.src = srcList[i]
-			img.onload = function () {
-				loadedNum++
-				this.onload = null
-				if (loadedNum == 6) {
-					self.__allLoaed(tGL)
-				}
-			}
-			this['__imgList'][i] = img
-		}
-
-		// 인덱스 번호 지정 - 초기생성전담은 0번 인덱스를 사용함
-		this['__targetIndex'] = RedTextureIndex.CUBE_REFLECTION
-		// 로딩이 다되었는지
-		this['loaded'] = 0
-		// 액티브된적이있는지
-		this['actived'] = 0
-		// 웹지엘 텍스쳐인지
-		this['__webglCubeTexture'] = 1
-		this['__UUID'] = REDGL_UUID++
-		this['texture'] = tGL.createTexture()
-
-		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CUBE_CREATE)
-		tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, this['texture'])
-	}
-	RedCubeTextureInfo.prototype['__allLoaed'] = function () {
-		// 로딩상태 플래그를 완료로 설정
-
-		// 타겟인덱스를 설정함	
-		var self
-		self = this
-		this['__targetIndex'] = RedTextureIndex.CUBE_REFLECTION
-		console.log(this)
-		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CUBE_CREATE)
-		tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, self['texture'])
-		this['__imgList'].forEach(function (img, index) {
-			// console.log(
-			// 	tGL.TEXTURE_CUBE_MAP_POSITIVE_X,
-			// 	tGL.TEXTURE_CUBE_MAP_NEGATIVE_X,
-			// 	 tGL.TEXTURE_CUBE_MAP_POSITIVE_Y, 
-			// 	 tGL.TEXTURE_CUBE_MAP_NEGATIVE_Y,
-			// 	  tGL.TEXTURE_CUBE_MAP_POSITIVE_Z,
-			// 	   tGL.TEXTURE_CUBE_MAP_NEGATIVE_Z
-			// )
-			tGL.texImage2D(
-				tGL.TEXTURE_CUBE_MAP_POSITIVE_X + index,
-				0,
-				tGL.RGBA,
-				tGL.RGBA,
-				tGL.UNSIGNED_BYTE,
-				img
-			);
-
-		})
-		
-		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_MIN_FILTER, tGL.LINEAR);
-		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR);
-		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_WRAP_S, tGL.CLAMP_TO_EDGE);
-		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_WRAP_T, tGL.CLAMP_TO_EDGE);
-		tGL.generateMipmap(tGL.TEXTURE_CUBE_MAP);
-		
-		self['loaded'] = 1
-		
-	}
 })();
 "use strict";
 /**DOC:
@@ -1172,308 +859,6 @@ var RedGeometryInfo;
         tDatas[key] = this
     }
     Object.freeze(RedGeometryInfo)
-})();
-"use strict";
-/**DOC:
-    {
-        constructorYn : true,
-        title :`RedMeshInfo`,
-        description : `
-            <h2>RedMeshBaseInfo 상속객체</h2>
-            - 타입키에 해당하는 정의가 존재하지않을경우 에러
-        `,
-        params : {
-            redGL : [
-                {type:'RedGL Instance'},
-                '- redGL 인스턴스'
-            ],
-            key : [
-                {type:'String'},
-                '- 고유키',
-                '- <span style="color:red"><b>입력하지않으면 그냥 UUID를 생성해버릴까..</b></span>'
-            ],
-            geometryInfo : [
-                {type:'RedGeometryInfo'},
-                '- 지오메트리정보'
-            ],
-            materialInfo : [
-                {type:'RedMaterialInfo'},
-                '- 재질정보'
-            ]
-        },
-        example : `
-            var test;
-            test = RedGL(Canvas Element)
-            test.createMeshInfo('firstMesh',geometryInfo, materialInfo)
-        `,
-        return : 'RedMeshInfo Instance'
-    }
-:DOC*/
-var RedMeshInfo;
-(function () {
-    var tGL;
-    var tDatas;
-    RedMeshInfo = function (redGL, key, geometryInfo, materialInfo) {
-        if (!(this instanceof RedMeshInfo)) return new RedMeshInfo(redGL, key, geometryInfo, materialInfo)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof key != 'string') throw 'key - 문자열만 허용됩니다.'
-        if (!(geometryInfo instanceof RedGeometryInfo)) throw 'geometryInfo - RedGeometryInfo만 허용됩니다.'
-        if (!(materialInfo instanceof RedMaterialInfo)) throw 'materialInfo - RedMaterialInfo만 허용됩니다.'
-        tGL = redGL.gl
-        // 저장할 공간확보하고
-        if (!redGL['__datas']['RedMeshInfo']) redGL['__datas']['RedMeshInfo'] = {}
-        tDatas = redGL['__datas']['RedMeshInfo']
-        // 기존에 등록된 녀석이면 기존 데이터 리턴
-        if (tDatas[key]) throw key + '는 이미 존재하는 RedMeshInfo 입니다.'
-        RedMeshBaseInfo.call(this, redGL)
-        /**DOC:
-		{
-            title :`geometryInfo`,
-            description : `
-                - 메쉬가 소유하고있는 geometryInfo
-            `,
-			example : `인스턴스.geometryInfo`,
-			return : 'RedGeometryInfo'
-        }
-        :DOC*/
-        this['geometryInfo'] = geometryInfo
-        /**DOC:
-		{
-            title :`materialInfo`,
-            description : `
-                - 메쉬가 소유하고있는 materialInfo
-            `,
-			example : `인스턴스.materialInfo`,
-			return : 'RedMaterialInfo'
-        }
-        :DOC*/
-        this['materialInfo'] = materialInfo
-        // 캐싱
-        tDatas[key] = this
-    }
-    Object.freeze(RedMeshInfo)
-})();
-"use strict";
-/**DOC:
-    {
-        constructorYn : true,
-        title :`RedMeshBaseInfo`,
-        description : `
-            - 메쉬에 기본적으로 필요한 정보세팅
-            - 시스템적으로 호출
-        `,
-        return : 'RedMeshBaseInfo Instance'
-    }
-:DOC*/
-var RedMeshBaseInfo;
-(function () {
-    var tGL
-    RedMeshBaseInfo = function (redGL) {
-        tGL = redGL.gl
-        /**DOC:
-       {
-           title :`uMVMatrix`,
-           description : `
-               - modelView Matrix를 반환
-               - <span style="color:red"><b>uMVMatrix라는 키값은 쉐이더에서 사용되는 고정값이다.</b></span>
-           `,
-           example : `인스턴스.uMVMatrix`,
-           return : 'mat4(Float32Array)'
-       }
-       :DOC*/
-        Object.defineProperty(this, 'uMVMatrix', {
-            value: mat4.create(),
-            enumerable: true
-        })
-        /**DOC:
-       {
-           title :`uNMatrix`,
-           description : `
-               - modelView 노멀 Matrix를 반환
-               - <span style="color:red"><b>uNMatrix라는 키값은 쉐이더에서 사용되는 고정값이다.</b></span>
-           `,
-           example : `인스턴스.uNMatrix`,
-           return : 'mat4(Float32Array)'
-       }
-       :DOC*/
-        Object.defineProperty(this, 'uNMatrix', {
-            value: mat4.create(),
-            enumerable: true
-        })
-        /**DOC:
-		{
-            title :`position`,
-            description : `
-                - positionXYZ를 Float32Array로 가진다.
-            `,
-			example : `인스턴스.position`,
-			return : 'Float32Array(3)'
-        }
-        :DOC*/
-        Object.defineProperty(this, 'position', {
-            value: new Float32Array([0, 0, 0]),
-            enumerable: true
-        })
-        // this['position'] = new Float32Array([0, 0, 0])
-        /**DOC:
-		{
-            title :`rotation`,
-            description : `
-                - rotationXYZ를 Float32Array로 가진다.
-            `,
-			example : `인스턴스.rotation`,
-			return : 'Float32Array(3)'
-        }
-        :DOC*/
-        Object.defineProperty(this, 'rotation', {
-            value: new Float32Array([0, 0, 0]),
-            enumerable: true
-        })
-        /**DOC:
-		{
-            title :`scale`,
-            description : `
-                - scaleXYZ를 Float32Array로 가진다.
-            `,
-			example : `인스턴스.rotation`,
-			return : 'Float32Array(3)'
-        }
-        :DOC*/
-        Object.defineProperty(this, 'scale', {
-            value: new Float32Array([1, 1, 1]),
-            enumerable: true
-        })
-        /**DOC:
-		{
-            title :`geometryInfo`,
-            description : `
-                - 메쉬가 소유하고있는 geometryInfo
-            `,
-			example : `인스턴스.geometryInfo`,
-			return : 'RedGeometryInfo'
-        }
-        :DOC*/
-        this['geometryInfo'] = null
-        /**DOC:
-		{
-            title :`materialInfo`,
-            description : `
-                - 메쉬가 소유하고있는 materialInfo
-            `,
-			example : `인스턴스.materialInfo`,
-			return : 'RedMaterialInfo'
-        }
-        :DOC*/
-        this['materialInfo'] = null
-        /**DOC:
-		{
-            title :`drawMode`,
-            description : `
-                - 실제 메쉬를 그릴때 어떠한 방식으로 그릴지 결정
-                - ex) gl.TRIANGLES
-            `,
-			example : `인스턴스.drawMode`,
-			return : 'glConst'
-        }
-        :DOC*/
-        this['drawMode'] = tGL.TRIANGLES
-        /**DOC:
-       {
-           title :`useCullFace`,
-           description : `
-               - 실제 메쉬를 그릴때 cullFace를 사용할지 여부
-               - 기본값 : true
-           `,
-           example : `인스턴스.useCullFace`,
-           return : 'boolean'
-       }
-       :DOC*/
-        this['useCullFace'] = true
-        /**DOC:
-		{
-            title :`cullFace`,
-            description : `
-                - 실제 메쉬를 그릴때 cullFace를 어떤 방식으로 그릴지 결정
-                - 기본값 : gl.BACK
-            `,
-			example : `인스턴스.cullFace`,
-			return : 'glConst'
-        }
-        :DOC*/
-        this['cullFace'] = tGL.BACK
-        /**DOC:
-		{
-            title :`useBlendMode`,
-            description : `
-                - draw시 블렌드모드 사용여부
-                - 기본값 : true
-            `,
-			example : `인스턴스.useBlendMode`,
-			return : 'boolean'
-        }
-        :DOC*/
-        this['useBlendMode'] = true
-        /**DOC:
-		{
-            title :`blendFactor1`,
-            description : `
-                - draw시 blendFactor1
-            `,
-			example : `인스턴스.blendFactor1`,
-			return : 'glConst'
-        }
-        :DOC*/
-        this['blendFactor1'] = tGL.ONE
-        /**DOC:
-		{
-            title :`blendFactor2`,
-            description : `
-                - draw시 blendFactor2
-            `,
-			example : `인스턴스.blendFactor2`,
-			return : 'glConst'
-        }
-        :DOC*/
-        this['blendFactor2'] = tGL.ONE_MINUS_SRC_ALPHA
-        /**DOC:
-		{
-            title :`useDepthTest`,
-            description : `
-                - draw시 depthTest 사용여부
-                - 기본값 : true
-            `,
-			example : `인스턴스.useDepthTest`,
-			return : 'boolean'
-        }
-        :DOC*/
-        this['useDepthTest'] = true
-        /**DOC:
-		{
-            title :`depthTestFunc`,
-            description : `
-                - depthTest 옵션
-                - 기본값 : tGL.LESS
-            `,
-			example : `인스턴스.depthTestFunc`,
-			return : 'glConst'
-        }
-        :DOC*/
-        this['depthTestFunc'] = tGL.LESS
-        /**DOC:
-		{
-            title :`children`,
-            description : `
-                - 자식노드리스트
-            `,
-			example : `인스턴스.children`,
-			return : 'Array'
-        }
-        :DOC*/
-        // 캐싱
-        this['children'] = []
-        this['__UUID'] = REDGL_UUID++
-    }
-    Object.freeze(RedMeshBaseInfo)
 })();
 "use strict";
 var RedPrimitive;
@@ -2039,6 +1424,856 @@ var RedPrimitive;
     Object.freeze(RedPrimitive)
 })();
 "use strict";
+/**DOC:
+    {
+        constructorYn : true,
+        title :`RedMaterialInfo`,
+        description : `
+            - 재질 생성기.
+            - 타입키에 해당하는 <b>RedMaterialDefine</b> 정의가 존재하지않을경우 에러.
+        `,
+        params : {
+            redGL : [
+                {type:'RedGL Instance'},
+                '- redGL 인스턴스'
+            ],
+            typeName : [
+                {type:'String'},
+                '- 재질 타입 지정'
+            ],
+            diffuseInfo : [
+                {type:'RedTextureInfo or RedCubeTextureInfo'},
+                '- DiffuseMap 지정'
+            ],
+            normalInfo : [
+                 {type:'RedTextureInfo or RedCubeTextureInfo'},
+                '- normalMap 지정'
+            ],
+            displacementInfo : [
+                {type:'RedTextureInfo or RedCubeTextureInfo'},
+                '- displacementMap 지정'
+            ],
+            specularInfo : [
+                {type:'RedTextureInfo or RedCubeTextureInfo'},
+                '- specularInfo 지정'
+            ]
+        },
+        example : `
+            var test;
+            test = RedGL(Canvas Element)
+            // basic이라는 이름으로 버텍스 쉐이더를 만든다. 
+            test.createShaderInfo('basic', RedProgramInfo.VERTEX_SHADER, 쉐이더소스)
+            test.createShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER, 쉐이더소스)
+            // basic이라는 이름으로 프로그램을 만든다. 
+            test.createProgramInfo(
+                'basic',
+                test.getShaderInfo('basic', RedProgramInfo.VERTEX_SHADER),
+                test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER)
+            )
+            // basic이라는 타입의 재질 정의한다.
+            test.createMaterialDefine(test.getProgramInfo('basic'))
+            // basic재질을 실제로 생성한다.
+            test.createMaterialInfo('basic')
+        `,
+        return : 'RedMaterialInfo Instance'
+    }
+:DOC*/
+var RedMaterialInfo;
+(function () {
+    var tDefineMap
+    var tDefineData;
+    var typeMAP;
+    var k, t0;
+    var tGL;
+    typeMAP = {
+        f: {
+            16: 'uniformMatrix4fv',
+            12: 'uniformMatrix3fv',
+            8: 'uniformMatrix2fv',
+            4: 'uniform4fv',
+            3: 'uniform3fv',
+            2: 'uniform2fv',
+            1: 'uniform1fv'
+        },
+        i: {
+            16: 'uniformMatrix4iv',
+            12: 'uniformMatrix3iv',
+            8: 'uniformMatrix2iv',
+            4: 'uniform4iv',
+            3: 'uniform3iv',
+            2: 'uniform2iv',
+            1: 'uniform1iv'
+        }
+    }
+    RedMaterialInfo = function (redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture, reflectionTexture) {
+        if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture, reflectionTexture)
+        //TODO: 
+        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+        if (typeof typeName != 'string') throw 'typeName은 문자열만 허용됩니다.'
+        // 디파인더에서 재질정의를 찾고
+        tDefineMap = redGL['__datas']['RedMaterialDefine']
+        tDefineData = tDefineMap[typeName]
+        tGL = redGL.gl
+        if (!tDefineData) throw typeName + '재질은 존재하지않습니다.'
+        /**DOC:
+		{
+            title :`programInfo`,
+			description : `재질에 사용된 프로그램정보`,
+			example : `인스턴스.programInfo`,
+			return : 'RedProgramInfo'
+        }
+        :DOC*/
+        this['programInfo'] = tDefineData['programInfo']
+        /**DOC:
+		{
+            title :`diffuseInfo`,
+            description : `
+                - diffuseInfo
+            `,
+			example : `인스턴스.diffuseInfo`,
+			return : 'RedTextureInfo or RedCubeTextureInfo'
+        }
+        :DOC*/
+        if (diffuseTexture) this['uDiffuseTexture'] = diffuseTexture
+        if (normalTexture) this['uNormalTexture'] = normalTexture
+        if (displacementTexture) this['uDisplacementTexture'] = displacementTexture
+        if (specularTexture) this['uSpecularTexture'] = specularTexture
+        if (reflectionTexture) this['uReflectionTexture'] = reflectionTexture
+
+        /**DOC:
+		{
+            title :`materialUniforms`,
+            description : `
+                - 렌더링시 참고할 유니폼데이터
+            `,
+			example : `인스턴스.materialUniforms`,
+			return : 'Object'
+        }
+        :DOC*/
+        this['materialUniforms'] = {}
+        // 재질에 초기유니폼정의를 반영함
+        this['programInfo'].initUniformValue(this)
+        /**DOC:
+		{
+            title :`needUniformList`,
+            description : `
+                - 렌더링시 유니폼리스트를 다시 만들어야할지 여부
+            `,
+			example : `인스턴스.needUniformList`,
+			return : 'Boolean'
+        }
+        :DOC*/
+        this['needUniformList'] = true
+        this.updateUniformList()
+        this['__UUID'] = REDGL_UUID++
+    }
+    RedMaterialInfo.prototype.updateUniformList = function () {
+        console.log(this['programInfo'])
+        if (this['programInfo']['defineTexture']) this['programInfo']['defineTexture'](this)
+        ////////////////////////////////////////////////////////////////////////////////////////
+        // 유니폼을 업데이트할 glMethod를 찾는다. 
+        for (k in this['materialUniforms']) {
+            t0 = this['materialUniforms'][k]
+            if (t0 instanceof Float32Array || t0 instanceof Float64Array) {
+                t0['__uniformMethod'] = typeMAP['f'][t0.length]
+                t0['__isMatrix'] = t0['__uniformMethod'].length > 11
+            } else if (
+                t0 instanceof Uint8Array ||
+                t0 instanceof Uint16Array ||
+                t0 instanceof Uint32Array ||
+                t0 instanceof Int8Array ||
+                t0 instanceof Int16Array ||
+                t0 instanceof Int32Array
+            ) {
+                t0['__uniformMethod'] = typeMAP['i'][t0.length]
+                t0['__isMatrix'] = t0['__uniformMethod'].length > 11
+            } else if (t0 == null) {
+            } else if (typeof t0 == 'number') {
+            } else if (t0 instanceof RedAtlasUVInfo) {
+            } else if (t0 instanceof RedTextureInfo || t0 instanceof RedCubeTextureInfo) {
+
+            } else if (t0 instanceof RedAtlasTextureInfo) {
+                this['materialUniforms']['uAtlascoord'] = t0['atlasUVInfo']
+            } else throw k + '는 올바르지 않은 타입입니다.'
+        }
+        ////////////////////////////////////////////////////////////////////////////////////////
+        // 프로그램 정보를 처리
+        if (this['needUniformList']) {
+            this['__uniformList'] = []
+            var tUniformGroup = this['materialUniforms']
+            var tUniformLocationGroup = this['programInfo']['uniforms']
+            for (k in tUniformGroup) {
+                // console.log('//////////////////////////////////////')
+                // console.log(k)
+                // console.log(tUniformLocationGroup)
+                // console.log(tUniformLocationGroup[k])
+                // console.log(tUniformLocationGroup[k]['type'])
+                // console.log(tUniformGroup[k])
+                // console.log(tUniformLocationGroup[k]['location'])
+                // console.log(tUniformLocationGroup)
+                // console.log('//////////////////////////////////////')
+                if (tUniformLocationGroup[k]['type'] == 'samplerCube') {
+
+                }
+                this['__uniformList'].push({
+                    key: k,
+                    type: tUniformLocationGroup[k]['type'],
+                    value: tUniformGroup[k],
+                    location: tUniformLocationGroup[k]['location']
+                })
+                // if(tMeterial.hasOwnProperty(k)) throw '유니폼이름과 재질의 프로퍼티네임이 같으면 안됩니다.'
+                this[k] = tUniformGroup[k]
+            }
+            this['needUniformList'] = false
+        }
+    }
+    RedMaterialInfo.prototype.setTexture = function (key, texture) {
+        if (texture instanceof RedTextureInfo || texture instanceof RedCubeTextureInfo || texture instanceof RedAtlasUVInfo) {
+            this[key] = texture
+            this.updateUniformList()
+        } else {
+            throw '텍스쳐 형식이 아닙니다.'
+        }
+    }
+    Object.freeze(RedMaterialInfo)
+})();
+"use strict";
+/**DOC:
+    {
+        constructorYn : true,
+        title :`RedMaterialDefine`,
+        description : `
+            - RedGL에서 사용할 재질정보를 정의.
+            - <b>유일키</b>만 지원.
+            - <b>Object.freeze</b> 상태로 정의됨.
+        `,
+        params : {
+            redGL : [
+                {type:'RedGL Instance'},
+                '- redGL 인스턴스'
+            ],
+            programInfo : [
+                {type:'RedProgramInfo'},
+                '- 재질과 바인딩될 RedProgramInfo 지정'
+            ]
+        },
+        example : `
+            var test;
+            test = RedGL(Canvas Element)
+            // basic이라는 이름으로 버텍스 쉐이더를 만든다. 
+            test.createShaderInfo('basic', RedProgramInfo.VERTEX_SHADER, 쉐이더소스)
+            test.createShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER, 쉐이더소스)
+            // basic이라는 이름으로 프로그램을 만든다. 
+            test.createProgramInfo(
+                'basic',
+                test.getShaderInfo('basic', RedProgramInfo.VERTEX_SHADER),
+                test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER)
+            )
+            // basic이라는 타입의 재질을 만든다.
+            test.createMaterialDefine(test.getProgramInfo('basic'))
+        `,
+        return : 'RedMaterialDefine Instance'
+    }
+:DOC*/
+var RedMaterialDefine;
+(function () {
+    var tDatas;
+    var tKey;
+    RedMaterialDefine = function (redGL, programInfo) {
+        if (!(this instanceof RedMaterialDefine)) return new RedMaterialDefine(redGL, programInfo)
+        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+        if (!(programInfo instanceof RedProgramInfo)) throw 'RedProgramInfo 인스턴스만 허용됩니다.'
+        // 저장할 공간확보하고
+        if (!redGL['__datas']['RedMaterialDefine']) redGL['__datas']['RedMaterialDefine'] = {}
+        tKey = programInfo['key']
+        tDatas = redGL['__datas']['RedMaterialDefine']
+        // 기존에 등록된 녀석이면 에러
+        if (tDatas[tKey]) throw tKey + '는 이미 존재하는 RedMaterialDefine 입니다.'
+        /**DOC:
+		{
+            title :`programInfo`,
+			description : `실제 재질을 만들때 참고할 programInfo`,
+			example : `인스턴스.programInfo`,
+			return : 'RedProgramInfo'
+        }
+        :DOC*/
+        this['programInfo'] = programInfo
+        this['__UUID'] = REDGL_UUID++
+        // 캐싱
+        tDatas[tKey] = this
+        Object.freeze(this)
+    }
+    Object.freeze(RedMaterialDefine)
+})();
+"use strict";
+/**DOC:
+    {
+        constructorYn : true,
+        title :`RedMeshBaseInfo`,
+        description : `
+            - 메쉬에 기본적으로 필요한 정보세팅
+            - 시스템적으로 호출
+        `,
+        return : 'RedMeshBaseInfo Instance'
+    }
+:DOC*/
+var RedMeshBaseInfo;
+(function () {
+    var tGL
+    RedMeshBaseInfo = function (redGL) {
+        tGL = redGL.gl
+        /**DOC:
+       {
+           title :`uMVMatrix`,
+           description : `
+               - modelView Matrix를 반환
+               - <span style="color:red"><b>uMVMatrix라는 키값은 쉐이더에서 사용되는 고정값이다.</b></span>
+           `,
+           example : `인스턴스.uMVMatrix`,
+           return : 'mat4(Float32Array)'
+       }
+       :DOC*/
+        Object.defineProperty(this, 'uMVMatrix', {
+            value: mat4.create(),
+            enumerable: true
+        })
+        /**DOC:
+       {
+           title :`uNMatrix`,
+           description : `
+               - modelView 노멀 Matrix를 반환
+               - <span style="color:red"><b>uNMatrix라는 키값은 쉐이더에서 사용되는 고정값이다.</b></span>
+           `,
+           example : `인스턴스.uNMatrix`,
+           return : 'mat4(Float32Array)'
+       }
+       :DOC*/
+        Object.defineProperty(this, 'uNMatrix', {
+            value: mat4.create(),
+            enumerable: true
+        })
+        /**DOC:
+		{
+            title :`position`,
+            description : `
+                - positionXYZ를 Float32Array로 가진다.
+            `,
+			example : `인스턴스.position`,
+			return : 'Float32Array(3)'
+        }
+        :DOC*/
+        Object.defineProperty(this, 'position', {
+            value: new Float32Array([0, 0, 0]),
+            enumerable: true
+        })
+        // this['position'] = new Float32Array([0, 0, 0])
+        /**DOC:
+		{
+            title :`rotation`,
+            description : `
+                - rotationXYZ를 Float32Array로 가진다.
+            `,
+			example : `인스턴스.rotation`,
+			return : 'Float32Array(3)'
+        }
+        :DOC*/
+        Object.defineProperty(this, 'rotation', {
+            value: new Float32Array([0, 0, 0]),
+            enumerable: true
+        })
+        /**DOC:
+		{
+            title :`scale`,
+            description : `
+                - scaleXYZ를 Float32Array로 가진다.
+            `,
+			example : `인스턴스.rotation`,
+			return : 'Float32Array(3)'
+        }
+        :DOC*/
+        Object.defineProperty(this, 'scale', {
+            value: new Float32Array([1, 1, 1]),
+            enumerable: true
+        })
+        /**DOC:
+		{
+            title :`geometryInfo`,
+            description : `
+                - 메쉬가 소유하고있는 geometryInfo
+            `,
+			example : `인스턴스.geometryInfo`,
+			return : 'RedGeometryInfo'
+        }
+        :DOC*/
+        this['geometryInfo'] = null
+        /**DOC:
+		{
+            title :`materialInfo`,
+            description : `
+                - 메쉬가 소유하고있는 materialInfo
+            `,
+			example : `인스턴스.materialInfo`,
+			return : 'RedMaterialInfo'
+        }
+        :DOC*/
+        this['materialInfo'] = null
+        /**DOC:
+		{
+            title :`drawMode`,
+            description : `
+                - 실제 메쉬를 그릴때 어떠한 방식으로 그릴지 결정
+                - ex) gl.TRIANGLES
+            `,
+			example : `인스턴스.drawMode`,
+			return : 'glConst'
+        }
+        :DOC*/
+        this['drawMode'] = tGL.TRIANGLES
+        /**DOC:
+       {
+           title :`useCullFace`,
+           description : `
+               - 실제 메쉬를 그릴때 cullFace를 사용할지 여부
+               - 기본값 : true
+           `,
+           example : `인스턴스.useCullFace`,
+           return : 'boolean'
+       }
+       :DOC*/
+        this['useCullFace'] = true
+        /**DOC:
+		{
+            title :`cullFace`,
+            description : `
+                - 실제 메쉬를 그릴때 cullFace를 어떤 방식으로 그릴지 결정
+                - 기본값 : gl.BACK
+            `,
+			example : `인스턴스.cullFace`,
+			return : 'glConst'
+        }
+        :DOC*/
+        this['cullFace'] = tGL.BACK
+        /**DOC:
+		{
+            title :`useBlendMode`,
+            description : `
+                - draw시 블렌드모드 사용여부
+                - 기본값 : true
+            `,
+			example : `인스턴스.useBlendMode`,
+			return : 'boolean'
+        }
+        :DOC*/
+        this['useBlendMode'] = true
+        /**DOC:
+		{
+            title :`blendFactor1`,
+            description : `
+                - draw시 blendFactor1
+            `,
+			example : `인스턴스.blendFactor1`,
+			return : 'glConst'
+        }
+        :DOC*/
+        this['blendFactor1'] = tGL.ONE
+        /**DOC:
+		{
+            title :`blendFactor2`,
+            description : `
+                - draw시 blendFactor2
+            `,
+			example : `인스턴스.blendFactor2`,
+			return : 'glConst'
+        }
+        :DOC*/
+        this['blendFactor2'] = tGL.ONE_MINUS_SRC_ALPHA
+        /**DOC:
+		{
+            title :`useDepthTest`,
+            description : `
+                - draw시 depthTest 사용여부
+                - 기본값 : true
+            `,
+			example : `인스턴스.useDepthTest`,
+			return : 'boolean'
+        }
+        :DOC*/
+        this['useDepthTest'] = true
+        /**DOC:
+		{
+            title :`depthTestFunc`,
+            description : `
+                - depthTest 옵션
+                - 기본값 : tGL.LESS
+            `,
+			example : `인스턴스.depthTestFunc`,
+			return : 'glConst'
+        }
+        :DOC*/
+        this['depthTestFunc'] = tGL.LESS
+        /**DOC:
+		{
+            title :`children`,
+            description : `
+                - 자식노드리스트
+            `,
+			example : `인스턴스.children`,
+			return : 'Array'
+        }
+        :DOC*/
+        // 캐싱
+        this['children'] = []
+        this['__UUID'] = REDGL_UUID++
+    }
+    Object.freeze(RedMeshBaseInfo)
+})();
+"use strict";
+/**DOC:
+    {
+        constructorYn : true,
+        title :`RedMeshInfo`,
+        description : `
+            <h2>RedMeshBaseInfo 상속객체</h2>
+            - 타입키에 해당하는 정의가 존재하지않을경우 에러
+        `,
+        params : {
+            redGL : [
+                {type:'RedGL Instance'},
+                '- redGL 인스턴스'
+            ],
+            key : [
+                {type:'String'},
+                '- 고유키',
+                '- <span style="color:red"><b>입력하지않으면 그냥 UUID를 생성해버릴까..</b></span>'
+            ],
+            geometryInfo : [
+                {type:'RedGeometryInfo'},
+                '- 지오메트리정보'
+            ],
+            materialInfo : [
+                {type:'RedMaterialInfo'},
+                '- 재질정보'
+            ]
+        },
+        example : `
+            var test;
+            test = RedGL(Canvas Element)
+            test.createMeshInfo('firstMesh',geometryInfo, materialInfo)
+        `,
+        return : 'RedMeshInfo Instance'
+    }
+:DOC*/
+var RedMeshInfo;
+(function () {
+    var tGL;
+    var tDatas;
+    RedMeshInfo = function (redGL, key, geometryInfo, materialInfo) {
+        if (!(this instanceof RedMeshInfo)) return new RedMeshInfo(redGL, key, geometryInfo, materialInfo)
+        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+        if (typeof key != 'string') throw 'key - 문자열만 허용됩니다.'
+        if (!(geometryInfo instanceof RedGeometryInfo)) throw 'geometryInfo - RedGeometryInfo만 허용됩니다.'
+        if (!(materialInfo instanceof RedMaterialInfo)) throw 'materialInfo - RedMaterialInfo만 허용됩니다.'
+        tGL = redGL.gl
+        // 저장할 공간확보하고
+        if (!redGL['__datas']['RedMeshInfo']) redGL['__datas']['RedMeshInfo'] = {}
+        tDatas = redGL['__datas']['RedMeshInfo']
+        // 기존에 등록된 녀석이면 기존 데이터 리턴
+        if (tDatas[key]) throw key + '는 이미 존재하는 RedMeshInfo 입니다.'
+        RedMeshBaseInfo.call(this, redGL)
+        /**DOC:
+		{
+            title :`geometryInfo`,
+            description : `
+                - 메쉬가 소유하고있는 geometryInfo
+            `,
+			example : `인스턴스.geometryInfo`,
+			return : 'RedGeometryInfo'
+        }
+        :DOC*/
+        this['geometryInfo'] = geometryInfo
+        /**DOC:
+		{
+            title :`materialInfo`,
+            description : `
+                - 메쉬가 소유하고있는 materialInfo
+            `,
+			example : `인스턴스.materialInfo`,
+			return : 'RedMaterialInfo'
+        }
+        :DOC*/
+        this['materialInfo'] = materialInfo
+        // 캐싱
+        tDatas[key] = this
+    }
+    Object.freeze(RedMeshInfo)
+})();
+"use strict";
+var RedBaseCameraInfo;
+/**DOC:
+    {
+        constructorYn : true,
+        title :`RedBaseCameraInfo`,
+        description : `
+            - RedBaseCameraInfo 가장 기본적인 카메라 생성기
+        `,
+        example : `
+            testGL.createBaseCameraInfo('testCamera')
+        `,
+        return : 'RedBaseCameraInfo Instance'
+    }
+:DOC*/
+(function () {
+    var tDatas;
+    RedBaseCameraInfo = function (redGL, key) {
+        if (!(this instanceof RedBaseCameraInfo)) return new RedBaseCameraInfo(redGL, key)
+        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+        if (typeof key != 'string') throw 'key는 문자열만 허용됩니다.'
+        var aspect
+        // 저장할 공간확보하고
+        if (!redGL['__datas']['RedBaseCameraInfo']) redGL['__datas']['RedBaseCameraInfo'] = {}
+        tDatas = redGL['__datas']['RedBaseCameraInfo']
+        // 기존에 등록된 녀석이면 퐈이어!
+        if (tDatas[key]) throw key + '는 이미 존재하는 RedBaseCameraInfo 입니다.'
+        /**DOC:
+            {
+                title :`uPMatrix`,
+                code : 'PROPERTY',
+                description : `
+                    - 퍼스펙티브 매트릭스
+                    - 고정유니폼으로서 쉐이더내에 uPMatrix 유니폼과 연동된다.
+                `,
+                return : 'mat4(Float32Arrat)'
+            }
+        :DOC*/
+        Object.defineProperty(this, 'uPMatrix', {
+            value: mat4.create(),
+            enumerable: true
+        })
+        /**DOC:
+            {
+                title :`uCameraMatrix`,
+                description : `
+                    - 카메라 매트릭스
+                    - 고정유니폼으로서 쉐이더내에 uCameraMatrix 유니폼과 연동된다.
+                `,
+                return : 'mat4(Float32Arrat)'
+            }
+        :DOC*/
+        Object.defineProperty(this, 'uCameraMatrix', {
+            value: mat4.create(),
+            enumerable: true
+        })
+        /**DOC:
+            {
+                title :`fov`,
+                description : `
+                    - 카메라 fov
+                    - 기본값 45(실제 연산시에는 라디안으로 적용해서 계산됨)
+                `,
+                return : 'Number'
+            }
+        :DOC*/
+        this['fov'] = 45
+        /**DOC:
+            {
+                title :`aspect`,
+                description : `- 카메라 aspect`,
+                return : 'Number'
+            }
+        :DOC*/
+        this['aspect'] = 0.1;
+        /**DOC:
+            {
+                title :`near`,
+                description : `
+                    - 카메라 near
+                    - 기본값 0.1
+                `,
+                return : 'Number'
+            }
+        :DOC*/
+        this['near'] = 0.1
+        /**DOC:
+            {
+                title :`far`,
+                description : `
+                    - 카메라 far
+                    - 기본값 1000.0
+                `,
+                return : 'Number'
+            }
+        :DOC*/
+        this['far'] = 1000.0
+        Object.defineProperty(this, '__desiredCoords', {
+            value: new Float32Array([0, 0, 0]),
+            enumerable: true
+        })
+        Object.defineProperty(this, '__desiredRotation', {
+            value: new Float32Array([0, 0, 0]),
+            enumerable: true
+        })
+        this['__UUID'] = REDGL_UUID++
+        this['__canvas'] = redGL.__canvas
+        this.update()
+        // 캐싱
+        tDatas[key] = this
+    }
+    var tempRotationMTX = mat4.create()
+    RedBaseCameraInfo.prototype = {
+        /**DOC:
+            {
+                title :`setPosition`,
+                code : 'FUNCTION',
+                description : `
+                    - 포지션 설정매서드.
+                `,
+                params : {
+                    x : [
+                        {type:'Number'},
+                        `x포지션`
+                    ],
+                    y : [
+                        {type:'Number'},
+                        `y포지션`
+                    ],
+                    z : [
+                        {type:'Number'},
+                        `z포지션`
+                    ]
+                },
+                return : 'RedBaseCameraInfo Instance'
+            }
+        :DOC*/
+        setPosition: function (x, y, z) {
+            this['__desiredCoords'][0] = x
+            this['__desiredCoords'][1] = y
+            this['__desiredCoords'][2] = z
+            return this
+        },
+        /**DOC:
+            {
+                title :`moveForward`,
+                code : 'FUNCTION',
+                description : `
+                    - TODO: 카메라 시점에서 앞으로 이동
+                `,
+                return : 'RedBaseCameraInfo Instance'
+            }
+        :DOC*/
+        moveForward: function (v) {
+            //TODO:
+        },
+        /**DOC:
+            {
+                title :`moveBack`,
+                code : 'FUNCTION',
+                description : `
+                    - TODO: 카메라 시점에서 뒤로 이동
+                `,
+                return : 'RedBaseCameraInfo Instance'
+            }
+        :DOC*/
+        moveBack: function (v) {
+            //TODO:
+        },
+        /**DOC:
+            {
+                title :`moveLeft`,
+                code : 'FUNCTION',
+                description : `
+                    - TODO: 카메라 시점에서 왼쪽으로 이동
+                `,
+                return : 'RedBaseCameraInfo Instance'
+            }
+        :DOC*/
+        moveLeft: function (v) {
+            //TODO:
+        },
+        /**DOC:
+            {
+                title :`moveRight`,
+                code : 'FUNCTION',
+                description : `
+                    - TODO: 카메라 시점에서 오른쪽으로 이동
+                `,
+                return : 'RedBaseCameraInfo Instance'
+            }
+        :DOC*/
+        moveRight: function (v) {
+            //TODO:
+        },
+        /**DOC:
+            {
+                title :`moveUp`,
+                code : 'FUNCTION',
+                description : `
+                    - TODO: 카메라 시점에서 위로 이동
+                `,
+                return : 'RedBaseCameraInfo Instance'
+            }
+        :DOC*/
+        moveUp: function (v) {
+            //TODO:
+        },
+        /**DOC:
+            {
+                title :`moveDown`,
+                code : 'FUNCTION',
+                description : `
+                    - TODO: 카메라 시점에서 아래로 이동
+                `,
+                return : 'RedBaseCameraInfo Instance'
+            }
+        :DOC*/
+        moveDown: function (v) {
+            //TODO:
+        },
+        /**DOC:
+            {
+                title :`lookAt`,
+                code : 'FUNCTION',
+                description : `
+                    - 카메라가 targetPosition을 바라보게 설정함.
+                `,
+                params : {
+                    targetPosition : [
+                        {type:'position vec3(Float32Array)'},
+                        `바라볼 포지션`
+                    ]
+                },
+                return : 'RedBaseCameraInfo Instance'
+            }
+        :DOC*/
+        lookAt: (function () {
+            var up = new Float32Array([0, 1, 0]);
+            return function (targetPosition) {
+                //out, eye, center, up
+                mat4.lookAt(this['uCameraMatrix'], this['__desiredCoords'], targetPosition, up);
+            }
+        })(),
+        /**DOC:
+            {
+                title :`update`,
+                code : 'FUNCTION',
+                description : `
+                    - 퍼스팩티브업데이트
+                `,
+                return : 'RedBaseCameraInfo Instance'
+            }
+        :DOC*/
+        update: (function () {
+            return function () {
+                // 퍼스펙티브만 관여
+                this['aspect'] = this['__canvas'].clientWidth / this['__canvas'].clientHeight
+                mat4.identity(this['uPMatrix'])
+                mat4.perspective(this['uPMatrix'], this['fov'] * Math.PI / 180, this['aspect'], this['near'], this['far'])
+                return this
+            }
+        })()
+    }
+    Object.freeze(RedBaseCameraInfo)
+})();
+"use strict";
 var RedAmbientLightInfo;
 /**DOC:
     {
@@ -2083,6 +2318,7 @@ var RedAmbientLightInfo;
         :DOC*/
         this['color'] = new Float32Array([0.03, 0.03, 0.03, 1])
         this['__UUID'] = REDGL_UUID++
+        Object.seal(this)
     }
     RedAmbientLightInfo['TYPE'] = 'ambient'
     Object.freeze(RedAmbientLightInfo)
@@ -2116,7 +2352,7 @@ var RedDirectionalLightInfo;
         // 저장할 공간확보하고
         if (!redGL['__datas']['RedDirectionalLightInfo']) redGL['__datas']['RedDirectionalLightInfo'] = {}
         tDatas = redGL['__datas']['RedDirectionalLightInfo']
-       
+
         /**DOC:
 		{
             title :`color`,
@@ -2130,17 +2366,20 @@ var RedDirectionalLightInfo;
         }
         :DOC*/
         this['color'] = new Float32Array([1, 1, 1, 1])
-         /**DOC:
-		{
-            title :`direction`,
-            description : `라이트 디렉션`,
-            code:'PROPERTY',
-            example : `인스턴스.color`,
-            return : 'Float32(vec3)'
-        }
-        :DOC*/
+        /**DOC:
+       {
+           title :`direction`,
+           description : `
+            - 라이트 디렉션
+           `,
+           code:'PROPERTY',
+           example : `인스턴스.color`,
+           return : 'Float32(vec3)'
+       }
+       :DOC*/
         this['direction'] = new Float32Array([0, 0, 0])
         this['__UUID'] = REDGL_UUID++
+        Object.seal(this)
     }
     RedDirectionalLightInfo['TYPE'] = 'directional'
     Object.freeze(RedDirectionalLightInfo)
@@ -2211,14 +2450,14 @@ var RedPointLightInfo;
         this['radius'] = 1
         /**DOC:
 		{
-            title :`usedebugMode`,
+            title :`useDebugMode`,
             description : `디버그모드 사용여부`,
             code:'PROPERTY',
-            example : `인스턴스.usedebugMode`,
+            example : `인스턴스.useDebugMode`,
             return : 'Boolean'
         }
         :DOC*/
-        this['usedebugMode'] = false
+        this['useDebugMode'] = false
         this['__UUID'] = REDGL_UUID++
         this['__debugMesh'] = redGL.createMeshInfo(
             'RedPointLightInfo__debugMesh' + this['__UUID'],
@@ -2234,281 +2473,1030 @@ var RedPointLightInfo;
         )        
         this['__debugMesh'].drawMode = redGL.gl.LINE_STRIP
         this['__debugMesh']['children'][0].drawMode = redGL.gl.LINE_STRIP
-
+        Object.seal(RedAmbientLightInfo)
     }
     RedPointLightInfo['TYPE'] = 'point'
     Object.freeze(RedPointLightInfo)
 })();
 "use strict";
-/**DOC:
-    {
-        constructorYn : true,
-        title :`RedMaterialInfo`,
-        description : `
-            - 재질 생성기.
-            - 타입키에 해당하는 <b>RedMaterialDefine</b> 정의가 존재하지않을경우 에러.
-        `,
-        params : {
-            redGL : [
-                {type:'RedGL Instance'},
-                '- redGL 인스턴스'
-            ],
-            typeName : [
-                {type:'String'},
-                '- 재질 타입 지정'
-            ],
-            diffuseInfo : [
-                {type:'RedTextureInfo or RedCubeTextureInfo'},
-                '- DiffuseMap 지정'
-            ],
-            normalInfo : [
-                 {type:'RedTextureInfo or RedCubeTextureInfo'},
-                '- normalMap 지정'
-            ],
-            displacementInfo : [
-                {type:'RedTextureInfo or RedCubeTextureInfo'},
-                '- displacementMap 지정'
-            ],
-            specularInfo : [
-                {type:'RedTextureInfo or RedCubeTextureInfo'},
-                '- specularInfo 지정'
-            ]
-        },
-        example : `
-            var test;
-            test = RedGL(Canvas Element)
-            // basic이라는 이름으로 버텍스 쉐이더를 만든다. 
-            test.createShaderInfo('basic', RedProgramInfo.VERTEX_SHADER, 쉐이더소스)
-            test.createShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER, 쉐이더소스)
-            // basic이라는 이름으로 프로그램을 만든다. 
-            test.createProgramInfo(
-                'basic',
-                test.getShaderInfo('basic', RedProgramInfo.VERTEX_SHADER),
-                test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER)
-            )
-            // basic이라는 타입의 재질 정의한다.
-            test.createMaterialDefine(test.getProgramInfo('basic'))
-            // basic재질을 실제로 생성한다.
-            test.createMaterialInfo('basic')
-        `,
-        return : 'RedMaterialInfo Instance'
-    }
-:DOC*/
-var RedMaterialInfo;
+var RedTextureIndex;
 (function () {
-    var tDefineMap
-    var tDegineData;
-    var tUniform;
-    var typeMAP;
-    var k, t0;
-    var tGL;
-    typeMAP = {
-        f: {
-            16: 'uniformMatrix4fv',
-            12: 'uniformMatrix3fv',
-            8: 'uniformMatrix2fv',
-            4: 'uniform4fv',
-            3: 'uniform3fv',
-            2: 'uniform2fv',
-            1: 'uniform1fv'
-        },
-        i: {
-            16: 'uniformMatrix4iv',
-            12: 'uniformMatrix3iv',
-            8: 'uniformMatrix2iv',
-            4: 'uniform4iv',
-            3: 'uniform3iv',
-            2: 'uniform2iv',
-            1: 'uniform1iv'
-        }
-    }
-    RedMaterialInfo = function (redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture, reflectionTexture) {
-        if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture, reflectionTexture)
-        //TODO: 
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof typeName != 'string') throw 'typeName은 문자열만 허용됩니다.'
-        // 디파인더에서 재질정의를 찾고
-        tDefineMap = redGL['__datas']['RedMaterialDefine']
-        tDegineData = tDefineMap[typeName]
-        tGL = redGL.gl
-        if (!tDegineData) throw typeName + '재질은 존재하지않습니다.'
-        /**DOC:
+	var tGL;
+	/**DOC:
 		{
-            title :`programInfo`,
-			description : `재질에 사용된 프로그램정보`,
-			example : `인스턴스.programInfo`,
-			return : 'RedProgramInfo'
-        }
-        :DOC*/
-        this['programInfo'] = tDegineData['programInfo']
-        /**DOC:
+			constructorYn : true,
+			title :`RedTextureIndex`,
+			description : `
+				- 텍스쳐 고유인덱스
+			`,
+			example : `
+				RedTextureIndex.DIFFUSE
+				RedTextureIndex.NORMAL
+				RedTextureIndex.CUBE
+			`,
+			return : 'Integer'
+		}
+	:DOC*/
+	RedTextureIndex = {
+		/**DOC:
 		{
-            title :`diffuseInfo`,
-            description : `
-                - diffuseInfo
-            `,
-			example : `인스턴스.diffuseInfo`,
-			return : 'RedTextureInfo or RedCubeTextureInfo'
-        }
-        :DOC*/
-        if (diffuseTexture) this['uDiffuseTexture'] = diffuseTexture
-        if (normalTexture) this['uNormalTexture'] = normalTexture
-        if (displacementTexture) this['uDisplacementTexture'] = displacementTexture
-        if (specularTexture) this['uSpecularTexture'] = specularTexture
-        if (reflectionTexture) this['uReflectionTexture'] = reflectionTexture
-        
-        /**DOC:
+			title :`CREATE`,
+			code : 'CONST',
+			description : `
+				- 텍스쳐 생성시 자동부여되는 기본인덱스
+				- 텍스쳐 생성완료이후 지정된 인덱스로 변환됨
+			`,
+			return : 'Integer'
+		}
+		:DOC*/
+		CREATE: 0,
+		/**DOC:
 		{
-            title :`materialUniforms`,
-            description : `
-                - 렌더링시 참고할 유니폼데이터
-            `,
-			example : `인스턴스.materialUniforms`,
-			return : 'Object'
-        }
-        :DOC*/
-        this['materialUniforms'] = tUniform = {}
-        // 유니폼은 프로그램에 의하여 생성되고, 재질정보를 토대로 렌더시 참조
-        tDegineData['programInfo'].makeUniformValue(this)
-        /**DOC:
+			title :`DIFFUSE`,
+			code : 'CONST',
+			description : `
+				- 디퓨즈 텍스쳐 인덱스
+				- 텍스쳐 생성지 지정하지않을경우 기본 디퓨즈로 인식함
+			`,
+			return : 'Integer'
+		}
+		:DOC*/
+		DIFFUSE: 1,
+		/**DOC:
 		{
-            title :`needUniformList`,
-            description : `
-                - 렌더링시 유니폼리스트를 다시 만들어야할지 여부
-                - 시스템에서 자동으로 설정한다.
-            `,
-			example : `인스턴스.needUniformList`,
-			return : 'Boolean'
-        }
-        :DOC*/
-        this['needUniformList'] = true
-        // 유니폼을 업데이트할 glMethod를 찾는다. 
-        for (k in tUniform) {
-            t0 = tUniform[k]
-            if (t0 instanceof Float32Array || t0 instanceof Float64Array) {
-                t0['__uniformMethod'] = typeMAP['f'][t0.length]
-                t0['__isMatrix'] = t0['__uniformMethod'].length > 11
-            } else if (
-                t0 instanceof Uint8Array ||
-                t0 instanceof Uint16Array ||
-                t0 instanceof Uint32Array ||
-                t0 instanceof Int8Array ||
-                t0 instanceof Int16Array ||
-                t0 instanceof Int32Array
-            ) {
-                t0['__uniformMethod'] = typeMAP['i'][t0.length]
-                t0['__isMatrix'] = t0['__uniformMethod'].length > 11
-            } else if (t0 == null ) {
-            } else if (typeof t0 == 'number') {
-            } else if (t0 instanceof RedAtlasUVInfo) {
-            } else if (t0 instanceof RedTextureInfo || t0 instanceof RedCubeTextureInfo) {
-            } else if (t0 instanceof RedAtlasTextureInfo) {
-                this['materialUniforms']['uAtlascoord'] = t0['atlasUVInfo']
-            } else throw k + '는 올바르지 않은 타입입니다.'
-        }
-        this.updateUniformList()
-        this['__UUID'] = REDGL_UUID++
-    }
-    RedMaterialInfo.prototype.updateUniformList = function () {
-        // 프로그램 정보를 처리
-        if (this['needUniformList']) {
-            this['__uniformList'] = []
-            var tUniformGroup = this['materialUniforms']
-            var tUniformLocationGroup = this['programInfo']['uniforms']
-            for (k in tUniformGroup) {
-                // console.log('//////////////////////////////////////')
-                // console.log(k)
-                // console.log(tUniformLocationGroup)
-                // console.log(tUniformLocationGroup[k])
-                // console.log(tUniformLocationGroup[k]['type'])
-                // console.log(tUniformGroup[k])
-                // console.log(tUniformLocationGroup[k]['location'])
-                // console.log(tUniformLocationGroup)
-                // console.log('//////////////////////////////////////')
-                if (tUniformLocationGroup[k]['type'] == 'samplerCube') {
-                    
-                }
-                this['__uniformList'].push({
-                    key: k,
-                    type: tUniformLocationGroup[k]['type'],
-                    value: tUniformGroup[k],
-                    location: tUniformLocationGroup[k]['location']
-                })
-                // if(tMeterial.hasOwnProperty(k)) throw '유니폼이름과 재질의 프로퍼티네임이 같으면 안됩니다.'
-                this[k] = tUniformGroup[k]
-            }
-            this['needUniformList'] = false
-        }
-    }
-    Object.freeze(RedMaterialInfo)
+			title :`NORMAL`,
+			code : 'CONST',
+			description : `
+				- 노멀 텍스쳐 인덱스
+			`,
+			return : 'Integer'
+		}
+		:DOC*/
+		NORMAL: 2,
+		/**DOC:
+		{
+			title :`DISPLACEMENT`,
+			code : 'CONST',
+			description : `
+				- DISPLACEMENT 텍스쳐 인덱스
+			`,
+			return : 'Integer'
+		}
+		:DOC*/
+		DISPLACEMENT: 3,
+		/**DOC:
+		{
+			title :`SPECULAR`,
+			code : 'CONST',
+			description : `
+				- SPECULAR 텍스쳐 인덱스
+			`,
+			return : 'Integer'
+		}
+		:DOC*/
+		SPECULAR: 4,
+		//아틀라스는 자동
+		ETC_VERTEX_1: 5,
+		ETC_VERTEX_2: 6,
+		ETC_FRAGMENT_1: 7,
+		ETC_FRAGMENT_2: 8,
+		/////////////////////
+		CUBE_CREATE: 9,
+		/**DOC:
+			{
+			title :`CUBE_REFLECTION`,
+			code : 'CONST',
+			description : `
+				- 큐브 텍스쳐 인덱스
+			`,
+			return : 'Integer'
+		}
+		:DOC*/
+		CUBE_REFLECTION: 10
+	}
+	Object.freeze(RedTextureIndex)
 })();
+"use strict";
+var RedTextureInfo;
+(function () {
+	var tGL;
+	/**DOC:
+		{
+			constructorYn : true,
+			title :`RedTextureInfo`,
+			description : `
+				- 기본 텍스쳐 생성기
+			`,
+			params : {
+				redGL : [
+					{type:'RedGL Instance'}
+				],
+				src : [
+					{type:'String or CanvasElement'},
+					'텍스쳐경로나 캔버스 오브젝트만 사용가능'
+				],
+				targetIndex : [
+					{type:'Integer'},
+					'- 타겟 인덱스를 지정한다.',
+					'- 기본값 : RedTextureIndex.DIFFUSE',
+					'- RedTextureIndex의 목록을 사용한다.',
+					'- 아틀라스텍스쳐의 경우 시스템에서 자동으로 부여함.'
+				]
+			},
+			example : `
+				var testGL
+				testGL = RedGL(Canvas Element)
+				testGL.createTextureInfo('asset/crate.png')
+			`,
+			return : 'RedTextureInfo Instance'
+		}
+	:DOC*/
+	RedTextureInfo = function (redGL, src, targetIndex, internalFormat, format, type) {
+		if (!(this instanceof RedTextureInfo)) return new RedTextureInfo(redGL, src, targetIndex, internalFormat, format, type)
+		if (!(redGL instanceof RedGL)) throw 'RedTextureInfo : RedGL 인스턴스만 허용됩니다.'
+		if (src == undefined) throw 'RedTextureInfo : src는 문자열과 캔버스 오브젝트만 허용됩니다.'
+		if (src != undefined && typeof src != 'string' && !(src instanceof Element && src.nodeName == 'CANVAS')) throw 'RedTextureInfo : src는 문자열과 캔버스 오브젝트만 허용됩니다.'
+		var texture;
+		var img;
+		var level = 0;
+		var width = 1;
+		var height = 1;
+		var border = 0;
+		var self;
+		
+		console.log(src)
+		self = this
+		tGL = redGL.gl
+		internalFormat = internalFormat ? internalFormat : tGL.RGBA;
+		format = format ? format : tGL.RGBA;
+		type = type ? type : tGL.UNSIGNED_BYTE;
+		targetIndex = targetIndex ? targetIndex : RedTextureIndex.DIFFUSE
+		texture = tGL.createTexture()
+		// tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CREATE)
+		tGL.bindTexture(tGL.TEXTURE_2D, texture)
+		// 초기이미지 설정
+		tGL.texImage2D(
+			tGL.TEXTURE_2D,
+			level,
+			internalFormat,
+			width,
+			height,
+			border,
+			format,
+			type,
+			new Uint8Array(
+				222, 222, 222, 255
+			)
+		)
+		img = new Image();
+		// 캔버스 일경우 캔버스이미지데이터를 활용함
+		console.log('src instanceof Element',src,src instanceof Element)
+		if (src != undefined) img.src = src instanceof Element ? src.toDataURL() : src
+	
+		img.crossOrigin = 'anonymous'
+		img.addEventListener('load', function () {
+			console.log('여기')
+			// 로딩상태 플래그를 완료로 설정
+			self['loaded'] = 1
+			// 타겟인덱스를 설정함		
+			self['__targetIndex'] = targetIndex
+			// tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CREATE)
+			tGL.bindTexture(tGL.TEXTURE_2D, self['texture'])
+			tGL.texImage2D(tGL.TEXTURE_2D, 0, internalFormat, format, type, self['__img'])
+			tGL.texParameterf(tGL.TEXTURE_2D, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR);
+			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_MIN_FILTER, tGL.LINEAR_MIPMAP_NEAREST);
+			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_S, tGL.CLAMP_TO_EDGE);
+			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_T, tGL.CLAMP_TO_EDGE);
+			tGL.generateMipmap(tGL.TEXTURE_2D)
+			// img.onload = null
+		});
+		// tGL.bindTexture(tGL.TEXTURE_2D, null)
+
+		/**DOC:
+		{
+			title :`loaded`,
+			code : 'PROPERTY',
+			description : `
+			- 텍스쳐 로딩완료여부
+			`,
+			example : `
+			인스턴스.loaded
+			`,
+			return : '0 or 1'
+		}
+		:DOC*/
+		this['loaded'] = 0
+		/**DOC:
+		{
+			title :`texture`,
+			code : 'PROPERTY',
+			description : `
+				- WebGLTexture 인스턴스
+			`,
+			example : `
+				인스턴스.loaded
+			`,
+			return : 'WebGLTexture Instance'
+		}
+		:DOC*/
+		this['texture'] = texture
+		this['__img'] = img
+		// 웹지엘 텍스쳐인지
+		this['__webglTexture'] = 1
+		this['__UUID'] = REDGL_UUID++		
+		// 인덱스 번호 지정 - 초기생성전담은 0번 인덱스를 사용함
+		this['__targetIndex'] = RedTextureIndex.CREATE
+	}
+	/**DOC:
+		{
+			title :`updateTexture`,
+			code : 'PROPERTY',
+			description : `
+				- 텍스쳐 경로를 업데이트.
+				- 실행시 loaded가 0으로 변환되며 텍스쳐재생성후 loaded가 1로 변함.
+			`,
+			example : `
+				인스턴스.updateTexture(새로운경로)
+			`,
+			return : 'void'
+		}
+		:DOC*/
+	RedTextureInfo.prototype.updateTexture = function (src) {
+		console.log('업데이트', src)
+		this['loaded'] = 0
+		this['__img'].src = src instanceof Element ? src.toDataURL() : src
+	}
+})();
+
+"use strict";
+var RedCubeTextureInfo;
+(function () {
+	var tGL;
+	/**DOC:
+		{
+			constructorYn : true,
+			title :`RedCubeTextureInfo`,
+			description : `
+				- Cube 텍스쳐 생성기
+			`,
+			params : {
+				redGL : [
+					{type:'RedGL Instance'},
+					'텍스쳐경로나 캔버스 오브젝트만 사용가능'
+				],
+				src : [
+					{type:'Array'},
+					`
+						TEXTURE_CUBE_MAP_POSITIVE_X,
+						TEXTURE_CUBE_MAP_NEGATIVE_X,
+						TEXTURE_CUBE_MAP_POSITIVE_Y, 
+						TEXTURE_CUBE_MAP_NEGATIVE_Y,
+						TEXTURE_CUBE_MAP_POSITIVE_Z,
+						TEXTURE_CUBE_MAP_NEGATIVE_Z
+					`
+				],
+				targetIndex : [
+					{type:'Integer'},
+					'- 타겟 인덱스를 지정한다.',
+					'- 기본값 : RedTextureIndex.CUBE_REFLECTION',
+					'- RedTextureIndex.CUBE_XXX의 목록을 사용한다.'
+				]
+			},
+			return : 'RedCubeTextureInfo Instance'
+		}
+	:DOC*/
+	RedCubeTextureInfo = function (redGL, srcList, textureIndex) {
+		if (!(this instanceof RedCubeTextureInfo)) return new RedCubeTextureInfo(redGL, srcList, textureIndex)
+		if (!(redGL instanceof RedGL)) throw 'RedCubeTextureInfo : RedGL 인스턴스만 허용됩니다.'
+		if (!(srcList instanceof Array)) throw 'RedCubeTextureInfo : srcList는 Array만 허용됩니다.'
+		var texture;
+		var i;
+		var loadedNum;
+		var self;
+		var textureIndex;
+		self = this
+		tGL = redGL.gl
+		loadedNum = 0
+
+		var i = srcList.length
+		this['__imgList'] = []
+		while (i--) {
+			var img = new Image()
+			var tSrc
+			tSrc = srcList[i]
+			if (tSrc != undefined && typeof tSrc != 'string' && !(tSrc instanceof Element && tSrc.nodeName == 'CANVAS')) throw 'RedTextureInfo : src는 문자열과 캔버스 오브젝트만 허용됩니다.'
+			img.src = tSrc instanceof Element ? tSrc.toDataURL() : tSrc
+			console.log(img.src)
+			img.onload = function () {
+				loadedNum++
+				this.onload = null
+				if (loadedNum == 6) {
+					self.__allLoaed(tGL)
+				}
+			}
+			this['__imgList'][i] = img
+		}
+		/**DOC:
+		{
+			title :`loaded`,
+			code : 'PROPERTY',
+			description : `
+			- 텍스쳐 로딩완료여부
+			`,
+			example : `
+			인스턴스.loaded
+			`,
+			return : '0 or 1'
+		}
+		:DOC*/
+		this['loaded'] = 0
+		/**DOC:
+		{
+			title :`texture`,
+			code : 'PROPERTY',
+			description : `
+				- WebGLTexture 인스턴스
+			`,
+			example : `
+				인스턴스.loaded
+			`,
+			return : 'WebGLTexture Instance'
+		}
+		:DOC*/
+		this['texture'] = tGL.createTexture()
+		// 인덱스 번호 지정 - 초기생성전담은 0번 인덱스를 사용함
+		textureIndex = textureIndex ? textureIndex : RedTextureIndex.CUBE_REFLECTION
+		this['__targetIndex'] = RedTextureIndex.CUBE_CREATE
+		this['__allLoadedTargetIndex'] = textureIndex
+		// 웹지엘 텍스쳐인지
+		this['__webglCubeTexture'] = 1
+		this['__UUID'] = REDGL_UUID++
+
+		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CUBE_CREATE)
+		tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, this['texture'])
+	}
+	RedCubeTextureInfo.prototype['__allLoaed'] = function () {
+		// 로딩상태 플래그를 완료로 설정
+
+		// 타겟인덱스를 설정함	
+		var self
+		self = this
+		this['__targetIndex'] = this['__allLoadedTargetIndex']
+		console.log(this)
+		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CUBE_CREATE)
+		tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, self['texture'])
+		this['__imgList'].forEach(function (img, index) {
+			// console.log(
+			// 	tGL.TEXTURE_CUBE_MAP_POSITIVE_X,
+			// 	tGL.TEXTURE_CUBE_MAP_NEGATIVE_X,
+			// 	 tGL.TEXTURE_CUBE_MAP_POSITIVE_Y, 
+			// 	 tGL.TEXTURE_CUBE_MAP_NEGATIVE_Y,
+			// 	  tGL.TEXTURE_CUBE_MAP_POSITIVE_Z,
+			// 	   tGL.TEXTURE_CUBE_MAP_NEGATIVE_Z
+			// )
+			tGL.texImage2D(
+				tGL.TEXTURE_CUBE_MAP_POSITIVE_X + index,
+				0,
+				tGL.RGBA,
+				tGL.RGBA,
+				tGL.UNSIGNED_BYTE,
+				img
+			);
+
+		})
+
+		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_MIN_FILTER, tGL.LINEAR);
+		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR);
+		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_WRAP_S, tGL.CLAMP_TO_EDGE);
+		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_WRAP_T, tGL.CLAMP_TO_EDGE);
+		tGL.generateMipmap(tGL.TEXTURE_CUBE_MAP);
+
+		self['loaded'] = 1
+
+	}
+})();
+"use strict";
+var Atlas;
+(function () {
+    var Rect;
+    Rect = function (x, y, w, h) {
+        this.x = x; this.y = y;
+        this.w = w; this.h = h;
+    }
+
+    Rect.prototype.fitsIn = function (outer) {
+        return outer.w >= this.w && outer.h >= this.h;
+    };
+
+    Rect.prototype.sameSizeAs = function (other) {
+        return this.w === other.w && this.h === other.h;
+    };
+
+    Atlas = function (x, y, w, h) {
+        if (arguments.length === 1) {
+            this.canvas = x;
+            x = y = 0;
+            w = this.canvas.width;
+            h = this.canvas.height;
+        }
+        if (arguments.length === 2) {
+            w = x; h = y; x = y = 0;
+        }
+        this.left = this.right = null;
+        this.rect = new Rect(x, y, w, h);
+        this.filled = false;
+        this.tilepad = false;
+        this._cache = [];
+        this._uvcache = Object.create(null);
+    }
+
+    // pack image/rect to the atlas
+    Atlas.prototype.pack = function (rect) {
+        this._cache = [];
+        this._uvcache = Object.create(null);
+        rect = this._toRect(rect);
+
+        if (this.img && this.tilepad) {
+            rect = this._tilepad(rect);
+        }
+
+        if (this.left !== null) {
+            return this._ontoCanvas(this.left.pack(rect) || this.right.pack(rect));
+        }
+        // if atlas filled or wont fit
+        if (this.filled || !rect.fitsIn(this.rect)) {
+            return false;
+        }
+        // if this atlas has been filled
+        if (rect.sameSizeAs(this.rect)) {
+            this.filled = true;
+            return this._ontoCanvas(this);
+        }
+        if ((this.rect.w - rect.w) > (this.rect.h - rect.h)) {
+            this.left = new Atlas(this.rect.x, this.rect.y, rect.w, this.rect.h);
+            this.right = new Atlas(this.rect.x + rect.w, this.rect.y, this.rect.w - rect.w, this.rect.h);
+        } else {
+            this.left = new Atlas(this.rect.x, this.rect.y, this.rect.w, rect.h);
+            this.right = new Atlas(this.rect.x, this.rect.y + rect.h, this.rect.w, this.rect.h - rect.h);
+        }
+        return this._ontoCanvas(this.left.pack(rect));
+    };
+
+    Atlas.prototype.expand = function (rect) {
+        var self = this;
+        rect = this._toRect(rect);
+
+        if (this.img && this.tilepad) {
+            rect = this._tilepad(rect);
+        }
+
+        var atlas;
+        if (this.rect.w < this.rect.h) {
+            atlas = new Atlas(0, 0, this.rect.w + rect.w, this.rect.h);
+            atlas.right = new Atlas(this.rect.w, 0, rect.w, this.rect.h);
+            atlas.left = this;
+        } else {
+            atlas = new Atlas(0, 0, this.rect.w, this.rect.h + rect.h);
+            atlas.right = new Atlas(0, this.rect.h, this.rect.w, rect.h);
+            atlas.left = this;
+        }
+
+        ['canvas', 'context', 'img'].forEach(function (p) {
+            if (self[p]) {
+                atlas[p] = self[p];
+                self[p] = null;
+            }
+        });
+
+        // resize canvas
+        if (atlas.canvas) {
+            if (!atlas.context) {
+                atlas.context = atlas.canvas.getContext('2d');
+            }
+            var old = atlas.context.getImageData(0, 0, atlas.canvas.width, atlas.canvas.height);
+            atlas.canvas.width = atlas.rect.w;
+            atlas.canvas.height = atlas.rect.h;
+            atlas.context.putImageData(old, 0, 0);
+        }
+
+        return (atlas.pack(rect) === false) ? atlas.expand(rect) : atlas;
+    };
+
+    Atlas.prototype.index = function () {
+        var self = this;
+        if (self._cache.length > 0) {
+            return self._cache;
+        }
+        (function loop(atlas) {
+            if (atlas.left !== null) {
+                loop(atlas.left);
+                loop(atlas.right);
+            } else if (atlas.rect.name) {
+                self._cache.push(atlas.rect);
+            }
+        }(self));
+        return self._cache;
+    };
+
+    Atlas.prototype.uv = function (w, h) {
+        var self = this;
+        w = w || self.rect.w;
+        h = h || self.rect.h;
+        var isPad = this.tilepad;
+        (function loop(atlas) {
+            if (atlas.left !== null) {
+                loop(atlas.left);
+                loop(atlas.right);
+            } else if (typeof atlas.rect.name !== 'undefined') {
+                var p = (isPad) ? atlas.rect.w / 4 : 0;
+                self._uvcache[atlas.rect.name] = [
+                    [atlas.rect.x + p, atlas.rect.y + p],
+                    [(atlas.rect.x + p) + (atlas.rect.w - (p * 2)), atlas.rect.y + p],
+                    [(atlas.rect.x + p) + (atlas.rect.w - (p * 2)), (atlas.rect.y + p) + (atlas.rect.h - (p * 2))],
+                    [(atlas.rect.x + p), (atlas.rect.y + p) + (atlas.rect.h - (p * 2))],
+                ].map(function (uv) {
+                    if (uv[0] !== 0) {
+                        uv[0] = uv[0] / w;
+                    }
+                    if (uv[1] !== 0) {
+                        uv[1] = uv[1] / h;
+                    }
+                    return uv;
+                });
+            }
+        }(self));
+        return self._uvcache;
+    };
+
+    Atlas.prototype.json = function (input) {
+        var self = this;
+        if (input) {
+            if (typeof input === 'string') input = JSON.parse(input);
+            return (function loop(obj) {
+                if (!obj || !obj.rect) return;
+                var atlas = new Atlas(obj.rect.x, obj.rect.y, obj.rect.w, obj.rect.h);
+                if (obj.left) atlas.left = loop(obj.left);
+                if (obj.right) atlas.right = loop(obj.right);
+                return atlas;
+            }(input));
+        } else {
+            return JSON.stringify(function loop(atlas) {
+                var obj = {
+                    left: null, right: null,
+                    rect: atlas.rect, filled: atlas.filled
+                };
+                if (atlas.left !== null) {
+                    obj.left = loop(atlas.left);
+                    obj.right = loop(atlas.right);
+                }
+                return obj;
+            }(self), null, 2);
+        }
+    };
+
+    // Pads the image by tiling itself around itself
+    Atlas.prototype._tilepad = function (rect) {
+        var img = this.img;
+        if (!img) return rect;
+
+        var p = img.width / 2;
+
+        var canvas = document.createElement('canvas');
+        canvas.name = img.name || img.src;
+        canvas.id = img.id || '';
+        canvas.width = img.width + img.width;
+        canvas.height = img.height + img.height;
+        var ctx = canvas.getContext('2d');
+
+        var pattern = ctx.createPattern(img, 'repeat');
+        ctx.fillStyle = pattern;
+        ctx.translate(p, p);
+        ctx.fillRect(-p, -p, canvas.width + p, canvas.height + p);
+        ctx.translate(-p, -p);
+
+        this.img = canvas;
+
+        return new Rect(rect.x, rect.y, this.img.width, this.img.height);
+    };
+
+    // if has an image and canvas, draw to the canvas as we go
+    Atlas.prototype._ontoCanvas = function (node) {
+        if (node && this.img && this.canvas) {
+            if (!this.context) {
+                this.context = this.canvas.getContext('2d');
+            }
+            this.canvas.ctx = this.context
+            this.context.clearRect(node.rect.x, node.rect.y, node.rect.w, node.rect.h);
+            this.context.drawImage(this.img, node.rect.x, node.rect.y, node.rect.w, node.rect.h);
+            node.rect.name = this.img.id || this.img.name || this.img.src || null;
+        }
+        return node;
+    };
+
+    // make sure we're always working with rects
+    Atlas.prototype._toRect = function (rect) {
+        // if rect is an image
+        if (rect.nodeName && (rect.nodeName === 'IMG' || rect.nodeName === 'CANVAS')) {
+            this.img = rect;
+            rect = new Rect(rect.x, rect.y, rect.width, rect.height);
+        }
+        // if rect is an object
+        if (!(rect instanceof Rect)) {
+            rect = new Rect(rect.x || 0, rect.y || 0, rect.w || rect.width, rect.h || rect.height);
+        }
+        return rect;
+    };
+
+    Atlas.prototype._debug = function () {
+        if (!this.canvas) { return; }
+        var context = this.canvas.getContext('2d');
+        this.index().forEach(function (rect) {
+            context.lineWidth = 1;
+            context.strokeStyle = 'red';
+            context.strokeRect(rect.x, rect.y, rect.w, rect.h);
+        });
+    };
+
+})()
 "use strict";
 /**DOC:
     {
         constructorYn : true,
-        title :`RedMaterialDefine`,
+        title :`RedAtlasUVInfo`,
         description : `
-            - RedGL에서 사용할 재질정보를 정의.
-            - <b>유일키</b>만 지원하며 키 중복일경우 에러발생.
-            - <b>Object.freeze</b> 상태로 정의됨.
+            - <b>RedAtlasTextureManager</b>에 의해 자동 생성된 <b>RedAtlasUVInfo</b>.
+            - <span style="color:red">렌더링시 고정 유니폼인 <b>uAtlascoord</b>에 사용된다.</span>
+            - 사용자 생성은 금지한다.
+            - Object.freeze 상태로 반환.
+        `,
+        params : {
+            uvArray : [
+                {type:'Array'},
+                '- 생성초기값'
+            ]
+        },
+        return : 'RedAtlasUVInfo instance'
+    }
+:DOC*/
+var RedAtlasUVInfo;
+RedAtlasUVInfo = function (uvArray) {
+    if (!(this instanceof RedAtlasUVInfo)) return new RedAtlasUVInfo(uvArray)
+    if (!(uvArray instanceof Array)) throw 'uvArray는 Array만 허용합니다.'
+    this['value'] = new Float32Array(uvArray)
+    this['value']['__UUID'] = this['__UUID'] = REDGL_UUID++
+    Object.freeze(this)
+}
+"use strict";
+/**DOC:
+    {
+        constructorYn : true,
+        title :`RedAtlasInfo`,
+        description : `
+            - <b>RedAtlasTextureManager</b>에 의해 자동 생성된 <b>RedAtlasInfo</b>.
+            - 고유값으로 캐싱되며, 사용자 생성은 금지한다.
+            - 하드웨어가 지원하는 최대크기(최대 4096*4096으로 제한)의 <b>Atlas</b>객체를 가진다.
+            - <b>Atlas</b>정보가 업데이트되면 자동 갱신된다.
         `,
         params : {
             redGL : [
                 {type:'RedGL Instance'},
-                '- redGL 인스턴스'
+                `
+                    - RedGL 객체.
+                `
             ],
-            programInfo : [
-                {type:'RedProgramInfo'},
-                '- 재질과 바인딩될 RedProgramInfo 지정'
+            targetAtlas : [
+                {type:'Atlas instance'},
+                `
+                    - Atlas 인스턴스 객체를 주입.
+                `
+            ]
+        },
+        return : 'RedAtlasInfo Instance'
+    }
+:DOC*/
+var RedAtlasInfo;
+RedAtlasInfo = function (redGL, targetAtlas) {
+    if (!(this instanceof RedAtlasInfo)) return new RedAtlasInfo(redGL, targetAtlas)
+    if (!(redGL instanceof RedGL)) throw 'RedAtlasInfo : RedGL 인스턴스만 허용됩니다.'
+    if (!(targetAtlas instanceof Atlas)) throw 'RedAtlasInfo : Atlas 인스턴스만 허용됩니다.'
+    /**DOC:
+    {
+        title :`atlas`,
+        code : 'PROPERTY',
+        description : `
+            Atlas정보(Atlas).
+        `,
+        example : `
+            인스턴스.atlas
+        `,
+        return : 'Atlas Instance'
+    }
+    :DOC*/
+    this['atlas'] = targetAtlas
+    /**DOC:
+    {
+        title :`textureInfo`,
+        code : 'PROPERTY',
+        description : `
+            - 텍스쳐 정보(RedTextureInfo)
+            - 시스템에서 자동으로 생성관리함.
+        `,
+        example : `
+            인스턴스.textureInfo
+        `,
+        return : 'RedTextureInfo Instance'
+    }
+    :DOC*/
+    this['textureInfo'] = undefined
+}
+"use strict";
+/**DOC:
+    {
+        constructorYn : true,
+        title :`RedAtlasTextureManager`,
+        description : `
+			- <b>Atlas를 생성하고 텍스쳐관련작업을 자동으로 관리하는 오브젝트</b>
+			- 아틀라스 사이즈는 하드웨어지원 최대크기로 자동설정된다(최대 4096)
+        `,
+        params : {
+            redGL : [
+                {type:'RedGL'},
+                '- redGL Instance'
+            ],
+            srcList : [
+				{type:'String or Array'},
+				'단일 문자열로 들어오면 알아서 배열로 바꿈.'
+			],
+			callback : [
+				 {type:'Function'},
+				 '아틀라스 완성후 실행할 콜백.'
+			]
+        },
+        example : `
+            RedAtlasTextureManager(redGLInstance, 원하는경로, 콜백이필요하면 콜백)
+        `,
+        return : 'void'
+    }
+:DOC*/
+var RedAtlasTextureManager;
+(function () {
+	var MAX_TEXTURE_SIZE;
+	var MAX_TEXTURE_IMAGE_UNITS; // 최대 허용 이미지유닛수
+	var atlasInfoList; // 아틀라스정보 객체 리스트
+	var atlasKeyMap; // 아틀라스에 등록된 이미지 맵정보
+	var tRedGL;
+	var tTextureUnitIndex; // 텍스쳐 유닛인덱스
+	var tAtlas; // 대상 아틀라스
+	var createAtlas; // 아틀라스 캔버스 생성기
+	var atlasPack; // 아틀라스에 이미지를 실제로 업로드하는 녀석
+	atlasKeyMap = {}
+	atlasInfoList = []
+	createAtlas = function (image) {
+		var canvas;
+		var t0;
+		if (image && (image['width'] > MAX_TEXTURE_SIZE || image['height'] > MAX_TEXTURE_SIZE)) throw MAX_TEXTURE_SIZE + ' - 최대 허용사이즈보다 이미지가 큽니다.'
+		canvas = document.createElement('canvas');
+		canvas.width = MAX_TEXTURE_SIZE, canvas.height = MAX_TEXTURE_SIZE;
+		canvas.style.background = 'transparent', canvas.style.margin = '3px', canvas.style.display = 'inline-block'
+		// document.body.appendChild(canvas)
+		// 아틀라스 생성
+		tTextureUnitIndex++
+		tAtlas = new Atlas(canvas);
+		tAtlas['atlasInfo'] = RedAtlasInfo(tRedGL, tAtlas)
+		tAtlas['atlasInfo']['textureInfo'] = RedTextureInfo(tRedGL, tAtlas['canvas'], tTextureUnitIndex)
+		tAtlas['atlasInfo']['__targetIndex'] = tTextureUnitIndex
+		atlasInfoList.push(tAtlas['atlasInfo'])
+
+	}
+	atlasPack = function (targetImage) {
+		tAtlas = atlasInfoList[0]['atlas']
+		var node = tAtlas.pack(targetImage);
+		var i, len;
+		if (node === false) {
+			// 아틀라스를 전체를 돌면서 찾아야하고..
+			i = 0, len = atlasInfoList.length
+			for (i; i < len; i++) {
+				// 기존있는놈중에 들어가면 종료시키고
+				tAtlas = atlasInfoList[i]['atlas']
+				node = tAtlas.pack(targetImage);
+				if (node) break
+			}
+			// 여기까지 흘러들어오면 아틀라스캔버스 자체를 추가한다.
+			if (node === false) {
+				createAtlas(targetImage)
+				node = tAtlas.pack(targetImage)
+			}
+		}
+		// RedAtlasTextureInfo를 생성하고 맵에 담아둠
+		console.log(tAtlas, tAtlas.uv())
+		atlasKeyMap[targetImage.id] = new RedAtlasTextureInfo(
+			tAtlas.uv()[targetImage.id],
+			tAtlas['atlasInfo']
+		)
+		return node
+	}
+	RedAtlasTextureManager = function (redGL, srcList, callback) {
+		if (!(this instanceof RedAtlasTextureManager)) return new RedAtlasTextureManager(redGL, srcList, callback)
+		if (!(redGL instanceof RedGL)) throw 'RedAtlasTextureManager : RedGL 인스턴스만 허용됩니다.'
+		if (typeof srcList == 'string') srcList = [srcList]
+		if (!(srcList instanceof Array) && typeof srcList !='string') throw 'RedAtlasTextureManager : srcList는 문자열 또는 Array만 허용됩니다.'
+		tRedGL = redGL
+		MAX_TEXTURE_SIZE = redGL['detect']['MAX_TEXTURE_SIZE']
+		MAX_TEXTURE_IMAGE_UNITS = redGL['detect']['MAX_TEXTURE_IMAGE_UNITS']
+		if (tTextureUnitIndex == undefined) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 4)
+		if (MAX_TEXTURE_SIZE > 4096) MAX_TEXTURE_SIZE = 4096
+		console.log('MAX_TEXTURE_SIZE', MAX_TEXTURE_SIZE)
+		console.log('MAX_TEXTURE_IMAGE_UNITS', MAX_TEXTURE_IMAGE_UNITS)
+		if (!tAtlas) createAtlas()
+		var loaded, targetNum;
+		loaded = 0
+		targetNum = 0
+		srcList.forEach(function (src) {
+			var img = new Image();
+			var id = src
+			if (atlasKeyMap[id]) return // 이미존재하면 나가리..
+			img.id = id
+			img.src = src
+			targetNum++
+			img.onload = function () {
+				var node = atlasPack(this)
+				loaded++
+				if (targetNum == loaded) {
+					atlasInfoList.forEach(function (v) {
+						console.log("atlasInfo", v)
+						v['textureInfo'].updateTexture(v['atlas']['canvas'])
+
+					})
+					if (callback) callback(srcList)
+				}
+			};
+
+		})
+		return RedAtlasTextureManager
+	}
+	/**DOC:
+		{
+			title :`getByKey`,
+			code : 'PROPERTY',
+			description : `
+				- 이미지등록시 사용된 src를 key로 해당하는 RedAtlasTextureInfo 맵을 조회한다.
+			`,
+			example : `
+				RedAtlasTextureManager.getByKey('찾고싶은 src')
+			`,
+			return : 'RedAtlasTextureInfo instance'
+		}
+	:DOC*/
+	RedAtlasTextureManager.getByKey = function (key) { return atlasKeyMap[key] }
+	Object.freeze(RedAtlasTextureManager)
+})();
+"use strict";
+var RedAtlasTextureInfo;
+(function () {
+    var checkMap;;
+    checkMap = {}
+    /**DOC:
+        {
+            constructorYn : true,
+            title :`RedAtlasTextureInfo`,
+            description : `
+                - <b>RedAtlasTextureManager</b>에 의해 자동 생성된 <b>RedAtlasTextureInfo</b>.
+                - 고유값으로 캐싱되며, 사용자 생성은 금지한다.
+                - Object.freeze 상태로 반환.
+            `,
+            params : {
+                atlasUVInfo : [
+                    {type:'Array'},
+                    `
+                        - 아틀라스상의 Rect정보.
+                    `
+                ],
+                parentAtlasInfo : [
+                    {type:'Atlas instance'},
+                    `
+                        - Atlas 인스턴스 객체.
+                    `
+                ]
+            },
+            return : 'RedAtlasTextureInfo Instance'
+        }
+    :DOC*/
+    var t0;
+    var tKey;
+    var setAtlasUVInfo
+    setAtlasUVInfo = function (atlasUVInfo) {
+        t0 = [
+            atlasUVInfo[0][0],
+            1.0 - atlasUVInfo[2][1],
+            (atlasUVInfo[1][0] - atlasUVInfo[0][0]),
+            (atlasUVInfo[2][1] - atlasUVInfo[0][1])
+        ]
+        tKey = t0.toString()
+        if (checkMap[tKey]) atlasUVInfo = checkMap[tKey]
+        else atlasUVInfo = checkMap[tKey] = RedAtlasUVInfo(t0)
+        return atlasUVInfo
+    }
+    RedAtlasTextureInfo = (function () {
+
+        return function (atlasUVInfo, parentAtlasInfo) {
+            if (!(this instanceof RedAtlasTextureInfo)) return new RedAtlasTextureInfo(atlasUVInfo, parentAtlasInfo)
+            if (!(atlasUVInfo instanceof Array)) throw 'atlasUVInfo는 Array만 허용합니다.'
+            if (!(parentAtlasInfo instanceof RedAtlasInfo)) throw 'parentAtlasInfo는 RedAtlasInfo  인스턴스만 허용합니다.'
+            atlasUVInfo = setAtlasUVInfo(atlasUVInfo)
+            console.log(atlasUVInfo)
+            /**DOC:
+                {
+                    title :`atlasUVInfo`,
+                    code : 'PROPERTY',
+                    description : `
+                        - atlasUVInfo 반환
+                    `,
+                    example : `
+                        인스턴스.atlasUVInfo
+                    `,
+                    return : 'RedAtlasUVInfo Instance'
+                }
+            :DOC*/
+            this['atlasUVInfo'] = atlasUVInfo
+            /**DOC:
+                {
+                    title :`parentAtlasInfo`,
+                    code : 'PROPERTY',
+                    description : `
+                        - parentAtlasInfo 반환
+                    `,
+                    example : `
+                        인스턴스.parentAtlasInfo
+                    `,
+                    return : 'RedAtlasInfo Instance'
+                }
+            :DOC*/
+            this['parentAtlasInfo'] = parentAtlasInfo
+            this['__webglAtlasTexture'] = 1
+            Object.freeze(this)
+            console.log(this)
+        }
+    })()
+    RedAtlasTextureInfo.prototype.setAtlasUVInfo = setAtlasUVInfo
+})();
+"use strict";
+var RedSkyBoxInfo;
+/**DOC:
+    {
+        constructorYn : true,
+        title :`RedSkyBoxInfo`,
+        description : `
+            <h2>RedMeshBaseInfo 상속객체</h2>
+            - 기본 스카이박스 생성기
+        `,
+        params:{
+            redGL : [
+                {type:'Red Instance'},
+                'redGL 인스턴스'
+            ],
+            srcList : [
+                {type:'Array'},
+                `
+                    tGL.TEXTURE_CUBE_MAP_POSITIVE_X<br>
+                    tGL.TEXTURE_CUBE_MAP_NEGATIVE_X<br>
+                    tGL.TEXTURE_CUBE_MAP_POSITIVE_Y<br>
+                    tGL.TEXTURE_CUBE_MAP_NEGATIVE_Y<br>
+                    tGL.TEXTURE_CUBE_MAP_POSITIVE_Z<br>
+                    tGL.TEXTURE_CUBE_MAP_NEGATIVE_Z<br>
+                순으로 입력
+                `
             ]
         },
         example : `
-            var test;
-            test = RedGL(Canvas Element)
-            // basic이라는 이름으로 버텍스 쉐이더를 만든다. 
-            test.createShaderInfo('basic', RedProgramInfo.VERTEX_SHADER, 쉐이더소스)
-            test.createShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER, 쉐이더소스)
-            // basic이라는 이름으로 프로그램을 만든다. 
-            test.createProgramInfo(
-                'basic',
-                test.getShaderInfo('basic', RedProgramInfo.VERTEX_SHADER),
-                test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER)
+            testScene.setSkyBox(
+                testGL.createSkyBoxInfo([
+                    'asset/cubemap/posx.jpg',
+                    'asset/cubemap/negx.jpg',
+                    'asset/cubemap/posy.jpg',
+                    'asset/cubemap/negy.jpg',
+                    'asset/cubemap/posz.jpg',
+                    'asset/cubemap/negz.jpg'
+                ])
             )
-            // basic이라는 타입의 재질을 만든다.
-            test.createMaterialDefine(test.getProgramInfo('basic'))
         `,
-        return : 'RedMaterialDefine Instance'
+        return : 'RedSkyBoxInfo Instance'
     }
 :DOC*/
-var RedMaterialDefine;
 (function () {
-    var tDatas;
-    var tKey;
-    RedMaterialDefine = function (redGL, programInfo) {
-        if (!(this instanceof RedMaterialDefine)) return new RedMaterialDefine(redGL, programInfo)
+    RedSkyBoxInfo = function (redGL, srcList) {
+        if (!(this instanceof RedSkyBoxInfo)) return new RedSkyBoxInfo(redGL, srcList)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (!(programInfo instanceof RedProgramInfo)) throw 'RedProgramInfo 인스턴스만 허용됩니다.'
-        // 저장할 공간확보하고
-        if (!redGL['__datas']['RedMaterialDefine']) redGL['__datas']['RedMaterialDefine'] = {}
-        tKey = programInfo['key']
-        tDatas = redGL['__datas']['RedMaterialDefine']
-        // 기존에 등록된 녀석이면 에러
-        if (tDatas[tKey]) throw tKey + '는 이미 존재하는 RedMaterialDefine 입니다.'
-        /**DOC:
-		{
-            title :`programInfo`,
-			description : `실제 재질을 만들때 참고할 programInfo`,
-			example : `인스턴스.programInfo`,
-			return : 'RedProgramInfo'
-        }
-        :DOC*/
-        this['programInfo'] = programInfo
-        this['__UUID'] = REDGL_UUID++
-        // 캐싱
-        tDatas[tKey] = this
-        Object.freeze(this)
+        if (!(srcList instanceof Array)) throw 'srcList는 Array만 허용됩니다.'
+        if (srcList.length != 6) throw 'srcList는 6개여야 합니다.'
+        RedMeshBaseInfo.call(this, redGL)
+        this['materialInfo'] = RedMaterialInfo(redGL, 'skyBox', RedCubeTextureInfo(redGL, srcList))
+        this['geometryInfo'] = RedPrimitive.cube(redGL)
+        this['scale'][0] = 1000//TODO: 카메라 far 물어야함
+        this['scale'][1] = 1000
+        this['scale'][2] = 1000
+        this['cullFace'] = redGL.gl.FRONT
     }
-    Object.freeze(RedMaterialDefine)
+    Object.freeze(RedSkyBoxInfo)
 })();
 "use strict";
 var RedSceneInfo;
@@ -2648,542 +3636,6 @@ var RedSceneInfo;
     Object.freeze(RedSceneInfo)
 })();
 "use strict";
-var RedTextureInfo;
-(function () {
-	var tGL;
-	/**DOC:
-		{
-			constructorYn : true,
-			title :`RedTextureInfo`,
-			description : `
-				- 기본 텍스쳐 생성기
-			`,
-			params : {
-				redGL : [
-					{type:'RedGL Instance'}
-				],
-				src : [
-					{type:'String or CanvasElement'},
-					'텍스쳐경로나 캔버스 오브젝트만 사용가능'
-				]
-				// targetIndex : [
-				// 	{type:'Integer'},
-				// 	'- 타겟 인덱스를 지정한다.',
-				// 	'- 기본값 : 1 (기본인덱스는 1번을 사용함)',
-				// 	'- 아틀라스텍스쳐의 경우 하드웨어 지원 텍스쳐수의 절반을 parseInt한 값을 시작으로 끝까지 시스템에서 자동으로 부여함.'
-
-				// ]
-			},
-			example : `
-				var testGL
-				testGL = RedGL(document.getElementById('test'), true)
-				testGL.createTextureInfo('asset/crate.png')
-			`,
-			return : 'RedTextureInfo Instance'
-		}
-	:DOC*/
-	RedTextureInfo = function (redGL, src, targetIndex, internalFormat, format, type) {
-		if (!(this instanceof RedTextureInfo)) return new RedTextureInfo(redGL, src, targetIndex, internalFormat, format, type)
-		if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-		if (src != undefined && typeof src != 'string' && !(src instanceof Element && src.nodeName == 'CANVAS')) throw 'src는 문자열과 캔버스 오브젝트만 허용됩니다.'
-		var texture;
-		var img;
-		var level = 0;
-		var width = 1;
-		var height = 1;
-		var border = 0;
-		var self;
-		console.log(src)
-		self = this
-		tGL = redGL.gl
-		internalFormat = internalFormat ? internalFormat : tGL.RGBA;
-		format = format ? format : tGL.RGBA;
-		type = type ? type : tGL.UNSIGNED_BYTE;
-		targetIndex = targetIndex ? targetIndex : RedTextureIndex.DIFFUSE
-		texture = tGL.createTexture()
-		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CREATE)
-		tGL.bindTexture(tGL.TEXTURE_2D, texture)
-		// 초기이미지 설정
-		tGL.texImage2D(
-			tGL.TEXTURE_2D,
-			level,
-			internalFormat,
-			width,
-			height,
-			border,
-			format,
-			type,
-			new Uint8Array(
-				222, 222, 222, 255
-			)
-		)
-		img = new Image();
-		// 캔버스 일경우 캔버스이미지데이터를 활용함
-		if (src != undefined) img.src = src instanceof Element ? src.toDataURL() : src
-		img.crossOrigin = 'anonymous'
-		img.addEventListener('load', function () {
-			console.log('여기')
-			// 로딩상태 플래그를 완료로 설정
-			self['loaded'] = 1
-			// 타겟인덱스를 설정함		
-			self['__targetIndex'] = targetIndex
-			tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CREATE)
-			tGL.bindTexture(tGL.TEXTURE_2D, self['texture'])
-			tGL.texImage2D(tGL.TEXTURE_2D, 0, tGL.RGBA, tGL.RGBA, tGL.UNSIGNED_BYTE, self['__img'])
-			tGL.texParameterf(tGL.TEXTURE_2D, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR);
-			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_MIN_FILTER, tGL.LINEAR_MIPMAP_NEAREST);
-			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_S, tGL.CLAMP_TO_EDGE);
-			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_T, tGL.CLAMP_TO_EDGE);
-			tGL.generateMipmap(tGL.TEXTURE_2D)
-			// img.onload = null
-		});
-		// tGL.bindTexture(tGL.TEXTURE_2D, null)
-		this['__img'] = img
-		// 인덱스 번호 지정 - 초기생성전담은 0번 인덱스를 사용함
-		this['__targetIndex'] = RedTextureIndex.CREATE
-		// 로딩이 다되었는지
-		this['loaded'] = 0
-		// 액티브된적이있는지
-		this['actived'] = 0
-		// 웹지엘 텍스쳐인지
-		this['__webglTexture'] = 1
-		this['__UUID'] = REDGL_UUID++
-		this['texture'] = texture
-	}
-	RedTextureInfo.prototype.updateTexture = function (src) {
-		console.log('업데이트', src)
-		this['loaded'] = 0		
-		this['__img'].src = src instanceof Element ? src.toDataURL() : src
-	}
-})();
-"use strict";
-var RedTextureIndex;
-(function () {
-	var tGL;
-	/**DOC:
-		{
-			constructorYn : true,
-			title :`RedTextureIndex`,
-			description : `
-				- 텍스쳐 고유인덱스
-			`,
-			example : `
-				RedTextureIndex.DIFFUSE
-				RedTextureIndex.NORMAL
-				RedTextureIndex.CUBE
-			`,
-			return : 'Integer'
-		}
-	:DOC*/
-	RedTextureIndex = {
-		/**DOC:
-		{
-			title :`CREATE`,
-			code : 'CONST',
-			description : `
-				- 텍스쳐 생성시 자동부여되는 기본인덱스
-				- 텍스쳐 생성완료이후 지정된 인덱스로 변환됨
-			`,
-			return : 'Integer'
-		}
-		:DOC*/
-		CREATE : 0,
-		CUBE_CREATE: 2,
-		/**DOC:
-		{
-			title :`DIFFUSE`,
-			code : 'CONST',
-			description : `
-				- 디퓨즈 텍스쳐 인덱스
-				- 텍스쳐 생성지 지정하지않을경우 기본 디퓨즈로 인식함
-			`,
-			return : 'Integer'
-		}
-		:DOC*/
-		DIFFUSE : 1,
-		/**DOC:
-		{
-			title :`NORMAL`,
-			code : 'CONST',
-			description : `
-				- 노멀 텍스쳐 인덱스
-			`,
-			return : 'Integer'
-		}
-		:DOC*/
-		/**DOC:
-	{
-		title :`CUBE_REFLECTION`,
-		code : 'CONST',
-		description : `
-			- 큐브 텍스쳐 인덱스
-		`,
-		return : 'Integer'
-	}
-	:DOC*/
-		CUBE_REFLECTION: 2,
-		NORMAL : 3,
-		/**DOC:
-		{
-			title :`DISPLACEMENT`,
-			code : 'CONST',
-			description : `
-				- DISPLACEMENT 텍스쳐 인덱스
-			`,
-			return : 'Integer'
-		}
-		:DOC*/
-		DISPLACEMENT : 4,
-		/**DOC:
-		{
-			title :`SPECULAR`,
-			code : 'CONST',
-			description : `
-				- SPECULAR 텍스쳐 인덱스
-			`,
-			return : 'Integer'
-		}
-		:DOC*/
-		SPECULAR : 5,
-		//아틀라스는 자동
-		ETC_VERTEX_1 : 7,
-		ETC_VERTEX_2 : 8,
-		ETC_FRAGMENT_1 : 9,
-		ETC_FRAGMENT_2 : 10
-
-		/////////////////////
-	
-	}
-	Object.freeze(RedTextureIndex)
-})();
-"use strict";
-/**DOC:
-    {
-        constructorYn : true,
-        title :`RedAtlasUVInfo`,
-        description : `
-            - <b>RedAtlasTextureManager</b>에 의해 자동 생성된 <b>RedAtlasUVInfo</b>.
-            - <span style="color:red">렌더링시 고정 유니폼인 <b>uAtlascoord</b>에 사용된다.</span>
-            - 사용자 생성은 금지한다.
-            - Object.freeze 상태로 반환.
-        `,
-        params : {
-            uvArray : [
-                {type:'Array'},
-                '- 생성초기값'
-            ]
-        },
-        return : 'RedAtlasUVInfo instance'
-    }
-:DOC*/
-var RedAtlasUVInfo;
-RedAtlasUVInfo = function (uvArray) {
-    if (!(this instanceof RedAtlasUVInfo)) return new RedAtlasUVInfo(uvArray)
-    if (!(uvArray instanceof Array)) throw 'uvArray는 Array만 허용합니다.'
-    this['value'] = new Float32Array(uvArray)
-    this['value']['__UUID'] = this['__UUID'] = REDGL_UUID++
-    Object.freeze(this)
-}
-"use strict";
-/**DOC:
-    {
-        constructorYn : true,
-        title :`RedAtlasInfo`,
-        description : `
-            - <b>RedAtlasTextureManager</b>에 의해 자동 생성된 <b>RedAtlasInfo</b>.
-            - 고유값으로 캐싱되며, 사용자 생성은 금지한다.
-            - 하드웨어가 지원하는 최대크기(최대 4096*4096으로 제한)의 <b>Atlas</b>객체를 가진다.
-            - 소스맵을 기반으로 <b>RedAtlasTextureInfo</b>를 내부적으로 가진다.
-            - <b>Atlas</b>정보가 업데이트되면 자동 갱신된다.
-            - Object.seal 상태로 반환.
-        `,
-        params : {
-            redGL : [
-                {type:'RedGL Instance'},
-                `
-                    - RedGL 객체.
-                `
-            ],
-            targetAtlas : [
-                {type:'Atlas instance'},
-                `
-                    - Atlas 인스턴스 객체를 주입.
-                `
-            ]
-        },
-        return : 'RedAtlasInfo Instance'
-    }
-:DOC*/
-var RedAtlasInfo;
-RedAtlasInfo = function (redGL, targetAtlas) {
-    if (!(this instanceof RedAtlasInfo)) return new RedAtlasInfo(redGL, targetAtlas)
-    if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-    /**DOC:
-    {
-        title :`RedAtlasInfo`,
-        code : 'PROPERTY',
-        description : `
-            Atlas정보(Atlas).
-        `,
-        example : `
-            인스턴스.atlas
-        `,
-        return : 'Atlas Instance'
-    }
-    :DOC*/
-    this['atlas'] = targetAtlas
-    /**DOC:
-    {
-        title :`textureInfo`,
-        code : 'PROPERTY',
-        description : `
-            텍스쳐 정보(RedAtlasTextureInfo)
-        `,
-        example : `
-            인스턴스.textureInfo
-        `,
-        return : 'RedAtlasTextureInfo를 Instance'
-    }
-    :DOC*/
-    // Object.seal(this)
-}
-"use strict";
-/**DOC:
-    {
-        constructorYn : true,
-        title :`RedAtlasTextureManager`,
-        description : `
-            - <b>Atlas를 생성하고 텍스쳐관련작업을 자동으로 관리하는 오브젝트</b>
-        `,
-        params : {
-            redGL : [
-                {type:'RedGL'},
-                '- redGL Instance'
-            ],
-            srcList : [
-				{type:'String or Array'},
-				'단일 문자열로 들어오면 알아서 배열로 바꿈.'
-			],
-			callback : [
-				 {type:'Function'},
-				 '아틀라스 완성후 실행할 콜백.'
-			]
-        },
-        example : `
-            RedAtlasTextureManager(redGLInstance, 원하는경로, 콜백이필요하면 콜백)
-        `,
-        return : 'RedAtlasTextureManager OBJECT'
-    }
-:DOC*/
-var RedAtlasTextureManager;
-(function () {
-	var MAX_TEXTURE_SIZE;
-	var MAX_TEXTURE_IMAGE_UNITS; // 최대 허용 이미지유닛수
-	var atlasInfoList; // 아틀라스 객체 리스트
-	var atlasKeyMap; // 아틀라스에 등록된 이미지 맵정보
-	var tRedGL;
-	var tTextureUnitIndex; // 텍스쳐 유닛인덱스
-	var tAtlas; // 대상 아틀라스
-	var createAtlas; // 아틀라스 캔버스 생성기
-	var atlasPack; // 아틀라스에 이미지를 실제로 업로드하는 녀석
-	atlasKeyMap = {}
-	atlasInfoList = []
-	createAtlas = function (image) {
-		var canvas;
-		var t0;
-		if (image && (image['width'] > MAX_TEXTURE_SIZE || image['height'] > MAX_TEXTURE_SIZE)) throw MAX_TEXTURE_SIZE + ' - 최대 허용사이즈보다 이미지가 큽니다.'
-		canvas = document.createElement('canvas');
-		canvas.width = MAX_TEXTURE_SIZE, canvas.height = MAX_TEXTURE_SIZE;
-		canvas.style.background = 'transparent', canvas.style.margin = '3px', canvas.style.display = 'inline-block'
-		// document.body.appendChild(canvas)
-		// 아틀라스 생성
-		tTextureUnitIndex++
-		tAtlas = new Atlas(canvas);
-		tAtlas['atlasInfo'] = RedAtlasInfo(tRedGL, tAtlas)		
-		tAtlas['atlasInfo']['textureInfo'] = RedTextureInfo(tRedGL, tAtlas['canvas'], tTextureUnitIndex)
-		tAtlas['atlasInfo']['__targetIndex'] = tTextureUnitIndex
-		atlasInfoList.push(tAtlas['atlasInfo'])
-
-	}
-	atlasPack = function (targetImage) {
-		tAtlas = atlasInfoList[0]['atlas']
-		var node = tAtlas.pack(targetImage);
-		var i, len;
-		if (node === false) {
-			// 아틀라스를 전체를 돌면서 찾아야하고..
-			i = 0, len = atlasInfoList.length
-			for (i; i < len; i++) {
-				// 기존있는놈중에 들어가면 종료시키고
-				tAtlas = atlasInfoList[i]['atlas']
-				node = tAtlas.pack(targetImage);
-				if (node) break
-			}
-			// 여기까지 흘러들어오면 아틀라스캔버스 자체를 추가한다.
-			if (node === false) {
-				createAtlas(targetImage)
-				node = tAtlas.pack(targetImage)
-			}
-		}
-		// RedAtlasTextureInfo를 생성하고 맵에 담아둠
-		console.log(tAtlas,tAtlas.uv())
-		atlasKeyMap[targetImage.id] = new RedAtlasTextureInfo(
-			tAtlas.uv()[targetImage.id],
-			tAtlas['atlasInfo']
-		)
-		return node
-	}
-	RedAtlasTextureManager = function (redGL, srcList, callback) {
-		if (!(this instanceof RedAtlasTextureManager)) return new RedAtlasTextureManager(redGL, srcList, callback)
-		if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-		if (!(srcList instanceof Array)) srcList = [srcList]
-		tRedGL = redGL
-		MAX_TEXTURE_SIZE = redGL['detect']['MAX_TEXTURE_SIZE']
-		MAX_TEXTURE_IMAGE_UNITS = redGL['detect']['MAX_TEXTURE_IMAGE_UNITS']
-		if (tTextureUnitIndex == undefined) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 4)
-		if (MAX_TEXTURE_SIZE > 4096) MAX_TEXTURE_SIZE = 4096
-		console.log('MAX_TEXTURE_SIZE', MAX_TEXTURE_SIZE)
-		console.log('MAX_TEXTURE_IMAGE_UNITS', MAX_TEXTURE_IMAGE_UNITS)
-		if (!tAtlas) createAtlas()
-		var loaded, targetNum;
-		loaded = 0
-		targetNum = 0
-		srcList.forEach(function (src) {
-			var img = new Image();
-			var id = src
-			if (atlasKeyMap[id]) return // 이미존재하면 나가리..
-			img.id = id
-			img.src = src
-			targetNum++
-			img.onload = function () {
-				var node = atlasPack(this)
-				loaded++
-				if (targetNum == loaded) {
-					atlasInfoList.forEach(function (v) {
-						console.log("atlasInfo", v)
-						// if (!v['textureInfo']) v['textureInfo'] = RedTextureInfo(redGL, v['atlas']['canvas'], v['__targetIndex'])
-						// else v['textureInfo'].updateTexture(v['atlas']['canvas'])
-						v['textureInfo'].updateTexture(v['atlas']['canvas'])
-						
-					})
-					// for(var k in atlasKeyMap){
-					// 	console.log(atlasKeyMap[k])
-					// 	atlasKeyMap[k]['atlasUVInfo'] = atlasKeyMap[k]['setAtlasUVInfo'](tAtlas.uv()[k])
-					// }
-					if (callback) callback()
-				}
-			};
-			
-		})
-		return RedAtlasTextureManager
-	}
-	/**DOC:
-		{
-			title :`getByKey`,
-			code : 'PROPERTY',
-			description : `
-				- 이미지등록시 사용된 src를 key로 해당하는 RedAtlasTextureInfo 맵을 조회한다.
-			`,
-			example : `
-				RedAtlasTextureManager.getByKey('찾고싶은 src')
-			`,
-			return : 'RedAtlasTextureInfo instance'
-		}
-	:DOC*/
-	RedAtlasTextureManager.getByKey = function (key) {
-		return atlasKeyMap[key]
-	}
-	Object.freeze(RedAtlasTextureManager)
-})();
-"use strict";
-var RedAtlasTextureInfo;
-(function () {
-    var checkMap;;
-    checkMap = {}
-    /**DOC:
-        {
-            constructorYn : true,
-            title :`RedAtlasTextureInfo`,
-            description : `
-                - <b>RedAtlasTextureManager</b>에 의해 자동 생성된 <b>RedAtlasTextureInfo</b>.
-                - 고유값으로 캐싱되며, 사용자 생성은 금지한다.
-                - Object.freeze 상태로 반환.
-            `,
-            params : {
-                atlasUVInfo : [
-                    {type:'Array'},
-                    `
-                        - 아틀라스상의 Rect정보.
-                    `
-                ],
-                parentAtlasInfo : [
-                    {type:'Atlas instance'},
-                    `
-                        - Atlas 인스턴스 객체.
-                    `
-                ]
-            },
-            return : 'RedAtlasTextureInfo Instance'
-        }
-    :DOC*/
-    var t0;
-    var tKey;
-    var setAtlasUVInfo
-    setAtlasUVInfo = function (atlasUVInfo) {
-        t0 = [
-            atlasUVInfo[0][0],
-            1.0 - atlasUVInfo[2][1],
-            (atlasUVInfo[1][0] - atlasUVInfo[0][0]),
-            (atlasUVInfo[2][1] - atlasUVInfo[0][1])
-        ]
-        tKey = t0.toString()
-        if (checkMap[tKey]) atlasUVInfo = checkMap[tKey]
-        else atlasUVInfo = checkMap[tKey] = RedAtlasUVInfo(t0)
-        return atlasUVInfo
-    }
-    RedAtlasTextureInfo = (function () {
-
-        return function (atlasUVInfo, parentAtlasInfo) {
-            if (!(this instanceof RedAtlasTextureInfo)) return new RedAtlasTextureInfo(atlasUVInfo, parentAtlasInfo)
-            if (!(atlasUVInfo instanceof Array)) throw 'atlasUVInfo는 Array만 허용합니다.'
-            if (!(parentAtlasInfo instanceof RedAtlasInfo)) throw 'parentAtlasInfo는 RedAtlasInfo  인스턴스만 허용합니다.'
-            atlasUVInfo = setAtlasUVInfo(atlasUVInfo)
-            console.log(atlasUVInfo)
-            /**DOC:
-                {
-                    title :`atlasUVInfo`,
-                    code : 'PROPERTY',
-                    description : `
-                        - atlasUVInfo 반환
-                    `,
-                    example : `
-                        인스턴스.atlasUVInfo
-                    `,
-                    return : 'RedAtlasUVInfo Instance'
-                }
-            :DOC*/
-            this['atlasUVInfo'] = atlasUVInfo
-            /**DOC:
-                {
-                    title :`parentAtlasInfo`,
-                    code : 'PROPERTY',
-                    description : `
-                        - parentAtlasInfo 반환
-                    `,
-                    example : `
-                        인스턴스.parentAtlasInfo
-                    `,
-                    return : 'RedAtlasInfo Instance'
-                }
-            :DOC*/
-            this['parentAtlasInfo'] = parentAtlasInfo
-            this['__webglAtlasTexture'] = 1
-            Object.freeze(this)
-            console.log(this)
-        }
-    })()
-    RedAtlasTextureInfo.prototype.setAtlasUVInfo = setAtlasUVInfo
-})();
-"use strict";
 var RedBaseRenderInfo;
 /**DOC:
     {
@@ -3223,9 +3675,9 @@ var RedBaseRenderInfo;
 (function () {
     var tDatas;
     var SIN, COS;
-    var emptyCube
+    var emptyCube;
+    var checkCallBox;
     SIN = Math.sin, COS = Math.cos
-
     RedBaseRenderInfo = function (redGL, redScene, callback) {
         if (!(this instanceof RedBaseRenderInfo)) return new RedBaseRenderInfo(redGL, redScene, callback)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
@@ -3707,16 +4159,17 @@ var RedBaseRenderInfo;
                     tUseMapTextureKey = useMap[i3][1]
 
                     if (tProgramInfo['uniforms'][tUseMapKey]) {
-                        if (RedTextureIndex[useMap[i3][2]] == RedTextureIndex.CUBE_CREATE) {
+                        if (RedTextureIndex[useMap[i3][2]] == RedTextureIndex.CUBE_REFLECTION) {
                             if (!emptyCube) {
                                 var t;
                                 t = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NzMxRDhBQzRFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NzMxRDhBQzVFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo3MzFEOEFDMkU1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo3MzFEOEFDM0U1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuojYFUAAAAQSURBVHjaYvj//z8DQIABAAj8Av7bok0WAAAAAElFTkSuQmCC'
                                 emptyCube = redGL.createCubeTextureInfo([t, t, t, t, t, t])
                                 //TODO: 큐브전략짜야함
-                                tGL.activeTexture(tGL.TEXTURE0 + 2)
+                                tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CUBE_CREATE)
                                 tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, emptyCube['texture'])
-                                tGL.uniform1i(tProgramInfo['uniforms'][tUseMapTextureKey]['location'], 2)
+                                tGL.uniform1i(tProgramInfo['uniforms'][tUseMapTextureKey]['location'], RedTextureIndex.CUBE_CREATE)
                                 // emptyCube ['uUseReflectionTexture', 'uReflectionTexture', 'CUBE_REFLECTION']
+                               
                             }
                         }
                        
@@ -3725,6 +4178,7 @@ var RedBaseRenderInfo;
                                 tMaterial[tUseMapTextureKey]['__targetIndex'] !=undefined
                                 && tMaterial[tUseMapTextureKey]['__targetIndex'] != RedTextureIndex[useMap[i3][2]]
                             ) {
+                                console.log(tMaterial[tUseMapTextureKey])
                                 console.log(tUseMapKey, tUseMapTextureKey, tMaterial[tUseMapTextureKey]['__targetIndex'], RedTextureIndex[useMap[i3][2]])
                                 throw useMap[i3][2] + " 인덱스타입이 아닙니다."
                             }
@@ -3938,65 +4392,6 @@ var redGLDetect;
 	}
 })();
 "use strict";
-var RedSkyBoxInfo;
-/**DOC:
-    {
-        constructorYn : true,
-        title :`RedSkyBoxInfo`,
-        description : `
-            <h2>RedMeshBaseInfo 상속객체</h2>
-            - 기본 스카이박스 생성기
-        `,
-        params:{
-            redGL : [
-                {type:'Red Instance'},
-                'redGL 인스턴스'
-            ],
-            srcList : [
-                {type:'Array'},
-                `
-                    tGL.TEXTURE_CUBE_MAP_POSITIVE_X<br>
-                    tGL.TEXTURE_CUBE_MAP_NEGATIVE_X<br>
-                    tGL.TEXTURE_CUBE_MAP_POSITIVE_Y<br>
-                    tGL.TEXTURE_CUBE_MAP_NEGATIVE_Y<br>
-                    tGL.TEXTURE_CUBE_MAP_POSITIVE_Z<br>
-                    tGL.TEXTURE_CUBE_MAP_NEGATIVE_Z<br>
-                순으로 입력
-                `
-            ]
-        },
-        example : `
-            testScene.setSkyBox(
-                testGL.createSkyBoxInfo([
-                    'asset/cubemap/posx.jpg',
-                    'asset/cubemap/negx.jpg',
-                    'asset/cubemap/posy.jpg',
-                    'asset/cubemap/negy.jpg',
-                    'asset/cubemap/posz.jpg',
-                    'asset/cubemap/negz.jpg'
-                ])
-            )
-        `,
-        return : 'RedSkyBoxInfo Instance'
-    }
-:DOC*/
-(function () {
-    RedSkyBoxInfo = function (redGL, srcList) {
-        if (!(this instanceof RedSkyBoxInfo)) return new RedSkyBoxInfo(redGL, srcList)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (!(srcList instanceof Array)) throw 'srcList는 Array만 허용됩니다.'
-        if (srcList.length != 6) throw 'srcList는 6개여야 합니다.'
-        RedMeshBaseInfo.call(this, redGL)
-        this['materialInfo'] = RedMaterialInfo(redGL, 'skybox', RedCubeTextureInfo(redGL, srcList))
-        this['geometryInfo'] = RedPrimitive.cube(redGL)
-        this['scale'][0] = 1000//TODO: 카메라 far 물어야함
-        this['scale'][1] = 1000
-        this['scale'][2] = 1000
-        this['cullFace'] = redGL.gl.FRONT
-    }
-    Object.freeze(RedSkyBoxInfo)
-})();
-"use strict";
 var RedShaderLoader;
 /**DOC:
     {
@@ -4035,12 +4430,35 @@ var RedShaderLoader;
     }
 :DOC*/
 (function () {
-	RedShaderLoader = function (list, callback) {
-		console.log(list, callback)
-		if (!(this instanceof RedShaderLoader)) return new RedShaderLoader(list, callback)
+	var makeShaders;
+	makeShaders = function (redGL, datas) {
+		var k, tData;
+		for (k in datas) {
+			tData = datas[k]
+			console.log(tData)
+			console.log(redGL.createShaderInfo(tData['name'], RedShaderInfo.VERTEX_SHADER, redGL.getSourceFromScript(tData['shaderInfo']['vs']['id'])))
+			console.log(redGL.createShaderInfo(tData['name'], RedShaderInfo.FRAGMENT_SHADER, redGL.getSourceFromScript(tData['shaderInfo']['fs']['id'])))
+			redGL.createProgramInfo(
+				tData['name'],
+				redGL.getShaderInfo(tData['name'], RedShaderInfo.VERTEX_SHADER),
+				redGL.getShaderInfo(tData['name'], RedShaderInfo.FRAGMENT_SHADER),
+				tData['initUniformValue'],
+				tData['defineTexture']
+			)
+			redGL.createMaterialDefine(redGL.getProgramInfo(tData['name']))
+		}
+	}
+	RedShaderLoader = function (redGL, shaderInfos, callback) {
+		if (!(this instanceof RedShaderLoader)) return new RedShaderLoader(redGL, shaderInfos, callback)
 		var cnt = 0;
-		list['callback'] = callback
-		list.forEach(function (v, idx) {
+		var tList = [];
+		for (var k in shaderInfos) {
+			tList.push(shaderInfos[k]['shaderInfo']['vs'])
+			tList.push(shaderInfos[k]['shaderInfo']['fs'])
+		}
+		console.log(tList)
+		tList['callback'] = callback
+		tList.forEach(function (v, idx) {
 			var xhr = new XMLHttpRequest();
 			xhr.open('GET', v['src'], true);
 			xhr.onreadystatechange = function () {
@@ -4048,12 +4466,16 @@ var RedShaderLoader;
 				if (xhr.readyState == 4 && xhr.status == 200) {
 					scr = document.createElement('script');
 					scr.setAttribute('id', v['id'])
-					scr.setAttribute('type','glsl')
+					scr.setAttribute('type', 'glsl')
 					scr.text = xhr.responseText;
-					console.log(v['id'],scr.text);
-					console.log(list)
+					console.log(v['id'], scr.text);
+					console.log(shaderInfos)
 					document.body.appendChild(scr);
-					if (++cnt == list.length && list['callback']) list['callback']();
+
+					if (++cnt == tList.length) {
+						makeShaders(redGL, shaderInfos)
+						if (tList['callback']) tList['callback']();
+					}
 				}
 			};
 			xhr.send(null);
@@ -4076,17 +4498,17 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			alpha: false,
 			depth: true,
 			stencil: false,
-			antialias:true,
+			antialias: true,
 			premultipliedAlpha: false,
 			preserveDrawingBuffer: false,
-			powerPreference  : 'default', // default, high-performance, low-power
+			powerPreference: 'default', // default, high-performance, low-power
 			failIfMajorPerformanceCaveat: false
 		}
 		checkList = 'experimental-webgl,webgl,webkit-3d,moz-webgl,3d'.split(',')
 		return function (cvs) {
 			i = checkList.length
 			while (i--) {
-				if (t0 = cvs.getContext(checkList[i], option)) return console.log(checkList[i]),t0
+				if (t0 = cvs.getContext(checkList[i], option)) return console.log(checkList[i]), t0
 			}
 			throw "웹지엘을 사용할수없습니다."
 		}
@@ -4096,7 +4518,16 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			constructorYn : true,
 			title :`RedGL`,
 			description : `
-				- RedGL 인스턴스 생성자
+				RedGL 인스턴스 생성자
+				<b>초기화 옵션</b>
+				alpha: false,
+				depth: true,
+				stencil: false,
+				antialias: true,
+				premultipliedAlpha: false,
+				preserveDrawingBuffer: false,
+				powerPreference: 'default', // default, high-performance, low-power
+				failIfMajorPerformanceCaveat: false
 			`,
 			params : {
 				canvas : [
@@ -4104,7 +4535,7 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 				],
 				callback :[
 					{type:'function'},
-					'컨텐스트초기화이후 실행될 콜백'
+					'컨텍스트 초기화이후 실행될 콜백'
 				],
 				fullMode : [
 					{type:'Boolean'},
@@ -4117,7 +4548,22 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 				]
 			},
 			example : `
-				RedGL(document.getElementById('test'))
+				// 기초 초기화
+				RedGL(document.getElementById('test'), function(){ 콜백내용 })
+				// 풀스크린 초기화
+				RedGL(document.getElementById('test'), function(){ 콜백내용 }, true)
+				// 쉐이더 추가 초기화
+				RedGL(document.getElementById('test'), function(){ 콜백내용 }, true, [
+					// 추가할 쉐이더 소스를 아래의 형식으로 입력
+					{ id: 'colorVS', src: 'glsl/colorVS.glsl' },
+					{ id: 'colorFS', src: 'glsl/colorFS.glsl' },
+					{ id: 'bitmapVS', src: 'glsl/bitmapVS.glsl' },
+					{ id: 'bitmapFS', src: 'glsl/bitmapFS.glsl' },
+					{ id: 'bitmapPhongVS', src: 'glsl/bitmapPhongVS.glsl' },
+					{ id: 'bitmapPhongFS', src: 'glsl/bitmapPhongFS.glsl' },
+					{ id: 'skyBoxVS', src: 'glsl/skyBoxVS.glsl' },
+					{ id: 'skyBoxFS', src: 'glsl/skyBoxFS.glsl' }
+				])
 			`,
 			return : 'RedGL Instance'
 		}
@@ -4134,11 +4580,8 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		this['detect'] = redGLDetect(this)
 		console.log('RedGL 생성완료')
 		// 초기상태정의
-		// tGL.clearColor(0,0,0,0)
-		// set the depthTest
 		tGL.enable(tGL.DEPTH_TEST);
 		tGL.depthFunc(tGL.LESS)
-		// tGL.depthMask(false)
 		// 컬링 페이스 설정
 		tGL.frontFace(tGL.CCW)
 		tGL.enable(tGL.CULL_FACE);
@@ -4146,7 +4589,6 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		// 블렌드모드설정
 		tGL.enable(tGL.BLEND);
 		tGL.blendFunc(tGL.ONE, tGL.ONE_MINUS_SRC_ALPHA);
-		// tGL.blendFuncSeparate(tGL.SRC_ALPHA, tGL.ONE_MINUS_SRC_ALPHA,tGL.ZERO, tGL.ONE);
 		// 픽셀 블렌딩 결정
 		tGL.pixelStorei(tGL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
 		// 픽셀 플립 기본설정
@@ -4159,21 +4601,8 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 
 		instanceList.push(this)
 		console.log(shaderSourceInfo, callback)
-		if (shaderSourceInfo) RedShaderLoader(shaderSourceInfo, callback)
+		if (shaderSourceInfo) RedShaderLoader(this, shaderSourceInfo, callback)
 		else callback ? callback() : 0
-
-		// this.createTextureInfo('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NzMxRDhBQzRFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NzMxRDhBQzVFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo3MzFEOEFDMkU1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo3MzFEOEFDM0U1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuojYFUAAAAQSURBVHjaYvj//z8DQIABAAj8Av7bok0WAAAAAElFTkSuQmCC')
-		// this.createCubeTextureInfo(
-		// 	[
-		// 		'asset/cubemap/posx.jpg',
-		// 		'asset/cubemap/negx.jpg',
-		// 		'asset/cubemap/posy.jpg',
-		// 		'asset/cubemap/negy.jpg',
-		// 		'asset/cubemap/posz.jpg',
-		// 		'asset/cubemap/negz.jpg'
-		// 	]
-		// )
-	
 	}
 	window.addEventListener('resize', function () {
 		instanceList.forEach(function (v) {
@@ -4204,86 +4633,21 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			`
 		}
 		:DOC*/
-		setSize: function (width, height) {
-			console.log('실행을했냐!')
+		setSize: (function () {
 			var gl;
 			var W, H;
-			W = width ? width : (document.documentElement ? document.documentElement.clientWidth : document.body.clientWidth)
-			H = height ? height : (document.documentElement ? document.documentElement.clientHeight : document.body.clientHeight)
-			gl = this.gl
-			W = W
-			H = H
-			this.__canvas.width = W * window.devicePixelRatio
-			this.__canvas.height = H * window.devicePixelRatio
-			this.__canvas.style.width = W
-			this.__canvas.style.height = H
-			gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-			// set the scissor rectangle
-			gl.enable(gl.SCISSOR_TEST);
-			gl.scissor(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-		},
-		/**DOC:
-		{
-			title :`calcNormal`,
-			code: 'FUNCTION',
-			description : `
-				- 버텍스 정보와 인덱스정보를 토대로 노말데이터(Float32Array생성.
-				- <span style="color:red">이놈음 다른곳으로 옮겨야할듯</span>
-			`,
-			params : {
-				pos : [
-					{type:'Float32Array'},
-					'버덱스 데이터 정보'
-				],
-				idx : [
-					{type:'Uint16Array'},
-					'인덱스 데이터 정보'
-				]
-			},
-			example : `
-				var vs = new Float32Array(10)
-				var is = new Uint16Array(10)
-				RedGL인스턴스.calcNormal(vs,is)
-			`,
-			return : 'Float32Array Instance'
-		}
-		:DOC*/
-		calcNormal: (function () {
-			var sqrt, v1, v2;
-			sqrt = Math.sqrt,
-				v1 = { x: 0, y: 0, z: 0 }, v2 = { x: 0, y: 0, z: 0 };
-			return function calcNormal(pos, idx) {
-				var i, j, k, l;
-				var ns = new Float32Array(pos.length)
-				for (i = 0, j = pos.length; i < j; i++) ns[i] = 0.0;
-				for (i = 0, j = idx.length; i < j; i += 3) {
-					k = 3 * idx[i + 1],
-						l = 3 * idx[i],
-						v1.x = pos[k] - pos[l],
-						v1.y = pos[k + 1] - pos[l + 1],
-						v1.z = pos[k + 2] - pos[l + 2],
-						l = 3 * idx[i + 2],
-						v2.x = pos[l] - pos[k],
-						v2.y = pos[l + 1] - pos[k + 1],
-						v2.z = pos[l + 2] - pos[k + 2];
-					for (k = 0; k < 3; k++) {
-						l = 3 * idx[i + k],
-							ns[l] += v1.y * v2.z - v1.z * v2.y,
-							ns[l + 1] += v1.z * v2.x - v1.x * v2.z,
-							ns[l + 2] += v1.x * v2.y - v1.y * v2.x;
-					}
-				}
-				for (i = 0, j = pos.length; i < j; i += 3) {
-					v1.x = ns[i],
-						v1.y = ns[i + 1],
-						v1.z = ns[i + 2],
-						k = sqrt(v1.x * v1.x + v1.y * v1.y + v1.z * v1.z) || 0.00001,
-						ns[i] = v1.x / k,
-						ns[i + 1] = v1.y / k,
-						ns[i + 2] = v1.z / k;
-				}
-				return ns;
-			};
+			return function (width, height) {
+				W = width ? width : (document.documentElement ? document.documentElement.clientWidth : document.body.clientWidth)
+				H = height ? height : (document.documentElement ? document.documentElement.clientHeight : document.body.clientHeight)
+				gl = this.gl
+				this.__canvas.width = W * window.devicePixelRatio
+				this.__canvas.height = H * window.devicePixelRatio
+				this.__canvas.style.width = W
+				this.__canvas.style.height = H
+				gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+				// set the scissor rectangle
+				gl.scissor(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+			}
 		})(),
 		/**DOC:
 		{
@@ -4299,26 +4663,12 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 				]
 			},
 			example : `
-				RedShaderInfo.getSourceFromScript(id)
+				인스턴스.getSourceFromScript(id)
 			`,
 			return : 'String'
 		}
 		:DOC*/
-		getSourceFromScript: (function () {
-			var shaderScript
-			var str, k;
-			return function (id) {
-				shaderScript = document.getElementById(id)
-				if (!shaderScript) throw "쉐이더소스가 없음!"
-				str = "";
-				k = shaderScript.firstChild;
-				while (k) {
-					if (k.nodeType == 3) str += k.textContent;
-					k = k.nextSibling;
-				}
-				return str
-			}
-		})(),
+		getSourceFromScript: RedShaderInfo.getSourceFromScript,
 		/**DOC:
 		{
 			title :`createShaderInfo`,
@@ -4374,8 +4724,8 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			description : `프로그램 생성 단축 매서드`
 		}
 		:DOC*/
-		createProgramInfo: function (key, vShaderInfo, fShaderInfo, makeUniformValue) {
-			return new RedProgramInfo(this, key, vShaderInfo, fShaderInfo, makeUniformValue)
+		createProgramInfo: function (key, vShaderInfo, fShaderInfo, initUniformValue, defineTexture) {
+			return new RedProgramInfo(this, key, vShaderInfo, fShaderInfo, initUniformValue, defineTexture)
 		},
 		/**DOC:
 		{
@@ -4504,10 +4854,17 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		createTextureInfo: function (src, targetIndex, internalFormat, format, type, callback) {
 			return new RedTextureInfo(this, src, targetIndex, internalFormat, format, type, callback)
 		},
+		/**DOC:
+		{
+			title :`createCubeTextureInfo`,
+			code : 'FUNCTION',
+			description : `큐브 텍스쳐정보 생성 단축 매서드`
+		}
+		:DOC*/
 		createCubeTextureInfo: function (srcList) {
 			return new RedCubeTextureInfo(this, srcList)
 		},
-		
+
 		/**DOC:
 		{
 			title :`createMeshInfo`,
@@ -4544,15 +4901,43 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		createSceneInfo: function (key, camera) {
 			return new RedSceneInfo(this, key, camera)
 		},
+		/**DOC:
+		{
+			title :`createAmbientLight`,
+			code : 'FUNCTION',
+			description : `암비언트라이트 단축 생성 매서드`
+		}
+		:DOC*/
 		createAmbientLight: function () {
 			return new RedAmbientLightInfo(this)
 		},
+		/**DOC:
+		{
+			title :`createDirectionalLight`,
+			code : 'FUNCTION',
+			description : `방향광 단축 생성 매서드`
+		}
+		:DOC*/
 		createDirectionalLight: function () {
 			return new RedDirectionalLightInfo(this)
 		},
+		/**DOC:
+		{
+			title :`createPointLight`,
+			code : 'FUNCTION',
+			description : `점광 단축 생성 매서드`
+		}
+		:DOC*/
 		createPointLight: function () {
 			return new RedPointLightInfo(this)
 		},
+		/**DOC:
+		{
+			title :`createSkyBoxInfo`,
+			code : 'FUNCTION',
+			description : `스카이박스 단축 생성 매서드`
+		}
+		:DOC*/
 		createSkyBoxInfo: function (srcList) {
 			return new RedSkyBoxInfo(this, srcList)
 		},
@@ -4582,251 +4967,15 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		getBaseCameraInfo: function (key) {
 			return this['__datas']['RedBaseCameraInfo'][key]
 		},
+		/**DOC:
+		{
+			title :`createBaseRenderInfo`,
+			code : 'FUNCTION',
+			description : `렌더러 단축 생성 매서드`
+		}
+		:DOC*/
 		createBaseRenderInfo: function (redScene, callback) {
 			return new RedBaseRenderInfo(this, redScene, callback)
 		}
 	}
 })();
-"use strict";
-var Atlas;
-(function () {
-    var Rect;
-    Rect = function (x, y, w, h) {
-        this.x = x; this.y = y;
-        this.w = w; this.h = h;
-    }
-
-    Rect.prototype.fitsIn = function (outer) {
-        return outer.w >= this.w && outer.h >= this.h;
-    };
-
-    Rect.prototype.sameSizeAs = function (other) {
-        return this.w === other.w && this.h === other.h;
-    };
-
-    Atlas = function (x, y, w, h) {
-        if (arguments.length === 1) {
-            this.canvas = x;
-            x = y = 0;
-            w = this.canvas.width;
-            h = this.canvas.height;
-        }
-        if (arguments.length === 2) {
-            w = x; h = y; x = y = 0;
-        }
-        this.left = this.right = null;
-        this.rect = new Rect(x, y, w, h);
-        this.filled = false;
-        this.tilepad = false;
-        this._cache = [];
-        this._uvcache = Object.create(null);
-    }
-
-    // pack image/rect to the atlas
-    Atlas.prototype.pack = function (rect) {
-        this._cache = [];
-        this._uvcache = Object.create(null);
-        rect = this._toRect(rect);
-
-        if (this.img && this.tilepad) {
-            rect = this._tilepad(rect);
-        }
-
-        if (this.left !== null) {
-            return this._ontoCanvas(this.left.pack(rect) || this.right.pack(rect));
-        }
-        // if atlas filled or wont fit
-        if (this.filled || !rect.fitsIn(this.rect)) {
-            return false;
-        }
-        // if this atlas has been filled
-        if (rect.sameSizeAs(this.rect)) {
-            this.filled = true;
-            return this._ontoCanvas(this);
-        }
-        if ((this.rect.w - rect.w) > (this.rect.h - rect.h)) {
-            this.left = new Atlas(this.rect.x, this.rect.y, rect.w, this.rect.h);
-            this.right = new Atlas(this.rect.x + rect.w, this.rect.y, this.rect.w - rect.w, this.rect.h);
-        } else {
-            this.left = new Atlas(this.rect.x, this.rect.y, this.rect.w, rect.h);
-            this.right = new Atlas(this.rect.x, this.rect.y + rect.h, this.rect.w, this.rect.h - rect.h);
-        }
-        return this._ontoCanvas(this.left.pack(rect));
-    };
-
-    Atlas.prototype.expand = function (rect) {
-        var self = this;
-        rect = this._toRect(rect);
-
-        if (this.img && this.tilepad) {
-            rect = this._tilepad(rect);
-        }
-
-        var atlas;
-        if (this.rect.w < this.rect.h) {
-            atlas = new Atlas(0, 0, this.rect.w + rect.w, this.rect.h);
-            atlas.right = new Atlas(this.rect.w, 0, rect.w, this.rect.h);
-            atlas.left = this;
-        } else {
-            atlas = new Atlas(0, 0, this.rect.w, this.rect.h + rect.h);
-            atlas.right = new Atlas(0, this.rect.h, this.rect.w, rect.h);
-            atlas.left = this;
-        }
-
-        ['canvas', 'context', 'img'].forEach(function (p) {
-            if (self[p]) {
-                atlas[p] = self[p];
-                self[p] = null;
-            }
-        });
-
-        // resize canvas
-        if (atlas.canvas) {
-            if (!atlas.context) {
-                atlas.context = atlas.canvas.getContext('2d');
-            }
-            var old = atlas.context.getImageData(0, 0, atlas.canvas.width, atlas.canvas.height);
-            atlas.canvas.width = atlas.rect.w;
-            atlas.canvas.height = atlas.rect.h;
-            atlas.context.putImageData(old, 0, 0);
-        }
-
-        return (atlas.pack(rect) === false) ? atlas.expand(rect) : atlas;
-    };
-
-    Atlas.prototype.index = function () {
-        var self = this;
-        if (self._cache.length > 0) {
-            return self._cache;
-        }
-        (function loop(atlas) {
-            if (atlas.left !== null) {
-                loop(atlas.left);
-                loop(atlas.right);
-            } else if (atlas.rect.name) {
-                self._cache.push(atlas.rect);
-            }
-        }(self));
-        return self._cache;
-    };
-
-    Atlas.prototype.uv = function (w, h) {
-        var self = this;
-        w = w || self.rect.w;
-        h = h || self.rect.h;
-        var isPad = this.tilepad;
-        (function loop(atlas) {
-            if (atlas.left !== null) {
-                loop(atlas.left);
-                loop(atlas.right);
-            } else if (typeof atlas.rect.name !== 'undefined') {
-                var p = (isPad) ? atlas.rect.w / 4 : 0;
-                self._uvcache[atlas.rect.name] = [
-                    [atlas.rect.x + p, atlas.rect.y + p],
-                    [(atlas.rect.x + p) + (atlas.rect.w - (p * 2)), atlas.rect.y + p],
-                    [(atlas.rect.x + p) + (atlas.rect.w - (p * 2)), (atlas.rect.y + p) + (atlas.rect.h - (p * 2))],
-                    [(atlas.rect.x + p), (atlas.rect.y + p) + (atlas.rect.h - (p * 2))],
-                ].map(function (uv) {
-                    if (uv[0] !== 0) {
-                        uv[0] = uv[0] / w;
-                    }
-                    if (uv[1] !== 0) {
-                        uv[1] = uv[1] / h;
-                    }
-                    return uv;
-                });
-            }
-        }(self));
-        return self._uvcache;
-    };
-
-    Atlas.prototype.json = function (input) {
-        var self = this;
-        if (input) {
-            if (typeof input === 'string') input = JSON.parse(input);
-            return (function loop(obj) {
-                if (!obj || !obj.rect) return;
-                var atlas = new Atlas(obj.rect.x, obj.rect.y, obj.rect.w, obj.rect.h);
-                if (obj.left) atlas.left = loop(obj.left);
-                if (obj.right) atlas.right = loop(obj.right);
-                return atlas;
-            }(input));
-        } else {
-            return JSON.stringify(function loop(atlas) {
-                var obj = {
-                    left: null, right: null,
-                    rect: atlas.rect, filled: atlas.filled
-                };
-                if (atlas.left !== null) {
-                    obj.left = loop(atlas.left);
-                    obj.right = loop(atlas.right);
-                }
-                return obj;
-            }(self), null, 2);
-        }
-    };
-
-    // Pads the image by tiling itself around itself
-    Atlas.prototype._tilepad = function (rect) {
-        var img = this.img;
-        if (!img) return rect;
-
-        var p = img.width / 2;
-
-        var canvas = document.createElement('canvas');
-        canvas.name = img.name || img.src;
-        canvas.id = img.id || '';
-        canvas.width = img.width + img.width;
-        canvas.height = img.height + img.height;
-        var ctx = canvas.getContext('2d');
-
-        var pattern = ctx.createPattern(img, 'repeat');
-        ctx.fillStyle = pattern;
-        ctx.translate(p, p);
-        ctx.fillRect(-p, -p, canvas.width + p, canvas.height + p);
-        ctx.translate(-p, -p);
-
-        this.img = canvas;
-
-        return new Rect(rect.x, rect.y, this.img.width, this.img.height);
-    };
-
-    // if has an image and canvas, draw to the canvas as we go
-    Atlas.prototype._ontoCanvas = function (node) {
-        if (node && this.img && this.canvas) {
-            if (!this.context) {
-                this.context = this.canvas.getContext('2d');
-            }
-            this.canvas.ctx = this.context
-            this.context.clearRect(node.rect.x, node.rect.y, node.rect.w, node.rect.h);
-            this.context.drawImage(this.img, node.rect.x, node.rect.y, node.rect.w, node.rect.h);
-            node.rect.name = this.img.id || this.img.name || this.img.src || null;
-        }
-        return node;
-    };
-
-    // make sure we're always working with rects
-    Atlas.prototype._toRect = function (rect) {
-        // if rect is an image
-        if (rect.nodeName && (rect.nodeName === 'IMG' || rect.nodeName === 'CANVAS')) {
-            this.img = rect;
-            rect = new Rect(rect.x, rect.y, rect.width, rect.height);
-        }
-        // if rect is an object
-        if (!(rect instanceof Rect)) {
-            rect = new Rect(rect.x || 0, rect.y || 0, rect.w || rect.width, rect.h || rect.height);
-        }
-        return rect;
-    };
-
-    Atlas.prototype._debug = function () {
-        if (!this.canvas) { return; }
-        var context = this.canvas.getContext('2d');
-        this.index().forEach(function (rect) {
-            context.lineWidth = 1;
-            context.strokeStyle = 'red';
-            context.strokeRect(rect.x, rect.y, rect.w, rect.h);
-        });
-    };
-
-})()

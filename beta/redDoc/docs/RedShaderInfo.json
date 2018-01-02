@@ -14,7 +14,7 @@
   },
   {
     "title": "parseData",
-    "description": "쉐이더소스 내부의 attribute와 uniform정보를 추출하여 가짐.(인스턴스.parseData)",
+    "description": "\n- 쉐이더소스 내부의 attribute와 uniform정보를 추출하여 가짐.\n- (인스턴스.parseData)\n",
     "example": "인스턴스.parseData",
     "return": "String"
   },
@@ -53,8 +53,15 @@
     "return": "RedShaderInfo Instance"
   },
   {
+    "title": "RedShaderInfo.getSourceFromScript",
+    "code": "FUNCTION",
+    "description": "\nScript태그로보터 소스 문자열을 가져오는 스타틱 매서드\n",
+    "example": "\nRedShaderInfo.getSourceFromScript\n",
+    "return": "String"
+  },
+  {
     "title": "shader",
-    "description": "실제 쉐이더",
+    "description": "실제 쉐이더(WebGLShader instance)",
     "example": "인스턴스.shader",
     "return": "String"
   },

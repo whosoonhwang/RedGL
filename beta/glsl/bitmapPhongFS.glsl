@@ -62,7 +62,8 @@ void main(void) {
     
     if(uUseNormalTexture == 1) N = normalize(2.0 * (normalize(vNormal)+texture2D(uNormalTexture, vTexcoord).rgb - 0.5));
     else N = normalize(vNormal);
- 
+   
+
     specularTextureValue = 1.0;
     if(uUseSpecularTexture == 1) specularTextureValue = texture2D(uSpecularTexture, vTexcoord).r ;
 
