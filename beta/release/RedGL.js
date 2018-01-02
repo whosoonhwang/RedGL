@@ -104,7 +104,7 @@ var RedShaderInfo;
         tGL.compileShader(tShader)
         if (!tGL.getShaderParameter(tShader, tGL.COMPILE_STATUS)) {
             console.log(tGL.getShaderInfoLog(tShader))
-            throw '쉐이더 컴파일에 실패하였습니다.';
+            throw tGL.getShaderInfoLog(tShader) + '쉐이더 컴파일에 실패하였습니다.';
         }
         parseData = source.match(/attribute[\s\S]+?\;|uniform[\s\S]+?\;/g)
         console.log(source, parseData)
@@ -3606,14 +3606,15 @@ var RedSceneInfo;
             ],
             camera : [
                 {type:'RedBaseCameraInfo'},
-                '- 사용할 카메라 객체등록'
+                '- 사용할 카메라 객체등록',
+                '- 지정하지 않을경우 지정'
             ]
         },
         example : `
             var test;
             test = RedGL(Canvas Element)
             // firstScene 키로 Scene생성
-            test.createSceneInfo('firstScene')
+            RedSceneInfo(test, 'firstScene')
         `,
         return : 'RedSceneInfo Instance'
     }
@@ -3622,9 +3623,10 @@ var RedSceneInfo;
     var tDatas;
     RedSceneInfo = function (redGL, key, camera) {
         if (!(this instanceof RedSceneInfo)) return new RedSceneInfo(redGL, key, camera)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof key != 'string') throw 'key는 문자열만 허용됩니다.'
-        if (!(camera instanceof RedBaseCameraInfo)) throw 'camera는 RedBaseCameraInfo 인스턴스만 허용됩니다.'
+        if (!(redGL instanceof RedGL)) throw 'RedSceneInfo : RedGL 인스턴스만 허용됩니다.'
+        if (typeof key != 'string') throw 'RedSceneInfo : key는 문자열만 허용됩니다.'
+        if (camera == undefined) camera = RedBaseCameraInfo(testGL, 'autoInitCamera'+REDGL_UUID)
+        if (!(camera instanceof RedBaseCameraInfo)) throw 'RedSceneInfo : camera는 RedBaseCameraInfo 인스턴스만 허용됩니다.'
         // 저장할 공간확보하고
         if (!redGL['__datas']['RedSceneInfo']) redGL['__datas']['RedSceneInfo'] = {}
         tDatas = redGL['__datas']['RedSceneInfo']
@@ -3657,10 +3659,10 @@ var RedSceneInfo;
         }
         :DOC*/
         this['lights'] = {
-            ambient : [],
-            directional : [],
-            point : [],
-            spot : []
+            ambient: [],
+            directional: [],
+            point: [],
+            spot: []
         }
         this['__UUID'] = REDGL_UUID++
         // 캐싱
@@ -3677,6 +3679,7 @@ var RedSceneInfo;
         }
         :DOC*/
         setSkyBox: function (v) {
+            if (!(v instanceof RedSkyBoxInfo)) throw 'RedSceneInfo : RedSkyBoxInfo 인스턴스만 허용됩니다.'
             this['skyBox'] = v
         },
         /**DOC:
@@ -3690,34 +3693,34 @@ var RedSceneInfo;
         setGrid: function (v) {
             this['grid'] = v
         },
-          /**DOC:
-		{
-            title :`addLight`,
-            description : `라이트 설정`,
-            code:'FUNCTION',
-			example : `인스턴스.addLight`
-        }
-        :DOC*/
+        /**DOC:
+      {
+          title :`addLight`,
+          description : `라이트 설정`,
+          code:'FUNCTION',
+          example : `인스턴스.addLight`
+      }
+      :DOC*/
         addLight: (function () {
             var tDatas;
             return function (v) {
                 if (v instanceof RedDirectionalLightInfo) {
                     tDatas = this['lights'][RedDirectionalLightInfo.TYPE]
-                    if (tDatas.length == 16) throw '직사광 최대갯수는 16개입니다.'
+                    if (tDatas.length == 16) throw 'RedSceneInfo : 직사광 최대갯수는 16개입니다.'
                     else tDatas.push(v)
-                }else if (v instanceof RedPointLightInfo) {
+                } else if (v instanceof RedPointLightInfo) {
                     tDatas = this['lights'][RedPointLightInfo.TYPE]
-                    if (tDatas.length == 16) throw '포인트라이트 최대갯수는 16개입니다.'
+                    if (tDatas.length == 16) throw 'RedSceneInfo : 포인트라이트 최대갯수는 16개입니다.'
                     else tDatas.push(v)
-                }else if (v instanceof RedAmbientLightInfo) {
+                } else if (v instanceof RedAmbientLightInfo) {
                     tDatas = this['lights'][RedAmbientLightInfo.TYPE]
                     // 엠비언트는 일단 무조건 갈아침
                     tDatas[0] = v
-                }else if (v instanceof RedSpotLightInfo) {
+                } else if (v instanceof RedSpotLightInfo) {
                     tDatas = this['lights'][RedSpotLightInfo.TYPE]
-                    if (tDatas.length == 16) throw '스폿라이트 최대갯수는 16개입니다.'
+                    if (tDatas.length == 16) throw 'RedSceneInfo : 스폿라이트 최대갯수는 16개입니다.'
                     else tDatas.push(v)
-                } else throw '등록할수 없는 타입입니다.'
+                } else throw 'RedSceneInfo : 등록할수 없는 Light타입입니다.'
             }
         })()
     }
@@ -4524,8 +4527,8 @@ var RedShaderLoader;
 		for (k in datas) {
 			tData = datas[k]
 			console.log(tData)
-			console.log(redGL.createShaderInfo(tData['name'], RedShaderInfo.VERTEX_SHADER, redGL.getSourceFromScript(tData['shaderInfo']['vs']['id'])))
-			console.log(redGL.createShaderInfo(tData['name'], RedShaderInfo.FRAGMENT_SHADER, redGL.getSourceFromScript(tData['shaderInfo']['fs']['id'])))
+			redGL.createShaderInfo(tData['name'], RedShaderInfo.VERTEX_SHADER, redGL.getSourceFromScript(tData['shaderInfo']['vs']['id']))
+			redGL.createShaderInfo(tData['name'], RedShaderInfo.FRAGMENT_SHADER, redGL.getSourceFromScript(tData['shaderInfo']['fs']['id']))
 			redGL.createProgramInfo(
 				tData['name'],
 				redGL.getShaderInfo(tData['name'], RedShaderInfo.VERTEX_SHADER),
@@ -4560,10 +4563,13 @@ var RedShaderLoader;
 					console.log(shaderInfos)
 					document.body.appendChild(scr);
 
-					if (++cnt == tList.length) {
+					
+				if (++cnt == tList.length) {
+					setTimeout(function(){
 						makeShaders(redGL, shaderInfos)
 						if (tList['callback']) tList['callback']();
-					}
+					},1)
+				}
 				}
 			};
 			xhr.send(null);
@@ -4803,6 +4809,9 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		}
 		:DOC*/
 		getShaderInfo: function (key, type) {
+			console.log(key, type)
+			console.log(this['__datas']['shaderInfo'])
+			this['__datas']
 			return this['__datas']['shaderInfo'][type][key]
 		},
 		/**DOC:

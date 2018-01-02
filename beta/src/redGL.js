@@ -230,6 +230,9 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 		}
 		:DOC*/
 		getShaderInfo: function (key, type) {
+			console.log(key, type)
+			console.log(this['__datas']['shaderInfo'])
+			this['__datas']
 			return this['__datas']['shaderInfo'][type][key]
 		},
 		/**DOC:

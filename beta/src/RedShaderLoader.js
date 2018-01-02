@@ -43,8 +43,8 @@ var RedShaderLoader;
 		for (k in datas) {
 			tData = datas[k]
 			console.log(tData)
-			console.log(redGL.createShaderInfo(tData['name'], RedShaderInfo.VERTEX_SHADER, redGL.getSourceFromScript(tData['shaderInfo']['vs']['id'])))
-			console.log(redGL.createShaderInfo(tData['name'], RedShaderInfo.FRAGMENT_SHADER, redGL.getSourceFromScript(tData['shaderInfo']['fs']['id'])))
+			redGL.createShaderInfo(tData['name'], RedShaderInfo.VERTEX_SHADER, redGL.getSourceFromScript(tData['shaderInfo']['vs']['id']))
+			redGL.createShaderInfo(tData['name'], RedShaderInfo.FRAGMENT_SHADER, redGL.getSourceFromScript(tData['shaderInfo']['fs']['id']))
 			redGL.createProgramInfo(
 				tData['name'],
 				redGL.getShaderInfo(tData['name'], RedShaderInfo.VERTEX_SHADER),
@@ -79,10 +79,13 @@ var RedShaderLoader;
 					console.log(shaderInfos)
 					document.body.appendChild(scr);
 
-					if (++cnt == tList.length) {
+					
+				if (++cnt == tList.length) {
+					setTimeout(function(){
 						makeShaders(redGL, shaderInfos)
 						if (tList['callback']) tList['callback']();
-					}
+					},1)
+				}
 				}
 			};
 			xhr.send(null);

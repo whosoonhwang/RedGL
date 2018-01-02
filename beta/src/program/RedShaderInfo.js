@@ -76,7 +76,7 @@ var RedShaderInfo;
         tGL.compileShader(tShader)
         if (!tGL.getShaderParameter(tShader, tGL.COMPILE_STATUS)) {
             console.log(tGL.getShaderInfoLog(tShader))
-            throw '쉐이더 컴파일에 실패하였습니다.';
+            throw tGL.getShaderInfoLog(tShader) + '쉐이더 컴파일에 실패하였습니다.';
         }
         parseData = source.match(/attribute[\s\S]+?\;|uniform[\s\S]+?\;/g)
         console.log(source, parseData)

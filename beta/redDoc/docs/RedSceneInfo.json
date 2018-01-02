@@ -44,10 +44,11 @@
         {
           "type": "RedBaseCameraInfo"
         },
-        "- 사용할 카메라 객체등록"
+        "- 사용할 카메라 객체등록",
+        "- 지정하지 않을경우 지정"
       ]
     },
-    "example": "\n    var test;\n    test = RedGL(Canvas Element)\n    // firstScene 키로 Scene생성\n    test.createSceneInfo('firstScene')\n",
+    "example": "\n    var test;\n    test = RedGL(Canvas Element)\n    // firstScene 키로 Scene생성\n    RedSceneInfo(test, 'firstScene')\n",
     "return": "RedSceneInfo Instance"
   },
   {

@@ -156,7 +156,7 @@ gulp.task('combine-js', function () {
 		//.pipe(stripComment())
 		.pipe(stripDebug())
 		.pipe(uglify({
-			//mangle: true // 알파벳 한 글자 압축 과정 설정 
+			// mangle: true // 알파벳 한 글자 압축 과정 설정 
 		}))
 		.pipe(insert.append("console.log('" + 'LOGIN' + " Release. last update(" + d + ")'" + ");"))
 		.pipe(gulp.dest('release'));
