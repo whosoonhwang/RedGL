@@ -255,7 +255,7 @@ var RedShaderInfo;
                     target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
                 },
                 function (target) {
-                    target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
+                    target.materialUniforms['RedMaterialInfo.DIFFUSE_TEXTURE'] = target['uDiffuseTexture']
                 }
 
             )
@@ -1442,20 +1442,24 @@ var RedPrimitive;
                 '- 재질 타입 지정'
             ],
             diffuseInfo : [
-                {type:'RedTextureInfo or RedCubeTextureInfo'},
+                {type:'RedTextureInfo'},
                 '- DiffuseMap 지정'
             ],
             normalInfo : [
-                 {type:'RedTextureInfo or RedCubeTextureInfo'},
+                 {type:'RedTextureInfo'},
                 '- normalMap 지정'
             ],
             displacementInfo : [
-                {type:'RedTextureInfo or RedCubeTextureInfo'},
+                {type:'RedTextureInfo'},
                 '- displacementMap 지정'
             ],
             specularInfo : [
-                {type:'RedTextureInfo or RedCubeTextureInfo'},
+                {type:'RedTextureInfo'},
                 '- specularInfo 지정'
+            ],
+            reflectionInfo : [
+                {type:'RedCubeTextureInfo'},
+                '- reflectionInfo 지정'
             ]
         },
         example : `
@@ -1508,8 +1512,8 @@ var RedMaterialInfo;
     RedMaterialInfo = function (redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture, reflectionTexture) {
         if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture, reflectionTexture)
         //TODO: 
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof typeName != 'string') throw 'typeName은 문자열만 허용됩니다.'
+        if (!(redGL instanceof RedGL)) throw 'RedMaterialInfo : RedGL 인스턴스만 허용됩니다.'
+        if (typeof typeName != 'string') throw 'RedMaterialInfo : typeName은 문자열만 허용됩니다.'
         // 디파인더에서 재질정의를 찾고
         tDefineMap = redGL['__datas']['RedMaterialDefine']
         tDefineData = tDefineMap[typeName]
@@ -1534,11 +1538,11 @@ var RedMaterialInfo;
 			return : 'RedTextureInfo or RedCubeTextureInfo'
         }
         :DOC*/
-        if (diffuseTexture) this['uDiffuseTexture'] = diffuseTexture
-        if (normalTexture) this['uNormalTexture'] = normalTexture
-        if (displacementTexture) this['uDisplacementTexture'] = displacementTexture
-        if (specularTexture) this['uSpecularTexture'] = specularTexture
-        if (reflectionTexture) this['uReflectionTexture'] = reflectionTexture
+        if (diffuseTexture) this[RedMaterialInfo.DIFFUSE_TEXTURE] = diffuseTexture
+        if (normalTexture) this[RedMaterialInfo.NORMAL_TEXTURE] = normalTexture
+        if (displacementTexture) this[RedMaterialInfo.DISPLACEMENT_TEXTURE] = displacementTexture
+        if (specularTexture) this[RedMaterialInfo.SPECULAR_TEXTURE] = specularTexture
+        if (reflectionTexture) this[RedMaterialInfo.REFLECTION_TEXTURE] = reflectionTexture
 
         /**DOC:
 		{
@@ -1558,6 +1562,7 @@ var RedMaterialInfo;
             title :`needUniformList`,
             description : `
                 - 렌더링시 유니폼리스트를 다시 만들어야할지 여부
+                - 실제론 텍스쳐 변경시 textureUpdated의 의미를 가진다.
             `,
 			example : `인스턴스.needUniformList`,
 			return : 'Boolean'
@@ -1627,6 +1632,18 @@ var RedMaterialInfo;
             this['needUniformList'] = false
         }
     }
+    /**DOC:
+		{
+            title :`setTexture`,
+            code :`FUNCTION`,
+            description : `
+                - 텍스쳐 변경 매서드
+                - 텍스쳐 변경후 자동으로 needUniformList=true를 반영하여 렌더링시 유니폼리스트를 재생성한다.
+            `,
+			example : `인스턴스.setTexture('uDiffuseTexture',RedTextureInfo instance)`,
+			return : 'void'
+        }
+        :DOC*/
     RedMaterialInfo.prototype.setTexture = function (key, texture) {
         if (texture instanceof RedTextureInfo || texture instanceof RedCubeTextureInfo || texture instanceof RedAtlasUVInfo) {
             this[key] = texture
@@ -1635,6 +1652,66 @@ var RedMaterialInfo;
             throw '텍스쳐 형식이 아닙니다.'
         }
     }
+    /**DOC:
+		{
+            title :`DIFFUSE_TEXTURE`,
+            code : 'CONST',
+            description : `
+                - 디퓨즈 텍스쳐 유니폼 상수
+            `,
+			example : `인스턴스.DIFFUSE_TEXTURE`,
+			return : 'String'
+        }
+    :DOC*/
+    RedMaterialInfo.DIFFUSE_TEXTURE = 'uDiffuseTexture'
+    /**DOC:
+		{
+            title :`NORMAL_TEXTURE`,
+            code : 'CONST',
+            description : `
+                - NORMAL_TEXTURE 유니폼 상수
+            `,
+			example : `인스턴스.NORMAL_TEXTURE`,
+			return : 'String'
+        }
+    :DOC*/
+    RedMaterialInfo.NORMAL_TEXTURE = 'uNormalTexture'
+    /**DOC:
+		{
+            title :`DISPLACEMENT_TEXTURE`,
+            code : 'CONST',
+            description : `
+                - DISPLACEMENT_TEXTURE 유니폼 상수
+            `,
+			example : `인스턴스.DISPLACEMENT_TEXTURE`,
+			return : 'String'
+        }
+    :DOC*/
+    RedMaterialInfo.DISPLACEMENT_TEXTURE = 'uDisplacementTexture'
+    /**DOC:
+		{
+            title :`SPECULAR_TEXTURE`,
+            code : 'CONST',
+            description : `
+                - SPECULAR_TEXTURE 유니폼 상수
+            `,
+			example : `인스턴스.SPECULAR_TEXTURE`,
+			return : 'String'
+        }
+    :DOC*/
+    RedMaterialInfo.SPECULAR_TEXTURE = 'uSpecularTexture'
+    /**DOC:
+		{
+            title :`REFLECTION_TEXTURE`,
+            code : 'CONST',
+            description : `
+                - REFLECTION_TEXTURE 유니폼 상수
+            `,
+			example : `인스턴스.REFLECTION_TEXTURE`,
+			return : 'String'
+        }
+    :DOC*/
+    RedMaterialInfo.REFLECTION_TEXTURE = 'uReflectionTexture'
     Object.freeze(RedMaterialInfo)
 })();
 "use strict";
@@ -1681,8 +1758,8 @@ var RedMaterialDefine;
     var tKey;
     RedMaterialDefine = function (redGL, programInfo) {
         if (!(this instanceof RedMaterialDefine)) return new RedMaterialDefine(redGL, programInfo)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (!(programInfo instanceof RedProgramInfo)) throw 'RedProgramInfo 인스턴스만 허용됩니다.'
+        if (!(redGL instanceof RedGL)) throw 'RedMaterialDefine : RedGL 인스턴스만 허용됩니다.'
+        if (!(programInfo instanceof RedProgramInfo)) throw 'RedMaterialDefine : RedProgramInfo 인스턴스만 허용됩니다.'
         // 저장할 공간확보하고
         if (!redGL['__datas']['RedMaterialDefine']) redGL['__datas']['RedMaterialDefine'] = {}
         tKey = programInfo['key']
@@ -1969,10 +2046,10 @@ var RedMeshInfo;
     var tDatas;
     RedMeshInfo = function (redGL, key, geometryInfo, materialInfo) {
         if (!(this instanceof RedMeshInfo)) return new RedMeshInfo(redGL, key, geometryInfo, materialInfo)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof key != 'string') throw 'key - 문자열만 허용됩니다.'
-        if (!(geometryInfo instanceof RedGeometryInfo)) throw 'geometryInfo - RedGeometryInfo만 허용됩니다.'
-        if (!(materialInfo instanceof RedMaterialInfo)) throw 'materialInfo - RedMaterialInfo만 허용됩니다.'
+        if (!(redGL instanceof RedGL)) throw 'RedMeshInfo : RedGL 인스턴스만 허용됩니다.'
+        if (typeof key != 'string') throw 'RedMeshInfo : key - 문자열만 허용됩니다.'
+        if (!(geometryInfo instanceof RedGeometryInfo)) throw 'RedMeshInfo : geometryInfo - RedGeometryInfo만 허용됩니다.'
+        if (!(materialInfo instanceof RedMaterialInfo)) throw 'RedMeshInfo : materialInfo - RedMaterialInfo만 허용됩니다.'
         tGL = redGL.gl
         // 저장할 공간확보하고
         if (!redGL['__datas']['RedMeshInfo']) redGL['__datas']['RedMeshInfo'] = {}
@@ -2564,6 +2641,17 @@ var RedTextureIndex;
 		CUBE_CREATE: 9,
 		/**DOC:
 			{
+			title :`CUBE_DIFFUSE`,
+			code : 'CONST',
+			description : `
+				- 큐브 텍스쳐 인덱스
+			`,
+			return : 'Integer'
+		}
+		:DOC*/
+		CUBE_DIFFUSE: 10,
+		/**DOC:
+			{
 			title :`CUBE_REFLECTION`,
 			code : 'CONST',
 			description : `
@@ -2572,7 +2660,7 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		CUBE_REFLECTION: 10
+		CUBE_REFLECTION: 11
 	}
 	Object.freeze(RedTextureIndex)
 })();

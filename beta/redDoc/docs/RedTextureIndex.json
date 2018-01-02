@@ -6,6 +6,12 @@
     "return": "Integer"
   },
   {
+    "title": "CUBE_DIFFUSE",
+    "code": "CONST",
+    "description": "\n- 큐브 텍스쳐 인덱스\n",
+    "return": "Integer"
+  },
+  {
     "title": "CUBE_REFLECTION",
     "code": "CONST",
     "description": "\n- 큐브 텍스쳐 인덱스\n",

@@ -84,6 +84,17 @@ var RedTextureIndex;
 		CUBE_CREATE: 9,
 		/**DOC:
 			{
+			title :`CUBE_DIFFUSE`,
+			code : 'CONST',
+			description : `
+				- 큐브 텍스쳐 인덱스
+			`,
+			return : 'Integer'
+		}
+		:DOC*/
+		CUBE_DIFFUSE: 10,
+		/**DOC:
+			{
 			title :`CUBE_REFLECTION`,
 			code : 'CONST',
 			description : `
@@ -92,7 +103,7 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		CUBE_REFLECTION: 10
+		CUBE_REFLECTION: 11
 	}
 	Object.freeze(RedTextureIndex)
 })();
