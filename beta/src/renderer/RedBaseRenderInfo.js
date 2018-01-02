@@ -152,6 +152,8 @@ var RedBaseRenderInfo;
                 // 카메라갱신
                 tLocation = tempProgramInfo['uniforms']['uCameraMatrix']['location']
                 tGL.uniformMatrix4fv(tLocation, false, tScene['camera']['uCameraMatrix'])
+              
+
                 // 라이트갱신
                 // console.log(tScene['lights'])
                 self.setAmbientLight(tempProgramInfo)

@@ -17,6 +17,7 @@ varying vec2 vTexcoord;
 varying vec3 vEyeVec;
 varying vec3 vNormal;
 varying vec3 vReflectionCubeCoord;  
+varying vec3 vRefractionCubeCoord;  
 
 // 암비안트
 uniform vec4 uAmbientLightColor;
