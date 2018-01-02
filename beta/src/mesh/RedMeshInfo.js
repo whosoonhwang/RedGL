@@ -40,10 +40,10 @@ var RedMeshInfo;
     var tDatas;
     RedMeshInfo = function (redGL, key, geometryInfo, materialInfo) {
         if (!(this instanceof RedMeshInfo)) return new RedMeshInfo(redGL, key, geometryInfo, materialInfo)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof key != 'string') throw 'key - 문자열만 허용됩니다.'
-        if (!(geometryInfo instanceof RedGeometryInfo)) throw 'geometryInfo - RedGeometryInfo만 허용됩니다.'
-        if (!(materialInfo instanceof RedMaterialInfo)) throw 'materialInfo - RedMaterialInfo만 허용됩니다.'
+        if (!(redGL instanceof RedGL)) throw 'RedMeshInfo : RedGL 인스턴스만 허용됩니다.'
+        if (typeof key != 'string') throw 'RedMeshInfo : key - 문자열만 허용됩니다.'
+        if (!(geometryInfo instanceof RedGeometryInfo)) throw 'RedMeshInfo : geometryInfo - RedGeometryInfo만 허용됩니다.'
+        if (!(materialInfo instanceof RedMaterialInfo)) throw 'RedMeshInfo : materialInfo - RedMaterialInfo만 허용됩니다.'
         tGL = redGL.gl
         // 저장할 공간확보하고
         if (!redGL['__datas']['RedMeshInfo']) redGL['__datas']['RedMeshInfo'] = {}

@@ -38,7 +38,7 @@
                     target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
                 },
                 function (target) {
-                    target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
+                    target.materialUniforms['RedMaterialInfo.DIFFUSE_TEXTURE'] = target['uDiffuseTexture']
                 }
 
             )

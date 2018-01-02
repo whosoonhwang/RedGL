@@ -17,20 +17,24 @@
                 '- 재질 타입 지정'
             ],
             diffuseInfo : [
-                {type:'RedTextureInfo or RedCubeTextureInfo'},
+                {type:'RedTextureInfo'},
                 '- DiffuseMap 지정'
             ],
             normalInfo : [
-                 {type:'RedTextureInfo or RedCubeTextureInfo'},
+                 {type:'RedTextureInfo'},
                 '- normalMap 지정'
             ],
             displacementInfo : [
-                {type:'RedTextureInfo or RedCubeTextureInfo'},
+                {type:'RedTextureInfo'},
                 '- displacementMap 지정'
             ],
             specularInfo : [
-                {type:'RedTextureInfo or RedCubeTextureInfo'},
+                {type:'RedTextureInfo'},
                 '- specularInfo 지정'
+            ],
+            reflectionInfo : [
+                {type:'RedCubeTextureInfo'},
+                '- reflectionInfo 지정'
             ]
         },
         example : `
@@ -83,8 +87,8 @@ var RedMaterialInfo;
     RedMaterialInfo = function (redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture, reflectionTexture) {
         if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture, reflectionTexture)
         //TODO: 
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof typeName != 'string') throw 'typeName은 문자열만 허용됩니다.'
+        if (!(redGL instanceof RedGL)) throw 'RedMaterialInfo : RedGL 인스턴스만 허용됩니다.'
+        if (typeof typeName != 'string') throw 'RedMaterialInfo : typeName은 문자열만 허용됩니다.'
         // 디파인더에서 재질정의를 찾고
         tDefineMap = redGL['__datas']['RedMaterialDefine']
         tDefineData = tDefineMap[typeName]
@@ -109,11 +113,11 @@ var RedMaterialInfo;
 			return : 'RedTextureInfo or RedCubeTextureInfo'
         }
         :DOC*/
-        if (diffuseTexture) this['uDiffuseTexture'] = diffuseTexture
-        if (normalTexture) this['uNormalTexture'] = normalTexture
-        if (displacementTexture) this['uDisplacementTexture'] = displacementTexture
-        if (specularTexture) this['uSpecularTexture'] = specularTexture
-        if (reflectionTexture) this['uReflectionTexture'] = reflectionTexture
+        if (diffuseTexture) this[RedMaterialInfo.DIFFUSE_TEXTURE] = diffuseTexture
+        if (normalTexture) this[RedMaterialInfo.NORMAL_TEXTURE] = normalTexture
+        if (displacementTexture) this[RedMaterialInfo.DISPLACEMENT_TEXTURE] = displacementTexture
+        if (specularTexture) this[RedMaterialInfo.SPECULAR_TEXTURE] = specularTexture
+        if (reflectionTexture) this[RedMaterialInfo.REFLECTION_TEXTURE] = reflectionTexture
 
         /**DOC:
 		{
@@ -133,6 +137,7 @@ var RedMaterialInfo;
             title :`needUniformList`,
             description : `
                 - 렌더링시 유니폼리스트를 다시 만들어야할지 여부
+                - 실제론 텍스쳐 변경시 textureUpdated의 의미를 가진다.
             `,
 			example : `인스턴스.needUniformList`,
 			return : 'Boolean'
@@ -202,6 +207,18 @@ var RedMaterialInfo;
             this['needUniformList'] = false
         }
     }
+    /**DOC:
+		{
+            title :`setTexture`,
+            code :`FUNCTION`,
+            description : `
+                - 텍스쳐 변경 매서드
+                - 텍스쳐 변경후 자동으로 needUniformList=true를 반영하여 렌더링시 유니폼리스트를 재생성한다.
+            `,
+			example : `인스턴스.setTexture('uDiffuseTexture',RedTextureInfo instance)`,
+			return : 'void'
+        }
+        :DOC*/
     RedMaterialInfo.prototype.setTexture = function (key, texture) {
         if (texture instanceof RedTextureInfo || texture instanceof RedCubeTextureInfo || texture instanceof RedAtlasUVInfo) {
             this[key] = texture
@@ -210,5 +227,65 @@ var RedMaterialInfo;
             throw '텍스쳐 형식이 아닙니다.'
         }
     }
+    /**DOC:
+		{
+            title :`DIFFUSE_TEXTURE`,
+            code : 'CONST',
+            description : `
+                - 디퓨즈 텍스쳐 유니폼 상수
+            `,
+			example : `인스턴스.DIFFUSE_TEXTURE`,
+			return : 'String'
+        }
+    :DOC*/
+    RedMaterialInfo.DIFFUSE_TEXTURE = 'uDiffuseTexture'
+    /**DOC:
+		{
+            title :`NORMAL_TEXTURE`,
+            code : 'CONST',
+            description : `
+                - NORMAL_TEXTURE 유니폼 상수
+            `,
+			example : `인스턴스.NORMAL_TEXTURE`,
+			return : 'String'
+        }
+    :DOC*/
+    RedMaterialInfo.NORMAL_TEXTURE = 'uNormalTexture'
+    /**DOC:
+		{
+            title :`DISPLACEMENT_TEXTURE`,
+            code : 'CONST',
+            description : `
+                - DISPLACEMENT_TEXTURE 유니폼 상수
+            `,
+			example : `인스턴스.DISPLACEMENT_TEXTURE`,
+			return : 'String'
+        }
+    :DOC*/
+    RedMaterialInfo.DISPLACEMENT_TEXTURE = 'uDisplacementTexture'
+    /**DOC:
+		{
+            title :`SPECULAR_TEXTURE`,
+            code : 'CONST',
+            description : `
+                - SPECULAR_TEXTURE 유니폼 상수
+            `,
+			example : `인스턴스.SPECULAR_TEXTURE`,
+			return : 'String'
+        }
+    :DOC*/
+    RedMaterialInfo.SPECULAR_TEXTURE = 'uSpecularTexture'
+    /**DOC:
+		{
+            title :`REFLECTION_TEXTURE`,
+            code : 'CONST',
+            description : `
+                - REFLECTION_TEXTURE 유니폼 상수
+            `,
+			example : `인스턴스.REFLECTION_TEXTURE`,
+			return : 'String'
+        }
+    :DOC*/
+    RedMaterialInfo.REFLECTION_TEXTURE = 'uReflectionTexture'
     Object.freeze(RedMaterialInfo)
 })();

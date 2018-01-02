@@ -18,14 +18,15 @@ var RedSceneInfo;
             ],
             camera : [
                 {type:'RedBaseCameraInfo'},
-                '- 사용할 카메라 객체등록'
+                '- 사용할 카메라 객체등록',
+                '- 지정하지 않을경우 지정'
             ]
         },
         example : `
             var test;
             test = RedGL(Canvas Element)
             // firstScene 키로 Scene생성
-            test.createSceneInfo('firstScene')
+            RedSceneInfo(test, 'firstScene')
         `,
         return : 'RedSceneInfo Instance'
     }
@@ -34,9 +35,10 @@ var RedSceneInfo;
     var tDatas;
     RedSceneInfo = function (redGL, key, camera) {
         if (!(this instanceof RedSceneInfo)) return new RedSceneInfo(redGL, key, camera)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof key != 'string') throw 'key는 문자열만 허용됩니다.'
-        if (!(camera instanceof RedBaseCameraInfo)) throw 'camera는 RedBaseCameraInfo 인스턴스만 허용됩니다.'
+        if (!(redGL instanceof RedGL)) throw 'RedSceneInfo : RedGL 인스턴스만 허용됩니다.'
+        if (typeof key != 'string') throw 'RedSceneInfo : key는 문자열만 허용됩니다.'
+        if (camera == undefined) camera = RedBaseCameraInfo(testGL, 'autoInitCamera'+REDGL_UUID)
+        if (!(camera instanceof RedBaseCameraInfo)) throw 'RedSceneInfo : camera는 RedBaseCameraInfo 인스턴스만 허용됩니다.'
         // 저장할 공간확보하고
         if (!redGL['__datas']['RedSceneInfo']) redGL['__datas']['RedSceneInfo'] = {}
         tDatas = redGL['__datas']['RedSceneInfo']
@@ -69,10 +71,10 @@ var RedSceneInfo;
         }
         :DOC*/
         this['lights'] = {
-            ambient : [],
-            directional : [],
-            point : [],
-            spot : []
+            ambient: [],
+            directional: [],
+            point: [],
+            spot: []
         }
         this['__UUID'] = REDGL_UUID++
         // 캐싱
@@ -89,6 +91,7 @@ var RedSceneInfo;
         }
         :DOC*/
         setSkyBox: function (v) {
+            if (!(v instanceof RedSkyBoxInfo)) throw 'RedSceneInfo : RedSkyBoxInfo 인스턴스만 허용됩니다.'
             this['skyBox'] = v
         },
         /**DOC:
@@ -102,34 +105,34 @@ var RedSceneInfo;
         setGrid: function (v) {
             this['grid'] = v
         },
-          /**DOC:
-		{
-            title :`addLight`,
-            description : `라이트 설정`,
-            code:'FUNCTION',
-			example : `인스턴스.addLight`
-        }
-        :DOC*/
+        /**DOC:
+      {
+          title :`addLight`,
+          description : `라이트 설정`,
+          code:'FUNCTION',
+          example : `인스턴스.addLight`
+      }
+      :DOC*/
         addLight: (function () {
             var tDatas;
             return function (v) {
                 if (v instanceof RedDirectionalLightInfo) {
                     tDatas = this['lights'][RedDirectionalLightInfo.TYPE]
-                    if (tDatas.length == 16) throw '직사광 최대갯수는 16개입니다.'
+                    if (tDatas.length == 16) throw 'RedSceneInfo : 직사광 최대갯수는 16개입니다.'
                     else tDatas.push(v)
-                }else if (v instanceof RedPointLightInfo) {
+                } else if (v instanceof RedPointLightInfo) {
                     tDatas = this['lights'][RedPointLightInfo.TYPE]
-                    if (tDatas.length == 16) throw '포인트라이트 최대갯수는 16개입니다.'
+                    if (tDatas.length == 16) throw 'RedSceneInfo : 포인트라이트 최대갯수는 16개입니다.'
                     else tDatas.push(v)
-                }else if (v instanceof RedAmbientLightInfo) {
+                } else if (v instanceof RedAmbientLightInfo) {
                     tDatas = this['lights'][RedAmbientLightInfo.TYPE]
                     // 엠비언트는 일단 무조건 갈아침
                     tDatas[0] = v
-                }else if (v instanceof RedSpotLightInfo) {
+                } else if (v instanceof RedSpotLightInfo) {
                     tDatas = this['lights'][RedSpotLightInfo.TYPE]
-                    if (tDatas.length == 16) throw '스폿라이트 최대갯수는 16개입니다.'
+                    if (tDatas.length == 16) throw 'RedSceneInfo : 스폿라이트 최대갯수는 16개입니다.'
                     else tDatas.push(v)
-                } else throw '등록할수 없는 타입입니다.'
+                } else throw 'RedSceneInfo : 등록할수 없는 Light타입입니다.'
             }
         })()
     }

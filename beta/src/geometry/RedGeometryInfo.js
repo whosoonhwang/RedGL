@@ -38,7 +38,7 @@
             ]
         },
         example : `
-            testGL.createGeometryInfo(key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer) 
+            RedGeometryInfo(RedGL인스턴스, key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer)
         `,
         return : 'RedGeometryInfo Instance'
     }
@@ -50,23 +50,23 @@ var RedGeometryInfo;
     var k;
     RedGeometryInfo = function (redGL, key, verticesBufferInfo, indicesBufferInfo, texcoordBufferInfo, normalBufferInfo) {
         if (!(this instanceof RedGeometryInfo)) return new RedGeometryInfo(redGL, key, verticesBufferInfo, indicesBufferInfo, texcoordBufferInfo, normalBufferInfo)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (verticesBufferInfo && !(verticesBufferInfo instanceof RedBufferInfo)) throw 'verticesBufferInfo는 RedBufferInfo만 가능합니다.'
-        if (indicesBufferInfo && !(indicesBufferInfo instanceof RedBufferInfo)) throw 'indicesBufferInfo RedBufferInfo만 가능합니다.'
-        if (texcoordBufferInfo && !(texcoordBufferInfo instanceof RedBufferInfo)) throw 'texcoordBufferInfo RedBufferInfo만 가능합니다.'
-        if (normalBufferInfo && !(normalBufferInfo instanceof RedBufferInfo)) throw 'normalBufferInfo RedBufferInfo만 가능합니다.'
+        if (!(redGL instanceof RedGL)) throw 'RedGeometryInfo : RedGL 인스턴스만 허용됩니다.'
+        if (verticesBufferInfo && !(verticesBufferInfo instanceof RedBufferInfo)) throw 'RedGeometryInfo : verticesBufferInfo는 RedBufferInfo만 가능합니다.'
+        if (indicesBufferInfo && !(indicesBufferInfo instanceof RedBufferInfo)) throw 'RedGeometryInfo : indicesBufferInfo는 RedBufferInfo만 가능합니다.'
+        if (texcoordBufferInfo && !(texcoordBufferInfo instanceof RedBufferInfo)) throw 'RedGeometryInfo : texcoordBufferInfo는 RedBufferInfo만 가능합니다.'
+        if (normalBufferInfo && !(normalBufferInfo instanceof RedBufferInfo)) throw 'RedGeometryInfo : normalBufferInfo는 RedBufferInfo만 가능합니다.'
         //
-        if (verticesBufferInfo && verticesBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'verticesBufferInfo ARRAY_BUFFER 가능합니다.'
-        if (indicesBufferInfo && indicesBufferInfo.bufferType != RedBufferInfo.ELEMENT_ARRAY_BUFFER) throw 'indicesBufferInfo는 ELEMENT_ARRAY_BUFFER만 가능합니다.'
-        if (texcoordBufferInfo && texcoordBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'texcoordBufferInfo ARRAY_BUFFER 가능합니다.'
-        if (normalBufferInfo && normalBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'normalBufferInfo ARRAY_BUFFER 가능합니다.'
+        if (verticesBufferInfo && verticesBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'RedGeometryInfo : verticesBufferInfo는 ARRAY_BUFFER만 가능합니다.'
+        if (indicesBufferInfo && indicesBufferInfo.bufferType != RedBufferInfo.ELEMENT_ARRAY_BUFFER) throw 'RedGeometryInfo : indicesBufferInfo는 ELEMENT_ARRAY_BUFFER만 가능합니다.'
+        if (texcoordBufferInfo && texcoordBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'RedGeometryInfo : texcoordBufferInfo는 ARRAY_BUFFER만 가능합니다.'
+        if (normalBufferInfo && normalBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'RedGeometryInfo : normalBufferInfo는 ARRAY_BUFFER만 가능합니다.'
         // 저장할 공간확보하고
         if (!redGL['__datas']['RedGeometryInfo']) {
             redGL['__datas']['RedGeometryInfo'] = {}
         }
         tDatas = redGL['__datas']['RedGeometryInfo']
         // 기존에 등록된 녀석이면 재생성X
-        if (tDatas[key]) throw key + '는 이미 존재하는 RedGeometryInfo 입니다.'
+        if (tDatas[key]) throw 'RedGeometryInfo : ' + key + '는 이미 존재하는 RedGeometryInfo 입니다.'
         tGL = redGL.gl
         // 지오메트리생성!!
         /**DOC:
@@ -74,7 +74,7 @@ var RedGeometryInfo;
             title :`attributes`,
             description : `
                 - attribute Buffer 정보들
-                - vertexPosition,texcoord,normal 정보를 가진다.(존재하지 않을경우 키 자체가 없다.)
+                - vertexPosition, texcoord, normal 정보를 가진다.(존재하지 않을경우 키 자체가 없다.)
             `,
 			example : `인스턴스.attributes`,
 			return : 'Object'
@@ -104,16 +104,16 @@ var RedGeometryInfo;
 	    :DOC*/
         this['key'] = key
         if (verticesBufferInfo) {
-            if(verticesBufferInfo['shaderPointerKey'] == RedFixedAttributeKey['aVertexPosition']) this['attributes']['vertexPosition'] = verticesBufferInfo // 버텍스버퍼
-            else throw 'verticesBufferInfo의 shaderPointerKey는 aVertexPosition만 가질수있습니다.'
+            if (verticesBufferInfo['shaderPointerKey'] == RedFixedAttributeKey['aVertexPosition']) this['attributes']['vertexPosition'] = verticesBufferInfo // 버텍스버퍼
+            else throw 'RedGeometryInfo : verticesBufferInfo의 shaderPointerKey는 aVertexPosition만 가질수있습니다.'
         }
         if (texcoordBufferInfo) {
-            if(texcoordBufferInfo['shaderPointerKey'] == RedFixedAttributeKey['aTexcoord']) this['attributes']['texcoord'] = texcoordBufferInfo // 코디네이트버퍼
-            else throw 'texcoordBufferInfo의 shaderPointerKey는 aTexcoord만 가질수있습니다.'
+            if (texcoordBufferInfo['shaderPointerKey'] == RedFixedAttributeKey['aTexcoord']) this['attributes']['texcoord'] = texcoordBufferInfo // 코디네이트버퍼
+            else throw 'RedGeometryInfo : texcoordBufferInfo의 shaderPointerKey는 aTexcoord만 가질수있습니다.'
         }
         if (normalBufferInfo) {
-            if(normalBufferInfo['shaderPointerKey'] == RedFixedAttributeKey['aVertexNormal']) this['attributes']['normal'] = normalBufferInfo // 노말버퍼
-            else throw 'normalBufferInfo의 shaderPointerKey는 aVertexNormal만 가질수있습니다.'
+            if (normalBufferInfo['shaderPointerKey'] == RedFixedAttributeKey['aVertexNormal']) this['attributes']['normal'] = normalBufferInfo // 노말버퍼
+            else throw 'RedGeometryInfo : normalBufferInfo의 shaderPointerKey는 aVertexNormal만 가질수있습니다.'
         }
         //
         this['__attributeList'] = []

@@ -123,8 +123,8 @@ var RedBaseRenderInfo;
         cacheUseTexture = {}
       
         cacheIntFloat = {
-            int: null,
-            float: null
+            int: {},
+            float: {}
         }
         this.render = function (time) {
            
@@ -393,8 +393,8 @@ var RedBaseRenderInfo;
                     cacheUVAtlascoord_UUID = undefined
                     cacheUseTexture = {}
                     cacheIntFloat = {
-                        int: null,
-                        float: null
+                        int: {},
+                        float: {}
                     }
                 }
                 cacheProgramInfo = tProgramInfo
@@ -417,7 +417,7 @@ var RedBaseRenderInfo;
                                 tGL.vertexAttribPointer(
                                     tLocation,
                                     tAttrBufferInfo['pointSize'],
-                                    tAttrBufferInfo['arrayType'],
+                                    tAttrBufferInfo['glArrayType'],
                                     tAttrBufferInfo['normalize'],
                                     tAttrBufferInfo['stride'],
                                     tAttrBufferInfo['offset']
@@ -455,8 +455,10 @@ var RedBaseRenderInfo;
                     }
                     // 유니폼인데 숫자값일 경우
                     else if (uniform1fiMAP[tUniformType]) {
-                        cacheIntFloat[tUniformType] == tUniformValue ? 0 : tGL[uniform1fiMAP[tUniformType]](tLocation, tUniformValue)
-                        cacheIntFloat[tUniformType] = tUniformValue
+                        // console.log(tUniformKey,tUniformType,tLocation)
+                        //TODO: 갱신빈도율 확인해야함
+                        cacheIntFloat[tUniformType][tUniformKey] == tUniformValue ? 0 : tGL[uniform1fiMAP[tUniformType]](tLocation, tUniformValue)
+                        cacheIntFloat[tUniformType][tUniformKey] = tUniformValue
                     }
                     // 아틀라스텍스쳐인경우
                     else if (tUniformValue['__webglAtlasTexture']) {

@@ -223,7 +223,7 @@ testGL = RedGL(document.getElementById('test'), start, true, [
 			target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
 		},
 		defineTexture: function (target) {
-			target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
+			target.materialUniforms[RedMaterialInfo.DIFFUSE_TEXTURE] = target['uDiffuseTexture']
 		}
 	},
 	{
@@ -235,13 +235,17 @@ testGL = RedGL(document.getElementById('test'), start, true, [
 		initUniformValue: function (target) {
 			target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
 			target.materialUniforms.uShininess = 16
+			target.materialUniforms.uSpecularPower = 1
+			target.materialUniforms.uReflectionPower = 0.5
+			target.materialUniforms.uNormalPower = 1
+			target.materialUniforms.uDisplacementPower = 1
 		},
 		defineTexture: function (target) {
-			target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']
-			target.materialUniforms.uNormalTexture = target['uNormalTexture']
-			target.materialUniforms.uDisplacementTexture = target['uDisplacementTexture']
-			target.materialUniforms.uSpecularTexture = target['uSpecularTexture']
-			target.materialUniforms.uReflectionTexture = target['uReflectionTexture']
+			target.materialUniforms[RedMaterialInfo.DIFFUSE_TEXTURE] = target['uDiffuseTexture']
+			target.materialUniforms[RedMaterialInfo.NORMAL_TEXTURE] = target['uNormalTexture']
+			target.materialUniforms[RedMaterialInfo.DISPLACEMENT_TEXTURE] = target['uDisplacementTexture']
+			target.materialUniforms[RedMaterialInfo.SPECULAR_TEXTURE] = target['uSpecularTexture']
+			target.materialUniforms[RedMaterialInfo.REFLECTION_TEXTURE] = target['uReflectionTexture']
 		}
 	},
 	{

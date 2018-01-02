@@ -42,8 +42,8 @@ var RedMaterialDefine;
     var tKey;
     RedMaterialDefine = function (redGL, programInfo) {
         if (!(this instanceof RedMaterialDefine)) return new RedMaterialDefine(redGL, programInfo)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (!(programInfo instanceof RedProgramInfo)) throw 'RedProgramInfo 인스턴스만 허용됩니다.'
+        if (!(redGL instanceof RedGL)) throw 'RedMaterialDefine : RedGL 인스턴스만 허용됩니다.'
+        if (!(programInfo instanceof RedProgramInfo)) throw 'RedMaterialDefine : RedProgramInfo 인스턴스만 허용됩니다.'
         // 저장할 공간확보하고
         if (!redGL['__datas']['RedMaterialDefine']) redGL['__datas']['RedMaterialDefine'] = {}
         tKey = programInfo['key']

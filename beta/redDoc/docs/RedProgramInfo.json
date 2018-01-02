@@ -57,7 +57,7 @@
         }
       ]
     },
-    "example": "\n    var test;\n    test = RedGL(Canvas Element)\n    // basic이라는 이름으로 버텍스 쉐이더를 만든다. \n    test.createShaderInfo('basic', RedProgramInfo.VERTEX_SHADER, 쉐이더소스)\n    test.createShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER, 쉐이더소스)\n    test.createProgramInfo(\n        'basic',\n        test.getShaderInfo('basic', RedProgramInfo.VERTEX_SHADER),\n        test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER),\n        function (target) {\n            target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])\n        },\n        function (target) {\n            target.materialUniforms.uDiffuseTexture = target['uDiffuseTexture']\n        }\n      )\n",
+    "example": "\n    var test;\n    test = RedGL(Canvas Element)\n    // basic이라는 이름으로 버텍스 쉐이더를 만든다. \n    test.createShaderInfo('basic', RedProgramInfo.VERTEX_SHADER, 쉐이더소스)\n    test.createShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER, 쉐이더소스)\n    test.createProgramInfo(\n        'basic',\n        test.getShaderInfo('basic', RedProgramInfo.VERTEX_SHADER),\n        test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER),\n        function (target) {\n            target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])\n        },\n        function (target) {\n            target.materialUniforms['RedMaterialInfo.DIFFUSE_TEXTURE'] = target['uDiffuseTexture']\n        }\n      )\n",
     "return": "RedProgramInfo Instance"
   },
   {

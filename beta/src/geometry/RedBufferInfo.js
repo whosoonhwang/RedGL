@@ -24,9 +24,10 @@
             shaderPointerKey : [
                 {type:'null or String'},
                 '- <b>arrayBuffer일때만 사용</b>',
-                '- Shade내의 바인딩될 attribute이름'
+                '- Shade내의 바인딩될 attribute이름',
+                '- RedFixedAttributeKey를 사용'
             ],
-            arrayData : [
+            typedArrayData : [
                 {type:'TypedArray'},
                 '버퍼 raw data'
             ],
@@ -39,7 +40,7 @@
                 '포인트 갯수',
                 '입력하지않으면 rawData/pointSize로 자동입력'
             ],
-            arrayType : [
+            glArrayType : [
                 {type:'glConst'},
                 'ex) gl.FLOAT'
             ],
@@ -81,13 +82,13 @@ var RedBufferInfo;
     var tDatas;
     var tBufferType;
     var tBuffer;
-    RedBufferInfo = function (redGL, bufferType, key, shaderPointerKey, arrayData, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode) {
-        if (!(this instanceof RedBufferInfo)) return new RedBufferInfo(redGL, bufferType, key, shaderPointerKey, arrayData, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof bufferType != 'string') throw 'bufferType - 문자열만 허용됩니다.'
-        if (typeof key != 'string') throw 'key - 문자열만 허용됩니다.'
-        if (bufferType == RedBufferInfo.ARRAY_BUFFER && typeof shaderPointerKey != 'string') throw 'pointer - 문자열만 허용됩니다.'
-        if (typeof pointSize != 'number' || pointSize != parseInt(pointSize)) throw 'pointSize - Integer만 허용됩니다.'
+    RedBufferInfo = function (redGL, bufferType, key, shaderPointerKey, typedArrayData, pointSize, pointNum, glArrayType, normalize, stride, offset, drawMode) {
+        if (!(this instanceof RedBufferInfo)) return new RedBufferInfo(redGL, bufferType, key, shaderPointerKey, typedArrayData, pointSize, pointNum, glArrayType, normalize, stride, offset, drawMode)
+        if (!(redGL instanceof RedGL)) throw 'RedBufferInfo : RedGL 인스턴스만 허용됩니다.'
+        if (typeof bufferType != 'string') throw 'RedBufferInfo : bufferType - 문자열만 허용됩니다.'
+        if (typeof key != 'string') throw 'RedBufferInfo : key - 문자열만 허용됩니다.'
+        if (bufferType == RedBufferInfo.ARRAY_BUFFER && typeof shaderPointerKey != 'string') throw 'RedBufferInfo : shaderPointerKey - 문자열만 허용됩니다.'
+        if (typeof pointSize != 'number' || pointSize != parseInt(pointSize)) throw 'RedBufferInfo : pointSize - Integer만 허용됩니다.'
         // 저장할 공간확보하고
         if (!redGL['__datas']['RedBufferInfo']) {
             redGL['__datas']['RedBufferInfo'] = {}
@@ -102,26 +103,26 @@ var RedBufferInfo;
         switch (bufferType) {
             case RedBufferInfo.ARRAY_BUFFER:
                 bufferType = tGL.ARRAY_BUFFER
-                if (!(arrayData instanceof Float32Array || arrayData instanceof Float64Array)) {
-                    throw 'TypedArray형식을 사용해야합니다.'
+                if (!(typedArrayData instanceof Float32Array || typedArrayData instanceof Float64Array)) {
+                    throw 'RedBufferInfo : bufferType - 올바른 TypedArray(RedBufferInfo.ARRAY_BUFFER)형식을 사용해야합니다.'
                 }
                 break
             case RedBufferInfo.ELEMENT_ARRAY_BUFFER:
                 bufferType = tGL.ELEMENT_ARRAY_BUFFER
                 if (
-                    !(arrayData instanceof Uint8Array ||
-                        arrayData instanceof Uint16Array ||
-                        arrayData instanceof Uint32Array ||
-                        arrayData instanceof Int8Array ||
-                        arrayData instanceof Int16Array ||
-                        arrayData instanceof Int32Array)
-                ) throw 'TypedArray형식을 사용해야합니다.'
+                    !(typedArrayData instanceof Uint8Array ||
+                        typedArrayData instanceof Uint16Array ||
+                        typedArrayData instanceof Uint32Array ||
+                        typedArrayData instanceof Int8Array ||
+                        typedArrayData instanceof Int16Array ||
+                        typedArrayData instanceof Int32Array)
+                ) throw 'RedBufferInfo : bufferType - 올바른 TypedArray(RedBufferInfo.ELEMENT_ARRAY_BUFFER)형식을 사용해야합니다.'
                 break
             default:
-                throw '지원하지 않는 버퍼타입입니다. '
+                throw 'RedBufferInfo : bufferType - 지원하지 않는 버퍼타입입니다. '
         }
         tGL.bindBuffer(bufferType, tBuffer);
-        tGL.bufferData(bufferType, arrayData, drawMode = drawMode ? drawMode : tGL.STATIC_DRAW);
+        tGL.bufferData(bufferType, typedArrayData, drawMode = drawMode ? drawMode : tGL.STATIC_DRAW);
         // 정보생성
         /**DOC:
 		{
@@ -134,28 +135,28 @@ var RedBufferInfo;
         this['shaderPointerKey'] = shaderPointerKey
         /**DOC:
 		{
-            title :`arrayType`,
+            title :`glArrayType`,
             description : `
                 - 버퍼적용시 전달할 타입드 어레이 타입
-                - 입력된 arrayData와 맞지않은 형식일경우..에러방출
+                - 입력된 typedArrayData와 맞지않은 형식일경우..에러방출
             `,
-			example : `인스턴스.arrayType`,
+			example : `인스턴스.glArrayType`,
 			return : 'glConst'
         }
         :DOC*/
-        if (arrayType) {
+        if (glArrayType) {
             var passed = false
-            if (arrayData instanceof Int8Array) { passed = arrayType == tGL.BYTE }
-            else if (arrayData instanceof Uint8Array) { passed = arrayType == tGL.UNSIGNED_BYTE }
-            else if (arrayData instanceof Int16Array) { passed = arrayType == tGL.SHORT }
-            else if (arrayData instanceof Uint16Array) { passed = arrayType == tGL.UNSIGNED_SHORT }
-            else if (arrayData instanceof Int32Array) { passed = arrayType == tGL.INT }
-            else if (arrayData instanceof Uint32Array) { passed = arrayType == tGL.UNSIGNED_INT }
-            else if (arrayData instanceof Float32Array) { passed = arrayType == tGL.FLOAT }
-            if (!passed) throw "arrayData 형식과 arrayType이 맞지않습니다.";
-            this['arrayType'] = arrayType
+            if (typedArrayData instanceof Int8Array) { passed = glArrayType == tGL.BYTE }
+            else if (typedArrayData instanceof Uint8Array) { passed = glArrayType == tGL.UNSIGNED_BYTE }
+            else if (typedArrayData instanceof Uint16Array) { passed = glArrayType == tGL.UNSIGNED_SHORT }
+            else if (typedArrayData instanceof Uint32Array) { passed = glArrayType == tGL.UNSIGNED_INT }
+            else if (typedArrayData instanceof Int16Array) { passed = glArrayType == tGL.SHORT }
+            else if (typedArrayData instanceof Int32Array) { passed = glArrayType == tGL.INT }
+            else if (typedArrayData instanceof Float32Array) { passed = glArrayType == tGL.FLOAT }
+            if (!passed) throw "RedBufferInfo : glArrayType - arrayData 형식과 glArrayType이 맞지않습니다.";
+            this['glArrayType'] = glArrayType
         }
-        else throw '버퍼데이터의 형식을 지정해주세요'
+        else throw 'RedBufferInfo : glArrayType - 버퍼데이터의 형식을 지정해주세요'
         /**DOC:
 		{
             title :`pointSize`,
@@ -165,10 +166,10 @@ var RedBufferInfo;
         }
         :DOC*/
         if (pointSize) this['pointSize'] = pointSize
-        else throw 'pointSize를 입력하세요'
+        else throw 'RedBufferInfo : pointSize를 입력하세요'
         // 포인트수 
 
-        if (typeof (pointNum = pointNum ? pointNum : arrayData.length / pointSize) != 'number' || pointNum != parseInt(pointNum)) throw 'pointNum - Integer만 허용됩니다.'
+        if (typeof (pointNum = pointNum ? pointNum : typedArrayData.length / pointSize) != 'number' || pointNum != parseInt(pointNum)) throw 'pointNum - Integer만 허용됩니다.'
         /**DOC:
 		{
             title :`pointNum`,
@@ -188,8 +189,8 @@ var RedBufferInfo;
 	    :DOC*/
         this['normalize'] = normalize ? normalize : false
         //
-        if (typeof (stride = stride ? stride : 0) != 'number' || stride != parseInt(stride)) throw 'stride - Integer만 허용됩니다.' // 0 = move forward size * sizeof(type) each iteration to get the next position
-        if (typeof (offset = offset ? offset : 0) != 'number' || offset != parseInt(offset)) throw 'offset - Integer만 허용됩니다.' // start at the beginning of the buffer
+        if (typeof (stride = stride ? stride : 0) != 'number' || stride != parseInt(stride)) throw 'RedBufferInfo : stride - Integer만 허용됩니다.' // 0 = move forward size * sizeof(type) each iteration to get the next position
+        if (typeof (offset = offset ? offset : 0) != 'number' || offset != parseInt(offset)) throw 'RedBufferInfo : offset - Integer만 허용됩니다.' // start at the beginning of the buffer
         /**DOC:
 		{
             title :`stride`,

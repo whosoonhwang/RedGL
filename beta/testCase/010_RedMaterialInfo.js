@@ -10,8 +10,8 @@ testGL.createProgramInfo(
     'basic',
     vShaderInfo,
     fShaderInfo,
-    function(target){
-        target.uniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random()])
+    function (target) {
+        target.materialUniforms.uColor = new Float32Array([Math.random(), Math.random(), Math.random()])
     }
 )
 RedMaterialDefine(testGL, testGL.getProgramInfo('basic'))
@@ -23,6 +23,11 @@ redSuite(
             var t0;
             t0 = testGL.createMaterialInfo('basic')
             unit.run(t0 instanceof RedMaterialInfo)
+        }, true),
+        redTest("RedMaterialInfo - 존재하지않는 재질 생성 테스트", function (unit) {
+            var t0;
+            t0 = testGL.createMaterialInfo('basic')
+            unit.run(t0 instanceof RedMaterialInfo)
         }, true)
     ),
     redGroup(
@@ -31,7 +36,7 @@ redSuite(
             var t0;
             t0 = true
             try {
-                RedMaterialInfo(1, testGL.getProgramInfo('test1'))
+                RedMaterialInfo(1, 'basic')
             } catch (error) {
                 t0 = false
             }
@@ -41,7 +46,7 @@ redSuite(
             var t0;
             t0 = true
             try {
-                testGL.createMaterialInfo(1)
+                RedMaterialInfo(testGL, 1)
             } catch (error) {
                 t0 = false
             }
@@ -52,20 +57,14 @@ redSuite(
         '인스턴스확인',
         redTest("RedMaterialInfo - programInfo 타입확인", function (unit) {
             var t0;
-            t0 = testGL.createMaterialInfo('basic')
+            t0 = RedMaterialInfo(testGL, 'basic')
             unit.run(t0['programInfo'] instanceof RedProgramInfo)
-        }, true),
-        redTest("RedMaterialInfo - needUniformList 초기값확인", function (unit) {
-            var t0;
-            t0 = testGL.createMaterialInfo('basic')
-
-            unit.run(t0['needUniformList'])
         }, true),
         redTest("RedMaterialInfo - 유니폼정보가 잘들어오는지확인", function (unit) {
             var t0;
-            t0 = testGL.createMaterialInfo('basic')
+            t0 = RedMaterialInfo(testGL, 'basic')
             console.log(t0)
-            unit.run(t0['uniforms'].hasOwnProperty('uColor'))
+            unit.run(t0['materialUniforms'].hasOwnProperty('uColor'))
         }, true)
     )
 )
