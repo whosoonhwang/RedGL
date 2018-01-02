@@ -9,6 +9,7 @@ uniform mat4 uPMatrix;
 uniform vec4 uAtlascoord;
 uniform sampler2D uDisplacementTexture; // DisplacementTexture
 uniform int uUseDisplacementTexture; // DisplacementTexture 사용여부
+uniform float uDisplacementPower; // Displacement 강도
 
 
 // 베어링들
@@ -26,7 +27,7 @@ void main(void) {
     vNormal = vec3(uNMatrix * vec4(aVertexNormal,1.0)); 
  
     if(uUseDisplacementTexture == 1) {
-        vertexPositionEye4.xyz += normalize(vNormal) * texture2D(uDisplacementTexture,vTexcoord).x;
+        vertexPositionEye4.xyz += normalize(vNormal) * texture2D(uDisplacementTexture,vTexcoord).x * uDisplacementPower;
     }
     vEyeVec = -vertexPositionEye4.xyz;
     cubeNormal =  uMVMatrix *vec4(aVertexPosition, 0.0);

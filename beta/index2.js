@@ -235,11 +235,9 @@ testGL = RedGL(document.getElementById('test'), start, true, [
 		initUniformValue: function (target) {
 			target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
 			target.materialUniforms.uShininess = 16
-			//TODO: lambertPower
-			//TODO: normalPower
-			//TODO: spercularPower
-			//TODO: displacementPower
-			//TODO: reflectPower
+			target.materialUniforms.uReflectionPower = 0.5
+			target.materialUniforms.uNormalPower = 1
+			target.materialUniforms.uDisplacementPower = 1
 		},
 		defineTexture: function (target) {
 			target.materialUniforms[RedMaterialInfo.DIFFUSE_TEXTURE] = target['uDiffuseTexture']

@@ -4,7 +4,16 @@ start = function () {
 	console.log('안온다는거냐?')
 	var makeCheckRenderInfo;
 	var checkCallBox;
-
+	var setTestUI
+	var testMesh
+	var testEnvironmentMap
+	setTestUI = function () {
+		var gui = new dat.GUI();
+		gui.add(testEnvironmentMap, 'uShininess', 1, 255);		
+		gui.add(testEnvironmentMap, 'uDisplacementPower', -2, 2);
+		gui.add(testEnvironmentMap, 'uReflectionPower', 0, 1);
+		gui.add(testEnvironmentMap, 'uNormalPower', -1, 1);
+	}
 	makeCheckRenderInfo = function () {
 		checkCallBox = document.createElement('div')
 		document.body.appendChild(checkCallBox)
@@ -44,30 +53,9 @@ start = function () {
 	// Scene 생성
 	var testScene = testGL.createSceneInfo('testScene', testCamera)
 	// 재질정의
-	var testDiffuseTexture = testGL.createTextureInfo('asset/fieldstone.jpg')
 	var testPhongDiffuseTexture = testGL.createTextureInfo('asset/fieldstone.jpg')
 	var testNormalTexture = testGL.createTextureInfo('asset/fieldstone-normal.jpg', RedTextureIndex.NORMAL)
 	var testDisplacementTexture = testGL.createTextureInfo('asset/displacement.jpg', RedTextureIndex.DISPLACEMENT)
-
-	var earthDiffuse = testGL.createTextureInfo('asset/tile/diffuse.png')
-	var earthDisplacement = testGL.createTextureInfo('asset/tile/displacement.png', RedTextureIndex.DISPLACEMENT)
-	var earthSpecular = testGL.createTextureInfo('asset/tile/specular.png', RedTextureIndex.SPECULAR)
-
-	// 재질생성	
-	var testMatBitmap = testGL.createMaterialInfo('bitmap', testDiffuseTexture)
-	var testMatBitmapPhong = testGL.createMaterialInfo('bitmapPhong', testPhongDiffuseTexture)
-	testMatBitmapPhong.uShininess = 8
-	var testMatBitmapNormal = testGL.createMaterialInfo('bitmapPhong', testPhongDiffuseTexture, testNormalTexture)
-	testMatBitmapNormal.uShininess = 8
-	var testMatBitmapDisplacement = testGL.createMaterialInfo('bitmapPhong', testPhongDiffuseTexture, testNormalTexture, testDisplacementTexture)
-	testMatBitmapDisplacement.uShininess = 8
-	var testMatBitmapSpecular = testGL.createMaterialInfo('bitmapPhong', earthDiffuse, null, earthDisplacement, earthSpecular)
-	testMatBitmapSpecular.uShininess = 4
-	// 그리드 생성
-	var grid = testGL.createMeshInfo('grid1', RedPrimitive.grid(testGL), testGL.createMaterialInfo('color'))
-	grid.drawMode = testGL.gl.LINES
-	// testScene.setGrid(grid)
-	// 스카이박스 생성
 	testScene.setSkyBox(
 		testGL.createSkyBoxInfo([
 			'asset/cubemap/posx.jpg',
@@ -78,28 +66,7 @@ start = function () {
 			'asset/cubemap/negz.jpg'
 		])
 	)
-
-	// 중앙 테스트용 큰 구체...작성
-	// var tMesh = testGL.createMeshInfo('testMeshAdd2', RedPrimitive.cube(testGL, 1,1,1, 32, 32, 32), testMatBitmap)
-	var tMesh = testGL.createMeshInfo('testMeshAdd2', RedPrimitive.sphere(testGL, 3, 32, 32, 32), testMatBitmapDisplacement)
-	testScene.children.push(tMesh)
-	console.log(tMesh)
-	var tMesh = testGL.createMeshInfo('testMeshAdd3', RedPrimitive.sphere(testGL, 3, 32, 32, 32), testMatBitmapNormal)
-	tMesh.position[0] = -7
-	testScene.children.push(tMesh)
-	var tMesh = testGL.createMeshInfo('testMeshAdd4', RedPrimitive.sphere(testGL, 3, 32, 32, 32), testMatBitmapPhong)
-	tMesh.position[0] = 7
-	testScene.children.push(tMesh)
-	var tMesh = testGL.createMeshInfo('testMeshAdd7', RedPrimitive.sphere(testGL, 3, 32, 32, 32), testMatBitmap)
-	tMesh.position[0] = -7
-	tMesh.position[2] = -7
-	testScene.children.push(tMesh)
-	var earth = testGL.createMeshInfo('testMeshAdd5', RedPrimitive.sphere(testGL, 5, 32, 32, 32), testMatBitmapSpecular)
-	earth.position[2] = 14
-	earth.position[0] = 14
-	testScene.children.push(earth)
-
-	var testEnvironmentMap = testGL.createMaterialInfo(
+	testEnvironmentMap = testGL.createMaterialInfo(
 		'bitmapPhong',
 		testPhongDiffuseTexture,
 		testNormalTexture,
@@ -116,23 +83,10 @@ start = function () {
 	)
 	console.log(testEnvironmentMap)
 
-	var cubeTest = testGL.createMeshInfo('testMeshAdd6', RedPrimitive.sphere(testGL, 5, 64, 64, 64), testEnvironmentMap)
-	cubeTest.scale[0] = 0.5
-	cubeTest.position[2] = -14
-	cubeTest.position[0] = -14
-	testScene.children.push(cubeTest)
+	testMesh = testGL.createMeshInfo('testMeshAdd6', RedPrimitive.sphere(testGL, 5, 64, 64, 64), testEnvironmentMap)
+	testScene.children.push(testMesh)
 
-	// 중앙 테스트용 구체...정렬
-	var i, max = 50
-	i = max
-	while (i--) {
-		var tMesh = testGL.createMeshInfo('testMeshAdd1' + i, RedPrimitive.sphere(testGL, 1, 32, 32, 32), testMatBitmapDisplacement)
-		tMesh.position[0] = Math.sin(Math.PI * 2 / max * i) * 30
-		tMesh.position[1] = 0
-		tMesh.position[2] = Math.cos(Math.PI * 2 / max * i) * 30
-
-		testScene.children.push(tMesh)
-	}
+	setTestUI()
 
 	// 엠비언트 라이트 테스트
 	var testLight = testGL.createAmbientLight(testGL)
@@ -140,7 +94,7 @@ start = function () {
 	testScene.addLight(testLight)
 
 	// 디렉셔널 라이트 테스트
-	var i = 2
+	var i = 1
 	while (i--) {
 		var testLight = testGL.createDirectionalLight(testGL)
 		// testLight.color[0] = Math.random()
@@ -148,19 +102,6 @@ start = function () {
 		// testLight.color[2] = Math.random()
 		testScene.addLight(testLight)
 	}
-	// 포인트 라이트 테스트
-	i = 1
-	while (i--) {
-		var testLight = testGL.createPointLight(testGL)
-		testLight.color[0] = Math.random()
-		testLight.color[1] = Math.random()
-		testLight.color[2] = Math.random()
-		testLight.radius = 20
-		testLight.useDebugMode = true
-		testScene.addLight(testLight)
-
-	}
-
 
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
 	/////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -168,19 +109,14 @@ start = function () {
 	var renderer = testGL.createBaseRenderInfo(testScene, function (time) {
 		testCamera.setPosition(Math.sin(time / 2000) * 60, 50, Math.cos(time / 5000) * 40)
 		testCamera.lookAt([0, 0, 0])
+		var max = testScene['lights']['directional'].length
 		i = testScene['lights']['directional'].length
 		while (i--) {
-			testScene['lights']['directional'][i].direction[0] = -Math.sin(time / 1700 + Math.PI * 2 / 2 * i) * 30
-			testScene['lights']['directional'][i].direction[1] = Math.cos(time / 1400 + Math.PI * 2 / 2 * i) * 20 + Math.sin(time / 2700 + Math.PI * 2 / 2 * i) * 50
-			testScene['lights']['directional'][i].direction[2] = -Math.sin(time / 1200 + Math.PI * 2 / 2 * i) * 30
+			testScene['lights']['directional'][i].direction[0] = -Math.sin(time / 1700 + Math.PI * 2 / max * i) * 30
+			testScene['lights']['directional'][i].direction[1] = Math.cos(time / 1400 + Math.PI * 2 / max * i) * 20 + Math.sin(time / 2700 + Math.PI * 2 / max * i) * 50
+			testScene['lights']['directional'][i].direction[2] = -Math.sin(time / 1200 + Math.PI * 2 / max * i) * 30
 		}
-		earth.rotation[0] += 0.01
-		earth.rotation[1] += 0.01
-		earth.rotation[2] += 0.01
 
-		cubeTest.rotation[0] += 0.01
-		cubeTest.rotation[1] += 0.01
-		cubeTest.rotation[2] += 0.01
 
 		checkCallBox.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
 	})

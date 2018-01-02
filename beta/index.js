@@ -59,7 +59,7 @@ start = function () {
 	// 그리드 생성
 	var grid = testGL.createMeshInfo('grid1', RedPrimitive.grid(testGL), testGL.createMaterialInfo('color'))
 	grid.drawMode = testGL.gl.LINES
-	testScene.setGrid(grid)
+	// testScene.setGrid(grid)
 	// 스카이박스 생성
 	testScene.setSkyBox(
 		testGL.createSkyBoxInfo([
@@ -176,6 +176,7 @@ start = function () {
 			testScene['lights']['directional'][i].direction[1] = Math.cos(time / 1400 + i) * 20 + Math.sin(time / 2700 + i) * 50
 			testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200 + i) * 20
 		}
+		// testMatBitmap['uDisplacementPower'] = Math.sin(time/300)*3
 		// i = parseInt(testScene.children.length)
 		// while (i--) {
 		// 	testScene.children[i]['rotation'][0] +=0.01
@@ -185,6 +186,14 @@ start = function () {
 		checkCallBox.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
 	})
 	renderer.start()
+
+	var setTestUI = function () {
+		var gui = new dat.GUI();
+		gui.add(testMatBitmap, 'uShininess', 1, 255);		
+		gui.add(testMatBitmap, 'uDisplacementPower', -2, 2);
+		gui.add(testMatBitmap, 'uNormalPower', -1, 1);
+	}
+	setTestUI()
 }
 testGL = RedGL(document.getElementById('test'), start, true, [
 	{
@@ -219,11 +228,9 @@ testGL = RedGL(document.getElementById('test'), start, true, [
 		initUniformValue: function (target) {
 			target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
 			target.materialUniforms.uShininess = 16
-			//TODO: lambertPower
-			//TODO: normalPower
-			//TODO: spercularPower
-			//TODO: displacementPower
-			//TODO: reflectPower
+			target.materialUniforms.uReflectionPower = 0.5
+			target.materialUniforms.uNormalPower = 1
+			target.materialUniforms.uDisplacementPower = 1
 		},
 		defineTexture: function (target) {
 			target.materialUniforms[RedMaterialInfo.DIFFUSE_TEXTURE] = target['uDiffuseTexture']
