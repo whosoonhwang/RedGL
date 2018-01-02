@@ -1,7 +1,38 @@
 "use strict";
 var testGL = RedGL(Recard.Dom('canvas').S('width', 1000, 'height', 1000).__dom__)
-var testData_arrayBuffer;
+var testData_arrayBuffer,testData_ElementArrayBuffer;
 testData_arrayBuffer = new Float32Array([
+    -1.0, -1.0, 1.0,
+    1.0, -1.0, 1.0,
+    1.0, 1.0, 1.0,
+    -1.0, 1.0, 1.0,
+
+    -1.0, -1.0, -1.0,
+    -1.0, 1.0, -1.0,
+    1.0, 1.0, -1.0,
+    1.0, -1.0, -1.0,
+
+    -1.0, 1.0, -1.0,
+    -1.0, 1.0, 1.0,
+    1.0, 1.0, 1.0,
+    1.0, 1.0, -1.0,
+
+    -1.0, -1.0, -1.0,
+    1.0, -1.0, -1.0,
+    1.0, -1.0, 1.0,
+    -1.0, -1.0, 1.0,
+
+    1.0, -1.0, -1.0,
+    1.0, 1.0, -1.0,
+    1.0, 1.0, 1.0,
+    1.0, -1.0, 1.0,
+
+    -1.0, -1.0, -1.0,
+    -1.0, -1.0, 1.0,
+    -1.0, 1.0, 1.0,
+    -1.0, 1.0, -1.0
+])
+testData_ElementArrayBuffer = new Uint16Array([
     -1.0, -1.0, 1.0,
     1.0, -1.0, 1.0,
     1.0, 1.0, 1.0,
@@ -36,9 +67,9 @@ redSuite(
     "RedBufferInfo Test",
     redGroup(
         "RedBufferInfo Test",
-        redTest("RedBufferInfo - ArrayBuffer 생성 테스트", function (unit) {
+        redTest("ArrayBuffer 생성 테스트", function (unit) {
             var t0;
-            // redGL, bufferType, key, shaderPointerKey, arrayData, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode
+            // redGL, bufferType, key, shaderPointerKey, arrayData, pointSize, pointNum, glArrayType, normalize, stride, offset, drawMode
             t0 = RedBufferInfo(
                 testGL, // redGL
                 RedBufferInfo.ARRAY_BUFFER, // bufferType
@@ -47,7 +78,27 @@ redSuite(
                 testData_arrayBuffer, // arrayData
                 3, // pointSize
                 24, // pointNum
-                testGL.gl.FLOAT, //arrayType
+                testGL.gl.FLOAT, //glArrayType
+                false, //normalize
+                0, // stride
+                0, // offset
+                testGL.gl.STATIC_DRAW //drawMode 
+            )
+            console.log(t0)
+            unit.run(t0 instanceof RedBufferInfo)
+        }, true),
+        redTest("ElementArrayBuffer 생성 테스트", function (unit) {
+            var t0;
+            // redGL, bufferType, key, shaderPointerKey, arrayData, pointSize, pointNum, glArrayType, normalize, stride, offset, drawMode
+            t0 = RedBufferInfo(
+                testGL, // redGL
+                RedBufferInfo.ELEMENT_ARRAY_BUFFER, // bufferType
+                'testBuffer_element', // key
+                'aPointer', // shaderPointerKey
+                testData_ElementArrayBuffer, // arrayData
+                3, // pointSize
+                24, // pointNum
+                testGL.gl.UNSIGNED_SHORT, //glArrayType
                 false, //normalize
                 0, // stride
                 0, // offset
@@ -59,7 +110,7 @@ redSuite(
     ),
     redGroup(
         '벨리데이션 확인',
-        redTest("RedBufferInfo - RedGL 인스턴스만허용 : redGL", function (unit) {
+        redTest("RedGL 인스턴스만허용 : redGL", function (unit) {
             var t0;
             t0 = true
             try {
@@ -71,7 +122,7 @@ redSuite(
                     testData_arrayBuffer, // arrayData
                     3, // pointSize
                     24, // pointNum
-                    testGL.gl.FLOAT, //arrayType
+                    testGL.gl.FLOAT, //glArrayType
                     false, //normalize
                     0, // stride
                     0, // offset
@@ -82,7 +133,7 @@ redSuite(
             }
             unit.run(t0)
         }, false),
-        redTest("RedBufferInfo - 지정된 버퍼타입만 허용 : bufferType", function (unit) {
+        redTest("지정된 버퍼타입만 허용 : bufferType", function (unit) {
             var t0;
             t0 = true
             try {
@@ -94,7 +145,7 @@ redSuite(
                     testData_arrayBuffer, // arrayData
                     3, // pointSize
                     24, // pointNum
-                    testGL.gl.FLOAT, //arrayType
+                    testGL.gl.FLOAT, //glArrayType
                     false, //normalize
                     0, // stride
                     0, // offset
@@ -105,7 +156,7 @@ redSuite(
             }
             unit.run(t0)
         }, false),
-        redTest("RedBufferInfo - raw데이터를 TypedArray계열만 허용하는지 : arrayData", function (unit) {
+        redTest("raw데이터를 TypedArray계열만 허용하는지 : arrayData", function (unit) {
             var t0;
             t0 = true
             try {
@@ -117,7 +168,7 @@ redSuite(
                     '1,2,3', // arrayData
                     3, // pointSize
                     24, // pointNum
-                    testGL.gl.FLOAT, //arrayType
+                    testGL.gl.FLOAT, //glArrayType
                     false, //normalize
                     0, // stride
                     0, // offset
@@ -128,7 +179,7 @@ redSuite(
             }
             unit.run(t0)
         }, false),
-        redTest("RedBufferInfo - raw데이터를 TypedArray계열만 허용하는지 : arrayData", function (unit) {
+        redTest("raw데이터를 TypedArray계열만 허용하는지 : arrayData", function (unit) {
             var t0;
             t0 = true
             try {
@@ -140,7 +191,7 @@ redSuite(
                     1, // arrayData
                     3, // pointSize
                     24, // pointNum
-                    testGL.gl.FLOAT, //arrayType
+                    testGL.gl.FLOAT, //glArrayType
                     false, //normalize
                     0, // stride
                     0, // offset
@@ -151,7 +202,7 @@ redSuite(
             }
             unit.run(t0)
         }, false),
-        redTest("RedBufferInfo - raw데이터를 TypedArray계열만 허용하는지 : arrayData", function (unit) {
+        redTest("raw데이터를 TypedArray계열만 허용하는지 : arrayData", function (unit) {
             var t0;
             t0 = true
             try {
@@ -163,7 +214,7 @@ redSuite(
                     [1, 2, 3], // arrayData
                     3, // pointSize
                     1, // pointNum
-                    testGL.gl.FLOAT, //arrayType
+                    testGL.gl.FLOAT, //glArrayType
                     false, //normalize
                     0, // stride
                     0, // offset
@@ -174,7 +225,7 @@ redSuite(
             }
             unit.run(t0)
         }, false),
-        redTest("RedBufferInfo - Integer만 허용하는지 : pointSize", function (unit) {
+        redTest("Integer만 허용하는지 : pointSize", function (unit) {
             var t0;
             t0 = true
             try {
@@ -186,7 +237,7 @@ redSuite(
                     testData_arrayBuffer, // arrayData
                     3.1, // pointSize
                     24, // pointNum
-                    testGL.gl.FLOAT, //arrayType
+                    testGL.gl.FLOAT, //glArrayType
                     false, //normalize
                     0, // stride
                     0, // offset
@@ -197,7 +248,7 @@ redSuite(
             }
             unit.run(t0)
         }, false),
-        redTest("RedBufferInfo - Integer만 허용하는지 : pointSize", function (unit) {
+        redTest("Integer만 허용하는지 : pointSize", function (unit) {
             var t0;
             t0 = true
             try {
@@ -209,7 +260,7 @@ redSuite(
                     testData_arrayBuffer, // arrayData
                     '3', // pointSize
                     24, // pointNum
-                    testGL.gl.FLOAT, //arrayType
+                    testGL.gl.FLOAT, //glArrayType
                     false, //normalize
                     0, // stride
                     0, // offset
@@ -220,7 +271,7 @@ redSuite(
             }
             unit.run(t0)
         }, false),
-        redTest("RedBufferInfo - Integer만 허용하는지 : pointNum", function (unit) {
+        redTest("Integer만 허용하는지 : pointNum", function (unit) {
             var t0;
             t0 = true
             try {
@@ -232,7 +283,7 @@ redSuite(
                     testData_arrayBuffer, // arrayData
                     3, // pointSize
                     24.1, // pointNum
-                    testGL.gl.FLOAT, //arrayType
+                    testGL.gl.FLOAT, //glArrayType
                     false, //normalize
                     0, // stride
                     0, // offset
@@ -243,7 +294,7 @@ redSuite(
             }
             unit.run(t0)
         }, false),
-        redTest("RedBufferInfo - 필수값 입력테스트 : arrayType", function (unit) {
+        redTest("필수값 입력테스트 : glArrayType", function (unit) {
             var t0;
             t0 = true
             try {
@@ -255,7 +306,7 @@ redSuite(
                     testData_arrayBuffer, // arrayData
                     3, // pointSize
                     24, // pointNum
-                    null, //arrayType
+                    null, //glArrayType
                     false, //normalize
                     0, // stride
                     0, // offset
@@ -266,7 +317,7 @@ redSuite(
             }
             unit.run(t0)
         }, false),
-        redTest("RedBufferInfo - 기본값 입력테스트 : normalize", function (unit) {
+        redTest("기본값 입력테스트 : normalize", function (unit) {
             var t0;
             t0 = RedBufferInfo(
                 testGL, // redGL
@@ -276,7 +327,7 @@ redSuite(
                 testData_arrayBuffer, // arrayData
                 3, // pointSize
                 24, // pointNum
-                testGL.gl.FLOAT, //arrayType
+                testGL.gl.FLOAT, //glArrayType
                 null, //normalize
                 0, // stride
                 0, // offset
@@ -284,7 +335,7 @@ redSuite(
             )
             unit.run(t0.normalize)
         }, false),
-        redTest("RedBufferInfo - 기본값 입력테스트 : stride", function (unit) {
+        redTest("기본값 입력테스트 : stride", function (unit) {
             var t0;
             t0 = RedBufferInfo(
                 testGL, // redGL
@@ -294,7 +345,7 @@ redSuite(
                 testData_arrayBuffer, // arrayData
                 3, // pointSize
                 24, // pointNum
-                testGL.gl.FLOAT, //arrayType
+                testGL.gl.FLOAT, //glArrayType
                 false, //normalize
                 // stride
                 // offset
@@ -302,7 +353,7 @@ redSuite(
             )
             unit.run(t0.stride)
         }, 0),
-        redTest("RedBufferInfo - 기본값 입력테스트 : offset", function (unit) {
+        redTest("기본값 입력테스트 : offset", function (unit) {
             var t0;
             t0 = RedBufferInfo(
                 testGL, // redGL
@@ -312,7 +363,7 @@ redSuite(
                 testData_arrayBuffer, // arrayData
                 3, // pointSize
                 24, // pointNum
-                testGL.gl.FLOAT, //arrayType
+                testGL.gl.FLOAT, //glArrayType
                 false, //normalize
                 0,// stride
                 // offset
@@ -320,7 +371,7 @@ redSuite(
             )
             unit.run(t0.offset)
         }, 0),
-        redTest("RedBufferInfo - 기본값 입력테스트 : drawMode", function (unit) {
+        redTest("기본값 입력테스트 : drawMode", function (unit) {
             var t0;
             t0 = RedBufferInfo(
                 testGL, // redGL
@@ -330,7 +381,7 @@ redSuite(
                 testData_arrayBuffer, // arrayData
                 3, // pointSize
                 24, // pointNum
-                testGL.gl.FLOAT, //arrayType
+                testGL.gl.FLOAT, //glArrayType
                 false, //normalize
                 0,// stride
                 0// offset

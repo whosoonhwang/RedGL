@@ -417,7 +417,7 @@ var RedBaseRenderInfo;
                                 tGL.vertexAttribPointer(
                                     tLocation,
                                     tAttrBufferInfo['pointSize'],
-                                    tAttrBufferInfo['arrayType'],
+                                    tAttrBufferInfo['glArrayType'],
                                     tAttrBufferInfo['normalize'],
                                     tAttrBufferInfo['stride'],
                                     tAttrBufferInfo['offset']

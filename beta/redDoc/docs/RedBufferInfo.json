@@ -7,12 +7,6 @@
     "return": "String"
   },
   {
-    "title": "arrayType",
-    "description": "\n    - 버퍼적용시 전달할 타입드 어레이 타입\n    - 입력된 arrayData와 맞지않은 형식일경우..에러방출\n",
-    "example": "인스턴스.arrayType",
-    "return": "glConst"
-  },
-  {
     "title": "buffer",
     "description": "실제버퍼",
     "example": "인스턴스.buffer",
@@ -42,6 +36,12 @@
     "description": "버퍼의 로케이션이 활성화 되었는지 여부",
     "example": "인스턴스.enabled",
     "return": "Boolean"
+  },
+  {
+    "title": "glArrayType",
+    "description": "\n    - 버퍼적용시 전달할 타입드 어레이 타입\n    - 입력된 typedArrayData와 맞지않은 형식일경우..에러방출\n",
+    "example": "인스턴스.glArrayType",
+    "return": "glConst"
   },
   {
     "title": "key",
@@ -102,9 +102,10 @@
           "type": "null or String"
         },
         "- <b>arrayBuffer일때만 사용</b>",
-        "- Shade내의 바인딩될 attribute이름"
+        "- Shade내의 바인딩될 attribute이름",
+        "- RedFixedAttributeKey를 사용"
       ],
-      "arrayData": [
+      "typedArrayData": [
         {
           "type": "TypedArray"
         },
@@ -123,7 +124,7 @@
         "포인트 갯수",
         "입력하지않으면 rawData/pointSize로 자동입력"
       ],
-      "arrayType": [
+      "glArrayType": [
         {
           "type": "glConst"
         },

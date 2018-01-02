@@ -265,9 +265,9 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			description : `Array버퍼 생성 단축 매서드`
 		}
 		:DOC*/
-		createArrayBufferInfo: function (key, shaderPointerKey, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode) {
-			//TODO: pointNum, arrayType도 그냥 단축시켜버릴까 -_-
-			return new RedBufferInfo(this, RedBufferInfo.ARRAY_BUFFER, key, shaderPointerKey, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode)
+		createArrayBufferInfo: function (key, shaderPointerKey, dataList, pointSize, pointNum, glArrayType, normalize, stride, offset, drawMode) {
+			//TODO: pointNum, glArrayType도 그냥 단축시켜버릴까 -_-
+			return new RedBufferInfo(this, RedBufferInfo.ARRAY_BUFFER, key, shaderPointerKey, dataList, pointSize, pointNum, glArrayType, normalize, stride, offset, drawMode)
 		},
 		/**DOC:
 		{
@@ -276,9 +276,9 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 			description : `ElementArray버퍼 생성 단축 매서드`
 		}
 		:DOC*/
-		createIndexBufferInfo: function (key, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode) {
-			//TODO: pointNum, arrayType도 그냥 단축시켜버릴까 -_-
-			return new RedBufferInfo(this, RedBufferInfo.ELEMENT_ARRAY_BUFFER, key, null, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode)
+		createIndexBufferInfo: function (key, dataList, pointSize, pointNum, glArrayType, normalize, stride, offset, drawMode) {
+			//TODO: pointNum, glArrayType도 그냥 단축시켜버릴까 -_-
+			return new RedBufferInfo(this, RedBufferInfo.ELEMENT_ARRAY_BUFFER, key, null, dataList, pointSize, pointNum, glArrayType, normalize, stride, offset, drawMode)
 		},
 		/**DOC:
 		{

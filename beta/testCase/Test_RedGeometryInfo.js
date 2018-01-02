@@ -50,7 +50,7 @@ testArrayBufferInfo = RedBufferInfo(
     testData_arrayBuffer, // arrayData
     3, // pointSize
     24, // pointNum
-    testGL.gl.FLOAT, //arrayType
+    testGL.gl.FLOAT, //glArrayType
 )
 testUVBufferInfo = RedBufferInfo(
     testGL, // redGL
@@ -60,7 +60,7 @@ testUVBufferInfo = RedBufferInfo(
     testData_arrayBuffer, // arrayData
     3, // pointSize
     24, // pointNum
-    testGL.gl.FLOAT, //arrayType
+    testGL.gl.FLOAT, //glArrayType
 )
 
 testNormalBufferInfo = RedBufferInfo(
@@ -71,7 +71,7 @@ testNormalBufferInfo = RedBufferInfo(
     testData_arrayBuffer, // arrayData
     3, // pointSize
     24, // pointNum
-    testGL.gl.FLOAT, //arrayType
+    testGL.gl.FLOAT, //glArrayType
 )
 testIndexBufferInfo = RedBufferInfo(
     testGL, // redGL
@@ -81,7 +81,7 @@ testIndexBufferInfo = RedBufferInfo(
     testData_indexBuffer, // arrayData
     1, // pointSize
     36, // pointNum
-    testGL.gl.UNSIGNED_SHORT, //arrayType
+    testGL.gl.UNSIGNED_SHORT, //glArrayType
 )
 redSuite(
     "RedGeometryInfo Test",
