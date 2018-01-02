@@ -1,7 +1,6 @@
 "use strict";
 var testGL = RedGL(Recard.Dom('canvas').S('width', 1000, 'height', 1000).__dom__)
-var testData_arrayBuffer;
-var testData_indexBuffer
+var testData_arrayBuffer, testData_indexBuffer;
 var testArrayBufferInfo, testIndexBufferInfo, testUVBufferInfo, testNormalBufferInfo
 testData_arrayBuffer = new Float32Array([
     -1.0, -1.0, 1.0,
@@ -49,7 +48,7 @@ testArrayBufferInfo = RedBufferInfo(
     RedFixedAttributeKey['aVertexPosition'], // shaderPointerKey
     testData_arrayBuffer, // arrayData
     3, // pointSize
-    24, // pointNum
+    testData_arrayBuffer.length, // pointNum
     testGL.gl.FLOAT, //glArrayType
 )
 testUVBufferInfo = RedBufferInfo(
@@ -59,7 +58,7 @@ testUVBufferInfo = RedBufferInfo(
     RedFixedAttributeKey['aTexcoord'], // shaderPointerKey
     testData_arrayBuffer, // arrayData
     3, // pointSize
-    24, // pointNum
+    testData_arrayBuffer.length, // pointNum
     testGL.gl.FLOAT, //glArrayType
 )
 
@@ -70,7 +69,7 @@ testNormalBufferInfo = RedBufferInfo(
     RedFixedAttributeKey['aVertexNormal'], // shaderPointerKey
     testData_arrayBuffer, // arrayData
     3, // pointSize
-    24, // pointNum
+    testData_arrayBuffer.length, // pointNum
     testGL.gl.FLOAT, //glArrayType
 )
 testIndexBufferInfo = RedBufferInfo(
@@ -80,7 +79,7 @@ testIndexBufferInfo = RedBufferInfo(
     null, // shaderPointerKey
     testData_indexBuffer, // arrayData
     1, // pointSize
-    36, // pointNum
+    testData_indexBuffer.length, // pointNum
     testGL.gl.UNSIGNED_SHORT, //glArrayType
 )
 redSuite(
@@ -90,24 +89,24 @@ redSuite(
         redTest("RedGeometryInfo - 생성 테스트 : 버텍스", function (unit) {
             var t0;
             t0 = RedGeometryInfo(testGL, 'test1', testArrayBufferInfo)
-            unit.run(t0.attributes.vertexPosition == testArrayBufferInfo)
+            unit.run(t0.attributes['vertexPosition'] == testArrayBufferInfo)
         }, true),
         redTest("RedGeometryInfo - 생성 테스트 : 인덱스", function (unit) {
             var t0;
             t0 = RedGeometryInfo(testGL, 'test2', testArrayBufferInfo, testIndexBufferInfo)
-            unit.run(t0.indices == testIndexBufferInfo)
+            unit.run(t0['indices'] == testIndexBufferInfo)
         }, true),
         redTest("RedGeometryInfo - 생성 테스트 : UV", function (unit) {
             var t0;
             t0 = RedGeometryInfo(testGL, 'test3', testArrayBufferInfo, testIndexBufferInfo, testUVBufferInfo)
-            unit.run(t0.attributes.texcoord == testUVBufferInfo)
+            unit.run(t0.attributes['texcoord'] == testUVBufferInfo)
         }, true),
         redTest("RedGeometryInfo - 생성 테스트 : NORMAL", function (unit) {
             var t0;
             t0 = RedGeometryInfo(testGL, 'test4', testArrayBufferInfo, testIndexBufferInfo, testUVBufferInfo, testNormalBufferInfo)
-            unit.run(t0.attributes.normal == testNormalBufferInfo)
+            unit.run(t0.attributes['normal'] == testNormalBufferInfo)
         }, true),
-        redTest("RedGeometryInfo - 생성 테스트 : 중복방지", function (unit) {
+        redTest("RedGeometryInfo - 생성 테스트 : 키중복방지", function (unit) {
             var t0;
             t0 = true
             try {
@@ -154,7 +153,7 @@ redSuite(
             var t0;
             t0 = true
             try {
-                RedGeometryInfo(testGL, 'vali4', testArrayBufferInfo, testIndexBufferInfo, testArrayBufferInfo, testIndexBufferInfo)
+                RedGeometryInfo(testGL, 'vali4', testArrayBufferInfo, testIndexBufferInfo, testUVBufferInfo, testIndexBufferInfo)
             } catch (error) {
                 t0 = false
             }
@@ -167,22 +166,22 @@ redSuite(
             t0 = RedGeometryInfo(testGL, 'instance1', testArrayBufferInfo, testIndexBufferInfo, testUVBufferInfo, testNormalBufferInfo)
             unit.run(t0['key'])
         }, 'instance1'),
-        redTest("RedGeometryInfo - 인스턴스 정보확인 : key", function (unit) {
+        redTest("RedGeometryInfo - 인스턴스 정보확인 : attributes['vertexPosition']", function (unit) {
             var t0;
             t0 = RedGeometryInfo(testGL, 'instance2', testArrayBufferInfo, testIndexBufferInfo, testUVBufferInfo, testNormalBufferInfo)
             unit.run(t0['attributes']['vertexPosition'])
         }, testArrayBufferInfo),
-        redTest("RedGeometryInfo - 인스턴스 정보확인 : key", function (unit) {
+        redTest("RedGeometryInfo - 인스턴스 정보확인 : attributes['texcoord']", function (unit) {
             var t0;
             t0 = RedGeometryInfo(testGL, 'instance3', testArrayBufferInfo, testIndexBufferInfo, testUVBufferInfo, testNormalBufferInfo)
             unit.run(t0['attributes']['texcoord'])
         }, testUVBufferInfo),
-        redTest("RedGeometryInfo - 인스턴스 정보확인 : type", function (unit) {
+        redTest("RedGeometryInfo - 인스턴스 정보확인 : attributes['normal']", function (unit) {
             var t0;
             t0 = RedGeometryInfo(testGL, 'instance4', testArrayBufferInfo, testIndexBufferInfo, testUVBufferInfo, testNormalBufferInfo)
             unit.run(t0['attributes']['normal'])
         }, testNormalBufferInfo),
-        redTest("RedGeometryInfo - 인스턴스 정보확인 : parseData", function (unit) {
+        redTest("RedGeometryInfo - 인스턴스 정보확인 : indices", function (unit) {
             var t0;
             t0 = RedGeometryInfo(testGL, 'instance5', testArrayBufferInfo, testIndexBufferInfo, testUVBufferInfo, testNormalBufferInfo)
             unit.run(t0['indices'])

@@ -506,7 +506,7 @@ var RedBufferInfo;
             case RedBufferInfo.ARRAY_BUFFER:
                 bufferType = tGL.ARRAY_BUFFER
                 if (!(typedArrayData instanceof Float32Array || typedArrayData instanceof Float64Array)) {
-                    throw 'RedBufferInfo :올바른 TypedArray(RedBufferInfo.ARRAY_BUFFER)형식을 사용해야합니다.'
+                    throw 'RedBufferInfo : bufferType - 올바른 TypedArray(RedBufferInfo.ARRAY_BUFFER)형식을 사용해야합니다.'
                 }
                 break
             case RedBufferInfo.ELEMENT_ARRAY_BUFFER:
@@ -518,10 +518,10 @@ var RedBufferInfo;
                         typedArrayData instanceof Int8Array ||
                         typedArrayData instanceof Int16Array ||
                         typedArrayData instanceof Int32Array)
-                ) throw 'RedBufferInfo :올바른 TypedArray(RedBufferInfo.ELEMENT_ARRAY_BUFFER)형식을 사용해야합니다.'
+                ) throw 'RedBufferInfo : bufferType - 올바른 TypedArray(RedBufferInfo.ELEMENT_ARRAY_BUFFER)형식을 사용해야합니다.'
                 break
             default:
-                throw 'RedBufferInfo :지원하지 않는 버퍼타입입니다. '
+                throw 'RedBufferInfo : bufferType - 지원하지 않는 버퍼타입입니다. '
         }
         tGL.bindBuffer(bufferType, tBuffer);
         tGL.bufferData(bufferType, typedArrayData, drawMode = drawMode ? drawMode : tGL.STATIC_DRAW);
@@ -550,15 +550,15 @@ var RedBufferInfo;
             var passed = false
             if (typedArrayData instanceof Int8Array) { passed = glArrayType == tGL.BYTE }
             else if (typedArrayData instanceof Uint8Array) { passed = glArrayType == tGL.UNSIGNED_BYTE }
-            else if (typedArrayData instanceof Int16Array) { passed = glArrayType == tGL.SHORT }
             else if (typedArrayData instanceof Uint16Array) { passed = glArrayType == tGL.UNSIGNED_SHORT }
-            else if (typedArrayData instanceof Int32Array) { passed = glArrayType == tGL.INT }
             else if (typedArrayData instanceof Uint32Array) { passed = glArrayType == tGL.UNSIGNED_INT }
+            else if (typedArrayData instanceof Int16Array) { passed = glArrayType == tGL.SHORT }
+            else if (typedArrayData instanceof Int32Array) { passed = glArrayType == tGL.INT }
             else if (typedArrayData instanceof Float32Array) { passed = glArrayType == tGL.FLOAT }
-            if (!passed) throw "RedBufferInfo :arrayData 형식과 glArrayType이 맞지않습니다.";
+            if (!passed) throw "RedBufferInfo : glArrayType - arrayData 형식과 glArrayType이 맞지않습니다.";
             this['glArrayType'] = glArrayType
         }
-        else throw 'RedBufferInfo :버퍼데이터의 형식을 지정해주세요'
+        else throw 'RedBufferInfo : glArrayType - 버퍼데이터의 형식을 지정해주세요'
         /**DOC:
 		{
             title :`pointSize`,
@@ -591,8 +591,8 @@ var RedBufferInfo;
 	    :DOC*/
         this['normalize'] = normalize ? normalize : false
         //
-        if (typeof (stride = stride ? stride : 0) != 'number' || stride != parseInt(stride)) throw 'stride - Integer만 허용됩니다.' // 0 = move forward size * sizeof(type) each iteration to get the next position
-        if (typeof (offset = offset ? offset : 0) != 'number' || offset != parseInt(offset)) throw 'offset - Integer만 허용됩니다.' // start at the beginning of the buffer
+        if (typeof (stride = stride ? stride : 0) != 'number' || stride != parseInt(stride)) throw 'RedBufferInfo : stride - Integer만 허용됩니다.' // 0 = move forward size * sizeof(type) each iteration to get the next position
+        if (typeof (offset = offset ? offset : 0) != 'number' || offset != parseInt(offset)) throw 'RedBufferInfo : offset - Integer만 허용됩니다.' // start at the beginning of the buffer
         /**DOC:
 		{
             title :`stride`,
@@ -771,7 +771,7 @@ Object.freeze(RedFixedAttributeKey)
             ]
         },
         example : `
-            testGL.createGeometryInfo(key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer) 
+            RedGeometryInfo(RedGL인스턴스, key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer)
         `,
         return : 'RedGeometryInfo Instance'
     }
@@ -783,23 +783,23 @@ var RedGeometryInfo;
     var k;
     RedGeometryInfo = function (redGL, key, verticesBufferInfo, indicesBufferInfo, texcoordBufferInfo, normalBufferInfo) {
         if (!(this instanceof RedGeometryInfo)) return new RedGeometryInfo(redGL, key, verticesBufferInfo, indicesBufferInfo, texcoordBufferInfo, normalBufferInfo)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (verticesBufferInfo && !(verticesBufferInfo instanceof RedBufferInfo)) throw 'verticesBufferInfo는 RedBufferInfo만 가능합니다.'
-        if (indicesBufferInfo && !(indicesBufferInfo instanceof RedBufferInfo)) throw 'indicesBufferInfo RedBufferInfo만 가능합니다.'
-        if (texcoordBufferInfo && !(texcoordBufferInfo instanceof RedBufferInfo)) throw 'texcoordBufferInfo RedBufferInfo만 가능합니다.'
-        if (normalBufferInfo && !(normalBufferInfo instanceof RedBufferInfo)) throw 'normalBufferInfo RedBufferInfo만 가능합니다.'
+        if (!(redGL instanceof RedGL)) throw 'RedGeometryInfo : RedGL 인스턴스만 허용됩니다.'
+        if (verticesBufferInfo && !(verticesBufferInfo instanceof RedBufferInfo)) throw 'RedGeometryInfo : verticesBufferInfo는 RedBufferInfo만 가능합니다.'
+        if (indicesBufferInfo && !(indicesBufferInfo instanceof RedBufferInfo)) throw 'RedGeometryInfo : indicesBufferInfo는 RedBufferInfo만 가능합니다.'
+        if (texcoordBufferInfo && !(texcoordBufferInfo instanceof RedBufferInfo)) throw 'RedGeometryInfo : texcoordBufferInfo는 RedBufferInfo만 가능합니다.'
+        if (normalBufferInfo && !(normalBufferInfo instanceof RedBufferInfo)) throw 'RedGeometryInfo : normalBufferInfo는 RedBufferInfo만 가능합니다.'
         //
-        if (verticesBufferInfo && verticesBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'verticesBufferInfo ARRAY_BUFFER 가능합니다.'
-        if (indicesBufferInfo && indicesBufferInfo.bufferType != RedBufferInfo.ELEMENT_ARRAY_BUFFER) throw 'indicesBufferInfo는 ELEMENT_ARRAY_BUFFER만 가능합니다.'
-        if (texcoordBufferInfo && texcoordBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'texcoordBufferInfo ARRAY_BUFFER 가능합니다.'
-        if (normalBufferInfo && normalBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'normalBufferInfo ARRAY_BUFFER 가능합니다.'
+        if (verticesBufferInfo && verticesBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'RedGeometryInfo : verticesBufferInfo는 ARRAY_BUFFER만 가능합니다.'
+        if (indicesBufferInfo && indicesBufferInfo.bufferType != RedBufferInfo.ELEMENT_ARRAY_BUFFER) throw 'RedGeometryInfo : indicesBufferInfo는 ELEMENT_ARRAY_BUFFER만 가능합니다.'
+        if (texcoordBufferInfo && texcoordBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'RedGeometryInfo : texcoordBufferInfo는 ARRAY_BUFFER만 가능합니다.'
+        if (normalBufferInfo && normalBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'RedGeometryInfo : normalBufferInfo는 ARRAY_BUFFER만 가능합니다.'
         // 저장할 공간확보하고
         if (!redGL['__datas']['RedGeometryInfo']) {
             redGL['__datas']['RedGeometryInfo'] = {}
         }
         tDatas = redGL['__datas']['RedGeometryInfo']
         // 기존에 등록된 녀석이면 재생성X
-        if (tDatas[key]) throw key + '는 이미 존재하는 RedGeometryInfo 입니다.'
+        if (tDatas[key]) throw 'RedGeometryInfo : ' + key + '는 이미 존재하는 RedGeometryInfo 입니다.'
         tGL = redGL.gl
         // 지오메트리생성!!
         /**DOC:
@@ -807,7 +807,7 @@ var RedGeometryInfo;
             title :`attributes`,
             description : `
                 - attribute Buffer 정보들
-                - vertexPosition,texcoord,normal 정보를 가진다.(존재하지 않을경우 키 자체가 없다.)
+                - vertexPosition, texcoord, normal 정보를 가진다.(존재하지 않을경우 키 자체가 없다.)
             `,
 			example : `인스턴스.attributes`,
 			return : 'Object'
@@ -837,16 +837,16 @@ var RedGeometryInfo;
 	    :DOC*/
         this['key'] = key
         if (verticesBufferInfo) {
-            if(verticesBufferInfo['shaderPointerKey'] == RedFixedAttributeKey['aVertexPosition']) this['attributes']['vertexPosition'] = verticesBufferInfo // 버텍스버퍼
-            else throw 'verticesBufferInfo의 shaderPointerKey는 aVertexPosition만 가질수있습니다.'
+            if (verticesBufferInfo['shaderPointerKey'] == RedFixedAttributeKey['aVertexPosition']) this['attributes']['vertexPosition'] = verticesBufferInfo // 버텍스버퍼
+            else throw 'RedGeometryInfo : verticesBufferInfo의 shaderPointerKey는 aVertexPosition만 가질수있습니다.'
         }
         if (texcoordBufferInfo) {
-            if(texcoordBufferInfo['shaderPointerKey'] == RedFixedAttributeKey['aTexcoord']) this['attributes']['texcoord'] = texcoordBufferInfo // 코디네이트버퍼
-            else throw 'texcoordBufferInfo의 shaderPointerKey는 aTexcoord만 가질수있습니다.'
+            if (texcoordBufferInfo['shaderPointerKey'] == RedFixedAttributeKey['aTexcoord']) this['attributes']['texcoord'] = texcoordBufferInfo // 코디네이트버퍼
+            else throw 'RedGeometryInfo : texcoordBufferInfo의 shaderPointerKey는 aTexcoord만 가질수있습니다.'
         }
         if (normalBufferInfo) {
-            if(normalBufferInfo['shaderPointerKey'] == RedFixedAttributeKey['aVertexNormal']) this['attributes']['normal'] = normalBufferInfo // 노말버퍼
-            else throw 'normalBufferInfo의 shaderPointerKey는 aVertexNormal만 가질수있습니다.'
+            if (normalBufferInfo['shaderPointerKey'] == RedFixedAttributeKey['aVertexNormal']) this['attributes']['normal'] = normalBufferInfo // 노말버퍼
+            else throw 'RedGeometryInfo : normalBufferInfo의 shaderPointerKey는 aVertexNormal만 가질수있습니다.'
         }
         //
         this['__attributeList'] = []
@@ -914,7 +914,6 @@ var RedPrimitive;
         }
         //normalize the result
         for (var i = 0; i < vs.length; i = i + 3) { //the increment here is because each vertex occurs with an offset of 3 in the array (due to x, y, z contiguous values)
-
             var nn = [];
             nn[x] = ns[i + x];
             nn[y] = ns[i + y];
@@ -956,7 +955,7 @@ var RedPrimitive;
             title :`plane`,
             description : `
                 - plane 지오메트리가 반환됨,
-                - 생성시 내부적으로 'RedPrimitivePlane' + '_' + width + '_' + height + '_' + segmentW + '_' + segmentH 키로 캐싱한뒤..
+                - 생성시 내부적으로 'RedPrimitivePlane' + '_' + width + '_' + height + '_' + segmentW + '_' + segmentH 키로 캐싱.
                 - share되는 지오메트리를 생성한다.
             `,
             return : 'RedPrimitivePlane Instance'
@@ -976,7 +975,7 @@ var RedPrimitive;
         var a, b, c, d;
         return function RedPrimitivePlane(redGL, width, height, segmentW, segmentH) {
             if (!(this instanceof RedPrimitivePlane)) return new RedPrimitivePlane(redGL, width, height, segmentW, segmentH)
-            if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+            if (!(redGL instanceof RedGL)) throw 'RedPrimitive : RedGL 인스턴스만 허용됩니다.'
 
             width = width || 1, height = height || 1
             segmentH = segmentH || 1, segmentH = segmentH || 1
@@ -1036,7 +1035,7 @@ var RedPrimitive;
             title :`cube`,
             description : `
                 - cube 지오메트리가 반환됨,
-                - 생성시 내부적으로 'RedPrimitiveCube' + '_' + width + '_' + height + '_' + depth + '_' + widthSegments + '_' + heightSegments + '_' + depthSegments 키로 캐싱한뒤..
+                - 생성시 내부적으로 'RedPrimitiveCube' + '_' + width + '_' + height + '_' + depth + '_' + widthSegments + '_' + heightSegments + '_' + depthSegments 키로 캐싱.
                 - share되는 지오메트리를 생성한다.
             `,
             return : 'RedPrimitivePlane Instance'
@@ -1107,7 +1106,7 @@ var RedPrimitive;
         }
         return function RedPrimitiveCube(redGL, width, height, depth, widthSegments, heightSegments, depthSegments) {
             if (!(this instanceof RedPrimitiveCube)) return new RedPrimitiveCube(redGL, width, height, depth, widthSegments, heightSegments, depthSegments)
-            if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+            if (!(redGL instanceof RedGL)) throw 'RedPrimitive : RedGL 인스턴스만 허용됩니다.'
 
             width = width || 1;
             height = height || 1;
@@ -1157,7 +1156,7 @@ var RedPrimitive;
             title :`grid`,
             description : `
                 - grid 지오메트리가 반환됨,
-                - 생성시 내부적으로 'RedPrimitiveFloor' + '_' + w + '_' + h 키로 캐싱한뒤..
+                - 생성시 내부적으로 'RedPrimitiveFloor' + '_' + w + '_' + h 키로 캐싱.
                 - share되는 지오메트리를 생성한다.
             `,
             return : 'RedPrimitiveFloor Instance'
@@ -1171,7 +1170,7 @@ var RedPrimitive;
         var t0, t1, t2, t3;
         return function RedPrimitiveFloor(redGL, w, h) {
             if (!(this instanceof RedPrimitiveFloor)) return new RedPrimitiveFloor(redGL, w, h)
-            if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+            if (!(redGL instanceof RedGL)) throw 'RedPrimitive : RedGL 인스턴스만 허용됩니다.'
             // 저장할 공간확보하고
             tDatas = checkShareInfo(redGL)
             // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
@@ -1232,7 +1231,7 @@ var RedPrimitive;
             title :`sphere`,
             description : `
                 - sphere 지오메트리가 반환됨,
-                - 생성시 내부적으로 'RedPrimitiveSphere' + '_' + radius + '_' + widthSegments + '_' + heightSegments + '_' + phiStart + '_' + phiLength + '_' + thetaStart + '_' + thetaLength 키로 캐싱한뒤..
+                - 생성시 내부적으로 'RedPrimitiveSphere' + '_' + radius + '_' + widthSegments + '_' + heightSegments + '_' + phiStart + '_' + phiLength + '_' + thetaStart + '_' + thetaLength 키로 캐싱.
                 - share되는 지오메트리를 생성한다.
             `,
             return : 'RedPrimitiveSphere Instance'
@@ -1248,7 +1247,7 @@ var RedPrimitive;
         var a, b, c, d;
         return function RedPrimitiveSphere(redGL, radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength) {
             if (!(this instanceof RedPrimitiveSphere)) return new RedPrimitiveSphere(redGL, radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength)
-            if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+            if (!(redGL instanceof RedGL)) throw 'RedPrimitive : RedGL 인스턴스만 허용됩니다.'
 
             radius = radius || 1;
             widthSegments = Math.max(3, Math.floor(widthSegments) || 8);
@@ -1344,7 +1343,7 @@ var RedPrimitive;
                 opt_topCap,
                 opt_bottomCap
             )
-            if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+            if (!(redGL instanceof RedGL)) throw 'RedPrimitive : RedGL 인스턴스만 허용됩니다.'
 
 
             radialSubdivisions = verticalSubdivisions ? radialSubdivisions : 3
@@ -1352,7 +1351,7 @@ var RedPrimitive;
             height = height ? height : 1
             topRadius = topRadius ? topRadius : 1
             bottomRadius = bottomRadius ? bottomRadius : 1
-           
+
             // 저장할 공간확보하고
             tDatas = checkShareInfo(redGL)
             // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
@@ -1388,17 +1387,17 @@ var RedPrimitive;
                 if (yy < 0) y = 0, v = 1, ringRadius = bottomRadius;
                 else if (yy > verticalSubdivisions) y = height, v = 1, ringRadius = topRadius;
                 else ringRadius = bottomRadius + (topRadius - bottomRadius) * (yy / verticalSubdivisions);
-                if (yy === -2 || yy === verticalSubdivisions + 2) ringRadius = 0,v = 0;
+                if (yy === -2 || yy === verticalSubdivisions + 2) ringRadius = 0, v = 0;
                 y -= height / 2;
                 for (var ii = 0; ii < vertsAroundEdge; ++ii) {
                     var sin = Math.sin(ii * Math.PI * 2 / radialSubdivisions);
                     var cos = Math.cos(ii * Math.PI * 2 / radialSubdivisions);
                     vertices.push(sin * ringRadius, y, cos * ringRadius),
-                    normals.push(
-                        (yy < 0 || yy > verticalSubdivisions) ? 0 : (sin * cosSlant),
-                        (yy < 0) ? -1 : (yy > verticalSubdivisions ? 1 : sinSlant),
-                        (yy < 0 || yy > verticalSubdivisions) ? 0 : (cos * cosSlant)),
-                    uvs.push((ii / radialSubdivisions), 1 - v)
+                        normals.push(
+                            (yy < 0 || yy > verticalSubdivisions) ? 0 : (sin * cosSlant),
+                            (yy < 0) ? -1 : (yy > verticalSubdivisions ? 1 : sinSlant),
+                            (yy < 0 || yy > verticalSubdivisions) ? 0 : (cos * cosSlant)),
+                        uvs.push((ii / radialSubdivisions), 1 - v)
                 }
             }
 

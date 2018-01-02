@@ -51,7 +51,6 @@ var RedPrimitive;
         }
         //normalize the result
         for (var i = 0; i < vs.length; i = i + 3) { //the increment here is because each vertex occurs with an offset of 3 in the array (due to x, y, z contiguous values)
-
             var nn = [];
             nn[x] = ns[i + x];
             nn[y] = ns[i + y];
@@ -93,7 +92,7 @@ var RedPrimitive;
             title :`plane`,
             description : `
                 - plane 지오메트리가 반환됨,
-                - 생성시 내부적으로 'RedPrimitivePlane' + '_' + width + '_' + height + '_' + segmentW + '_' + segmentH 키로 캐싱한뒤..
+                - 생성시 내부적으로 'RedPrimitivePlane' + '_' + width + '_' + height + '_' + segmentW + '_' + segmentH 키로 캐싱.
                 - share되는 지오메트리를 생성한다.
             `,
             return : 'RedPrimitivePlane Instance'
@@ -113,7 +112,7 @@ var RedPrimitive;
         var a, b, c, d;
         return function RedPrimitivePlane(redGL, width, height, segmentW, segmentH) {
             if (!(this instanceof RedPrimitivePlane)) return new RedPrimitivePlane(redGL, width, height, segmentW, segmentH)
-            if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+            if (!(redGL instanceof RedGL)) throw 'RedPrimitive : RedGL 인스턴스만 허용됩니다.'
 
             width = width || 1, height = height || 1
             segmentH = segmentH || 1, segmentH = segmentH || 1
@@ -173,7 +172,7 @@ var RedPrimitive;
             title :`cube`,
             description : `
                 - cube 지오메트리가 반환됨,
-                - 생성시 내부적으로 'RedPrimitiveCube' + '_' + width + '_' + height + '_' + depth + '_' + widthSegments + '_' + heightSegments + '_' + depthSegments 키로 캐싱한뒤..
+                - 생성시 내부적으로 'RedPrimitiveCube' + '_' + width + '_' + height + '_' + depth + '_' + widthSegments + '_' + heightSegments + '_' + depthSegments 키로 캐싱.
                 - share되는 지오메트리를 생성한다.
             `,
             return : 'RedPrimitivePlane Instance'
@@ -244,7 +243,7 @@ var RedPrimitive;
         }
         return function RedPrimitiveCube(redGL, width, height, depth, widthSegments, heightSegments, depthSegments) {
             if (!(this instanceof RedPrimitiveCube)) return new RedPrimitiveCube(redGL, width, height, depth, widthSegments, heightSegments, depthSegments)
-            if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+            if (!(redGL instanceof RedGL)) throw 'RedPrimitive : RedGL 인스턴스만 허용됩니다.'
 
             width = width || 1;
             height = height || 1;
@@ -294,7 +293,7 @@ var RedPrimitive;
             title :`grid`,
             description : `
                 - grid 지오메트리가 반환됨,
-                - 생성시 내부적으로 'RedPrimitiveFloor' + '_' + w + '_' + h 키로 캐싱한뒤..
+                - 생성시 내부적으로 'RedPrimitiveFloor' + '_' + w + '_' + h 키로 캐싱.
                 - share되는 지오메트리를 생성한다.
             `,
             return : 'RedPrimitiveFloor Instance'
@@ -308,7 +307,7 @@ var RedPrimitive;
         var t0, t1, t2, t3;
         return function RedPrimitiveFloor(redGL, w, h) {
             if (!(this instanceof RedPrimitiveFloor)) return new RedPrimitiveFloor(redGL, w, h)
-            if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+            if (!(redGL instanceof RedGL)) throw 'RedPrimitive : RedGL 인스턴스만 허용됩니다.'
             // 저장할 공간확보하고
             tDatas = checkShareInfo(redGL)
             // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
@@ -369,7 +368,7 @@ var RedPrimitive;
             title :`sphere`,
             description : `
                 - sphere 지오메트리가 반환됨,
-                - 생성시 내부적으로 'RedPrimitiveSphere' + '_' + radius + '_' + widthSegments + '_' + heightSegments + '_' + phiStart + '_' + phiLength + '_' + thetaStart + '_' + thetaLength 키로 캐싱한뒤..
+                - 생성시 내부적으로 'RedPrimitiveSphere' + '_' + radius + '_' + widthSegments + '_' + heightSegments + '_' + phiStart + '_' + phiLength + '_' + thetaStart + '_' + thetaLength 키로 캐싱.
                 - share되는 지오메트리를 생성한다.
             `,
             return : 'RedPrimitiveSphere Instance'
@@ -385,7 +384,7 @@ var RedPrimitive;
         var a, b, c, d;
         return function RedPrimitiveSphere(redGL, radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength) {
             if (!(this instanceof RedPrimitiveSphere)) return new RedPrimitiveSphere(redGL, radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength)
-            if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+            if (!(redGL instanceof RedGL)) throw 'RedPrimitive : RedGL 인스턴스만 허용됩니다.'
 
             radius = radius || 1;
             widthSegments = Math.max(3, Math.floor(widthSegments) || 8);
@@ -481,7 +480,7 @@ var RedPrimitive;
                 opt_topCap,
                 opt_bottomCap
             )
-            if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+            if (!(redGL instanceof RedGL)) throw 'RedPrimitive : RedGL 인스턴스만 허용됩니다.'
 
 
             radialSubdivisions = verticalSubdivisions ? radialSubdivisions : 3
@@ -489,7 +488,7 @@ var RedPrimitive;
             height = height ? height : 1
             topRadius = topRadius ? topRadius : 1
             bottomRadius = bottomRadius ? bottomRadius : 1
-           
+
             // 저장할 공간확보하고
             tDatas = checkShareInfo(redGL)
             // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
@@ -525,17 +524,17 @@ var RedPrimitive;
                 if (yy < 0) y = 0, v = 1, ringRadius = bottomRadius;
                 else if (yy > verticalSubdivisions) y = height, v = 1, ringRadius = topRadius;
                 else ringRadius = bottomRadius + (topRadius - bottomRadius) * (yy / verticalSubdivisions);
-                if (yy === -2 || yy === verticalSubdivisions + 2) ringRadius = 0,v = 0;
+                if (yy === -2 || yy === verticalSubdivisions + 2) ringRadius = 0, v = 0;
                 y -= height / 2;
                 for (var ii = 0; ii < vertsAroundEdge; ++ii) {
                     var sin = Math.sin(ii * Math.PI * 2 / radialSubdivisions);
                     var cos = Math.cos(ii * Math.PI * 2 / radialSubdivisions);
                     vertices.push(sin * ringRadius, y, cos * ringRadius),
-                    normals.push(
-                        (yy < 0 || yy > verticalSubdivisions) ? 0 : (sin * cosSlant),
-                        (yy < 0) ? -1 : (yy > verticalSubdivisions ? 1 : sinSlant),
-                        (yy < 0 || yy > verticalSubdivisions) ? 0 : (cos * cosSlant)),
-                    uvs.push((ii / radialSubdivisions), 1 - v)
+                        normals.push(
+                            (yy < 0 || yy > verticalSubdivisions) ? 0 : (sin * cosSlant),
+                            (yy < 0) ? -1 : (yy > verticalSubdivisions ? 1 : sinSlant),
+                            (yy < 0 || yy > verticalSubdivisions) ? 0 : (cos * cosSlant)),
+                        uvs.push((ii / radialSubdivisions), 1 - v)
                 }
             }
 
