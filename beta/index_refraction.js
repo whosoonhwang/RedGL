@@ -73,7 +73,7 @@ start = function () {
 	)
 	testMap = testGL.createMaterialInfo(
 		'bitmapPhong',
-		null,
+		testPhongDiffuseTexture,
 		testNormalTexture,
 		testDisplacementTexture,
 		testSpecularTexture,

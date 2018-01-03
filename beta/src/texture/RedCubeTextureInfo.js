@@ -101,6 +101,7 @@ var RedCubeTextureInfo;
 		this['__allLoadedTargetIndex'] = textureIndex
 		// 웹지엘 텍스쳐인지
 		this['__webglCubeTexture'] = 1
+		this['__webglTextureYn'] = 1
 		this['__UUID'] = REDGL_UUID++
 
 		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CREATE)

@@ -447,74 +447,65 @@ var RedBaseRenderInfo;
                     // tUniformValue = tUniformGroupList[i2]['value'],
                     tUniformValue = tMaterial[tUniformKey]
                     tLocation = tUniformGroupList[i2]['location']
-                    tLocationUUID = tLocation[ '__UUID' ]
+                    tLocationUUID = tLocation['__UUID']
                     // 값이없으면 무시
-                    if (tUniformValue == undefined) { }                
+                    if (tUniformValue == undefined) { }
                     // 유니폼인데 숫자값일 경우
                     else if (uniform1fiMAP[tUniformType]) {
-                        // console.log(tUniformKey,tUniformType,tLocation)
+                        //TODO: 결국 IF문 처리를 벗어나야하는데....하아...
                         cacheIntFloat[tUniformType][tUniformKey] == tUniformValue ? 0 : tGL[uniform1fiMAP[tUniformType]](tLocation, tUniformValue)
                         cacheIntFloat[tUniformType][tUniformKey] = tUniformValue
-                    }
-                          
-                    // 일반 텍스쳐인경우
-                    else if (tUniformValue['__webglTexture']) {
-                        if (tUniformValue['loaded']) {
-                            if (cacheTexture_UUID[ tLocationUUID ]  != tUniformValue[ '__UUID' ]) {
-                                tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
-                                tGL.bindTexture(tGL.TEXTURE_2D, tUniformValue['texture'])
-                                cacheTexture_UUID[ tLocationUUID ]  == tUniformValue[ '__UUID' ] ? 0 : tGL.uniform1i(tLocation, tUniformValue['__targetIndex'])
-                                cacheTexture_UUID[ tLocationUUID ]  = tUniformValue[ '__UUID' ]
-                            }  
-                        } else {
-                            cacheTexture_UUID[ tLocationUUID ]  = undefined
-                            bitmapRenderable = false
-                        }
-                    }
-                    // 큐브텍스쳐인경우
-                    else if (tUniformValue['__webglCubeTexture']) {
-                        if (tUniformValue['loaded']) {
-                            if (cacheTexture_UUID[ tLocationUUID ]  != tUniformValue[ '__UUID' ]) {
-                                tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
-                                tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, tUniformValue['texture'])
-                                cacheTexture_UUID[ tLocationUUID ]  == tUniformValue[ '__UUID' ] ? 0 : tGL.uniform1i(tLocation, tUniformValue['__targetIndex'])
-                                cacheTexture_UUID[ tLocationUUID ]  = tUniformValue[ '__UUID' ]
-                            }                   
-                        } else {
-                            cacheTexture_UUID[ tLocationUUID ]  = undefined
-                            bitmapRenderable = false
-                        }
-                    }
-                    // 아틀라스텍스쳐인경우
-                    else if (tUniformValue['__webglAtlasTexture']) {                       
-                        tAtlasTextureInfo = tUniformValue['parentAtlasInfo']['textureInfo']
-                        if (tAtlasTextureInfo['loaded']) {
-                            if (cacheTexture_UUID[ tLocationUUID ]  != tAtlasTextureInfo[ '__UUID' ]) {
-                                tGL.activeTexture(tGL.TEXTURE0 + tAtlasTextureInfo['__targetIndex'])
-                                tGL.bindTexture(tGL.TEXTURE_2D, tAtlasTextureInfo['texture'])
-                                cacheTexture_UUID[ tLocationUUID ]  == tAtlasTextureInfo[ '__UUID' ] ? 0 : tGL.uniform1i(tLocation, tAtlasTextureInfo['__targetIndex'])
-                                cacheTexture_UUID[ tLocationUUID ]  = tAtlasTextureInfo[ '__UUID' ]
-                            }                   
+                    }                     
+                   
+                    // // 아틀라스텍스쳐인경우
+                    // else if (tUniformValue['__webglAtlasTexture']) {                       
+                    //     tAtlasTextureInfo = tUniformValue['parentAtlasInfo']['textureInfo']
+                    //     if (tAtlasTextureInfo['loaded']) {
+                    //         if (cacheTexture_UUID[ tLocationUUID ]  != tAtlasTextureInfo[ '__UUID' ]) {
+                    //             tGL.activeTexture(tGL.TEXTURE0 + tAtlasTextureInfo['__targetIndex'])
+                    //             tGL.bindTexture(tGL.TEXTURE_2D, tAtlasTextureInfo['texture'])
+                    //             cacheTexture_UUID[ tLocationUUID ]  == tAtlasTextureInfo[ '__UUID' ] ? 0 : tGL.uniform1i(tLocation, tAtlasTextureInfo['__targetIndex'])
+                    //             cacheTexture_UUID[ tLocationUUID ]  = tAtlasTextureInfo[ '__UUID' ]
+                    //         }                   
                            
+                    //     } else {
+                    //         cacheTexture_UUID[ tLocationUUID ]  = undefined
+                    //         bitmapRenderable = false
+                    //     }
+                    // }  
+                  
+                    // 일반 텍스쳐인경우 // 큐브텍스쳐인경우
+                    else if (tUniformValue['__webglTextureYn']) {
+                        tUniformValue['__webglAtlasTexture'] ? tUniformValue = tUniformValue['parentAtlasInfo']['textureInfo'] : 0
+                        if (tUniformValue['loaded']) {
+                            if (cacheTexture_UUID[tLocationUUID] != tUniformValue['__targetIndex']) {
+                                tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex']),
+                                tGL.bindTexture(tUniformValue['__webglTexture'] ? tGL.TEXTURE_2D : tGL.TEXTURE_CUBE_MAP, tUniformValue['texture']),
+                                cacheTexture_UUID[tLocationUUID] == tUniformValue['__UUID'] ? 0 : tGL.uniform1i(tLocation, tUniformValue['__targetIndex']),
+                                cacheTexture_UUID[tLocationUUID] = tUniformValue['__targetIndex']
+                            }
                         } else {
-                            cacheTexture_UUID[ tLocationUUID ]  = undefined
+                            // cacheTexture_UUID[tLocationUUID] = undefined
                             bitmapRenderable = false
                         }
                     }
-                    // 아틀라스코디네이트값인경우
-                    else if (tUniformKey == 'uAtlascoord') {
-                        cacheUVAtlascoord_UUID == tUniformValue[ '__UUID' ] ? 0 : tGL.uniform4fv(tLocation, tUniformValue['value'])
-                        cacheUVAtlascoord_UUID = tUniformValue[ '__UUID' ]
-                    }     
                     // 매트릭스형태인 경우
-                    else if (tUniformValue['__uniformMethod']) {
+                    else if ( tUniformValue['__uniformMethod']) {
                         tUniformValue['__isMatrix'] // 매트릭스형태인지 아닌지 파악
                             ?
                             tGL[tUniformValue['__uniformMethod']](tLocation, false, tUniformValue) :
                             tGL[tUniformValue['__uniformMethod']](tLocation, tUniformValue)
-                    }    
+                    } 
+                    // 아틀라스코디네이트값인경우
+                    else if (tUniformKey == 'uAtlascoord') {
+                        cacheUVAtlascoord_UUID == tUniformValue[ '__UUID' ] ? 0 : tGL.uniform4fv(tLocation, tUniformValue['value'])
+                        cacheUVAtlascoord_UUID = tUniformValue[ '__UUID' ]
+                    }  
+
+              
+                                
                     // 이도저도아닌경우는 뭔가 잘못된거임
-                    else throw '안되는 나쁜 타입인거야!!'
+                    // else throw '안되는 나쁜 타입인거야!!'
                 };
 
                 /////////////////////////////////////////////////////////////////////////////////////////////////////////////

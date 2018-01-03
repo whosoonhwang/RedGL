@@ -131,6 +131,7 @@ var RedTextureInfo;
 		this['__img'] = img
 		// 웹지엘 텍스쳐인지
 		this['__webglTexture'] = 1
+		this['__webglTextureYn'] = 1
 		this['__UUID'] = REDGL_UUID++		
 		// 인덱스 번호 지정 - 초기생성전담은 0번 인덱스를 사용함
 		this['__targetIndex'] = RedTextureIndex.CREATE
