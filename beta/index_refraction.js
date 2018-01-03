@@ -6,17 +6,17 @@ start = function () {
 	var checkCallBox;
 	var setTestUI
 	var testMesh
-	var testEnvironmentMap
+	var testMap
 	setTestUI = function () {
 		var gui = new dat.GUI();
-		gui.add(testEnvironmentMap, 'uShininess', 1, 255);
-		gui.add(testEnvironmentMap, 'uSpecularPower', -1, 1);
+		gui.add(testMap, 'uShininess', 1, 255);
+		gui.add(testMap, 'uSpecularPower', -1, 1);
 
-		gui.add(testEnvironmentMap, 'uDisplacementPower', -2, 2);
-		gui.add(testEnvironmentMap, 'uReflectionPower', 0, 1);
-		gui.add(testEnvironmentMap, 'uRefractionPower', 0, 1);
-		gui.add(testEnvironmentMap, 'uRefractionRatio', 0, 1);
-		gui.add(testEnvironmentMap, 'uNormalPower', -1, 1);
+		gui.add(testMap, 'uDisplacementPower', -2, 2);
+		gui.add(testMap, 'uReflectionPower', 0, 1);
+		gui.add(testMap, 'uRefractionPower', 0, 1);
+		gui.add(testMap, 'uRefractionRatio', 0, 1);
+		gui.add(testMap, 'uNormalPower', -1, 1);
 	}
 	makeCheckRenderInfo = function () {
 		checkCallBox = document.createElement('div')
@@ -71,9 +71,9 @@ start = function () {
 			'asset/cubemap/negz.jpg'
 		])
 	)
-	testEnvironmentMap = testGL.createMaterialInfo(
+	testMap = testGL.createMaterialInfo(
 		'bitmapPhong',
-		testPhongDiffuseTexture,
+		null,
 		testNormalTexture,
 		testDisplacementTexture,
 		testSpecularTexture,
@@ -94,9 +94,10 @@ start = function () {
 			'asset/cubemap/negz.jpg'
 		], RedTextureIndex.CUBE_REFRACTION)
 	)
-	console.log(testEnvironmentMap)
+	testMap['uReflectionPower']= 0
+	console.log(testMap)
 
-	testMesh = testGL.createMeshInfo('testMeshAdd6', RedPrimitive.sphere(testGL, 5, 64, 64, 64), testEnvironmentMap)
+	testMesh = testGL.createMeshInfo('testMeshAdd6', RedPrimitive.sphere(testGL, 5, 64, 64, 64), testMap)
 	// testMesh = testGL.createMeshInfo('testMeshAdd6', RedPrimitive.cube(testGL, 5,5,5, 64, 64, 64), testEnvironmentMap)
 	testScene.children.push(testMesh)
 
@@ -130,7 +131,7 @@ start = function () {
 			testScene['lights']['directional'][i].direction[1] = Math.cos(time / 1400 + Math.PI * 2 / max * i) * 20 + Math.sin(time / 2700 + Math.PI * 2 / max * i) * 50
 			testScene['lights']['directional'][i].direction[2] = -Math.sin(time / 1200 + Math.PI * 2 / max * i) * 30
 		}
-
+		// testMap['uDisplacementPower'] = Math.sin(time/100)
 
 		checkCallBox.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
 	})

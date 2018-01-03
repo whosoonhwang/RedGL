@@ -65,15 +65,14 @@ void main(void) {
     la = uAmbientLightColor;
     ld = vec4(0.0, 0.0, 0.0, 1.0);
     ls = vec4(0.0, 0.0, 0.0, 1.0);
-    texelColor = texture2D(uDiffuseTexture, vTexcoord);
+    if(uUseDiffuseTexture == 1) texelColor = texture2D(uDiffuseTexture, vTexcoord);
    
     E = normalize(vEyeVec);
-    
+    N = normalize(vNormal);
     if(uUseNormalTexture == 1) {
-        N = normalize(2.0 * (normalize(vNormal) + texture2D(uNormalTexture, vTexcoord).rgb  - 0.5));
+        N = normalize(2.0 * (N + texture2D(uNormalTexture, vTexcoord).rgb  - 0.5));
         N.xy *= uNormalPower;
-     }
-    else N = normalize(vNormal);
+    }
 
     specularTextureValue = 1.0;
     if(uUseSpecularTexture == 1) specularTextureValue = texture2D(uSpecularTexture, vTexcoord).r * uSpecularPower ;
@@ -87,7 +86,7 @@ void main(void) {
     if(uUseRefractionTexture == 1) {
         refractionColor = textureCube(uRefractionTexture, vRefractionCubeCoord+N);
         refractionColor.rgb *= uRefractionPower;
-        texelColor = (texelColor * (1.0 - uRefractionPower)  +refractionColor) ;
+        texelColor += refractionColor ;
     }
 
     vec4 specularLightColor = vec4(1.0, 1.0, 1.0, 1.0);
@@ -121,6 +120,6 @@ void main(void) {
             }
         }
     }           
-    finalColor = la + ld + ls;       
+    finalColor = la + ld + ls; 
     gl_FragColor = finalColor;   
 }

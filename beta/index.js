@@ -123,7 +123,7 @@ start = function () {
 	}
 
 	// 무작위로 가보자
-	var i = 50, j
+	var i = 60, j
 	while (i--) {
 		j = 30
 		while (j--) {

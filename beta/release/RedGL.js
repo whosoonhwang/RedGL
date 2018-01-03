@@ -4222,8 +4222,7 @@ var RedBaseRenderInfo;
                                 tGL.bindTexture(tGL.TEXTURE_2D, tTextureInfo['texture'])
                                 cacheTexture_UUID[tLocation['__UUID']] == tTextureInfo['__UUID'] ? 0 : tGL.uniform1i(tLocation, tTextureInfo['__targetIndex'])
                                 cacheTexture_UUID[tLocation['__UUID']] = tTextureInfo['__UUID']
-                            }
-                    
+                            }                   
                            
                         } else {
                             cacheTexture_UUID[tLocation['__UUID']] = undefined
