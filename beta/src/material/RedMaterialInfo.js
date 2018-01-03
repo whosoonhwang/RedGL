@@ -84,8 +84,8 @@ var RedMaterialInfo;
             1: 'uniform1iv'
         }
     }
-    RedMaterialInfo = function (redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture, reflectionTexture) {
-        if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture, reflectionTexture)
+    RedMaterialInfo = function (redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture, reflectionTexture, refractionTexture) {
+        if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture, reflectionTexture, refractionTexture)
         //TODO: 
         if (!(redGL instanceof RedGL)) throw 'RedMaterialInfo : RedGL 인스턴스만 허용됩니다.'
         if (typeof typeName != 'string') throw 'RedMaterialInfo : typeName은 문자열만 허용됩니다.'
@@ -118,6 +118,8 @@ var RedMaterialInfo;
         if (displacementTexture) this[RedMaterialInfo.DISPLACEMENT_TEXTURE] = displacementTexture
         if (specularTexture) this[RedMaterialInfo.SPECULAR_TEXTURE] = specularTexture
         if (reflectionTexture) this[RedMaterialInfo.REFLECTION_TEXTURE] = reflectionTexture
+        if (refractionTexture) this[RedMaterialInfo.REFRACTION_TEXTURE] = refractionTexture
+        
 
         /**DOC:
 		{
@@ -287,5 +289,18 @@ var RedMaterialInfo;
         }
     :DOC*/
     RedMaterialInfo.REFLECTION_TEXTURE = 'uReflectionTexture'
+     /**DOC:
+		{
+            title :`REFLECTION_TEXTURE`,
+            code : 'CONST',
+            description : `
+                - REFLECTION_TEXTURE 유니폼 상수
+            `,
+			example : `인스턴스.REFLECTION_TEXTURE`,
+			return : 'String'
+        }
+    :DOC*/
+    RedMaterialInfo.REFRACTION_TEXTURE = 'uRefractionTexture'
+    
     Object.freeze(RedMaterialInfo)
 })();

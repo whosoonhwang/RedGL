@@ -54,7 +54,7 @@ var RedTextureInfo;
 		type = type ? type : tGL.UNSIGNED_BYTE;
 		targetIndex = targetIndex ? targetIndex : RedTextureIndex.DIFFUSE
 		texture = tGL.createTexture()
-		// tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CREATE)
+		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CREATE)
 		tGL.bindTexture(tGL.TEXTURE_2D, texture)
 		// 초기이미지 설정
 		tGL.texImage2D(
@@ -82,7 +82,7 @@ var RedTextureInfo;
 			self['loaded'] = 1
 			// 타겟인덱스를 설정함		
 			self['__targetIndex'] = targetIndex
-			// tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CREATE)
+			tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CREATE)
 			tGL.bindTexture(tGL.TEXTURE_2D, self['texture'])
 			tGL.texImage2D(tGL.TEXTURE_2D, 0, internalFormat, format, type, self['__img'])
 			tGL.texParameterf(tGL.TEXTURE_2D, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR);

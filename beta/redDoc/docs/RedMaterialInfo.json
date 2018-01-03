@@ -103,6 +103,13 @@
     "return": "String"
   },
   {
+    "title": "REFLECTION_TEXTURE",
+    "code": "CONST",
+    "description": "\n    - REFLECTION_TEXTURE 유니폼 상수\n",
+    "example": "인스턴스.REFLECTION_TEXTURE",
+    "return": "String"
+  },
+  {
     "title": "setTexture",
     "code": "FUNCTION",
     "description": "\n    - 텍스쳐 변경 매서드\n    - 텍스쳐 변경후 자동으로 needUniformList=true를 반영하여 렌더링시 유니폼리스트를 재생성한다.\n",

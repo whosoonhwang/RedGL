@@ -81,7 +81,6 @@ var RedTextureIndex;
 		ETC_FRAGMENT_1: 7,
 		ETC_FRAGMENT_2: 8,
 		/////////////////////
-		CUBE_CREATE: 9,
 		/**DOC:
 			{
 			title :`CUBE_DIFFUSE`,
@@ -92,7 +91,7 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		CUBE_DIFFUSE: 10,
+		CUBE_DIFFUSE: 9,
 		/**DOC:
 			{
 			title :`CUBE_REFLECTION`,
@@ -103,7 +102,9 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		CUBE_REFLECTION: 11
+		CUBE_REFLECTION: 10,
+		CUBE_REFRACTION: 11
+		
 	}
 	Object.freeze(RedTextureIndex)
 })();
