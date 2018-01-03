@@ -4219,7 +4219,9 @@ var RedBaseRenderInfo;
                     tUniformValue = tMaterial[tUniformKey]
                     tLocation = tUniformGroupList[i2]['location']
                     tLocationUUID = tLocation['__UUID']
-                    // console.log(tUniformGroupList[i2])                                
+                    // console.log(tUniformGroupList[i2])     
+                     ///////////////////////////////////////////////////////////////////////////////
+                    ///////////////////////////////////////////////////////////////////////////////                           
                     switch (tUniformGroupList[i2]['type2']) {
                         case 'int':
                             cacheIntFloat[tUniformType][tUniformKey] == tUniformValue ? 0 : tGL[uniform1fiMAP[tUniformType]](tLocation, tUniformValue)
@@ -4268,6 +4270,8 @@ var RedBaseRenderInfo;
                             throw '안되는 나쁜 타입인거야!!'
 
                     }
+                    ///////////////////////////////////////////////////////////////////////////////
+                    ///////////////////////////////////////////////////////////////////////////////
                     // // 값이없으면 무시
                     // if (tUniformValue == undefined) { }
                     // // 유니폼인데 숫자값일 경우
