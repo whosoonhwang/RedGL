@@ -81,6 +81,7 @@ var RedAtlasTextureInfo;
             :DOC*/
             this['parentAtlasInfo'] = parentAtlasInfo
             this['__webglAtlasTexture'] = 1
+            this['__webglTextureYn'] = 1
             Object.freeze(this)
             console.log(this)
         }
