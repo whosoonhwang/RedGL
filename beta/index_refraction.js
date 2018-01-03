@@ -98,6 +98,7 @@ start = function () {
 	console.log(testMap)
 
 	testMesh = testGL.createMeshInfo('testMeshAdd6', RedPrimitive.sphere(testGL, 5, 64, 64, 64), testMap)
+
 	// testMesh = testGL.createMeshInfo('testMeshAdd6', RedPrimitive.cube(testGL, 5,5,5, 64, 64, 64), testEnvironmentMap)
 	testScene.children.push(testMesh)
 

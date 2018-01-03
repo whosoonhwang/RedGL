@@ -2,6 +2,7 @@
 var RedTextureInfo;
 (function () {
 	var tGL;
+	var nullTexture;
 	/**DOC:
 		{
 			constructorYn : true,
@@ -53,23 +54,28 @@ var RedTextureInfo;
 		format = format ? format : tGL.RGBA;
 		type = type ? type : tGL.UNSIGNED_BYTE;
 		targetIndex = targetIndex ? targetIndex : RedTextureIndex.DIFFUSE
-		texture = tGL.createTexture()
-		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CREATE)
-		tGL.bindTexture(tGL.TEXTURE_2D, texture)
-		// 초기이미지 설정
-		tGL.texImage2D(
-			tGL.TEXTURE_2D,
-			level,
-			internalFormat,
-			width,
-			height,
-			border,
-			format,
-			type,
-			new Uint8Array(
-				222, 222, 222, 255
+		if (!nullTexture) {
+			nullTexture = tGL.createTexture()
+			tGL.activeTexture(tGL.TEXTURE0)
+			tGL.bindTexture(tGL.TEXTURE_2D, nullTexture)
+			// 초기이미지 설정
+			tGL.texImage2D(
+				tGL.TEXTURE_2D,
+				level,
+				internalFormat,
+				width,
+				height,
+				border,
+				format,
+				type,
+				new Uint8Array(
+					222, 222, 222, 255
+				)
 			)
-		)
+		}
+		texture = tGL.createTexture()
+		tGL.activeTexture(tGL.TEXTURE0)
+		tGL.bindTexture(tGL.TEXTURE_2D, nullTexture)
 		img = new Image();
 		// 캔버스 일경우 캔버스이미지데이터를 활용함
 		console.log('src instanceof Element',src,src instanceof Element)

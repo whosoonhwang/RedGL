@@ -193,7 +193,7 @@ start = function () {
 		gui.add(testMatBitmap, 'uDisplacementPower', -2, 2);
 		gui.add(testMatBitmap, 'uNormalPower', -1, 1);
 	}
-	setTestUI()
+	// setTestUI()
 }
 testGL = RedGL(document.getElementById('test'), start, true, [
 	{
