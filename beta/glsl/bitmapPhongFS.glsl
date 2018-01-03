@@ -65,7 +65,7 @@ void main(void) {
     la = uAmbientLightColor;
     ld = vec4(0.0, 0.0, 0.0, 1.0);
     ls = vec4(0.0, 0.0, 0.0, 1.0);
-    if(uUseDiffuseTexture == 1) texelColor = texture2D(uDiffuseTexture, vTexcoord);
+    texelColor = texture2D(uDiffuseTexture, vTexcoord);
    
     E = normalize(vEyeVec);
     N = normalize(vNormal);
@@ -86,7 +86,7 @@ void main(void) {
     if(uUseRefractionTexture == 1) {
         refractionColor = textureCube(uRefractionTexture, vRefractionCubeCoord+N);
         refractionColor.rgb *= uRefractionPower;
-        texelColor += refractionColor ;
+        texelColor = (texelColor * (1.0 - uRefractionPower)  + refractionColor) ;
     }
 
     vec4 specularLightColor = vec4(1.0, 1.0, 1.0, 1.0);

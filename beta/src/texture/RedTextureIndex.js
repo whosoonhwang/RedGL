@@ -29,7 +29,7 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		CREATE: 0,
+		CREATE: 1,
 		/**DOC:
 		{
 			title :`DIFFUSE`,
@@ -41,7 +41,7 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		DIFFUSE: 1,
+		DIFFUSE: 2,
 		/**DOC:
 		{
 			title :`NORMAL`,
@@ -52,7 +52,7 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		NORMAL: 2,
+		NORMAL: 3,
 		/**DOC:
 		{
 			title :`DISPLACEMENT`,
@@ -63,7 +63,7 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		DISPLACEMENT: 3,
+		DISPLACEMENT: 4,
 		/**DOC:
 		{
 			title :`SPECULAR`,
@@ -74,12 +74,12 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		SPECULAR: 4,
+		SPECULAR: 5,
 		//아틀라스는 자동
-		ETC_VERTEX_1: 5,
-		ETC_VERTEX_2: 6,
-		ETC_FRAGMENT_1: 7,
-		ETC_FRAGMENT_2: 8,
+		ETC_VERTEX_1: 6,
+		ETC_VERTEX_2: 7,
+		ETC_FRAGMENT_1: 8,
+		ETC_FRAGMENT_2: 9,
 		/////////////////////
 		/**DOC:
 			{
@@ -91,7 +91,7 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		CUBE_DIFFUSE: 9,
+		CUBE_DIFFUSE: 10,
 		/**DOC:
 			{
 			title :`CUBE_REFLECTION`,
@@ -102,8 +102,8 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		CUBE_REFLECTION: 10,
-		CUBE_REFRACTION: 11
+		CUBE_REFLECTION: 11,
+		CUBE_REFRACTION: 12
 		
 	}
 	Object.freeze(RedTextureIndex)
