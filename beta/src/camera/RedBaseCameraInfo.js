@@ -94,7 +94,7 @@ var RedBaseCameraInfo;
                 return : 'Number'
             }
         :DOC*/
-        this['far'] = 1000.0
+        this['far'] = 10000.0
         Object.defineProperty(this, '__desiredCoords', {
             value: new Float32Array([0, 0, 0]),
             enumerable: true
