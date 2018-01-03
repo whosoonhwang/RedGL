@@ -123,7 +123,7 @@ start = function () {
 	}
 
 	// 무작위로 가보자
-	var i = 60, j
+	var i = 50, j
 	while (i--) {
 		j = 30
 		while (j--) {
@@ -230,8 +230,13 @@ testGL = RedGL(document.getElementById('test'), start, true, [
 			target.materialUniforms.uShininess = 16
 			target.materialUniforms.uSpecularPower = 1
 			target.materialUniforms.uReflectionPower = 0.5
+			target.materialUniforms.uRefractionPower = 1.0
+			target.materialUniforms.uRefractionRatio = 0.98
+			
 			target.materialUniforms.uNormalPower = 1
 			target.materialUniforms.uDisplacementPower = 1
+
+
 		},
 		defineTexture: function (target) {
 			target.materialUniforms[RedMaterialInfo.DIFFUSE_TEXTURE] = target['uDiffuseTexture']
@@ -239,6 +244,7 @@ testGL = RedGL(document.getElementById('test'), start, true, [
 			target.materialUniforms[RedMaterialInfo.DISPLACEMENT_TEXTURE] = target['uDisplacementTexture']
 			target.materialUniforms[RedMaterialInfo.SPECULAR_TEXTURE] = target['uSpecularTexture']
 			target.materialUniforms[RedMaterialInfo.REFLECTION_TEXTURE] = target['uReflectionTexture']
+			target.materialUniforms[RedMaterialInfo.REFRACTION_TEXTURE] = target['uRefractionTexture']
 		}
 	},
 	{

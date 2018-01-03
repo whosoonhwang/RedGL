@@ -1,14 +1,17 @@
 precision lowp float;
 
 
-uniform sampler2D uDiffuseTexture; // 노말텍스쳐
-uniform sampler2D uNormalTexture; // 노말텍스쳐
-uniform sampler2D uSpecularTexture; // 노말텍스쳐
-uniform samplerCube uReflectionTexture; 
-uniform int uUseDiffuseTexture; // 노말텍스쳐 사용여부
-uniform int uUseNormalTexture; // 노말텍스쳐 사용여부
-uniform int uUseSpecularTexture; // 노말텍스쳐 사용여부
-uniform int uUseReflectionTexture; // 노말텍스쳐 사용여부
+uniform sampler2D uDiffuseTexture; // uDiffuseTexture
+uniform sampler2D uNormalTexture; // uNormalTexture
+uniform sampler2D uSpecularTexture; // uSpecularTexture
+uniform samplerCube uReflectionTexture; // uReflectionTexture
+uniform samplerCube uRefractionTexture; // uRefractionTexture
+uniform int uUseDiffuseTexture; // uDiffuseTexture 사용여부
+uniform int uUseNormalTexture; // uNormalTexture 사용여부
+uniform int uUseSpecularTexture; // uSpecularTexture 사용여부
+uniform int uUseReflectionTexture; // uReflectionTexture 사용여부
+uniform int uUseRefractionTexture; // uRefractionTexture 사용여부
+uniform float uRefractionPower; // 굴절강도
 uniform float uReflectionPower; // 반사강도
 uniform float uNormalPower; // 노멀강도
 uniform float uSpecularPower; // 스페큘러강도
@@ -42,6 +45,7 @@ vec4 ld; // 디퓨즈
 vec4 ls; // 스페큘러
 vec4 texelColor; // 디퓨즈텍스쳐컬러
 vec4 reflectionColor;
+vec4 refractionColor;
 vec3 N; // 노말벡터의 노말라이징
 vec3 L; // 라이트 디렉션의 노말라이징
 vec3 R; // 입사각에대한 반사값
@@ -55,14 +59,14 @@ vec3 pointDirection; // 방향
 float distanceLength; // 거리
 float attenuation;  // 감쇄
 
+
 vec4 finalColor; // 최종컬러값
 void main(void) {
     la = uAmbientLightColor;
     ld = vec4(0.0, 0.0, 0.0, 1.0);
     ls = vec4(0.0, 0.0, 0.0, 1.0);
-    // if(uUseDiffuseTexture == 1)  
     texelColor = texture2D(uDiffuseTexture, vTexcoord);
-    if(texelColor.a==0.0) discard;
+   
     E = normalize(vEyeVec);
     
     if(uUseNormalTexture == 1) {
@@ -78,6 +82,12 @@ void main(void) {
         reflectionColor = textureCube(uReflectionTexture, vReflectionCubeCoord+N);
         reflectionColor.rgb *= uReflectionPower;
         texelColor = (texelColor * (1.0 - uReflectionPower)  + reflectionColor) ;
+    }
+
+    if(uUseRefractionTexture == 1) {
+        refractionColor = textureCube(uRefractionTexture, vRefractionCubeCoord+N);
+        refractionColor.rgb *= uRefractionPower;
+        texelColor = (texelColor * (1.0 - uRefractionPower)  +refractionColor) ;
     }
 
     vec4 specularLightColor = vec4(1.0, 1.0, 1.0, 1.0);
@@ -111,8 +121,6 @@ void main(void) {
             }
         }
     }           
-    
-    finalColor = la + ld + ls;
-    // finalColor.a = texelColor.a;            
+    finalColor = la + ld + ls;       
     gl_FragColor = finalColor;   
 }

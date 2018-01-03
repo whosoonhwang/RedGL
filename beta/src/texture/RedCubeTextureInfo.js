@@ -96,14 +96,14 @@ var RedCubeTextureInfo;
 		:DOC*/
 		this['texture'] = tGL.createTexture()
 		// 인덱스 번호 지정 - 초기생성전담은 0번 인덱스를 사용함
-		textureIndex = textureIndex ? textureIndex : RedTextureIndex.CUBE_REFLECTION
-		this['__targetIndex'] = RedTextureIndex.CUBE_CREATE
+		textureIndex = textureIndex ? textureIndex : RedTextureIndex.CREATE
+		this['__targetIndex'] = RedTextureIndex.CREATE
 		this['__allLoadedTargetIndex'] = textureIndex
 		// 웹지엘 텍스쳐인지
 		this['__webglCubeTexture'] = 1
 		this['__UUID'] = REDGL_UUID++
 
-		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CUBE_CREATE)
+		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CREATE)
 		tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, this['texture'])
 	}
 	RedCubeTextureInfo.prototype['__allLoaed'] = function () {
@@ -114,7 +114,7 @@ var RedCubeTextureInfo;
 		self = this
 		this['__targetIndex'] = this['__allLoadedTargetIndex']
 		console.log(this)
-		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CUBE_CREATE)
+		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CREATE)
 		tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, self['texture'])
 		this['__imgList'].forEach(function (img, index) {
 			// console.log(
