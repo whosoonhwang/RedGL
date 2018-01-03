@@ -123,7 +123,7 @@ start = function () {
 	}
 
 	// 무작위로 가보자
-	var i = 60, j
+	var i = 50, j
 	while (i--) {
 		j = 30
 		while (j--) {
@@ -142,7 +142,7 @@ start = function () {
 		}
 		j = 30
 		while (j--) {
-			var tMesh = testGL.createMeshInfo('testMeshAdd3' + '_' + i + '_' + j, RedPrimitive.sphere(testGL, 0.5, 16, 16, 16), testMatBitmap2)
+			var tMesh = testGL.createMeshInfo('testMeshAdd3' + '_' + i + '_' + j, RedPrimitive.sphere(testGL, 0.5, 16, 16, 16), testMatBitmap)
 			// var tMesh = testGL.createMeshInfo('testMeshAdd1'+i, RedPrimitive.cube(testGL,1,1,1,32,32,32), testMatBitmap)
 			tMesh.position[0] = Math.sin(Math.PI * 2 * Math.random()) * 40
 			tMesh.position[1] = Math.sin(Math.PI * 2 * Math.random()) * 40
@@ -245,6 +245,7 @@ testGL = RedGL(document.getElementById('test'), start, true, [
 			target.materialUniforms[RedMaterialInfo.SPECULAR_TEXTURE] = target['uSpecularTexture']
 			target.materialUniforms[RedMaterialInfo.REFLECTION_TEXTURE] = target['uReflectionTexture']
 			target.materialUniforms[RedMaterialInfo.REFRACTION_TEXTURE] = target['uRefractionTexture']
+			
 		}
 	},
 	{

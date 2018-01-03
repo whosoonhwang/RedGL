@@ -176,7 +176,7 @@ var RedMaterialInfo;
 
             } else if (t0 instanceof RedAtlasTextureInfo) {
                 this['materialUniforms']['uAtlascoord'] = t0['atlasUVInfo']
-            } else throw k + '는 올바르지 않은 타입입니다.'
+            } else throw 'RedMaterialInfo : '+ k + '는 올바르지 않은 타입입니다.'
         }
         ////////////////////////////////////////////////////////////////////////////////////////
         // 프로그램 정보를 처리
@@ -184,6 +184,7 @@ var RedMaterialInfo;
             this['__uniformList'] = []
             var tUniformGroup = this['materialUniforms']
             var tUniformLocationGroup = this['programInfo']['uniforms']
+            var tType2
             for (k in tUniformGroup) {
                 // console.log('//////////////////////////////////////')
                 // console.log(k)
@@ -194,12 +195,27 @@ var RedMaterialInfo;
                 // console.log(tUniformLocationGroup[k]['location'])
                 // console.log(tUniformLocationGroup)
                 // console.log('//////////////////////////////////////')
-                if (tUniformLocationGroup[k]['type'] == 'samplerCube') {
-
+                tType2 = undefined
+                if(!tUniformLocationGroup.hasOwnProperty(k)) throw 'RedMaterialInfo : 유니폼명 : '+k+' / 쉐이더에 정의되지 않은 유니폼에 접근하려고합니다.'
+                if (tUniformLocationGroup[k]['type'] == 'samplerCube' || tUniformLocationGroup[k]['type'] == 'sampler2D') {
+                    tType2 = 'sampler'
+                }
+                if (tUniformLocationGroup[k]['type'] == 'vec2' || tUniformLocationGroup[k]['type'] == 'vec3' || tUniformLocationGroup[k]['type'] == 'vec4') {
+                    tType2 = 'vec'
+                }
+                if (tUniformLocationGroup[k]['type'] == 'mat2' || tUniformLocationGroup[k]['type'] == 'mat3' || tUniformLocationGroup[k]['type'] == 'mat4') {
+                    tType2 = 'mat'
+                }
+                if (k =='uAtlascoord') {
+                    tType2 = 'atlascoord'
+                }
+                if (tUniformLocationGroup[k]['type'] == 'int' || tUniformLocationGroup[k]['type'] == ['float']) {
+                    tType2 = tUniformLocationGroup[k]['type']
                 }
                 this['__uniformList'].push({
                     key: k,
                     type: tUniformLocationGroup[k]['type'],
+                    type2: tType2,
                     value: tUniformGroup[k],
                     location: tUniformLocationGroup[k]['location']
                 })
