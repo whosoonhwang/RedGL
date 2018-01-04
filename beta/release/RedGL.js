@@ -3818,6 +3818,7 @@ var RedBaseRenderInfo;
     var tDatas;
     var SIN, COS;
     var emptyCubeMap;
+    var emptyCube = {}
     var checkCallBox;
     SIN = Math.sin, COS = Math.cos
 
@@ -4359,7 +4360,7 @@ var RedBaseRenderInfo;
                         console.log('언제오니')
                     }
                 }
-
+               
                 i3 = 0
                 tUseMapKey = useMap[i3][0]
                 if (tProgramInfo['uniforms'][tUseMapKey]) {
@@ -4421,6 +4422,66 @@ var RedBaseRenderInfo;
                     } else cacheUseTexture[tUseMapKey] == 0 ? 0 : tGL.uniform1i(tLocation, 0), cacheUseTexture[tUseMapKey] = 0
                 }
                 i3 = 4
+                tUseMapKey = useMap[i3][0]
+                if (tProgramInfo['uniforms'][tUseMapKey]) {
+                    tLocation = tProgramInfo['uniforms'][tUseMapKey]['location']
+                    tUseMapTextureKey = useMap[i3][1]
+                    tUniformValue = tMaterial[tUseMapTextureKey]
+                    if (tUniformValue && tUniformValue['loaded']) {
+                        if (tUniformValue['__targetIndex'] != RedTextureIndex[useMap[i3][2]]) {
+                            console.log(tUniformValue)
+                            console.log(tUseMapKey, tUseMapTextureKey, tUniformValue['__targetIndex'], RedTextureIndex[useMap[i3][2]])
+                            throw useMap[i3][2] + " 인덱스타입이 아닙니다."
+                        }
+                        cacheUseTexture[tUseMapKey] == 1 ? 0 : tGL.uniform1i(tLocation, 1), cacheUseTexture[tUseMapKey] = 1
+                    } else cacheUseTexture[tUseMapKey] == 0 ? 0 : tGL.uniform1i(tLocation, 0), cacheUseTexture[tUseMapKey] = 0
+                }
+                i3 = 5
+                tUseMapKey = useMap[i3][0]
+                if (tProgramInfo['uniforms'][tUseMapKey]) {
+                    tLocation = tProgramInfo['uniforms'][tUseMapKey]['location']
+                    tUseMapTextureKey = useMap[i3][1]
+                    tUniformValue = tMaterial[tUseMapTextureKey]
+                    if (tUniformValue && tUniformValue['loaded']) {
+                        if (tUniformValue['__targetIndex'] != RedTextureIndex[useMap[i3][2]]) {
+                            console.log(tUniformValue)
+                            console.log(tUseMapKey, tUseMapTextureKey, tUniformValue['__targetIndex'], RedTextureIndex[useMap[i3][2]])
+                            throw useMap[i3][2] + " 인덱스타입이 아닙니다."
+                        }
+                        cacheUseTexture[tUseMapKey] == 1 ? 0 : tGL.uniform1i(tLocation, 1), cacheUseTexture[tUseMapKey] = 1
+                    } else cacheUseTexture[tUseMapKey] == 0 ? 0 : tGL.uniform1i(tLocation, 0), cacheUseTexture[tUseMapKey] = 0
+                }
+                i3 = 6
+                tUseMapKey = useMap[i3][0]
+                if (tProgramInfo['uniforms'][tUseMapKey]) {
+                    tLocation = tProgramInfo['uniforms'][tUseMapKey]['location']
+                    tUseMapTextureKey = useMap[i3][1]
+                    tUniformValue = tMaterial[tUseMapTextureKey]
+                    if (tUniformValue && tUniformValue['loaded']) {
+                        if (tUniformValue['__targetIndex'] != RedTextureIndex[useMap[i3][2]]) {
+                            console.log(tUniformValue)
+                            console.log(tUseMapKey, tUseMapTextureKey, tUniformValue['__targetIndex'], RedTextureIndex[useMap[i3][2]])
+                            throw useMap[i3][2] + " 인덱스타입이 아닙니다."
+                        }
+                        cacheUseTexture[tUseMapKey] == 1 ? 0 : tGL.uniform1i(tLocation, 1), cacheUseTexture[tUseMapKey] = 1
+                    } else cacheUseTexture[tUseMapKey] == 0 ? 0 : tGL.uniform1i(tLocation, 0), cacheUseTexture[tUseMapKey] = 0
+                }
+                i3 = 7
+                tUseMapKey = useMap[i3][0]
+                if (tProgramInfo['uniforms'][tUseMapKey]) {
+                    tLocation = tProgramInfo['uniforms'][tUseMapKey]['location']
+                    tUseMapTextureKey = useMap[i3][1]
+                    tUniformValue = tMaterial[tUseMapTextureKey]
+                    if (tUniformValue && tUniformValue['loaded']) {
+                        if (tUniformValue['__targetIndex'] != RedTextureIndex[useMap[i3][2]]) {
+                            console.log(tUniformValue)
+                            console.log(tUseMapKey, tUseMapTextureKey, tUniformValue['__targetIndex'], RedTextureIndex[useMap[i3][2]])
+                            throw useMap[i3][2] + " 인덱스타입이 아닙니다."
+                        }
+                        cacheUseTexture[tUseMapKey] == 1 ? 0 : tGL.uniform1i(tLocation, 1), cacheUseTexture[tUseMapKey] = 1
+                    } else cacheUseTexture[tUseMapKey] == 0 ? 0 : tGL.uniform1i(tLocation, 0), cacheUseTexture[tUseMapKey] = 0
+                }
+                i3 = 8
                 tUseMapKey = useMap[i3][0]
                 if (tProgramInfo['uniforms'][tUseMapKey]) {
                     tLocation = tProgramInfo['uniforms'][tUseMapKey]['location']

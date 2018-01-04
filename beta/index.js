@@ -176,7 +176,7 @@ start = function () {
 			testScene['lights']['directional'][i].direction[1] = Math.cos(time / 1400 + Math.PI * 2 / testScene['lights']['directional'].length * i) * 20 + Math.sin(time / 2700 + Math.PI * 2 / testScene['lights']['directional'].length * i) * 50
 			testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200 + Math.PI * 2 / testScene['lights']['directional'].length * i) * 20
 		}
-		testMatBitmap['uDisplacementPower'] = Math.sin(time/500)*3
+		testMatBitmap['uDisplacementPower'] = Math.sin(time/250)*3
 		i = parseInt(testScene.children.length)
 		while (i--) {
 			testScene.children[i]['rotation'][0] +=0.01
