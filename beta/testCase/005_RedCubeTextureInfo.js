@@ -96,7 +96,7 @@ redSuite(
                     clearInterval(t1)
                 }
             })
-        }, RedTextureIndex.CREATE)
+        }, RedTextureIndex.CUBE_CREATE)
     ),
 
 )

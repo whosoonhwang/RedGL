@@ -126,7 +126,7 @@ start = function () {
 	var i, max = 50
 	i = max
 	while (i--) {
-		var tMesh = testGL.createMeshInfo('testMeshAdd1' + i, RedPrimitive.sphere(testGL, 1, 32, 32, 32), testMatBitmapDisplacement)
+		var tMesh = testGL.createMeshInfo('testMeshAdd1' + i, RedPrimitive.sphere(testGL, 1, 32, 32, 32), testMatBitmapNormal)
 		tMesh.position[0] = Math.sin(Math.PI * 2 / max * i) * 30
 		tMesh.position[1] = 0
 		tMesh.position[2] = Math.cos(Math.PI * 2 / max * i) * 30
