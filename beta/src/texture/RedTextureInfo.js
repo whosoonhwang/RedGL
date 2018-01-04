@@ -91,10 +91,10 @@ var RedTextureInfo;
 			tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CREATE)
 			tGL.bindTexture(tGL.TEXTURE_2D, self['texture'])
 			tGL.texImage2D(tGL.TEXTURE_2D, 0, internalFormat, format, type, self['__img'])
-			tGL.texParameterf(tGL.TEXTURE_2D, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR);
 			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_MIN_FILTER, tGL.LINEAR_MIPMAP_NEAREST);
-			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_S, tGL.CLAMP_TO_EDGE);
-			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_T, tGL.CLAMP_TO_EDGE);
+			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR);
+			// tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_S, tGL.CLAMP_TO_EDGE);
+			// tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_T, tGL.CLAMP_TO_EDGE);
 			tGL.generateMipmap(tGL.TEXTURE_2D)
 			// img.onload = null
 		});
