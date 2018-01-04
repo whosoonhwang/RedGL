@@ -1860,6 +1860,10 @@ var RedMeshBaseInfo;
             value: mat4.create(),
             enumerable: true
         })
+        Object.defineProperty(this, '__parentMVMatrixClone', {
+            value: mat4.create(),
+            enumerable: true
+        })
         /**DOC:
 		{
             title :`position`,
@@ -4082,6 +4086,7 @@ var RedBaseRenderInfo;
         this.draw = function (renderList, time, parentMTX) {
             var i, i2, i3; // 루프변수
             var tAtlasTextureInfo;
+            var parentClone
             i = renderList.length
             while (i--) {
                 self['numDrawCall']++
@@ -4122,7 +4127,7 @@ var RedBaseRenderInfo;
                 // 부모가있으면 곱함
                 if (parentMTX) {
                     // 부모매트릭스 복사
-                    var parentClone = new glMatrix.ARRAY_TYPE(16);
+                    parentClone = tMesh['__parentMVMatrixClone'];
                     parentClone[0] = parentMTX[0], parentClone[1] = parentMTX[1], parentClone[2] = parentMTX[2], parentClone[3] = parentMTX[3],
                         parentClone[4] = parentMTX[4], parentClone[5] = parentMTX[5], parentClone[6] = parentMTX[6], parentClone[7] = parentMTX[7],
                         parentClone[8] = parentMTX[8], parentClone[9] = parentMTX[9], parentClone[10] = parentMTX[10], parentClone[11] = parentMTX[11],
