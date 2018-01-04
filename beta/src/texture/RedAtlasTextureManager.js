@@ -91,7 +91,8 @@ var RedAtlasTextureManager;
 		if (!(srcList instanceof Array) && typeof srcList !='string') throw 'RedAtlasTextureManager : srcList는 문자열 또는 Array만 허용됩니다.'
 		tRedGL = redGL
 		MAX_TEXTURE_SIZE = redGL['detect']['MAX_TEXTURE_SIZE']
-		MAX_TEXTURE_IMAGE_UNITS = redGL['detect']['MAX_TEXTURE_IMAGE_UNITS']
+		// MAX_TEXTURE_IMAGE_UNITS = redGL['detect']['MAX_TEXTURE_IMAGE_UNITS']
+		MAX_TEXTURE_IMAGE_UNITS = redGL['detect']['MAX_COMBINED_TEXTURE_IMAGE_UNITS']		
 		if (tTextureUnitIndex == undefined) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 5)
 		if (MAX_TEXTURE_SIZE > 2048 * 2) MAX_TEXTURE_SIZE = 2048 * 2
 		console.log('MAX_TEXTURE_SIZE', MAX_TEXTURE_SIZE)
