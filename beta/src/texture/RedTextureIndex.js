@@ -80,7 +80,9 @@ var RedTextureIndex;
 		ETC_VERTEX_2: 7,
 		ETC_FRAGMENT_1: 8,
 		ETC_FRAGMENT_2: 9,
+		
 		/////////////////////
+		CUBE_CREATE: 1,
 		/**DOC:
 			{
 			title :`CUBE_DIFFUSE`,

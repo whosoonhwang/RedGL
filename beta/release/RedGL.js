@@ -1609,38 +1609,38 @@ var RedMaterialInfo;
             this['__uniformList'] = []
             var tUniformGroup = this['materialUniforms']
             var tUniformLocationGroup = this['programInfo']['uniforms']
-            var tType2
+            var tRenderType
+           
             for (k in tUniformGroup) {
-                // console.log('//////////////////////////////////////')
-                // console.log(k)
-                // console.log(tUniformLocationGroup)
-                // console.log(tUniformLocationGroup[k])
-                // console.log(tUniformLocationGroup[k]['type'])
-                // console.log(tUniformGroup[k])
-                // console.log(tUniformLocationGroup[k]['location'])
-                // console.log(tUniformLocationGroup)
-                // console.log('//////////////////////////////////////')
-                tType2 = undefined
+                console.log('//////////////////////////////////////')
+                console.log(k)
+                console.log(tUniformLocationGroup)
+                console.log(tUniformLocationGroup[k])
+                console.log(tUniformLocationGroup[k]['type'])
+                console.log(tUniformGroup[k])
+                console.log(tUniformLocationGroup[k]['location'])
+                console.log(tUniformLocationGroup)
+                console.log('//////////////////////////////////////')
+                var tObj;
+                tObj = {}
+                tRenderType = undefined
                 if(!tUniformLocationGroup.hasOwnProperty(k)) throw 'RedMaterialInfo : 유니폼명 : '+k+' / 쉐이더에 정의되지 않은 유니폼에 접근하려고합니다.'
                 if (tUniformLocationGroup[k]['type'] == 'samplerCube' || tUniformLocationGroup[k]['type'] == 'sampler2D') {
-                    tType2 = 'sampler'
+                    tRenderType = RedConst.SAMPLER
                 }
                 if (tUniformLocationGroup[k]['type'] == 'vec2' || tUniformLocationGroup[k]['type'] == 'vec3' || tUniformLocationGroup[k]['type'] == 'vec4') {
-                    tType2 = 'vec'
+                    tRenderType = RedConst.VEC
                 }
                 if (tUniformLocationGroup[k]['type'] == 'mat2' || tUniformLocationGroup[k]['type'] == 'mat3' || tUniformLocationGroup[k]['type'] == 'mat4') {
-                    tType2 = 'mat'
+                    tRenderType = RedConst.MAT
                 }
-                if (k =='uAtlascoord') {
-                    tType2 = 'atlascoord'
-                }
-                if (tUniformLocationGroup[k]['type'] == 'int' || tUniformLocationGroup[k]['type'] == ['float']) {
-                    tType2 = tUniformLocationGroup[k]['type']
-                }
+                if (k == 'uAtlascoord') tRenderType = RedConst.ATLASCOORD
+                if (tUniformLocationGroup[k]['type'] == 'int') tRenderType = RedConst.INT
+                if (tUniformLocationGroup[k]['type'] == ['float']) tRenderType = RedConst.FLOAT
                 this['__uniformList'].push({
                     key: k,
                     type: tUniformLocationGroup[k]['type'],
-                    type2: tType2,
+                    renderType: tRenderType,
                     value: tUniformGroup[k],
                     location: tUniformLocationGroup[k]['location']
                 })
@@ -2668,7 +2668,9 @@ var RedTextureIndex;
 		ETC_VERTEX_2: 7,
 		ETC_FRAGMENT_1: 8,
 		ETC_FRAGMENT_2: 9,
+		
 		/////////////////////
+		CUBE_CREATE: 1,
 		/**DOC:
 			{
 			title :`CUBE_DIFFUSE`,
@@ -2751,7 +2753,7 @@ var RedTextureInfo;
 		internalFormat = internalFormat ? internalFormat : tGL.RGBA;
 		format = format ? format : tGL.RGBA;
 		type = type ? type : tGL.UNSIGNED_BYTE;
-		targetIndex = targetIndex ? targetIndex : RedTextureIndex.DIFFUSE
+		targetIndex = targetIndex==undefined ? RedTextureIndex.DIFFUSE : targetIndex
 		if (!nullTexture) {
 			nullTexture = tGL.createTexture()
 			tGL.activeTexture(tGL.TEXTURE0)
@@ -2892,15 +2894,15 @@ var RedCubeTextureInfo;
 			return : 'RedCubeTextureInfo Instance'
 		}
 	:DOC*/
-	RedCubeTextureInfo = function (redGL, srcList, textureIndex) {
-		if (!(this instanceof RedCubeTextureInfo)) return new RedCubeTextureInfo(redGL, srcList, textureIndex)
+	RedCubeTextureInfo = function (redGL, srcList, targetIndex) {
+		if (!(this instanceof RedCubeTextureInfo)) return new RedCubeTextureInfo(redGL, srcList, targetIndex)
 		if (!(redGL instanceof RedGL)) throw 'RedCubeTextureInfo : RedGL 인스턴스만 허용됩니다.'
 		if (!(srcList instanceof Array)) throw 'RedCubeTextureInfo : srcList는 Array만 허용됩니다.'
 		var texture;
 		var i;
 		var loadedNum;
 		var self;
-		var textureIndex;
+		var targetIndex;
 		self = this
 		tGL = redGL.gl
 		loadedNum = 0
@@ -2952,15 +2954,15 @@ var RedCubeTextureInfo;
 		:DOC*/
 		this['texture'] = tGL.createTexture()
 		// 인덱스 번호 지정 - 초기생성전담은 0번 인덱스를 사용함
-		textureIndex = textureIndex ? textureIndex : RedTextureIndex.CREATE
-		this['__targetIndex'] = RedTextureIndex.CREATE
-		this['__allLoadedTargetIndex'] = textureIndex
+		targetIndex = targetIndex==undefined ? RedTextureIndex.CUBE_CREATE : targetIndex 
+		this['__targetIndex'] = RedTextureIndex.CUBE_CREATE
+		this['__allLoadedTargetIndex'] = targetIndex
 		// 웹지엘 텍스쳐인지
 		this['__webglCubeTexture'] = 1
 		this['__webglTextureYn'] = 1
 		this['__UUID'] = REDGL_UUID++
 
-		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CREATE)
+		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CUBE_CREATE)
 		tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, this['texture'])
 	}
 	RedCubeTextureInfo.prototype['__allLoaed'] = function () {
@@ -2971,7 +2973,7 @@ var RedCubeTextureInfo;
 		self = this
 		this['__targetIndex'] = this['__allLoadedTargetIndex']
 		console.log(this)
-		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CREATE)
+		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CUBE_CREATE)
 		tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, self['texture'])
 		this['__imgList'].forEach(function (img, index) {
 			// console.log(
@@ -3431,10 +3433,11 @@ var RedAtlasTextureManager;
 		tRedGL = redGL
 		MAX_TEXTURE_SIZE = redGL['detect']['MAX_TEXTURE_SIZE']
 		MAX_TEXTURE_IMAGE_UNITS = redGL['detect']['MAX_TEXTURE_IMAGE_UNITS']
-		if (tTextureUnitIndex == undefined) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 4)
-		if (MAX_TEXTURE_SIZE > 4096) MAX_TEXTURE_SIZE = 4096
+		if (tTextureUnitIndex == undefined) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 5)
+		if (MAX_TEXTURE_SIZE > 2048 * 2) MAX_TEXTURE_SIZE = 2048 * 2
 		console.log('MAX_TEXTURE_SIZE', MAX_TEXTURE_SIZE)
 		console.log('MAX_TEXTURE_IMAGE_UNITS', MAX_TEXTURE_IMAGE_UNITS)
+		console.log('tTextureUnitIndex',tTextureUnitIndex)
 		if (!tAtlas) createAtlas()
 		var loaded, targetNum;
 		loaded = 0
@@ -3618,7 +3621,7 @@ var RedSkyBoxInfo;
         if (!(srcList instanceof Array)) throw 'srcList는 Array만 허용됩니다.'
         if (srcList.length != 6) throw 'srcList는 6개여야 합니다.'
         RedMeshBaseInfo.call(this, redGL)
-        this['materialInfo'] = RedMaterialInfo(redGL, 'skyBox', RedCubeTextureInfo(redGL, srcList))
+        this['materialInfo'] = RedMaterialInfo(redGL, 'skyBox', RedCubeTextureInfo(redGL, srcList,RedTextureIndex.CUBE_DIFFUSE))
         this['geometryInfo'] = RedPrimitive.cube(redGL)
          // 스카이박스 스케일은 카메라 far와 연동됨
         this['scale'][0] = 1000
@@ -3808,20 +3811,20 @@ var RedBaseRenderInfo;
 (function () {
     var tDatas;
     var SIN, COS;
-    var emptyCube,emptyCubeMap;
+    var emptyCube, emptyCubeMap;
     var checkCallBox;
     SIN = Math.sin, COS = Math.cos
     emptyCube = {}
     RedBaseRenderInfo = function (redGL, redScene, callback) {
         if (!(this instanceof RedBaseRenderInfo)) return new RedBaseRenderInfo(redGL, redScene, callback)
         if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        
+
         var self;
         self = this
         // 씬생성!!
         this['callback'] = callback
         this['targetScene'] = redScene
-        this[ '__UUID' ] = REDGL_UUID++
+        this['__UUID'] = REDGL_UUID++
         //
         var uniform1fiMAP = {
             float: 'uniform1f',
@@ -3848,7 +3851,7 @@ var RedBaseRenderInfo;
         var tAttrGroupList; // 대상 버퍼정보그룹을 리스트화함
         var tAttrLocationGroup; // 대상 Attribute의 location 정보들
         var tAttrBufferInfo; // 대상 RedBufferInfo 
-        var tAttrPointer; // 대상 Attrobute가 반영될 쉐이더내의 변수이름
+        var tAttrPointerKey; // 대상 Attrobute가 반영될 쉐이더내의 변수이름
         var tMaterialUniformGroup; // 대상 유니폼 그룹
         var tUniformGroupList; // 대상 유니폼 그룹을 리스트화함
         var tProgramUniformLocationGroup; // 대상 프로그램의 uniform location 정보들
@@ -3876,31 +3879,29 @@ var RedBaseRenderInfo;
         ///////////////////////////////////////////////////////////////////
         var aspect;
         var debugPointRenderList = [];
-      
-        var useMap,tUseMapKey,tUseMapTextureKey
+
+        var useMap, tUseMapKey, tUseMapTextureKey
+        var bitmapRenderable
         useMap = [
-            ['uUseDiffuseTexture','uDiffuseTexture','DIFFUSE'],
-            ['uUseNormalTexture','uNormalTexture','NORMAL'],
-            ['uUseDisplacementTexture','uDisplacementTexture','DISPLACEMENT'],
-            ['uUseSpecularTexture','uSpecularTexture','SPECULAR'],
-            ['uUseEtcVertexTexture1','uEtcVertextTexture1','ETC_VERTEX_1'],
-            ['uUseEtcVertexTexture2','uEtcVertextTexture2','ETC_VERTEX_2'],
-            ['uUseEtcFragmentTexture1','uEtcFragmentTexture1','ETC_FRAGMENT_1'],
-            ['uUseEtcFragmentTexture2','uEtcFragmentTexture2','ETC_FRAGMENT_2'],
+            // ['uUseDiffuseTexture', 'uDiffuseTexture', 'DIFFUSE'],
+            ['uUseNormalTexture', 'uNormalTexture', 'NORMAL'],
+            ['uUseDisplacementTexture', 'uDisplacementTexture', 'DISPLACEMENT'],
+            ['uUseSpecularTexture', 'uSpecularTexture', 'SPECULAR'],
+            ['uUseEtcVertexTexture1', 'uEtcVertextTexture1', 'ETC_VERTEX_1'],
+            ['uUseEtcVertexTexture2', 'uEtcVertextTexture2', 'ETC_VERTEX_2'],
+            ['uUseEtcFragmentTexture1', 'uEtcFragmentTexture1', 'ETC_FRAGMENT_1'],
+            ['uUseEtcFragmentTexture2', 'uEtcFragmentTexture2', 'ETC_FRAGMENT_2'],
             ['uUseReflectionTexture', 'uReflectionTexture', 'CUBE_REFLECTION'],
             ['uUseRefractionTexture', 'uRefractionTexture', 'CUBE_REFRACTION']
-            
+
         ]
-        cacheAttrUUID = {}
+        cacheAttrUUID = []
         cacheTexture_UUID = {}
         cacheUseTexture = {}
-      
-        cacheIntFloat = {
-            int: {},
-            float: {}
-        }
+
+        cacheIntFloat = {}
         this.render = function (time) {
-           
+
             //TODO: 재질 소팅을 도입해야곘음 -_-;;
             //////////////////////////////////////////////////////////
             // cacheDrawBufferUUID 캐시를 한번제거함
@@ -3925,10 +3926,10 @@ var RedBaseRenderInfo;
                 // 카메라갱신
                 tLocation = tempProgramInfo['uniforms']['uCameraMatrix']['location']
                 tGL.uniformMatrix4fv(tLocation, false, tScene['camera']['uCameraMatrix'])
-                if(tempProgramInfo['uniforms']['uCameraPosition']){
+                if (tempProgramInfo['uniforms']['uCameraPosition']) {
                     tLocation = tempProgramInfo['uniforms']['uCameraPosition']['location']
-                    tGL.uniform3fv(tLocation,  tScene['camera']['__desiredCoords'])
-                }               
+                    tGL.uniform3fv(tLocation, tScene['camera']['__desiredCoords'])
+                }
 
                 // 라이트갱신
                 // console.log(tScene['lights'])
@@ -3936,15 +3937,15 @@ var RedBaseRenderInfo;
                 self.setDirectionalLight(tempProgramInfo)
                 self.setPointLight(tempProgramInfo)
 
-                if(tempProgramInfo['uniforms']['uSystemTime']){
+                if (tempProgramInfo['uniforms']['uSystemTime']) {
                     tLocation = tempProgramInfo['uniforms']['uSystemTime']['location']
-                    tGL.uniform1f(tLocation, time/1000)
+                    tGL.uniform1f(tLocation, time / 1000)
                 }
-                if(tempProgramInfo['uniforms']['uSystemResolution']){
+                if (tempProgramInfo['uniforms']['uSystemResolution']) {
                     tLocation = tempProgramInfo['uniforms']['uSystemResolution']['location']
                     tGL.uniform2fv(tLocation, new Float32Array([tGL['drawingBufferWidth'], tGL['drawingBufferHeight']]))
                 }
-                
+
 
             }
             cacheProgram = null // 캐쉬된 프로그램을 삭제
@@ -4075,7 +4076,7 @@ var RedBaseRenderInfo;
         })();
         // 기본 draw함수
         this.draw = function (renderList, time, parentMTX) {
-            var i, i2,i3; // 루프변수
+            var i, i2, i3; // 루프변수
             var tAtlasTextureInfo;
             i = renderList.length
             while (i--) {
@@ -4085,9 +4086,9 @@ var RedBaseRenderInfo;
                 tNMatrix = tMesh['uNMatrix']
                 // 매트릭스 초기화
                 tMVMatrix[0] = 1, tMVMatrix[1] = 0, tMVMatrix[2] = 0, tMVMatrix[3] = 0,
-                tMVMatrix[4] = 0, tMVMatrix[5] = 1, tMVMatrix[6] = 0, tMVMatrix[7] = 0,
-                tMVMatrix[8] = 0, tMVMatrix[9] = 0, tMVMatrix[10] = 1, tMVMatrix[11] = 0,
-                tMVMatrix[12] = 0, tMVMatrix[13] = 0, tMVMatrix[14] = 0, tMVMatrix[15] = 1
+                    tMVMatrix[4] = 0, tMVMatrix[5] = 1, tMVMatrix[6] = 0, tMVMatrix[7] = 0,
+                    tMVMatrix[8] = 0, tMVMatrix[9] = 0, tMVMatrix[10] = 1, tMVMatrix[11] = 0,
+                    tMVMatrix[12] = 0, tMVMatrix[13] = 0, tMVMatrix[14] = 0, tMVMatrix[15] = 1
                 // 기본 변환
                 a = tMVMatrix
                 // 이동
@@ -4112,8 +4113,8 @@ var RedBaseRenderInfo;
                 aX = tMesh['scale'][0], aY = tMesh['scale'][1], aZ = tMesh['scale'][2]
                 a[0] = a[0] * aX, a[1] = a[1] * aX, a[2] = a[2] * aX, a[3] = a[3] * aX;
                 a[4] = a[4] * aY, a[5] = a[5] * aY, a[6] = a[6] * aY, a[7] = a[7] * aY,
-                a[8] = a[8] * aZ, a[9] = a[9] * aZ, a[10] = a[10] * aZ, a[11] = a[11] * aZ,
-                a[12] = a[12], a[13] = a[13], a[14] = a[14], a[15] = a[15]
+                    a[8] = a[8] * aZ, a[9] = a[9] * aZ, a[10] = a[10] * aZ, a[11] = a[11] * aZ,
+                    a[12] = a[12], a[13] = a[13], a[14] = a[14], a[15] = a[15]
                 // 부모가있으면 곱함
                 if (parentMTX) {
                     // 부모매트릭스 복사
@@ -4168,25 +4169,23 @@ var RedBaseRenderInfo;
                 if (cacheProgram != tProgram) {
                     // 기존에 옵션맵을 쓰고있었으면 날린다. TODO: 이놈도정리대상이다.
                     tGL.useProgram(tProgram)
-                    cacheTexture_UUID = {}
+                    // cacheTexture_UUID = {}
                     cacheUVAtlascoord_UUID = undefined
-                    cacheUseTexture = {}
-                    cacheIntFloat = {
-                        int: {},
-                        float: {}
-                    }
+                    // cacheUseTexture = {}
+                    cacheIntFloat = {}
                 }
                 cacheProgramInfo = tProgramInfo
                 cacheProgram = tProgram
                 // 어트리뷰트 입력
                 i2 = tAttrGroupList.length
                 while (i2--) {
-                    tAttrBufferInfo = tAttrGroupList[i2], // 대상버퍼구하고
-                        tAttrPointer = tAttrBufferInfo['shaderPointerKey'] // 바인딩할 쉐이더 변수키를 알아낸다.
-                    if (tAttrLocationGroup[tAttrPointer]) { // 어트리뷰트 정보매칭이 안되는 녀석은 무시한다 
-                        tLocation = tAttrLocationGroup[tAttrPointer]['location'] // 어트리뷰트 로케이션도 알아낸다.
+                    tAttrBufferInfo = tAttrGroupList[i2] // 대상버퍼구하고
+                    tAttrPointerKey = tAttrBufferInfo['shaderPointerKey'] // 바인딩할 쉐이더 변수키를 알아낸다.
+                    // 어트리뷰트 정보매칭이 안되는 녀석은 무시한다 
+                    if (tAttrLocationGroup[tAttrPointerKey]) {
+                        tLocation = tAttrLocationGroup[tAttrPointerKey]['location'] // 어트리뷰트 로케이션도 알아낸다.
                         // 캐싱된 attribute정보과 현재 대상정보가 같다면 무시
-                        cacheAttrUUID[tLocation] == tAttrBufferInfo[ '__UUID' ] ?
+                        cacheAttrUUID[tLocation] == tAttrBufferInfo['__UUID'] ?
                             0 :
                             (
                                 // 실제 버퍼 바인딩하고
@@ -4202,53 +4201,55 @@ var RedBaseRenderInfo;
                                     tAttrBufferInfo['offset']
                                 ),
                                 // 상태 캐싱
-                                cacheAttrUUID[tLocation] = tAttrBufferInfo[ '__UUID' ]
+                                cacheAttrUUID[tLocation] = tAttrBufferInfo['__UUID']
                             )
                     }
                 }
-                if(tMaterial['needUniformList']) tMaterial.updateUniformList()
+                tMaterial['needUniformList'] ? tMaterial.updateUniformList() : 0
                 // 유니폼 입력
                 tUniformGroupList = tMaterial['__uniformList']
                 i2 = tUniformGroupList.length
-                var bitmapRenderable = true
+                bitmapRenderable = true
                 // console.log('sfdssdfsdfsdf')
                 while (i2--) {
-                    tUniformKey = tUniformGroupList[i2]['key'],
-                    tUniformType = tUniformGroupList[i2]['type'],
+                    tUniformKey = tUniformGroupList[i2]['key']
+                    tUniformType = tUniformGroupList[i2]['type']
                     // tUniformValue = tUniformGroupList[i2]['value'],
                     tUniformValue = tMaterial[tUniformKey]
                     tLocation = tUniformGroupList[i2]['location']
                     tLocationUUID = tLocation['__UUID']
                     // console.log(tUniformGroupList[i2])     
-                     ///////////////////////////////////////////////////////////////////////////////
+                    ///////////////////////////////////////////////////////////////////////////////
                     ///////////////////////////////////////////////////////////////////////////////                           
-                    switch (tUniformGroupList[i2]['type2']) {
-                        case 'int':
-                            cacheIntFloat[tUniformType][tUniformKey] == tUniformValue ? 0 : tGL[uniform1fiMAP[tUniformType]](tLocation, tUniformValue)
-                            cacheIntFloat[tUniformType][tUniformKey] = tUniformValue
+                    switch (tUniformGroupList[i2]['renderType']) {
+                        case RedConst.INT:
+                            cacheIntFloat[tUniformKey] == tUniformValue ? 0 : tGL.uniform1i(tLocation, tUniformValue)
+                            cacheIntFloat[tUniformKey] = tUniformValue
                             break
-                        case 'float':
-                            cacheIntFloat[tUniformType][tUniformKey] == tUniformValue ? 0 : tGL[uniform1fiMAP[tUniformType]](tLocation, tUniformValue)
-                            cacheIntFloat[tUniformType][tUniformKey] = tUniformValue
+                        case RedConst.FLOAT:
+                            cacheIntFloat[tUniformKey] == tUniformValue ? 0 : tGL.uniform1f(tLocation, tUniformValue)
+                            cacheIntFloat[tUniformKey] = tUniformValue
                             break
-                        case 'vec':
+                        case RedConst.VEC:
                             tGL[tUniformValue['__uniformMethod']](tLocation, tUniformValue)
                             break
-                        case 'mat':
+                        case RedConst.MAT:
                             tGL[tUniformValue['__uniformMethod']](tLocation, false, tUniformValue)
                             break
-                        case 'sampler':
+                        case RedConst.SAMPLER:
                             if (tUniformValue && tUniformValue['__webglTextureYn']) {
                                 tUniformValue['__webglAtlasTexture'] ? tUniformValue = tUniformValue['parentAtlasInfo']['textureInfo'] : 0
                                 if (tUniformValue['loaded']) {
-                                    if (cacheTexture_UUID[tLocationUUID] != tUniformValue['__targetIndex']) {
-                                        tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex']),
-                                            tGL.bindTexture(tUniformValue['__webglTexture'] ? tGL.TEXTURE_2D : tGL.TEXTURE_CUBE_MAP, tUniformValue['texture']),
-                                            cacheTexture_UUID[tLocationUUID] == tUniformValue['__UUID'] ? 0 : tGL.uniform1i(tLocation, tUniformValue['__targetIndex']),
-                                            cacheTexture_UUID[tLocationUUID] = tUniformValue['__targetIndex']
+                                    var targetIndex = tUniformValue['__targetIndex']
+                                    if (cacheTexture_UUID[targetIndex] != tUniformValue['__UUID']) {
+                                        // console.log(targetIndex)
+                                        tGL.activeTexture(tGL.TEXTURE0 + targetIndex)
+                                        tGL.bindTexture(tUniformValue['__webglTexture'] ? tGL.TEXTURE_2D : tGL.TEXTURE_CUBE_MAP, tUniformValue['texture'])
+                                        cacheTexture_UUID[targetIndex] == tUniformValue['__UUID'] ? 0 : tGL.uniform1i(tLocation, targetIndex)
+                                        cacheTexture_UUID[targetIndex] = tUniformValue['__UUID']
                                     }
                                 } else {
-                                    // cacheTexture_UUID[tLocationUUID] = undefined
+                                    // cacheTexture_UUID[targetIndex] = undefined
                                     bitmapRenderable = false
                                 }
                             }
@@ -4256,15 +4257,15 @@ var RedBaseRenderInfo;
                                 throw tUniformKey + ' : sampler에 sampler형식이 아닌 값이 들어옵니다.'
                             }
                             break
-                        case 'atlascoord':
+                        case RedConst.ATLASCOORD:
                             cacheUVAtlascoord_UUID == tUniformValue['__UUID'] ? 0 : tGL.uniform4fv(tLocation, tUniformValue['value'])
                             cacheUVAtlascoord_UUID = tUniformValue['__UUID']
                             break
                         case undefined:
-                            console.log('오는게있니')
+                            // console.log('오는게있')
                             break
                         case null:
-                            console.log('오는게있니2')
+                            // console.log('오는게있니2')
                             break
                         default:
                             throw '안되는 나쁜 타입인거야!!'
@@ -4280,7 +4281,7 @@ var RedBaseRenderInfo;
                     //     cacheIntFloat[tUniformType][tUniformKey] == tUniformValue ? 0 : tGL[uniform1fiMAP[tUniformType]](tLocation, tUniformValue)
                     //     cacheIntFloat[tUniformType][tUniformKey] = tUniformValue
                     // }                     
-                   
+
                     // // // 아틀라스텍스쳐인경우
                     // // else if (tUniformValue['__webglAtlasTexture']) {                       
                     // //     tAtlasTextureInfo = tUniformValue['parentAtlasInfo']['textureInfo']
@@ -4291,13 +4292,13 @@ var RedBaseRenderInfo;
                     // //             cacheTexture_UUID[ tLocationUUID ]  == tAtlasTextureInfo[ '__UUID' ] ? 0 : tGL.uniform1i(tLocation, tAtlasTextureInfo['__targetIndex'])
                     // //             cacheTexture_UUID[ tLocationUUID ]  = tAtlasTextureInfo[ '__UUID' ]
                     // //         }                   
-                           
+
                     // //     } else {
                     // //         cacheTexture_UUID[ tLocationUUID ]  = undefined
                     // //         bitmapRenderable = false
                     // //     }
                     // // }  
-                  
+
                     // // 일반 텍스쳐인경우 // 큐브텍스쳐인경우
                     // else if (tUniformValue['__webglTextureYn']) {
                     //     tUniformValue['__webglAtlasTexture'] ? tUniformValue = tUniformValue['parentAtlasInfo']['textureInfo'] : 0
@@ -4326,8 +4327,8 @@ var RedBaseRenderInfo;
                     //     cacheUVAtlascoord_UUID = tUniformValue[ '__UUID' ]
                     // }  
 
-              
-                                
+
+
                     // // 이도저도아닌경우는 뭔가 잘못된거임
                     // else throw '안되는 나쁜 타입인거야!!'
                 };
@@ -4338,8 +4339,8 @@ var RedBaseRenderInfo;
                 i3 = useMap.length
                 while (i3--) {
                     tUseMapKey = useMap[i3][0]
-                    tUseMapTextureKey = useMap[i3][1]
                     if (tProgramInfo['uniforms'][tUseMapKey]) {
+                        tUseMapTextureKey = useMap[i3][1]
                         if (
                             RedTextureIndex[useMap[i3][2]] == RedTextureIndex.CUBE_REFLECTION
                             || RedTextureIndex[useMap[i3][2]] == RedTextureIndex.CUBE_REFRACTION
@@ -4347,20 +4348,19 @@ var RedBaseRenderInfo;
                             if (!emptyCube[tUseMapKey]) {
                                 var t;
                                 t = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NzMxRDhBQzRFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NzMxRDhBQzVFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo3MzFEOEFDMkU1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo3MzFEOEFDM0U1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuojYFUAAAAQSURBVHjaYvj//z8DQIABAAj8Av7bok0WAAAAAElFTkSuQmCC'
-                                if(!emptyCubeMap) emptyCubeMap = redGL.createCubeTextureInfo([t, t, t, t, t, t])
+                                if (!emptyCubeMap) emptyCubeMap = redGL.createCubeTextureInfo([t, t, t, t, t, t])
                                 emptyCube[tUseMapKey] = emptyCubeMap
-                               
                                 tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex[useMap[i3][2]])
                                 tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, emptyCube[tUseMapKey]['texture'])
                                 tGL.uniform1i(tProgramInfo['uniforms'][tUseMapTextureKey]['location'], RedTextureIndex[useMap[i3][2]])
                                 // emptyCube ['uUseReflectionTexture', 'uReflectionTexture', 'CUBE_REFLECTION']
-                               
+                                console.log('언제오니')
                             }
                         }
-                       
+
                         if (tMaterial[tUseMapTextureKey] && tMaterial[tUseMapTextureKey]['loaded']) {
                             if (
-                                tMaterial[tUseMapTextureKey]['__targetIndex'] !=undefined
+                                tMaterial[tUseMapTextureKey]['__targetIndex'] != undefined
                                 && tMaterial[tUseMapTextureKey]['__targetIndex'] != RedTextureIndex[useMap[i3][2]]
                             ) {
                                 console.log(tMaterial[tUseMapTextureKey])
@@ -4368,14 +4368,18 @@ var RedBaseRenderInfo;
                                 throw useMap[i3][2] + " 인덱스타입이 아닙니다."
                             }
                             // tGL.uniform1i(tProgramInfo['uniforms'][[tUseMapKey]]['location'], 1)
-                            cacheUseTexture[tUseMapTextureKey] == 1 ? 0 : tGL.uniform1i(tProgramInfo['uniforms'][[tUseMapKey]]['location'], 1)
-                            cacheUseTexture[tUseMapTextureKey] = 1
+                            cacheUseTexture[tUseMapKey] == 1 ? 0 : tGL.uniform1i(tProgramInfo['uniforms'][tUseMapKey]['location'], 1)
+                            cacheUseTexture[tUseMapKey] = 1
+
+
                         } else {
                             // tGL.uniform1i(tProgramInfo['uniforms'][[tUseMapKey]]['location'], 0)
-                            cacheUseTexture[tUseMapTextureKey] == 0 ? 0 : tGL.uniform1i(tProgramInfo['uniforms'][[tUseMapKey]]['location'], 0)
-                            cacheUseTexture[tUseMapTextureKey] = 0
+                            // console.log('tUseMapKey',tUseMapKey)
+                            cacheUseTexture[tUseMapKey] == 0 ? 0 : tGL.uniform1i(tProgramInfo['uniforms'][tUseMapKey]['location'], 0)
+                            cacheUseTexture[tUseMapKey] = 0
                         }
-                        
+
+
                     }
                 }
                 /////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -4386,9 +4390,9 @@ var RedBaseRenderInfo;
                 if (tProgramUniformLocationGroup['uNMatrix']) {
                     //클론
                     tNMatrix[0] = tMVMatrix[0], tNMatrix[1] = tMVMatrix[1], tNMatrix[2] = tMVMatrix[2], tNMatrix[3] = tMVMatrix[3],
-                    tNMatrix[4] = tMVMatrix[4], tNMatrix[5] = tMVMatrix[5], tNMatrix[6] = tMVMatrix[6], tNMatrix[7] = tMVMatrix[7],
-                    tNMatrix[8] = tMVMatrix[8], tNMatrix[9] = tMVMatrix[9], tNMatrix[10] = tMVMatrix[10], tNMatrix[11] = tMVMatrix[11],
-                    tNMatrix[12] = tMVMatrix[12], tNMatrix[13] = tMVMatrix[13], tNMatrix[14] = tMVMatrix[14], tNMatrix[15] = tMVMatrix[15]
+                        tNMatrix[4] = tMVMatrix[4], tNMatrix[5] = tMVMatrix[5], tNMatrix[6] = tMVMatrix[6], tNMatrix[7] = tMVMatrix[7],
+                        tNMatrix[8] = tMVMatrix[8], tNMatrix[9] = tMVMatrix[9], tNMatrix[10] = tMVMatrix[10], tNMatrix[11] = tMVMatrix[11],
+                        tNMatrix[12] = tMVMatrix[12], tNMatrix[13] = tMVMatrix[13], tNMatrix[14] = tMVMatrix[14], tNMatrix[15] = tMVMatrix[15]
                     // mat4Inverse
                     var inverse_c = tNMatrix[0], inverse_d = tNMatrix[1], inverse_e = tNMatrix[2], inverse_g = tNMatrix[3],
                         inverse_f = tNMatrix[4], inverse_h = tNMatrix[5], inverse_i = tNMatrix[6], inverse_j = tNMatrix[7],
@@ -4457,13 +4461,13 @@ var RedBaseRenderInfo;
                 // 최종 드로잉결절
                 if (tIndicesBuffer) {
                     if (bitmapRenderable) {
-                        cacheDrawBufferUUID == tIndicesBuffer[ '__UUID' ] ? 0 : tGL.bindBuffer(tGL.ELEMENT_ARRAY_BUFFER, tIndicesBuffer['buffer'])
+                        cacheDrawBufferUUID == tIndicesBuffer['__UUID'] ? 0 : tGL.bindBuffer(tGL.ELEMENT_ARRAY_BUFFER, tIndicesBuffer['buffer'])
                         tGL.drawElements(tMesh['drawMode'], tIndicesBuffer['pointNum'], tGL.UNSIGNED_SHORT, 0)
-                        cacheDrawBufferUUID = tIndicesBuffer[ '__UUID' ]
+                        cacheDrawBufferUUID = tIndicesBuffer['__UUID']
                     }
                 } else {
                     tGL.drawArrays(tMesh['drawMode'], 0, tVertexPositionBuffer['pointNum'])
-                    cacheDrawBufferUUID = tVertexPositionBuffer[ '__UUID' ]
+                    cacheDrawBufferUUID = tVertexPositionBuffer['__UUID']
                 }
                 // 자식을 콜
                 tMesh['children'].length ? self.draw(tMesh['children'], time, tMVMatrix) : 0
@@ -4791,7 +4795,12 @@ var REDGL_UUID; // 내부에서 사용할 고유아이디
 
 		instanceList.push(this)
 		console.log(shaderSourceInfo, callback)
-		this['__nullTexture'] = this.createTextureInfo('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NzMxRDhBQzRFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NzMxRDhBQzVFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo3MzFEOEFDMkU1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo3MzFEOEFDM0U1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuojYFUAAAAQSURBVHjaYvj//z8DQIABAAj8Av7bok0WAAAAAElFTkSuQmCC')
+		this['__nullTexture'] = this.createTextureInfo('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NzMxRDhBQzRFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NzMxRDhBQzVFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo3MzFEOEFDMkU1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo3MzFEOEFDM0U1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuojYFUAAAAQSURBVHjaYvj//z8DQIABAAj8Av7bok0WAAAAAElFTkSuQmCC',0)
+		// var t;
+		// t = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NzMxRDhBQzRFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NzMxRDhBQzVFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo3MzFEOEFDMkU1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo3MzFEOEFDM0U1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuojYFUAAAAQSURBVHjaYvj//z8DQIABAAj8Av7bok0WAAAAAElFTkSuQmCC'
+		// this.createCubeTextureInfo([t, t, t, t, t, t])
+		
+
 		if (shaderSourceInfo) RedShaderLoader(this, shaderSourceInfo, callback)
 		else callback ? callback() : 0
 		

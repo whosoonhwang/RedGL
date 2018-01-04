@@ -92,10 +92,11 @@ var RedAtlasTextureManager;
 		tRedGL = redGL
 		MAX_TEXTURE_SIZE = redGL['detect']['MAX_TEXTURE_SIZE']
 		MAX_TEXTURE_IMAGE_UNITS = redGL['detect']['MAX_TEXTURE_IMAGE_UNITS']
-		if (tTextureUnitIndex == undefined) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 4)
-		if (MAX_TEXTURE_SIZE > 4096) MAX_TEXTURE_SIZE = 4096
+		if (tTextureUnitIndex == undefined) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 5)
+		if (MAX_TEXTURE_SIZE > 2048 * 2) MAX_TEXTURE_SIZE = 2048 * 2
 		console.log('MAX_TEXTURE_SIZE', MAX_TEXTURE_SIZE)
 		console.log('MAX_TEXTURE_IMAGE_UNITS', MAX_TEXTURE_IMAGE_UNITS)
+		console.log('tTextureUnitIndex',tTextureUnitIndex)
 		if (!tAtlas) createAtlas()
 		var loaded, targetNum;
 		loaded = 0

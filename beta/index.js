@@ -80,10 +80,10 @@ start = function () {
 	testScene.children.push(tMesh)
 
 	// 중앙 테스트용 구체...정렬
-	var i, max = 1
+	var i, max = 80
 	i = max
 	while (i--) {
-		var tMesh = testGL.createMeshInfo('testMeshAdd1' + i, RedPrimitive.sphere(testGL, 1, 32, 32, 32), testMatBitmap)
+		var tMesh = testGL.createMeshInfo('testMeshAdd1' + i, RedPrimitive.sphere(testGL, 2, 32, 32, 32), testMatBitmap2)
 		tMesh.position[0] = Math.sin(Math.PI * 2 / max * i) * 40
 		tMesh.position[1] = 0
 		tMesh.position[2] = Math.cos(Math.PI * 2 / max * i) * 40
@@ -123,7 +123,7 @@ start = function () {
 	}
 
 	// 무작위로 가보자
-	var i = 50, j
+	var i = 60, j
 	while (i--) {
 		j = 30
 		while (j--) {
@@ -142,7 +142,7 @@ start = function () {
 		}
 		j = 30
 		while (j--) {
-			var tMesh = testGL.createMeshInfo('testMeshAdd3' + '_' + i + '_' + j, RedPrimitive.sphere(testGL, 0.5, 16, 16, 16), testMatBitmap)
+			var tMesh = testGL.createMeshInfo('testMeshAdd3' + '_' + i + '_' + j, RedPrimitive.sphere(testGL, 0.5, 16, 16, 16), testMatBitmap2)
 			// var tMesh = testGL.createMeshInfo('testMeshAdd1'+i, RedPrimitive.cube(testGL,1,1,1,32,32,32), testMatBitmap)
 			tMesh.position[0] = Math.sin(Math.PI * 2 * Math.random()) * 40
 			tMesh.position[1] = Math.sin(Math.PI * 2 * Math.random()) * 40

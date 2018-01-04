@@ -48,7 +48,7 @@ var RedSkyBoxInfo;
         if (!(srcList instanceof Array)) throw 'srcList는 Array만 허용됩니다.'
         if (srcList.length != 6) throw 'srcList는 6개여야 합니다.'
         RedMeshBaseInfo.call(this, redGL)
-        this['materialInfo'] = RedMaterialInfo(redGL, 'skyBox', RedCubeTextureInfo(redGL, srcList))
+        this['materialInfo'] = RedMaterialInfo(redGL, 'skyBox', RedCubeTextureInfo(redGL, srcList,RedTextureIndex.CUBE_DIFFUSE))
         this['geometryInfo'] = RedPrimitive.cube(redGL)
          // 스카이박스 스케일은 카메라 far와 연동됨
         this['scale'][0] = 1000
