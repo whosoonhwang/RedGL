@@ -184,38 +184,38 @@ var RedMaterialInfo;
             this['__uniformList'] = []
             var tUniformGroup = this['materialUniforms']
             var tUniformLocationGroup = this['programInfo']['uniforms']
-            var tType2
+            var tRenderType
+           
             for (k in tUniformGroup) {
-                // console.log('//////////////////////////////////////')
-                // console.log(k)
-                // console.log(tUniformLocationGroup)
-                // console.log(tUniformLocationGroup[k])
-                // console.log(tUniformLocationGroup[k]['type'])
-                // console.log(tUniformGroup[k])
-                // console.log(tUniformLocationGroup[k]['location'])
-                // console.log(tUniformLocationGroup)
-                // console.log('//////////////////////////////////////')
-                tType2 = undefined
+                console.log('//////////////////////////////////////')
+                console.log(k)
+                console.log(tUniformLocationGroup)
+                console.log(tUniformLocationGroup[k])
+                console.log(tUniformLocationGroup[k]['type'])
+                console.log(tUniformGroup[k])
+                console.log(tUniformLocationGroup[k]['location'])
+                console.log(tUniformLocationGroup)
+                console.log('//////////////////////////////////////')
+                var tObj;
+                tObj = {}
+                tRenderType = undefined
                 if(!tUniformLocationGroup.hasOwnProperty(k)) throw 'RedMaterialInfo : 유니폼명 : '+k+' / 쉐이더에 정의되지 않은 유니폼에 접근하려고합니다.'
                 if (tUniformLocationGroup[k]['type'] == 'samplerCube' || tUniformLocationGroup[k]['type'] == 'sampler2D') {
-                    tType2 = 'sampler'
+                    tRenderType = RedConst.SAMPLER
                 }
                 if (tUniformLocationGroup[k]['type'] == 'vec2' || tUniformLocationGroup[k]['type'] == 'vec3' || tUniformLocationGroup[k]['type'] == 'vec4') {
-                    tType2 = 'vec'
+                    tRenderType = RedConst.VEC
                 }
                 if (tUniformLocationGroup[k]['type'] == 'mat2' || tUniformLocationGroup[k]['type'] == 'mat3' || tUniformLocationGroup[k]['type'] == 'mat4') {
-                    tType2 = 'mat'
+                    tRenderType = RedConst.MAT
                 }
-                if (k =='uAtlascoord') {
-                    tType2 = 'atlascoord'
-                }
-                if (tUniformLocationGroup[k]['type'] == 'int' || tUniformLocationGroup[k]['type'] == ['float']) {
-                    tType2 = tUniformLocationGroup[k]['type']
-                }
+                if (k == 'uAtlascoord') tRenderType = RedConst.ATLASCOORD
+                if (tUniformLocationGroup[k]['type'] == 'int') tRenderType = RedConst.INT
+                if (tUniformLocationGroup[k]['type'] == ['float']) tRenderType = RedConst.FLOAT
                 this['__uniformList'].push({
                     key: k,
                     type: tUniformLocationGroup[k]['type'],
-                    type2: tType2,
+                    renderType: tRenderType,
                     value: tUniformGroup[k],
                     location: tUniformLocationGroup[k]['location']
                 })

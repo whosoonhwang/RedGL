@@ -53,7 +53,7 @@ var RedTextureInfo;
 		internalFormat = internalFormat ? internalFormat : tGL.RGBA;
 		format = format ? format : tGL.RGBA;
 		type = type ? type : tGL.UNSIGNED_BYTE;
-		targetIndex = targetIndex ? targetIndex : RedTextureIndex.DIFFUSE
+		targetIndex = targetIndex==undefined ? RedTextureIndex.DIFFUSE : targetIndex
 		if (!nullTexture) {
 			nullTexture = tGL.createTexture()
 			tGL.activeTexture(tGL.TEXTURE0)

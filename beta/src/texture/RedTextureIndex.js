@@ -41,7 +41,7 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		DIFFUSE: 2,
+		DIFFUSE: 1,
 		/**DOC:
 		{
 			title :`NORMAL`,
@@ -80,7 +80,9 @@ var RedTextureIndex;
 		ETC_VERTEX_2: 7,
 		ETC_FRAGMENT_1: 8,
 		ETC_FRAGMENT_2: 9,
+		
 		/////////////////////
+		CUBE_CREATE: 16,
 		/**DOC:
 			{
 			title :`CUBE_DIFFUSE`,
@@ -91,7 +93,7 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		CUBE_DIFFUSE: 10,
+		CUBE_DIFFUSE: 17,
 		/**DOC:
 			{
 			title :`CUBE_REFLECTION`,
@@ -102,8 +104,8 @@ var RedTextureIndex;
 			return : 'Integer'
 		}
 		:DOC*/
-		CUBE_REFLECTION: 11,
-		CUBE_REFRACTION: 12
+		CUBE_REFLECTION: 18,
+		CUBE_REFRACTION: 19
 		
 	}
 	Object.freeze(RedTextureIndex)
