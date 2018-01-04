@@ -1,8 +1,15 @@
 [
   {
+    "title": "atlas",
+    "code": "PROPERTY",
+    "description": "\n    Atlas정보(Atlas).\n",
+    "example": "\n    인스턴스.atlas\n",
+    "return": "Atlas Instance"
+  },
+  {
     "constructorYn": true,
     "title": "RedAtlasInfo",
-    "description": "\n    - <b>RedAtlasTextureManager</b>에 의해 자동 생성된 <b>RedAtlasInfo</b>.\n    - 고유값으로 캐싱되며, 사용자 생성은 금지한다.\n    - 하드웨어가 지원하는 최대크기(최대 4096*4096으로 제한)의 <b>Atlas</b>객체를 가진다.\n    - 소스맵을 기반으로 <b>RedAtlasTextureInfo</b>를 내부적으로 가진다.\n    - <b>Atlas</b>정보가 업데이트되면 자동 갱신된다.\n    - Object.seal 상태로 반환.\n",
+    "description": "\n    - <b>RedAtlasTextureManager</b>에 의해 자동 생성된 <b>RedAtlasInfo</b>.\n    - 고유값으로 캐싱되며, 사용자 생성은 금지한다.\n    - 하드웨어가 지원하는 최대크기(최대 4096*4096으로 제한)의 <b>Atlas</b>객체를 가진다.\n    - <b>Atlas</b>정보가 업데이트되면 자동 갱신된다.\n",
     "params": {
       "redGL": [
         {
@@ -20,17 +27,10 @@
     "return": "RedAtlasInfo Instance"
   },
   {
-    "title": "RedAtlasInfo",
-    "code": "PROPERTY",
-    "description": "\n    Atlas정보(Atlas).\n",
-    "example": "\n    인스턴스.atlas\n",
-    "return": "Atlas Instance"
-  },
-  {
     "title": "textureInfo",
     "code": "PROPERTY",
-    "description": "\n    텍스쳐 정보(RedAtlasTextureInfo)\n",
+    "description": "\n    - 텍스쳐 정보(RedTextureInfo)\n    - 시스템에서 자동으로 생성관리함.\n",
     "example": "\n    인스턴스.textureInfo\n",
-    "return": "RedAtlasTextureInfo를 Instance"
+    "return": "RedTextureInfo Instance"
   }
 ]

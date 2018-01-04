@@ -1,8 +1,9 @@
 precision lowp float;
 varying vec2 vTexcoord;
-uniform sampler2D uTexture;
+uniform sampler2D uDiffuseTexture;
+uniform int uUseDiffuseTexture; // 노말텍스쳐 사용여부
+vec4 finalColor;
 void main(void) {
-    vec4 texelColor = texture2D(uTexture, vTexcoord);
-    if(texelColor.a==0.0) discard;
-    gl_FragColor = texelColor;
+     if(uUseDiffuseTexture == 1) finalColor = texture2D(uDiffuseTexture, vTexcoord);;    
+    gl_FragColor = finalColor;
 }

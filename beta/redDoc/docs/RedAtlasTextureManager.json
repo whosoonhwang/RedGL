@@ -9,7 +9,7 @@
   {
     "constructorYn": true,
     "title": "RedAtlasTextureManager",
-    "description": "\n    - <b>Atlas를 생성하고 텍스쳐관련작업을 자동으로 관리하는 오브젝트</b>\n",
+    "description": "\n- <b>Atlas를 생성하고 텍스쳐관련작업을 자동으로 관리하는 오브젝트</b>\n- 아틀라스 사이즈는 하드웨어지원 최대크기로 자동설정된다(최대 4096)\n- 단 DIFFUSE로서만 이용할수 있다. \n",
     "params": {
       "redGL": [
         {
@@ -31,6 +31,6 @@
       ]
     },
     "example": "\n    RedAtlasTextureManager(redGLInstance, 원하는경로, 콜백이필요하면 콜백)\n",
-    "return": "RedAtlasTextureManager OBJECT"
+    "return": "void"
   }
 ]

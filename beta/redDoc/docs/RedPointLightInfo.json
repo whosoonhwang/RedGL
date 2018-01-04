@@ -36,10 +36,10 @@
     "return": "RedPointLightInfo Instance"
   },
   {
-    "title": "usedebugMode",
+    "title": "useDebugMode",
     "description": "디버그모드 사용여부",
     "code": "PROPERTY",
-    "example": "인스턴스.usedebugMode",
+    "example": "인스턴스.useDebugMode",
     "return": "Boolean"
   }
 ]

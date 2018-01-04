@@ -73,20 +73,18 @@ var RedShaderInfo;
     var tDatas;
     RedShaderInfo = function (redGL, key, type, source) {
         if (!(this instanceof RedShaderInfo)) return new RedShaderInfo(redGL, key, type, source)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof key != 'string') throw 'key - 문자열만 허용됩니다.'
-        if (typeof type != 'string') throw 'type - 문자열만 허용됩니다.'
-        if (typeof source != 'string') throw 'source - 문자열만 허용됩니다.'
+        if (!(redGL instanceof RedGL)) throw 'RedShaderInfo : RedGL 인스턴스만 허용됩니다.'
+        if (typeof key != 'string') throw 'RedShaderInfo : key - 문자열만 허용됩니다.'
+        if (typeof type != 'string') throw 'RedShaderInfo : type - 문자열만 허용됩니다.'
+        if (typeof source != 'string') throw 'RedShaderInfo : source - 문자열만 허용됩니다.'
         // 저장할 공간확보하고
         if (!redGL['__datas']['shaderInfo']) {
             redGL['__datas']['shaderInfo'] = {}
             redGL['__datas']['shaderInfo'][RedShaderInfo.FRAGMENT_SHADER] = {}
             redGL['__datas']['shaderInfo'][RedShaderInfo.VERTEX_SHADER] = {}
         }
-        tDatas = redGL['__datas']['shaderInfo']
-        // 기존에 등록된 녀석이면 퐈이어!
-        if (tDatas[type][key]) throw key + '는 '+type+'정보에 이미 존재하는 RedShaderInfo 입니다.'
         tGL = redGL.gl
+        tDatas = redGL['__datas']['shaderInfo']
         // 쉐이더생성
         switch (type) {
             case RedShaderInfo.VERTEX_SHADER:
@@ -96,17 +94,21 @@ var RedShaderInfo;
                 tShader = tGL.createShader(tGL.FRAGMENT_SHADER);
                 break
             default:
-                throw '쉐이더 타입을 확인하세요!'
+                throw 'RedShaderInfo : 쉐이더 타입을 확인하세요!'
                 break
         }
+        // 기존에 등록된 녀석이면 퐈이어!
+        if (tDatas[type][key]) throw key + '는 ' + type + '정보에 이미 존재하는 RedShaderInfo 입니다.'
+        // 소스입력 및 컴파일        
         tGL.shaderSource(tShader, source)
         tGL.compileShader(tShader)
         if (!tGL.getShaderParameter(tShader, tGL.COMPILE_STATUS)) {
             console.log(tGL.getShaderInfoLog(tShader))
-            throw '쉐이더 컴파일에 실패하였습니다.';
+            throw tGL.getShaderInfoLog(tShader) + '쉐이더 컴파일에 실패하였습니다.';
         }
         parseData = source.match(/attribute[\s\S]+?\;|uniform[\s\S]+?\;/g)
-        console.log(source,parseData)
+        console.log(source, parseData)
+        parseData = parseData ? parseData : []
         parseData.forEach(function (v, index) {
             parseData[index] = v.trim().replace(';', '').split('[')[0]
         })
@@ -131,7 +133,7 @@ var RedShaderInfo;
         /**DOC:
 		{
             title :`shader`,
-			description : `실제 쉐이더`,
+			description : `실제 쉐이더(WebGLShader instance)`,
 			example : `인스턴스.shader`,
 			return : 'String'
 		}
@@ -140,7 +142,10 @@ var RedShaderInfo;
         /**DOC:
 		{
             title :`parseData`,
-			description : `쉐이더소스 내부의 attribute와 uniform정보를 추출하여 가짐.(인스턴스.parseData)`,
+            description : `
+            - 쉐이더소스 내부의 attribute와 uniform정보를 추출하여 가짐.
+            - (인스턴스.parseData)
+            `,
 			example : `인스턴스.parseData`,
 			return : 'String'
 		}
@@ -152,6 +157,34 @@ var RedShaderInfo;
         Object.freeze(this)
         // console.log(this)
     }
+    /**DOC:
+		{
+            title :`RedShaderInfo.getSourceFromScript`,
+            code: 'FUNCTION',
+			description : `
+				Script태그로보터 소스 문자열을 가져오는 스타틱 매서드
+			`,
+			example : `
+				RedShaderInfo.getSourceFromScript
+			`,
+			return : 'String'
+		}
+	:DOC*/
+    RedShaderInfo.getSourceFromScript = (function () {
+        var shaderScript
+        var str, k;
+        return function (id) {
+            shaderScript = document.getElementById(id)
+            if (!shaderScript) throw "쉐이더소스가 없음!"
+            str = "";
+            k = shaderScript.firstChild;
+            while (k) {
+                if (k.nodeType == 3) str += k.textContent;
+                k = k.nextSibling;
+            }
+            return str
+        }
+    })()
     /**DOC:
 		{
             title :`FRAGMENT_SHADER`,
@@ -189,7 +222,7 @@ var RedShaderInfo;
         title :`RedProgramInfo`,
         description : `
             - RedProgramInfo 인스턴스 생성자
-            - <b>유일키</b>만 지원하며 키 중복일경우 기존 캐싱된 프로그램 정보를 반환함.
+            - <b>유일키</b>만 지원.
             - 프로그램 정보는 <b>Object.freeze</b> 상태로 반환됨.
         `,
         params : {
@@ -217,7 +250,14 @@ var RedShaderInfo;
             test.createProgramInfo(
                 'basic',
                 test.getShaderInfo('basic', RedProgramInfo.VERTEX_SHADER),
-                test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER)
+                test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER),
+                function (target) {
+                    target.materialUniforms.uAtlascoord = RedAtlasUVInfo([0, 0, 1, 1])
+                },
+                function (target) {
+                    target.materialUniforms['RedMaterialInfo.DIFFUSE_TEXTURE'] = target['uDiffuseTexture']
+                }
+
             )
         `,
         return : 'RedProgramInfo Instance'
@@ -232,20 +272,21 @@ var RedProgramInfo;
     var self;
     var tList;
     tList = []
-    RedProgramInfo = function (redGL, key, vShaderInfo, fShaderInfo, makeUniformValue) {
-        if (!(this instanceof RedProgramInfo)) return new RedProgramInfo(redGL, key, vShaderInfo, fShaderInfo, makeUniformValue)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof key != 'string') throw 'key - 문자열만 허용됩니다.'
-        if( !makeUniformValue) throw 'makeUniformValue - 반드시 정의해야합니다.'
-        if (!vShaderInfo instanceof RedShaderInfo) throw 'vShaderInfo - RedShaderInfo만 허용됩니다.'
-        if (!fShaderInfo instanceof RedShaderInfo) throw 'fShaderInfo - RedShaderInfo만 허용됩니다.'
+    RedProgramInfo = function (redGL, key, vShaderInfo, fShaderInfo, initUniformValue, defineTexture) {
+        if (!(this instanceof RedProgramInfo)) return new RedProgramInfo(redGL, key, vShaderInfo, fShaderInfo, initUniformValue, defineTexture)
+        if (!(redGL instanceof RedGL)) throw 'RedProgramInfo : RedGL 인스턴스만 허용됩니다.'
+        if (typeof key != 'string') throw 'RedProgramInfo : key - 문자열만 허용됩니다.'
+        if (!initUniformValue) throw 'RedProgramInfo : initUniformValue - 반드시 정의해야합니다.'
+        if (!vShaderInfo instanceof RedShaderInfo) throw 'RedProgramInfo : vShaderInfo - RedShaderInfo만 허용됩니다.'
+        if (!fShaderInfo instanceof RedShaderInfo) throw 'RedProgramInfo : fShaderInfo - RedShaderInfo만 허용됩니다.'
+        if (vShaderInfo['type'] != RedShaderInfo.VERTEX_SHADER) throw 'RedProgramInfo : vShaderInfo - VERTEX_SHADER 타입만 허용됩니다.'
+        if (fShaderInfo['type'] != RedShaderInfo.FRAGMENT_SHADER) throw 'RedProgramInfo : fShaderInfo - FRAGMENT_SHADER 타입만 허용됩니다.'
         // 저장할 공간확보하고
-        if (!redGL['__datas']['RedProgramInfo']) {
-            redGL['__datas']['RedProgramInfo'] = {}
-        }
+        if (!redGL['__datas']['RedProgramInfo']) redGL['__datas']['RedProgramInfo'] = {}
         tDatas = redGL['__datas']['RedProgramInfo']
-        // 기존에 등록된 녀석이면 기존 데이터 리턴
-        if (tDatas[key]) return console.log('캐싱프로그램 리턴!', key), tDatas[key]
+        // 기존에 등록된 녀석이면 퐈이어!
+        if (tDatas[key]) throw key + '는 이미 존재하는 RedProgramInfo key 입니다.'
+        self = this;
         tGL = redGL.gl
         /**DOC:
 		{
@@ -274,15 +315,16 @@ var RedProgramInfo;
 		}
 	    :DOC*/
         this['uniforms'] = {}
-        self = this;
+
         // 프로그램생성!
         tProgram = tGL.createProgram();
+        console.log(key)
         tGL.attachShader(tProgram, vShaderInfo['shader'])
         tGL.attachShader(tProgram, fShaderInfo['shader'])
         tGL.linkProgram(tProgram)
         // 프로그램 링크 확인
         if (!tGL.getProgramParameter(tProgram, tGL.LINK_STATUS)) throw "프로그램을 초기화 할 수 없습니다." +
-        tGL.useProgram(tProgram);
+            tGL.useProgram(tProgram);
         info = {}
         tList.length = 0
         tList.push(vShaderInfo, fShaderInfo)
@@ -299,6 +341,7 @@ var RedProgramInfo;
                         self['attributes'][v[2]] = tInfo
                     } else {
                         tInfo['location'] = tGL.getUniformLocation(tProgram, v[2]);
+                        if (tInfo['location']) tInfo['location']['__UUID'] = REDGL_UUID++
                         tInfo['type'] = v[1]
                         self['uniforms'][v[2]] = tInfo
                     }
@@ -329,16 +372,26 @@ var RedProgramInfo;
         this['__UUID'] = REDGL_UUID++
         /**DOC:
 		{
-            title :`makeUniformValue`,
+            title :`initUniformValue`,
             description : `
-             - 재질마다 필요한 유니폼에대한 정의를 내리는 함수.
-             - RedMaterialDefine에 의해 재질을 정의할때 이 함수가 호출되어 재질이 알고있어야 할 유니폼정보가 추가된다. 
+             - 재질 초기화시 필요한 초기 값들선언.
             `,
-			example : `인스턴스.makeUniformValue`,
-			return : 'Object'
+			example : `인스턴스.initUniformValue`,
+			return : 'void'
 		}
 	    :DOC*/
-        this['makeUniformValue'] = makeUniformValue
+        this['initUniformValue'] = initUniformValue
+        /**DOC:
+		{
+            title :`defineTexture`,
+            description : `
+             - 재질의 텍스쳐 갱신시 실행할 매서드
+            `,
+			example : `인스턴스.defineTexture`,
+			return : 'void'
+		}
+	    :DOC*/
+        this['defineTexture'] = defineTexture
         // 캐싱
         tDatas[key] = this
         Object.freeze(this)
@@ -346,364 +399,6 @@ var RedProgramInfo;
     }
 
     Object.freeze(RedProgramInfo)
-})();
-"use strict";
-var RedBaseCameraInfo;
-/**DOC:
-    {
-        constructorYn : true,
-        title :`RedBaseCameraInfo`,
-        description : `
-            - RedBaseCameraInfo 가장 기본적인 카메라 생성기
-        `,
-        example : `
-            testGL.createBaseCameraInfo('testCamera')
-        `,
-        return : 'RedBaseCameraInfo Instance'
-    }
-:DOC*/
-(function () {
-    var tDatas;
-    RedBaseCameraInfo = function (redGL, key) {
-        if (!(this instanceof RedBaseCameraInfo)) return new RedBaseCameraInfo(redGL, key)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof key != 'string') throw 'key는 문자열만 허용됩니다.'
-        var aspect
-        // 저장할 공간확보하고
-        if (!redGL['__datas']['RedBaseCameraInfo']) redGL['__datas']['RedBaseCameraInfo'] = {}
-        tDatas = redGL['__datas']['RedBaseCameraInfo']
-        // 기존에 등록된 녀석이면 퐈이어!
-        if (tDatas[key]) throw key + '는 이미 존재하는 RedBaseCameraInfo 입니다.'
-        /**DOC:
-            {
-                title :`uPMatrix`,
-                code : 'PROPERTY',
-                description : `
-                    - 퍼스펙티브 매트릭스
-                    - 고정유니폼으로서 쉐이더내에 uPMatrix 유니폼과 연동된다.
-                `,
-                return : 'mat4(Float32Arrat)'
-            }
-        :DOC*/
-        Object.defineProperty(this, 'uPMatrix', {
-            value: mat4.create(),
-            enumerable: true
-        })
-        /**DOC:
-            {
-                title :`uCameraMatrix`,
-                description : `
-                    - 카메라 매트릭스
-                    - 고정유니폼으로서 쉐이더내에 uCameraMatrix 유니폼과 연동된다.
-                `,
-                return : 'mat4(Float32Arrat)'
-            }
-        :DOC*/
-        Object.defineProperty(this, 'uCameraMatrix', {
-            value: mat4.create(),
-            enumerable: true
-        })
-        /**DOC:
-            {
-                title :`fov`,
-                description : `
-                    - 카메라 fov
-                    - 기본값 45(실제 연산시에는 라디안으로 적용해서 계산됨)
-                `,
-                return : 'Number'
-            }
-        :DOC*/
-        this['fov'] = 45
-        /**DOC:
-            {
-                title :`aspect`,
-                description : `- 카메라 aspect`,
-                return : 'Number'
-            }
-        :DOC*/
-        this['aspect'] = 0.1;
-        /**DOC:
-            {
-                title :`near`,
-                description : `
-                    - 카메라 near
-                    - 기본값 0.1
-                `,
-                return : 'Number'
-            }
-        :DOC*/
-        this['near'] = 0.1
-        /**DOC:
-            {
-                title :`far`,
-                description : `
-                    - 카메라 far
-                    - 기본값 1000.0
-                `,
-                return : 'Number'
-            }
-        :DOC*/
-        this['far'] = 1000.0
-        Object.defineProperty(this, '__desiredCoords', {
-            value: new Float32Array([0, 0, 0]),
-            enumerable: true
-        })
-        Object.defineProperty(this, '__desiredRotation', {
-            value: new Float32Array([0, 0, 0]),
-            enumerable: true
-        })
-        this['__UUID'] = REDGL_UUID++
-        this['__canvas'] = redGL.__canvas
-        this.update()
-        // 캐싱
-        tDatas[key] = this
-    }
-    var tempRotationMTX = mat4.create()
-    RedBaseCameraInfo.prototype = {
-        /**DOC:
-            {
-                title :`setPosition`,
-                code : 'FUNCTION',
-                description : `
-                    - 포지션 설정매서드.
-                `,
-                params : {
-                    x : [
-                        {type:'Number'},
-                        `x포지션`
-                    ],
-                    y : [
-                        {type:'Number'},
-                        `y포지션`
-                    ],
-                    z : [
-                        {type:'Number'},
-                        `z포지션`
-                    ]
-                },
-                return : 'RedBaseCameraInfo Instance'
-            }
-        :DOC*/
-        setPosition: function (x, y, z) {
-            this['__desiredCoords'][0] = x
-            this['__desiredCoords'][1] = y
-            this['__desiredCoords'][2] = z
-            return this
-        },
-        /**DOC:
-            {
-                title :`moveForward`,
-                code : 'FUNCTION',
-                description : `
-                    - TODO: 카메라 시점에서 앞으로 이동
-                `,
-                return : 'RedBaseCameraInfo Instance'
-            }
-        :DOC*/
-        moveForward: function (v) {
-            //TODO:
-        },
-        /**DOC:
-            {
-                title :`moveBack`,
-                code : 'FUNCTION',
-                description : `
-                    - TODO: 카메라 시점에서 뒤로 이동
-                `,
-                return : 'RedBaseCameraInfo Instance'
-            }
-        :DOC*/
-        moveBack: function (v) {
-            //TODO:
-        },
-        /**DOC:
-            {
-                title :`moveLeft`,
-                code : 'FUNCTION',
-                description : `
-                    - TODO: 카메라 시점에서 왼쪽으로 이동
-                `,
-                return : 'RedBaseCameraInfo Instance'
-            }
-        :DOC*/
-        moveLeft: function (v) {
-            //TODO:
-        },
-        /**DOC:
-            {
-                title :`moveRight`,
-                code : 'FUNCTION',
-                description : `
-                    - TODO: 카메라 시점에서 오른쪽으로 이동
-                `,
-                return : 'RedBaseCameraInfo Instance'
-            }
-        :DOC*/
-        moveRight: function (v) {
-            //TODO:
-        },
-        /**DOC:
-            {
-                title :`moveUp`,
-                code : 'FUNCTION',
-                description : `
-                    - TODO: 카메라 시점에서 위로 이동
-                `,
-                return : 'RedBaseCameraInfo Instance'
-            }
-        :DOC*/
-        moveUp: function (v) {
-            //TODO:
-        },
-        /**DOC:
-            {
-                title :`moveDown`,
-                code : 'FUNCTION',
-                description : `
-                    - TODO: 카메라 시점에서 아래로 이동
-                `,
-                return : 'RedBaseCameraInfo Instance'
-            }
-        :DOC*/
-        moveDown: function (v) {
-            //TODO:
-        },
-        /**DOC:
-            {
-                title :`lookAt`,
-                code : 'FUNCTION',
-                description : `
-                    - 카메라가 targetPosition을 바라보게 설정함.
-                `,
-                params : {
-                    targetPosition : [
-                        {type:'position vec3(Float32Array)'},
-                        `바라볼 포지션`
-                    ]
-                },
-                return : 'RedBaseCameraInfo Instance'
-            }
-        :DOC*/
-        lookAt: (function () {
-            var up = new Float32Array([0, 1, 0]);
-            return function (targetPosition) {
-                //out, eye, center, up
-                mat4.lookAt(this['uCameraMatrix'], this['__desiredCoords'], targetPosition, up);
-            }
-        })(),
-        /**DOC:
-            {
-                title :`update`,
-                code : 'FUNCTION',
-                description : `
-                    - 퍼스팩티브업데이트
-                `,
-                return : 'RedBaseCameraInfo Instance'
-            }
-        :DOC*/
-        update: (function () {
-            return function () {
-                // 퍼스펙티브만 관여
-                this['aspect'] = this['__canvas'].clientWidth / this['__canvas'].clientHeight
-                mat4.identity(this['uPMatrix'])
-                mat4.perspective(this['uPMatrix'], this['fov'] * Math.PI / 180, this['aspect'], this['near'], this['far'])
-                return this
-            }
-        })()
-    }
-    Object.freeze(RedBaseCameraInfo)
-})();
-"use strict";
-var RedCubeTextureInfo;
-(function () {
-	var tGL;
-	/**DOC:
-		{
-			constructorYn : true,
-			title :`RedCubeTextureInfo`,
-			description : `
-				- Cube 텍스쳐 생성기
-				- <h1>실험중...이거하면서 프레임버퍼도 생성해봐야곘군..</h1>
-				- 큐브맵은 tGL.TEXTURE2 인덱스를 전용으로 쓴다.
-			`,
-			return : 'RedCubeTextureInfo Instance'
-		}
-	:DOC*/
-	RedCubeTextureInfo = function (redGL, srcList) {
-		if (!(this instanceof RedCubeTextureInfo)) return new RedCubeTextureInfo(redGL, srcList)
-		if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-		if (!(srcList instanceof Array)) throw 'srcList는 Array만 허용됩니다.'
-		var texture;
-		var i;
-		var loadedNum ;
-		var self;
-		self = this
-		tGL = redGL.gl
-		loadedNum = 0
-		
-		var i = srcList.length
-		this['__imgList'] = []
-		while (i--) {
-			var img = new Image()
-			img.src = srcList[i]
-			img.onload = function(){
-				loadedNum++
-				this.onload = null
-				if(loadedNum==6){
-					self.__allLoaed(tGL)
-				}
-			}
-			this['__imgList'][i] = img
-		}
-	
-		// 인덱스 번호 지정 - 초기생성전담은 0번 인덱스를 사용함
-		this['__targetIndex'] = 0
-		// 로딩이 다되었는지
-		this['loaded'] = 0
-		// 액티브된적이있는지
-		this['actived'] = 0
-		// 웹지엘 텍스쳐인지
-		this['__webglCubeTexture'] = 1
-		this['__UUID'] = REDGL_UUID++
-		tGL.activeTexture(tGL.TEXTURE0)
-		this['texture'] = tGL.createTexture()
-
-	}
-	RedCubeTextureInfo.prototype['__allLoaed'] = function () {
-		// 로딩상태 플래그를 완료로 설정
-		this['loaded'] = 1
-		// 타겟인덱스를 설정함		
-		this['__targetIndex'] = 2 //TODO: 이놈도 동적캐싱을 할지 결정해야하는데...
-		console.log(this)
-		tGL.activeTexture(tGL.TEXTURE0)
-		tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, this['texture'])
-		this['__imgList'].forEach(function (img, index) {
-			
-			// console.log(
-			// 	tGL.TEXTURE_CUBE_MAP_POSITIVE_X,
-			// 	tGL.TEXTURE_CUBE_MAP_NEGATIVE_X,
-			// 	 tGL.TEXTURE_CUBE_MAP_POSITIVE_Y, 
-			// 	 tGL.TEXTURE_CUBE_MAP_NEGATIVE_Y,
-			// 	  tGL.TEXTURE_CUBE_MAP_POSITIVE_Z,
-			// 	   tGL.TEXTURE_CUBE_MAP_NEGATIVE_Z
-			// )
-			tGL.texImage2D(
-				tGL.TEXTURE_CUBE_MAP_POSITIVE_X + index,
-				0,
-				tGL.RGBA,
-				tGL.RGBA,
-				tGL.UNSIGNED_BYTE,
-				img
-			);
-		})
-		
-		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR);
-		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_MIN_FILTER, tGL.LINEAR);
-		tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_S, tGL.CLAMP_TO_EDGE);
-		tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_T, tGL.CLAMP_TO_EDGE);
-		tGL.generateMipmap(tGL.TEXTURE_CUBE_MAP);
-
-	}
 })();
 "use strict";
 /**DOC:
@@ -731,9 +426,10 @@ var RedCubeTextureInfo;
             shaderPointerKey : [
                 {type:'null or String'},
                 '- <b>arrayBuffer일때만 사용</b>',
-                '- Shade내의 바인딩될 attribute이름'
+                '- Shade내의 바인딩될 attribute이름',
+                '- RedFixedAttributeKey를 사용'
             ],
-            arrayData : [
+            typedArrayData : [
                 {type:'TypedArray'},
                 '버퍼 raw data'
             ],
@@ -746,7 +442,7 @@ var RedCubeTextureInfo;
                 '포인트 갯수',
                 '입력하지않으면 rawData/pointSize로 자동입력'
             ],
-            arrayType : [
+            glArrayType : [
                 {type:'glConst'},
                 'ex) gl.FLOAT'
             ],
@@ -788,13 +484,13 @@ var RedBufferInfo;
     var tDatas;
     var tBufferType;
     var tBuffer;
-    RedBufferInfo = function (redGL, bufferType, key, shaderPointerKey, arrayData, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode) {
-        if (!(this instanceof RedBufferInfo)) return new RedBufferInfo(redGL, bufferType, key, shaderPointerKey, arrayData, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof bufferType != 'string') throw 'bufferType - 문자열만 허용됩니다.'
-        if (typeof key != 'string') throw 'key - 문자열만 허용됩니다.'
-        if (bufferType == RedBufferInfo.ARRAY_BUFFER && typeof shaderPointerKey != 'string') throw 'pointer - 문자열만 허용됩니다.'
-        if (typeof pointSize != 'number' || pointSize != parseInt(pointSize)) throw 'pointSize - Integer만 허용됩니다.'
+    RedBufferInfo = function (redGL, bufferType, key, shaderPointerKey, typedArrayData, pointSize, pointNum, glArrayType, normalize, stride, offset, drawMode) {
+        if (!(this instanceof RedBufferInfo)) return new RedBufferInfo(redGL, bufferType, key, shaderPointerKey, typedArrayData, pointSize, pointNum, glArrayType, normalize, stride, offset, drawMode)
+        if (!(redGL instanceof RedGL)) throw 'RedBufferInfo : RedGL 인스턴스만 허용됩니다.'
+        if (typeof bufferType != 'string') throw 'RedBufferInfo : bufferType - 문자열만 허용됩니다.'
+        if (typeof key != 'string') throw 'RedBufferInfo : key - 문자열만 허용됩니다.'
+        if (bufferType == RedBufferInfo.ARRAY_BUFFER && typeof shaderPointerKey != 'string') throw 'RedBufferInfo : shaderPointerKey - 문자열만 허용됩니다.'
+        if (typeof pointSize != 'number' || pointSize != parseInt(pointSize)) throw 'RedBufferInfo : pointSize - Integer만 허용됩니다.'
         // 저장할 공간확보하고
         if (!redGL['__datas']['RedBufferInfo']) {
             redGL['__datas']['RedBufferInfo'] = {}
@@ -809,26 +505,26 @@ var RedBufferInfo;
         switch (bufferType) {
             case RedBufferInfo.ARRAY_BUFFER:
                 bufferType = tGL.ARRAY_BUFFER
-                if (!(arrayData instanceof Float32Array || arrayData instanceof Float64Array)) {
-                    throw 'TypedArray형식을 사용해야합니다.'
+                if (!(typedArrayData instanceof Float32Array || typedArrayData instanceof Float64Array)) {
+                    throw 'RedBufferInfo : bufferType - 올바른 TypedArray(RedBufferInfo.ARRAY_BUFFER)형식을 사용해야합니다.'
                 }
                 break
             case RedBufferInfo.ELEMENT_ARRAY_BUFFER:
                 bufferType = tGL.ELEMENT_ARRAY_BUFFER
                 if (
-                    !(arrayData instanceof Uint8Array ||
-                        arrayData instanceof Uint16Array ||
-                        arrayData instanceof Uint32Array ||
-                        arrayData instanceof Int8Array ||
-                        arrayData instanceof Int16Array ||
-                        arrayData instanceof Int32Array)
-                ) throw 'TypedArray형식을 사용해야합니다.'
+                    !(typedArrayData instanceof Uint8Array ||
+                        typedArrayData instanceof Uint16Array ||
+                        typedArrayData instanceof Uint32Array ||
+                        typedArrayData instanceof Int8Array ||
+                        typedArrayData instanceof Int16Array ||
+                        typedArrayData instanceof Int32Array)
+                ) throw 'RedBufferInfo : bufferType - 올바른 TypedArray(RedBufferInfo.ELEMENT_ARRAY_BUFFER)형식을 사용해야합니다.'
                 break
             default:
-                throw '지원하지 않는 버퍼타입입니다. '
+                throw 'RedBufferInfo : bufferType - 지원하지 않는 버퍼타입입니다. '
         }
         tGL.bindBuffer(bufferType, tBuffer);
-        tGL.bufferData(bufferType, arrayData, drawMode = drawMode ? drawMode : tGL.STATIC_DRAW);
+        tGL.bufferData(bufferType, typedArrayData, drawMode = drawMode ? drawMode : tGL.STATIC_DRAW);
         // 정보생성
         /**DOC:
 		{
@@ -841,28 +537,28 @@ var RedBufferInfo;
         this['shaderPointerKey'] = shaderPointerKey
         /**DOC:
 		{
-            title :`arrayType`,
+            title :`glArrayType`,
             description : `
                 - 버퍼적용시 전달할 타입드 어레이 타입
-                - 입력된 arrayData와 맞지않은 형식일경우..에러방출
+                - 입력된 typedArrayData와 맞지않은 형식일경우..에러방출
             `,
-			example : `인스턴스.arrayType`,
+			example : `인스턴스.glArrayType`,
 			return : 'glConst'
         }
         :DOC*/
-        if (arrayType) {
+        if (glArrayType) {
             var passed = false
-            if (arrayData instanceof Int8Array) { passed = arrayType == tGL.BYTE }
-            else if (arrayData instanceof Uint8Array) { passed = arrayType == tGL.UNSIGNED_BYTE }
-            else if (arrayData instanceof Int16Array) { passed = arrayType == tGL.SHORT }
-            else if (arrayData instanceof Uint16Array) { passed = arrayType == tGL.UNSIGNED_SHORT }
-            else if (arrayData instanceof Int32Array) { passed = arrayType == tGL.INT }
-            else if (arrayData instanceof Uint32Array) { passed = arrayType == tGL.UNSIGNED_INT }
-            else if (arrayData instanceof Float32Array) { passed = arrayType == tGL.FLOAT }
-            if (!passed) throw "arrayData 형식과 arrayType이 맞지않습니다.";
-            this['arrayType'] = arrayType
+            if (typedArrayData instanceof Int8Array) { passed = glArrayType == tGL.BYTE }
+            else if (typedArrayData instanceof Uint8Array) { passed = glArrayType == tGL.UNSIGNED_BYTE }
+            else if (typedArrayData instanceof Uint16Array) { passed = glArrayType == tGL.UNSIGNED_SHORT }
+            else if (typedArrayData instanceof Uint32Array) { passed = glArrayType == tGL.UNSIGNED_INT }
+            else if (typedArrayData instanceof Int16Array) { passed = glArrayType == tGL.SHORT }
+            else if (typedArrayData instanceof Int32Array) { passed = glArrayType == tGL.INT }
+            else if (typedArrayData instanceof Float32Array) { passed = glArrayType == tGL.FLOAT }
+            if (!passed) throw "RedBufferInfo : glArrayType - arrayData 형식과 glArrayType이 맞지않습니다.";
+            this['glArrayType'] = glArrayType
         }
-        else throw '버퍼데이터의 형식을 지정해주세요'
+        else throw 'RedBufferInfo : glArrayType - 버퍼데이터의 형식을 지정해주세요'
         /**DOC:
 		{
             title :`pointSize`,
@@ -872,10 +568,10 @@ var RedBufferInfo;
         }
         :DOC*/
         if (pointSize) this['pointSize'] = pointSize
-        else throw 'pointSize를 입력하세요'
+        else throw 'RedBufferInfo : pointSize를 입력하세요'
         // 포인트수 
 
-        if (typeof (pointNum = pointNum ? pointNum : arrayData.length / pointSize) != 'number' || pointNum != parseInt(pointNum)) throw 'pointNum - Integer만 허용됩니다.'
+        if (typeof (pointNum = pointNum ? pointNum : typedArrayData.length / pointSize) != 'number' || pointNum != parseInt(pointNum)) throw 'pointNum - Integer만 허용됩니다.'
         /**DOC:
 		{
             title :`pointNum`,
@@ -895,8 +591,8 @@ var RedBufferInfo;
 	    :DOC*/
         this['normalize'] = normalize ? normalize : false
         //
-        if (typeof (stride = stride ? stride : 0) != 'number' || stride != parseInt(stride)) throw 'stride - Integer만 허용됩니다.' // 0 = move forward size * sizeof(type) each iteration to get the next position
-        if (typeof (offset = offset ? offset : 0) != 'number' || offset != parseInt(offset)) throw 'offset - Integer만 허용됩니다.' // start at the beginning of the buffer
+        if (typeof (stride = stride ? stride : 0) != 'number' || stride != parseInt(stride)) throw 'RedBufferInfo : stride - Integer만 허용됩니다.' // 0 = move forward size * sizeof(type) each iteration to get the next position
+        if (typeof (offset = offset ? offset : 0) != 'number' || offset != parseInt(offset)) throw 'RedBufferInfo : offset - Integer만 허용됩니다.' // start at the beginning of the buffer
         /**DOC:
 		{
             title :`stride`,
@@ -1075,7 +771,7 @@ Object.freeze(RedFixedAttributeKey)
             ]
         },
         example : `
-            testGL.createGeometryInfo(key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer) 
+            RedGeometryInfo(RedGL인스턴스, key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer)
         `,
         return : 'RedGeometryInfo Instance'
     }
@@ -1087,23 +783,23 @@ var RedGeometryInfo;
     var k;
     RedGeometryInfo = function (redGL, key, verticesBufferInfo, indicesBufferInfo, texcoordBufferInfo, normalBufferInfo) {
         if (!(this instanceof RedGeometryInfo)) return new RedGeometryInfo(redGL, key, verticesBufferInfo, indicesBufferInfo, texcoordBufferInfo, normalBufferInfo)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (verticesBufferInfo && !(verticesBufferInfo instanceof RedBufferInfo)) throw 'verticesBufferInfo는 RedBufferInfo만 가능합니다.'
-        if (indicesBufferInfo && !(indicesBufferInfo instanceof RedBufferInfo)) throw 'indicesBufferInfo RedBufferInfo만 가능합니다.'
-        if (texcoordBufferInfo && !(texcoordBufferInfo instanceof RedBufferInfo)) throw 'texcoordBufferInfo RedBufferInfo만 가능합니다.'
-        if (normalBufferInfo && !(normalBufferInfo instanceof RedBufferInfo)) throw 'normalBufferInfo RedBufferInfo만 가능합니다.'
+        if (!(redGL instanceof RedGL)) throw 'RedGeometryInfo : RedGL 인스턴스만 허용됩니다.'
+        if (verticesBufferInfo && !(verticesBufferInfo instanceof RedBufferInfo)) throw 'RedGeometryInfo : verticesBufferInfo는 RedBufferInfo만 가능합니다.'
+        if (indicesBufferInfo && !(indicesBufferInfo instanceof RedBufferInfo)) throw 'RedGeometryInfo : indicesBufferInfo는 RedBufferInfo만 가능합니다.'
+        if (texcoordBufferInfo && !(texcoordBufferInfo instanceof RedBufferInfo)) throw 'RedGeometryInfo : texcoordBufferInfo는 RedBufferInfo만 가능합니다.'
+        if (normalBufferInfo && !(normalBufferInfo instanceof RedBufferInfo)) throw 'RedGeometryInfo : normalBufferInfo는 RedBufferInfo만 가능합니다.'
         //
-        if (verticesBufferInfo && verticesBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'verticesBufferInfo ARRAY_BUFFER 가능합니다.'
-        if (indicesBufferInfo && indicesBufferInfo.bufferType != RedBufferInfo.ELEMENT_ARRAY_BUFFER) throw 'indicesBufferInfo는 ELEMENT_ARRAY_BUFFER만 가능합니다.'
-        if (texcoordBufferInfo && texcoordBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'texcoordBufferInfo ARRAY_BUFFER 가능합니다.'
-        if (normalBufferInfo && normalBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'normalBufferInfo ARRAY_BUFFER 가능합니다.'
+        if (verticesBufferInfo && verticesBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'RedGeometryInfo : verticesBufferInfo는 ARRAY_BUFFER만 가능합니다.'
+        if (indicesBufferInfo && indicesBufferInfo.bufferType != RedBufferInfo.ELEMENT_ARRAY_BUFFER) throw 'RedGeometryInfo : indicesBufferInfo는 ELEMENT_ARRAY_BUFFER만 가능합니다.'
+        if (texcoordBufferInfo && texcoordBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'RedGeometryInfo : texcoordBufferInfo는 ARRAY_BUFFER만 가능합니다.'
+        if (normalBufferInfo && normalBufferInfo.bufferType != RedBufferInfo.ARRAY_BUFFER) throw 'RedGeometryInfo : normalBufferInfo는 ARRAY_BUFFER만 가능합니다.'
         // 저장할 공간확보하고
         if (!redGL['__datas']['RedGeometryInfo']) {
             redGL['__datas']['RedGeometryInfo'] = {}
         }
         tDatas = redGL['__datas']['RedGeometryInfo']
         // 기존에 등록된 녀석이면 재생성X
-        if (tDatas[key]) throw key + '는 이미 존재하는 RedGeometryInfo 입니다.'
+        if (tDatas[key]) throw 'RedGeometryInfo : ' + key + '는 이미 존재하는 RedGeometryInfo 입니다.'
         tGL = redGL.gl
         // 지오메트리생성!!
         /**DOC:
@@ -1111,7 +807,7 @@ var RedGeometryInfo;
             title :`attributes`,
             description : `
                 - attribute Buffer 정보들
-                - vertexPosition,texcoord,normal 정보를 가진다.(존재하지 않을경우 키 자체가 없다.)
+                - vertexPosition, texcoord, normal 정보를 가진다.(존재하지 않을경우 키 자체가 없다.)
             `,
 			example : `인스턴스.attributes`,
 			return : 'Object'
@@ -1141,16 +837,16 @@ var RedGeometryInfo;
 	    :DOC*/
         this['key'] = key
         if (verticesBufferInfo) {
-            if(verticesBufferInfo['shaderPointerKey'] == RedFixedAttributeKey['aVertexPosition']) this['attributes']['vertexPosition'] = verticesBufferInfo // 버텍스버퍼
-            else throw 'verticesBufferInfo의 shaderPointerKey는 aVertexPosition만 가질수있습니다.'
+            if (verticesBufferInfo['shaderPointerKey'] == RedFixedAttributeKey['aVertexPosition']) this['attributes']['vertexPosition'] = verticesBufferInfo // 버텍스버퍼
+            else throw 'RedGeometryInfo : verticesBufferInfo의 shaderPointerKey는 aVertexPosition만 가질수있습니다.'
         }
         if (texcoordBufferInfo) {
-            if(texcoordBufferInfo['shaderPointerKey'] == RedFixedAttributeKey['aTexcoord']) this['attributes']['texcoord'] = texcoordBufferInfo // 코디네이트버퍼
-            else throw 'texcoordBufferInfo의 shaderPointerKey는 aTexcoord만 가질수있습니다.'
+            if (texcoordBufferInfo['shaderPointerKey'] == RedFixedAttributeKey['aTexcoord']) this['attributes']['texcoord'] = texcoordBufferInfo // 코디네이트버퍼
+            else throw 'RedGeometryInfo : texcoordBufferInfo의 shaderPointerKey는 aTexcoord만 가질수있습니다.'
         }
         if (normalBufferInfo) {
-            if(normalBufferInfo['shaderPointerKey'] == RedFixedAttributeKey['aVertexNormal']) this['attributes']['normal'] = normalBufferInfo // 노말버퍼
-            else throw 'normalBufferInfo의 shaderPointerKey는 aVertexNormal만 가질수있습니다.'
+            if (normalBufferInfo['shaderPointerKey'] == RedFixedAttributeKey['aVertexNormal']) this['attributes']['normal'] = normalBufferInfo // 노말버퍼
+            else throw 'RedGeometryInfo : normalBufferInfo의 shaderPointerKey는 aVertexNormal만 가질수있습니다.'
         }
         //
         this['__attributeList'] = []
@@ -1166,84 +862,956 @@ var RedGeometryInfo;
     Object.freeze(RedGeometryInfo)
 })();
 "use strict";
+var RedPrimitive;
 /**DOC:
     {
         constructorYn : true,
-        title :`RedMeshInfo`,
+        title :`RedPrimitive`,
         description : `
-            <h2>RedMeshBaseInfo 상속객체</h2>
-            - 타입키에 해당하는 정의가 존재하지않을경우 에러
+            - RedPrimitive 생성기
+        `,
+        return : 'RedPrimitive Instance'
+    }
+:DOC*/
+(function () {
+    var tType;
+    var tDatas;;
+    var createGeo;
+    var checkShareInfo;
+    var calculateNormals = function (vs, ind) {
+        var x = 0;
+        var y = 1;
+        var z = 2;
+
+        var ns = [];
+        for (var i = 0; i < vs.length; i = i + 3) { //for each vertex, initialize normal x, normal y, normal z
+            ns[i + x] = 0.0;
+            ns[i + y] = 0.0;
+            ns[i + z] = 0.0;
+        }
+
+        for (var i = 0; i < ind.length; i = i + 3) { //we work on triads of vertices to calculate normals so i = i+3 (i = indices index)
+            var v1 = [];
+            var v2 = [];
+            var normal = [];
+            //p2 - p1
+            v1[x] = vs[3 * ind[i + 2] + x] - vs[3 * ind[i + 1] + x];
+            v1[y] = vs[3 * ind[i + 2] + y] - vs[3 * ind[i + 1] + y];
+            v1[z] = vs[3 * ind[i + 2] + z] - vs[3 * ind[i + 1] + z];
+            //p0 - p1
+            v2[x] = vs[3 * ind[i] + x] - vs[3 * ind[i + 1] + x];
+            v2[y] = vs[3 * ind[i] + y] - vs[3 * ind[i + 1] + y];
+            v2[z] = vs[3 * ind[i] + z] - vs[3 * ind[i + 1] + z];
+            //cross product by Sarrus Rule
+            normal[x] = v1[y] * v2[z] - v1[z] * v2[y];
+            normal[y] = v1[z] * v2[x] - v1[x] * v2[z];
+            normal[z] = v1[x] * v2[y] - v1[y] * v2[x];
+            for (j = 0; j < 3; j++) { //update the normals of that triangle: sum of vectors
+                ns[3 * ind[i + j] + x] = ns[3 * ind[i + j] + x] + normal[x];
+                ns[3 * ind[i + j] + y] = ns[3 * ind[i + j] + y] + normal[y];
+                ns[3 * ind[i + j] + z] = ns[3 * ind[i + j] + z] + normal[z];
+            }
+        }
+        //normalize the result
+        for (var i = 0; i < vs.length; i = i + 3) { //the increment here is because each vertex occurs with an offset of 3 in the array (due to x, y, z contiguous values)
+            var nn = [];
+            nn[x] = ns[i + x];
+            nn[y] = ns[i + y];
+            nn[z] = ns[i + z];
+
+            var len = Math.sqrt((nn[x] * nn[x]) + (nn[y] * nn[y]) + (nn[z] * nn[z]));
+            if (len == 0) len = 1.0;
+
+            nn[x] = nn[x] / len;
+            nn[y] = nn[y] / len;
+            nn[z] = nn[z] / len;
+
+            ns[i + x] = nn[x];
+            ns[i + y] = nn[y];
+            ns[i + z] = nn[z];
+        }
+
+        return ns;
+    }
+    checkShareInfo = function (redGL) {
+        if (!redGL['__datas']['RedPrimitive']) redGL['__datas']['RedPrimitive'] = {}
+        return redGL['__datas']['RedPrimitive']
+    }
+    RedPrimitive = {}
+    createGeo = function (redGL, tType, vertices, indices, uvs, normals) {
+        vertices = new Float32Array(vertices)
+        indices = new Uint16Array(indices)
+        uvs = new Float32Array(uvs)
+        normals = new Float32Array(normals)
+        vertices = redGL.createArrayBufferInfo(tType + '_vertices', RedFixedAttributeKey['aVertexPosition'], vertices, 3, vertices.length / 3, redGL.gl.FLOAT)
+        indices = redGL.createIndexBufferInfo(tType + '_indices', indices, 1, indices.length, redGL.gl.UNSIGNED_SHORT)
+        if (uvs) uvs = redGL.createArrayBufferInfo(tType + '_uvs', RedFixedAttributeKey['aTexcoord'], uvs, 2, uvs.length / 2, redGL.gl.FLOAT)
+        if (normals) normals = redGL.createArrayBufferInfo(tType + '_normals', RedFixedAttributeKey['aVertexNormal'], normals, 3, normals.length / 3, redGL.gl.FLOAT)
+        return redGL.createGeometryInfo(tType, vertices, indices, uvs, normals)
+    }
+    /**DOC:
+        {
+            code : 'FUNCTION',
+            title :`plane`,
+            description : `
+                - plane 지오메트리가 반환됨,
+                - 생성시 내부적으로 'RedPrimitivePlane' + '_' + width + '_' + height + '_' + segmentW + '_' + segmentH 키로 캐싱.
+                - share되는 지오메트리를 생성한다.
+            `,
+            return : 'RedPrimitivePlane Instance'
+        }
+    :DOC*/
+    RedPrimitive.plane = (function () {
+        var width_half;
+        var height_half;
+        var gridX;
+        var gridY;
+        var gridX1;
+        var gridY1;
+        var segment_width;
+        var segment_height;
+        var ix, iy;
+        var tX, tY;
+        var a, b, c, d;
+        return function RedPrimitivePlane(redGL, width, height, segmentW, segmentH) {
+            if (!(this instanceof RedPrimitivePlane)) return new RedPrimitivePlane(redGL, width, height, segmentW, segmentH)
+            if (!(redGL instanceof RedGL)) throw 'RedPrimitive : RedGL 인스턴스만 허용됩니다.'
+
+            width = width || 1, height = height || 1
+            segmentH = segmentH || 1, segmentH = segmentH || 1
+            width_half = width / 2, height_half = height / 2
+            gridX = Math.floor(segmentW) || 1, gridY = Math.floor(segmentH) || 1
+            gridX1 = gridX + 1, gridY1 = gridY + 1
+            segment_width = width / gridX, segment_height = height / gridY
+
+            // 저장할 공간확보하고
+            tDatas = checkShareInfo(redGL)
+            // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
+            tType = 'RedPrimitivePlane' + '_' + width + '_' + height + '_' + segmentW + '_' + segmentH
+            if (tDatas[tType]) {
+                // console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
+                return tDatas[tType]
+            }
+
+            ////////////////////////////////////////////////////////////////////////////
+            // 데이터 생성!
+
+            // buffers Data
+            var vertices = [];
+            var indices = [];
+            var uvs = [];
+            var normals = [];
+            // generate vertices, normals and uvs
+            for (iy = 0; iy < gridY1; iy++) {
+                tY = iy * segment_height - height_half
+                for (ix = 0; ix < gridX1; ix++) {
+                    tX = ix * segment_width - width_half,
+                        vertices.push(tX, - tY, 0),
+                        normals.push(0, 0, 1),
+                        uvs.push(ix / gridX, 1 - (iy / gridY))
+                }
+            }
+            // indices
+            for (iy = 0; iy < gridY; iy++) {
+                for (ix = 0; ix < gridX; ix++) {
+                    a = ix + gridX1 * iy,
+                        b = ix + gridX1 * (iy + 1),
+                        c = (ix + 1) + gridX1 * (iy + 1),
+                        d = (ix + 1) + gridX1 * iy,
+                        // faces
+                        indices.push(a, b, d, b, c, d)
+                }
+            }
+            ////////////////////////////////////////////////////////////////////////////
+            // 캐싱
+            tDatas[tType] = createGeo(redGL, tType, vertices, indices, uvs, normals)
+            // console.log(redGL['__datas']['RedPrimitive'])
+            return tDatas[tType]
+        }
+    })();
+    /**DOC:
+        {
+            code : 'FUNCTION',
+            title :`cube`,
+            description : `
+                - cube 지오메트리가 반환됨,
+                - 생성시 내부적으로 'RedPrimitiveCube' + '_' + width + '_' + height + '_' + depth + '_' + widthSegments + '_' + heightSegments + '_' + depthSegments 키로 캐싱.
+                - share되는 지오메트리를 생성한다.
+            `,
+            return : 'RedPrimitivePlane Instance'
+        }
+    :DOC*/
+    RedPrimitive.cube = (function () {
+        var numberOfVertices;
+        var groupStart;
+        var buildPlane;
+        buildPlane = function (vertices, indices, uvs, normals, u, v, w, udir, vdir, width, height, depth, gridX, gridY, materialIndex) {
+            var segmentWidth = width / gridX;
+            var segmentHeight = height / gridY;
+            var widthHalf = width / 2;
+            var heightHalf = height / 2;
+            var depthHalf = depth / 2;
+            var gridX1 = gridX + 1;
+            var gridY1 = gridY + 1;
+            var vertexCounter = 0;
+            var groupCount = 0;
+            var ix, iy;
+            var vector = []
+            // generate vertices, normals and uvs
+            for (iy = 0; iy < gridY1; iy++) {
+                var y = iy * segmentHeight - heightHalf;
+                for (ix = 0; ix < gridX1; ix++) {
+                    var x = ix * segmentWidth - widthHalf;
+                    // set values to correct vector component
+                    vector[u] = x * udir;
+                    vector[v] = y * vdir;
+                    vector[w] = depthHalf;
+                    // now apply vector to vertex buffer
+                    vertices.push(vector.x, vector.y, vector.z);
+                    // set values to correct vector component
+                    vector[u] = 0;
+                    vector[v] = 0;
+                    vector[w] = depth > 0 ? 1 : - 1;
+                    // now apply vector to normal buffer
+                    normals.push(vector.x, vector.y, vector.z);
+                    // uvs
+                    uvs.push(ix / gridX);
+                    uvs.push(1 - (iy / gridY));
+                    // counters
+                    vertexCounter += 1;
+                }
+            }
+            // indices
+            // 1. you need three indices to draw a single face
+            // 2. a single segment consists of two faces
+            // 3. so we need to generate six (2*3) indices per segment
+            for (iy = 0; iy < gridY; iy++) {
+                for (ix = 0; ix < gridX; ix++) {
+                    var a = numberOfVertices + ix + gridX1 * iy;
+                    var b = numberOfVertices + ix + gridX1 * (iy + 1);
+                    var c = numberOfVertices + (ix + 1) + gridX1 * (iy + 1);
+                    var d = numberOfVertices + (ix + 1) + gridX1 * iy;
+                    // faces
+                    indices.push(a, b, d);
+                    indices.push(b, c, d);
+                    // increase counter
+                    groupCount += 6;
+                }
+            }
+            // calculate new start value for groups
+            groupStart += groupCount;
+            // update total number of vertices
+            numberOfVertices += vertexCounter;
+
+        }
+        return function RedPrimitiveCube(redGL, width, height, depth, widthSegments, heightSegments, depthSegments) {
+            if (!(this instanceof RedPrimitiveCube)) return new RedPrimitiveCube(redGL, width, height, depth, widthSegments, heightSegments, depthSegments)
+            if (!(redGL instanceof RedGL)) throw 'RedPrimitive : RedGL 인스턴스만 허용됩니다.'
+
+            width = width || 1;
+            height = height || 1;
+            depth = depth || 1;
+            // segments
+            widthSegments = Math.floor(widthSegments) || 1;
+            heightSegments = Math.floor(heightSegments) || 1;
+            depthSegments = Math.floor(depthSegments) || 1;
+
+            // 저장할 공간확보하고
+            tDatas = checkShareInfo(redGL)
+            // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
+            tType = 'RedPrimitiveCube' + '_' + width + '_' + height + '_' + depth + '_' + widthSegments + '_' + heightSegments + '_' + depthSegments
+            if (tDatas[tType]) {
+                // console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
+                return tDatas[tType]
+            }
+
+            ////////////////////////////////////////////////////////////////////////////
+            // 데이터 생성!
+
+            // buffers Data
+            var vertices = [];
+            var indices = [];
+            var uvs = [];
+            var normals = [];
+            numberOfVertices = 0;
+            groupStart = 0;
+            //TODO: 적화필요
+            buildPlane(vertices, indices, uvs, normals, 'z', 'y', 'x', - 1, - 1, depth, height, width, depthSegments, heightSegments, 0); // px
+            buildPlane(vertices, indices, uvs, normals, 'z', 'y', 'x', 1, - 1, depth, height, - width, depthSegments, heightSegments, 1); // nx
+            buildPlane(vertices, indices, uvs, normals, 'x', 'z', 'y', 1, 1, width, depth, height, widthSegments, depthSegments, 2); // py
+            buildPlane(vertices, indices, uvs, normals, 'x', 'z', 'y', 1, - 1, width, depth, - height, widthSegments, depthSegments, 3); // ny
+            buildPlane(vertices, indices, uvs, normals, 'x', 'y', 'z', 1, - 1, width, height, depth, widthSegments, heightSegments, 4); // pz
+            buildPlane(vertices, indices, uvs, normals, 'x', 'y', 'z', - 1, - 1, width, height, - depth, widthSegments, heightSegments, 5); // nz
+            console.log(vertices, indices, uvs, normals)
+            ////////////////////////////////////////////////////////////////////////////
+            // 캐싱
+            tDatas[tType] = createGeo(redGL, tType, vertices, indices, uvs, normals)
+            // console.log(redGL['__datas']['RedPrimitive'])
+            return tDatas[tType]
+        }
+    })();
+    /**DOC:
+        {
+            code : 'FUNCTION',
+            title :`grid`,
+            description : `
+                - grid 지오메트리가 반환됨,
+                - 생성시 내부적으로 'RedPrimitiveFloor' + '_' + w + '_' + h 키로 캐싱.
+                - share되는 지오메트리를 생성한다.
+            `,
+            return : 'RedPrimitiveFloor Instance'
+        }
+    :DOC*/
+    RedPrimitive.grid = (function () {
+        var dim;
+        var lines;
+        var inc;
+        var i;
+        var t0, t1, t2, t3;
+        return function RedPrimitiveFloor(redGL, w, h) {
+            if (!(this instanceof RedPrimitiveFloor)) return new RedPrimitiveFloor(redGL, w, h)
+            if (!(redGL instanceof RedGL)) throw 'RedPrimitive : RedGL 인스턴스만 허용됩니다.'
+            // 저장할 공간확보하고
+            tDatas = checkShareInfo(redGL)
+            // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
+            w = w ? w : 50
+            h = h ? h : 50
+            tType = 'RedPrimitiveFloor' + '_' + w + '_' + h
+            if (tDatas[tType]) {
+                // console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
+                return tDatas[tType]
+            }
+
+            ////////////////////////////////////////////////////////////////////////////
+            // 데이터 생성!
+
+            // buffers Data
+            var vertices = [];
+            var indices = [];
+            dim = w,
+                lines = h,
+                inc = 2 * dim / lines
+
+            for (i = 0; i <= lines; i++) {
+
+                t0 = i * inc
+                t1 = lines + 1
+                t2 = 6 * i
+                t3 = 6 * t1
+                vertices[t2] = -dim,
+                    vertices[t2 + 1] = 0,
+                    vertices[t2 + 2] = -dim + t0,
+                    vertices[t2 + 3] = dim,
+                    vertices[t2 + 4] = 0,
+                    vertices[t2 + 5] = -dim + t0,
+                    vertices[t3 + t2] = -dim + t0,
+                    vertices[t3 + t2 + 1] = 0,
+                    vertices[t3 + t2 + 2] = -dim,
+                    vertices[t3 + t2 + 3] = -dim + t0,
+                    vertices[t3 + t2 + 4] = 0,
+                    vertices[t3 + t2 + 5] = dim,
+
+                    indices[2 * i] = 2 * i,
+                    indices[2 * i + 1] = 2 * i + 1,
+                    indices[2 * t1 + 2 * i] = 2 * t1 + 2 * i,
+                    indices[2 * t1 + 2 * i + 1] = 2 * t1 + 2 * i + 1
+            }
+
+            console.log(vertices, indices)
+            ////////////////////////////////////////////////////////////////////////////
+            // 캐싱
+            tDatas[tType] = createGeo(redGL, tType, vertices, indices)
+            // console.log(redGL['__datas']['RedPrimitive'])
+            return tDatas[tType]
+        }
+    })();
+    /**DOC:
+        {
+            code : 'FUNCTION',
+            title :`sphere`,
+            description : `
+                - sphere 지오메트리가 반환됨,
+                - 생성시 내부적으로 'RedPrimitiveSphere' + '_' + radius + '_' + widthSegments + '_' + heightSegments + '_' + phiStart + '_' + phiLength + '_' + thetaStart + '_' + thetaLength 키로 캐싱.
+                - share되는 지오메트리를 생성한다.
+            `,
+            return : 'RedPrimitiveSphere Instance'
+        }
+    :DOC*/
+    RedPrimitive.sphere = (function () {
+        var thetaEnd;
+        var ix, iy;
+        var index
+        var grid = [];
+        var vertex = new Float32Array([0, 0, 0])
+        var normal = new Float32Array([0, 0, 0])
+        var a, b, c, d;
+        return function RedPrimitiveSphere(redGL, radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength) {
+            if (!(this instanceof RedPrimitiveSphere)) return new RedPrimitiveSphere(redGL, radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength)
+            if (!(redGL instanceof RedGL)) throw 'RedPrimitive : RedGL 인스턴스만 허용됩니다.'
+
+            radius = radius || 1;
+            widthSegments = Math.max(3, Math.floor(widthSegments) || 8);
+            heightSegments = Math.max(2, Math.floor(heightSegments) || 6);
+            phiStart = phiStart !== undefined ? phiStart : 0;
+            phiLength = phiLength !== undefined ? phiLength : Math.PI * 2;
+            thetaStart = thetaStart !== undefined ? thetaStart : 0;
+            thetaLength = thetaLength !== undefined ? thetaLength : Math.PI;
+
+            thetaEnd = thetaStart + thetaLength;
+            ix, iy;
+            index = 0;
+            grid.length = 0
+            vertex[0] = 0, vertex[1] = 0, vertex[2] = 0
+            normal[0] = 0, normal[1] = 0, normal[2] = 0
+
+            // 저장할 공간확보하고
+            tDatas = checkShareInfo(redGL)
+            // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
+            tType = 'RedPrimitiveSphere' + '_' + radius + '_' + widthSegments + '_' + heightSegments + '_' + phiStart + '_' + phiLength + '_' + thetaStart + '_' + thetaLength
+            if (tDatas[tType]) {
+                // console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
+                return tDatas[tType]
+            }
+
+            ////////////////////////////////////////////////////////////////////////////
+            // 데이터 생성!
+
+            // buffers Data
+            var vertices = [];
+            var indices = [];
+            var uvs = [];
+            var normals = [];
+            // generate vertices, normals and uvs
+            for (iy = 0; iy <= heightSegments; iy++) {
+                var verticesRow = [];
+                var v = iy / heightSegments;
+                for (ix = 0; ix <= widthSegments; ix++) {
+                    var u = ix / widthSegments;
+                    // vertex
+                    vertex.x = - radius * Math.cos(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
+                    vertex.y = radius * Math.cos(thetaStart + v * thetaLength);
+                    vertex.z = radius * Math.sin(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
+                    vertices.push(vertex.x, vertex.y, vertex.z);
+                    // normal
+                    normal[0] = vertex.x
+                    normal[1] = vertex.y
+                    normal[2] = vertex.z
+                    vec3.normalize(normal, normal)
+                    normals.push(normal[0], normal[1], normal[2]);
+                    // uv
+                    uvs.push(u, 1 - v);
+                    verticesRow.push(index++);
+                }
+                grid.push(verticesRow);
+            }
+            // indices
+            for (iy = 0; iy < heightSegments; iy++) {
+                for (ix = 0; ix < widthSegments; ix++) {
+                    a = grid[iy][ix + 1]
+                    b = grid[iy][ix]
+                    c = grid[iy + 1][ix]
+                    d = grid[iy + 1][ix + 1]
+                    if (iy !== 0 || thetaStart > 0) indices.push(a, b, d)
+                    if (iy !== heightSegments - 1 || thetaEnd < Math.PI) indices.push(b, c, d)
+                }
+            }
+            // console.log(vertices, indices, uvs, normals)
+            ////////////////////////////////////////////////////////////////////////////
+            // 캐싱
+            tDatas[tType] = createGeo(redGL, tType, vertices, indices, uvs, normals)
+            // console.log(redGL['__datas']['RedPrimitive'])
+            return tDatas[tType]
+        }
+    })();
+    RedPrimitive.cone = (function () {
+
+        return function RedPrimitiveCone(redGL,
+            bottomRadius,
+            topRadius,
+            height,
+            radialSubdivisions,
+            verticalSubdivisions,
+            opt_topCap,
+            opt_bottomCap
+        ) {
+            if (!(this instanceof RedPrimitiveCone)) return new RedPrimitiveCone(redGL,
+                bottomRadius,
+                topRadius,
+                height,
+                radialSubdivisions,
+                verticalSubdivisions,
+                opt_topCap,
+                opt_bottomCap
+            )
+            if (!(redGL instanceof RedGL)) throw 'RedPrimitive : RedGL 인스턴스만 허용됩니다.'
+
+
+            radialSubdivisions = verticalSubdivisions ? radialSubdivisions : 3
+            verticalSubdivisions = verticalSubdivisions ? verticalSubdivisions : 1
+            height = height ? height : 1
+            topRadius = topRadius ? topRadius : 1
+            bottomRadius = bottomRadius ? bottomRadius : 1
+
+            // 저장할 공간확보하고
+            tDatas = checkShareInfo(redGL)
+            // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
+            tType = 'RedPrimitiveCone' + '_' + bottomRadius + '_' + topRadius + '_' + height + '_' + radialSubdivisions + '_' + verticalSubdivisions + '_' + opt_topCap + '_' + opt_bottomCap
+            if (tDatas[tType]) {
+                // console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
+                return tDatas[tType]
+            }
+            ////////////////////////////////////////////////////////////////////////////
+            // 데이터 생성!
+
+            // buffers Data
+            var vertices = [];
+            var indices = [];
+            var uvs = [];
+            var normals = [];
+
+            var topCap = (opt_topCap === undefined) ? true : opt_topCap;
+            var bottomCap = (opt_bottomCap === undefined) ? true : opt_bottomCap;
+            var extra = (topCap ? 2 : 0) + (bottomCap ? 2 : 0);
+            var numVertices = (radialSubdivisions + 1) * (verticalSubdivisions + 1 + extra);
+            var vertsAroundEdge = radialSubdivisions + 1;
+            // The slant of the cone is var ant across its surface
+            var slant = Math.atan2(bottomRadius - topRadius, height);
+            var cosSlant = Math.cos(slant);
+            var sinSlant = Math.sin(slant);
+            var start = topCap ? -2 : 0;
+            var end = verticalSubdivisions + (bottomCap ? 2 : 0);
+            for (var yy = start; yy <= end; ++yy) {
+                var v = yy / verticalSubdivisions;
+                var y = height * v;
+                var ringRadius;
+                if (yy < 0) y = 0, v = 1, ringRadius = bottomRadius;
+                else if (yy > verticalSubdivisions) y = height, v = 1, ringRadius = topRadius;
+                else ringRadius = bottomRadius + (topRadius - bottomRadius) * (yy / verticalSubdivisions);
+                if (yy === -2 || yy === verticalSubdivisions + 2) ringRadius = 0, v = 0;
+                y -= height / 2;
+                for (var ii = 0; ii < vertsAroundEdge; ++ii) {
+                    var sin = Math.sin(ii * Math.PI * 2 / radialSubdivisions);
+                    var cos = Math.cos(ii * Math.PI * 2 / radialSubdivisions);
+                    vertices.push(sin * ringRadius, y, cos * ringRadius),
+                        normals.push(
+                            (yy < 0 || yy > verticalSubdivisions) ? 0 : (sin * cosSlant),
+                            (yy < 0) ? -1 : (yy > verticalSubdivisions ? 1 : sinSlant),
+                            (yy < 0 || yy > verticalSubdivisions) ? 0 : (cos * cosSlant)),
+                        uvs.push((ii / radialSubdivisions), 1 - v)
+                }
+            }
+
+            for (var yy = 0; yy < verticalSubdivisions + extra; ++yy) {  // eslint-disable-line
+                for (var ii = 0; ii < radialSubdivisions; ++ii) {  // eslint-disable-line
+                    indices.push(
+                        vertsAroundEdge * (yy + 0) + 0 + ii,
+                        vertsAroundEdge * (yy + 0) + 1 + ii,
+                        vertsAroundEdge * (yy + 1) + 1 + ii);
+                    indices.push(
+                        vertsAroundEdge * (yy + 0) + 0 + ii,
+                        vertsAroundEdge * (yy + 1) + 1 + ii,
+                        vertsAroundEdge * (yy + 1) + 0 + ii);
+                }
+            }
+            console.log(vertices, indices, uvs, normals)
+            ////////////////////////////////////////////////////////////////////////////
+            // 캐싱
+            tDatas[tType] = createGeo(redGL, tType, vertices, indices, uvs, normals)
+            // console.log(redGL['__datas']['RedPrimitive'])
+            return tDatas[tType]
+        }
+    })()
+    Object.freeze(RedPrimitive)
+})();
+"use strict";
+/**DOC:
+    {
+        constructorYn : true,
+        title :`RedMaterialInfo`,
+        description : `
+            - 재질 생성기.
+            - 타입키에 해당하는 <b>RedMaterialDefine</b> 정의가 존재하지않을경우 에러.
         `,
         params : {
             redGL : [
                 {type:'RedGL Instance'},
                 '- redGL 인스턴스'
             ],
-            key : [
+            typeName : [
                 {type:'String'},
-                '- 고유키',
-                '- <span style="color:red"><b>입력하지않으면 그냥 UUID를 생성해버릴까..</b></span>'
+                '- 재질 타입 지정'
             ],
-            geometryInfo : [
-                {type:'RedGeometryInfo'},
-                '- 지오메트리정보'
+            diffuseInfo : [
+                {type:'RedTextureInfo'},
+                '- DiffuseMap 지정'
             ],
-            materialInfo : [
-                {type:'RedMaterialInfo'},
-                '- 재질정보'
+            normalInfo : [
+                 {type:'RedTextureInfo'},
+                '- normalMap 지정'
+            ],
+            displacementInfo : [
+                {type:'RedTextureInfo'},
+                '- displacementMap 지정'
+            ],
+            specularInfo : [
+                {type:'RedTextureInfo'},
+                '- specularInfo 지정'
+            ],
+            reflectionInfo : [
+                {type:'RedCubeTextureInfo'},
+                '- reflectionInfo 지정'
             ]
         },
         example : `
             var test;
             test = RedGL(Canvas Element)
-            test.createMeshInfo('firstMesh',geometryInfo, materialInfo)
+            // basic이라는 이름으로 버텍스 쉐이더를 만든다. 
+            test.createShaderInfo('basic', RedProgramInfo.VERTEX_SHADER, 쉐이더소스)
+            test.createShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER, 쉐이더소스)
+            // basic이라는 이름으로 프로그램을 만든다. 
+            test.createProgramInfo(
+                'basic',
+                test.getShaderInfo('basic', RedProgramInfo.VERTEX_SHADER),
+                test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER)
+            )
+            // basic이라는 타입의 재질 정의한다.
+            test.createMaterialDefine(test.getProgramInfo('basic'))
+            // basic재질을 실제로 생성한다.
+            test.createMaterialInfo('basic')
         `,
-        return : 'RedMeshInfo Instance'
+        return : 'RedMaterialInfo Instance'
     }
 :DOC*/
-var RedMeshInfo;
+var RedMaterialInfo;
 (function () {
+    var tDefineMap
+    var tDefineData;
+    var typeMAP;
+    var k, t0;
     var tGL;
-    var tDatas;
-    RedMeshInfo = function (redGL, key, geometryInfo, materialInfo) {
-        if (!(this instanceof RedMeshInfo)) return new RedMeshInfo(redGL, key, geometryInfo, materialInfo)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof key != 'string') throw 'key - 문자열만 허용됩니다.'
-        if (!(geometryInfo instanceof RedGeometryInfo)) throw 'geometryInfo - RedGeometryInfo만 허용됩니다.'
-        if (!(materialInfo instanceof RedMaterialInfo)) throw 'materialInfo - RedMaterialInfo만 허용됩니다.'
-        tGL = redGL.gl
-        // 저장할 공간확보하고
-        if (!redGL['__datas']['RedMeshInfo']) redGL['__datas']['RedMeshInfo'] = {}
-        tDatas = redGL['__datas']['RedMeshInfo']
-        // 기존에 등록된 녀석이면 기존 데이터 리턴
-        if (tDatas[key]) throw key + '는 이미 존재하는 RedMeshInfo 입니다.'
-        RedMeshBaseInfo.call(this, redGL)
-        /**DOC:
-		{
-            title :`geometryInfo`,
-            description : `
-                - 메쉬가 소유하고있는 geometryInfo
-            `,
-			example : `인스턴스.geometryInfo`,
-			return : 'RedGeometryInfo'
+    typeMAP = {
+        f: {
+            16: 'uniformMatrix4fv',
+            12: 'uniformMatrix3fv',
+            8: 'uniformMatrix2fv',
+            4: 'uniform4fv',
+            3: 'uniform3fv',
+            2: 'uniform2fv',
+            1: 'uniform1fv'
+        },
+        i: {
+            16: 'uniformMatrix4iv',
+            12: 'uniformMatrix3iv',
+            8: 'uniformMatrix2iv',
+            4: 'uniform4iv',
+            3: 'uniform3iv',
+            2: 'uniform2iv',
+            1: 'uniform1iv'
         }
-        :DOC*/
-        this['geometryInfo'] = geometryInfo
-        /**DOC:
-		{
-            title :`materialInfo`,
-            description : `
-                - 메쉬가 소유하고있는 materialInfo
-            `,
-			example : `인스턴스.materialInfo`,
-			return : 'RedMaterialInfo'
-        }
-        :DOC*/
-        this['materialInfo'] = materialInfo
-        // 캐싱
-        tDatas[key] = this
     }
-    Object.freeze(RedMeshInfo)
+    RedMaterialInfo = function (redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture, reflectionTexture, refractionTexture) {
+        if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseTexture, normalTexture, displacementTexture, specularTexture, reflectionTexture, refractionTexture)
+        //TODO: 
+        if (!(redGL instanceof RedGL)) throw 'RedMaterialInfo : RedGL 인스턴스만 허용됩니다.'
+        if (typeof typeName != 'string') throw 'RedMaterialInfo : typeName은 문자열만 허용됩니다.'
+        // 디파인더에서 재질정의를 찾고
+        tDefineMap = redGL['__datas']['RedMaterialDefine']
+        tDefineData = tDefineMap[typeName]
+        tGL = redGL.gl
+        if (!tDefineData) throw typeName + '재질은 존재하지않습니다.'
+        /**DOC:
+		{
+            title :`programInfo`,
+			description : `재질에 사용된 프로그램정보`,
+			example : `인스턴스.programInfo`,
+			return : 'RedProgramInfo'
+        }
+        :DOC*/
+        this['programInfo'] = tDefineData['programInfo']
+        /**DOC:
+		{
+            title :`diffuseInfo`,
+            description : `
+                - diffuseInfo
+            `,
+			example : `인스턴스.diffuseInfo`,
+			return : 'RedTextureInfo or RedCubeTextureInfo'
+        }
+        :DOC*/
+        if (diffuseTexture) this[RedMaterialInfo.DIFFUSE_TEXTURE] = diffuseTexture
+        if (normalTexture) this[RedMaterialInfo.NORMAL_TEXTURE] = normalTexture
+        if (displacementTexture) this[RedMaterialInfo.DISPLACEMENT_TEXTURE] = displacementTexture
+        if (specularTexture) this[RedMaterialInfo.SPECULAR_TEXTURE] = specularTexture
+        if (reflectionTexture) this[RedMaterialInfo.REFLECTION_TEXTURE] = reflectionTexture
+        if (refractionTexture) this[RedMaterialInfo.REFRACTION_TEXTURE] = refractionTexture
+        
+
+        /**DOC:
+		{
+            title :`materialUniforms`,
+            description : `
+                - 렌더링시 참고할 유니폼데이터
+            `,
+			example : `인스턴스.materialUniforms`,
+			return : 'Object'
+        }
+        :DOC*/
+        this['materialUniforms'] = {}
+        // 재질에 초기유니폼정의를 반영함
+        this['programInfo'].initUniformValue(this)
+        /**DOC:
+		{
+            title :`needUniformList`,
+            description : `
+                - 렌더링시 유니폼리스트를 다시 만들어야할지 여부
+                - 실제론 텍스쳐 변경시 textureUpdated의 의미를 가진다.
+            `,
+			example : `인스턴스.needUniformList`,
+			return : 'Boolean'
+        }
+        :DOC*/
+        this['needUniformList'] = true
+        this.updateUniformList()
+        this['__UUID'] = REDGL_UUID++
+    }
+    RedMaterialInfo.prototype.updateUniformList = function () {
+        console.log(this['programInfo'])
+        if (this['programInfo']['defineTexture']) this['programInfo']['defineTexture'](this)
+        ////////////////////////////////////////////////////////////////////////////////////////
+        // 유니폼을 업데이트할 glMethod를 찾는다. 
+        for (k in this['materialUniforms']) {
+            t0 = this['materialUniforms'][k]
+            if (t0 instanceof Float32Array || t0 instanceof Float64Array) {
+                t0['__uniformMethod'] = typeMAP['f'][t0.length]
+                t0['__isMatrix'] = t0['__uniformMethod'].length > 11
+            } else if (
+                t0 instanceof Uint8Array ||
+                t0 instanceof Uint16Array ||
+                t0 instanceof Uint32Array ||
+                t0 instanceof Int8Array ||
+                t0 instanceof Int16Array ||
+                t0 instanceof Int32Array
+            ) {
+                t0['__uniformMethod'] = typeMAP['i'][t0.length]
+                t0['__isMatrix'] = t0['__uniformMethod'].length > 11
+            } else if (t0 == null) {
+            } else if (typeof t0 == 'number') {
+            } else if (t0 instanceof RedAtlasUVInfo) {
+            } else if (t0 instanceof RedTextureInfo || t0 instanceof RedCubeTextureInfo) {
+
+            } else if (t0 instanceof RedAtlasTextureInfo) {
+                this['materialUniforms']['uAtlascoord'] = t0['atlasUVInfo']
+            } else throw 'RedMaterialInfo : '+ k + '는 올바르지 않은 타입입니다.'
+        }
+        ////////////////////////////////////////////////////////////////////////////////////////
+        // 프로그램 정보를 처리
+        if (this['needUniformList']) {
+            this['__uniformList'] = []
+            var tUniformGroup = this['materialUniforms']
+            var tUniformLocationGroup = this['programInfo']['uniforms']
+            var tRenderType
+           
+            for (k in tUniformGroup) {
+                console.log('//////////////////////////////////////')
+                console.log(k)
+                console.log(tUniformLocationGroup)
+                console.log(tUniformLocationGroup[k])
+                console.log(tUniformLocationGroup[k]['type'])
+                console.log(tUniformGroup[k])
+                console.log(tUniformLocationGroup[k]['location'])
+                console.log(tUniformLocationGroup)
+                console.log('//////////////////////////////////////')
+                var tObj;
+                tObj = {}
+                tRenderType = undefined
+                if(!tUniformLocationGroup.hasOwnProperty(k)) throw 'RedMaterialInfo : 유니폼명 : '+k+' / 쉐이더에 정의되지 않은 유니폼에 접근하려고합니다.'
+                if (tUniformLocationGroup[k]['type'] == 'samplerCube' || tUniformLocationGroup[k]['type'] == 'sampler2D') {
+                    tRenderType = RedConst.SAMPLER
+                }
+                if (tUniformLocationGroup[k]['type'] == 'vec2' || tUniformLocationGroup[k]['type'] == 'vec3' || tUniformLocationGroup[k]['type'] == 'vec4') {
+                    tRenderType = RedConst.VEC
+                }
+                if (tUniformLocationGroup[k]['type'] == 'mat2' || tUniformLocationGroup[k]['type'] == 'mat3' || tUniformLocationGroup[k]['type'] == 'mat4') {
+                    tRenderType = RedConst.MAT
+                }
+                if (k == 'uAtlascoord') tRenderType = RedConst.ATLASCOORD
+                if (tUniformLocationGroup[k]['type'] == 'int') tRenderType = RedConst.INT
+                if (tUniformLocationGroup[k]['type'] == ['float']) tRenderType = RedConst.FLOAT
+                this['__uniformList'].push({
+                    key: k,
+                    type: tUniformLocationGroup[k]['type'],
+                    renderType: tRenderType,
+                    value: tUniformGroup[k],
+                    location: tUniformLocationGroup[k]['location']
+                })
+                // if(tMeterial.hasOwnProperty(k)) throw '유니폼이름과 재질의 프로퍼티네임이 같으면 안됩니다.'
+                this[k] = tUniformGroup[k]
+            }
+            this['needUniformList'] = false
+        }
+    }
+    /**DOC:
+		{
+            title :`setTexture`,
+            code :`FUNCTION`,
+            description : `
+                - 텍스쳐 변경 매서드
+                - 텍스쳐 변경후 자동으로 needUniformList=true를 반영하여 렌더링시 유니폼리스트를 재생성한다.
+            `,
+			example : `인스턴스.setTexture('uDiffuseTexture',RedTextureInfo instance)`,
+			return : 'void'
+        }
+        :DOC*/
+    RedMaterialInfo.prototype.setTexture = function (key, texture) {
+        if (texture instanceof RedTextureInfo || texture instanceof RedCubeTextureInfo || texture instanceof RedAtlasUVInfo) {
+            this[key] = texture
+            this.updateUniformList()
+        } else {
+            throw '텍스쳐 형식이 아닙니다.'
+        }
+    }
+    /**DOC:
+		{
+            title :`DIFFUSE_TEXTURE`,
+            code : 'CONST',
+            description : `
+                - 디퓨즈 텍스쳐 유니폼 상수
+            `,
+			example : `인스턴스.DIFFUSE_TEXTURE`,
+			return : 'String'
+        }
+    :DOC*/
+    RedMaterialInfo.DIFFUSE_TEXTURE = 'uDiffuseTexture'
+    /**DOC:
+		{
+            title :`NORMAL_TEXTURE`,
+            code : 'CONST',
+            description : `
+                - NORMAL_TEXTURE 유니폼 상수
+            `,
+			example : `인스턴스.NORMAL_TEXTURE`,
+			return : 'String'
+        }
+    :DOC*/
+    RedMaterialInfo.NORMAL_TEXTURE = 'uNormalTexture'
+    /**DOC:
+		{
+            title :`DISPLACEMENT_TEXTURE`,
+            code : 'CONST',
+            description : `
+                - DISPLACEMENT_TEXTURE 유니폼 상수
+            `,
+			example : `인스턴스.DISPLACEMENT_TEXTURE`,
+			return : 'String'
+        }
+    :DOC*/
+    RedMaterialInfo.DISPLACEMENT_TEXTURE = 'uDisplacementTexture'
+    /**DOC:
+		{
+            title :`SPECULAR_TEXTURE`,
+            code : 'CONST',
+            description : `
+                - SPECULAR_TEXTURE 유니폼 상수
+            `,
+			example : `인스턴스.SPECULAR_TEXTURE`,
+			return : 'String'
+        }
+    :DOC*/
+    RedMaterialInfo.SPECULAR_TEXTURE = 'uSpecularTexture'
+    /**DOC:
+		{
+            title :`REFLECTION_TEXTURE`,
+            code : 'CONST',
+            description : `
+                - REFLECTION_TEXTURE 유니폼 상수
+            `,
+			example : `인스턴스.REFLECTION_TEXTURE`,
+			return : 'String'
+        }
+    :DOC*/
+    RedMaterialInfo.REFLECTION_TEXTURE = 'uReflectionTexture'
+     /**DOC:
+		{
+            title :`REFLECTION_TEXTURE`,
+            code : 'CONST',
+            description : `
+                - REFLECTION_TEXTURE 유니폼 상수
+            `,
+			example : `인스턴스.REFLECTION_TEXTURE`,
+			return : 'String'
+        }
+    :DOC*/
+    RedMaterialInfo.REFRACTION_TEXTURE = 'uRefractionTexture'
+    
+    Object.freeze(RedMaterialInfo)
+})();
+"use strict";
+/**DOC:
+    {
+        constructorYn : true,
+        title :`RedMaterialDefine`,
+        description : `
+            - RedGL에서 사용할 재질정보를 정의.
+            - <b>유일키</b>만 지원.
+            - <b>Object.freeze</b> 상태로 정의됨.
+        `,
+        params : {
+            redGL : [
+                {type:'RedGL Instance'},
+                '- redGL 인스턴스'
+            ],
+            programInfo : [
+                {type:'RedProgramInfo'},
+                '- 재질과 바인딩될 RedProgramInfo 지정'
+            ]
+        },
+        example : `
+            var test;
+            test = RedGL(Canvas Element)
+            // basic이라는 이름으로 버텍스 쉐이더를 만든다. 
+            test.createShaderInfo('basic', RedProgramInfo.VERTEX_SHADER, 쉐이더소스)
+            test.createShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER, 쉐이더소스)
+            // basic이라는 이름으로 프로그램을 만든다. 
+            test.createProgramInfo(
+                'basic',
+                test.getShaderInfo('basic', RedProgramInfo.VERTEX_SHADER),
+                test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER)
+            )
+            // basic이라는 타입의 재질을 만든다.
+            test.createMaterialDefine(test.getProgramInfo('basic'))
+        `,
+        return : 'RedMaterialDefine Instance'
+    }
+:DOC*/
+var RedMaterialDefine;
+(function () {
+    var tDatas;
+    var tKey;
+    RedMaterialDefine = function (redGL, programInfo) {
+        if (!(this instanceof RedMaterialDefine)) return new RedMaterialDefine(redGL, programInfo)
+        if (!(redGL instanceof RedGL)) throw 'RedMaterialDefine : RedGL 인스턴스만 허용됩니다.'
+        if (!(programInfo instanceof RedProgramInfo)) throw 'RedMaterialDefine : RedProgramInfo 인스턴스만 허용됩니다.'
+        // 저장할 공간확보하고
+        if (!redGL['__datas']['RedMaterialDefine']) redGL['__datas']['RedMaterialDefine'] = {}
+        tKey = programInfo['key']
+        tDatas = redGL['__datas']['RedMaterialDefine']
+        // 기존에 등록된 녀석이면 에러
+        if (tDatas[tKey]) throw tKey + '는 이미 존재하는 RedMaterialDefine 입니다.'
+        /**DOC:
+		{
+            title :`programInfo`,
+			description : `실제 재질을 만들때 참고할 programInfo`,
+			example : `인스턴스.programInfo`,
+			return : 'RedProgramInfo'
+        }
+        :DOC*/
+        this['programInfo'] = programInfo
+        this['__UUID'] = REDGL_UUID++
+        // 캐싱
+        tDatas[tKey] = this
+        Object.freeze(this)
+    }
+    Object.freeze(RedMaterialDefine)
 })();
 "use strict";
 /**DOC:
@@ -1468,567 +2036,350 @@ var RedMeshBaseInfo;
     Object.freeze(RedMeshBaseInfo)
 })();
 "use strict";
-var RedPrimitive;
 /**DOC:
     {
         constructorYn : true,
-        title :`RedPrimitive`,
+        title :`RedMeshInfo`,
         description : `
-            - RedPrimitive 생성기
+            <h2>RedMeshBaseInfo 상속객체</h2>
+            - 타입키에 해당하는 정의가 존재하지않을경우 에러
         `,
-        return : 'RedPrimitive Instance'
+        params : {
+            redGL : [
+                {type:'RedGL Instance'},
+                '- redGL 인스턴스'
+            ],
+            key : [
+                {type:'String'},
+                '- 고유키',
+                '- <span style="color:red"><b>입력하지않으면 그냥 UUID를 생성해버릴까..</b></span>'
+            ],
+            geometryInfo : [
+                {type:'RedGeometryInfo'},
+                '- 지오메트리정보'
+            ],
+            materialInfo : [
+                {type:'RedMaterialInfo'},
+                '- 재질정보'
+            ]
+        },
+        example : `
+            var test;
+            test = RedGL(Canvas Element)
+            test.createMeshInfo('firstMesh',geometryInfo, materialInfo)
+        `,
+        return : 'RedMeshInfo Instance'
+    }
+:DOC*/
+var RedMeshInfo;
+(function () {
+    var tGL;
+    var tDatas;
+    RedMeshInfo = function (redGL, key, geometryInfo, materialInfo) {
+        if (!(this instanceof RedMeshInfo)) return new RedMeshInfo(redGL, key, geometryInfo, materialInfo)
+        if (!(redGL instanceof RedGL)) throw 'RedMeshInfo : RedGL 인스턴스만 허용됩니다.'
+        if (typeof key != 'string') throw 'RedMeshInfo : key - 문자열만 허용됩니다.'
+        if (!(geometryInfo instanceof RedGeometryInfo)) throw 'RedMeshInfo : geometryInfo - RedGeometryInfo만 허용됩니다.'
+        if (!(materialInfo instanceof RedMaterialInfo)) throw 'RedMeshInfo : materialInfo - RedMaterialInfo만 허용됩니다.'
+        tGL = redGL.gl
+        // 저장할 공간확보하고
+        if (!redGL['__datas']['RedMeshInfo']) redGL['__datas']['RedMeshInfo'] = {}
+        tDatas = redGL['__datas']['RedMeshInfo']
+        // 기존에 등록된 녀석이면 기존 데이터 리턴
+        if (tDatas[key]) throw key + '는 이미 존재하는 RedMeshInfo 입니다.'
+        RedMeshBaseInfo.call(this, redGL)
+        /**DOC:
+		{
+            title :`geometryInfo`,
+            description : `
+                - 메쉬가 소유하고있는 geometryInfo
+            `,
+			example : `인스턴스.geometryInfo`,
+			return : 'RedGeometryInfo'
+        }
+        :DOC*/
+        this['geometryInfo'] = geometryInfo
+        /**DOC:
+		{
+            title :`materialInfo`,
+            description : `
+                - 메쉬가 소유하고있는 materialInfo
+            `,
+			example : `인스턴스.materialInfo`,
+			return : 'RedMaterialInfo'
+        }
+        :DOC*/
+        this['materialInfo'] = materialInfo
+        // 캐싱
+        tDatas[key] = this
+    }
+    Object.freeze(RedMeshInfo)
+})();
+"use strict";
+var RedBaseCameraInfo;
+/**DOC:
+    {
+        constructorYn : true,
+        title :`RedBaseCameraInfo`,
+        description : `
+            - RedBaseCameraInfo 가장 기본적인 카메라 생성기
+        `,
+        example : `
+            testGL.createBaseCameraInfo('testCamera')
+        `,
+        return : 'RedBaseCameraInfo Instance'
     }
 :DOC*/
 (function () {
-    var tType;
-    var tDatas;;
-    var createGeo;
-    var checkShareInfo;
-    var calculateNormals = function (vs, ind) {
-        var x = 0;
-        var y = 1;
-        var z = 2;
-
-        var ns = [];
-        for (var i = 0; i < vs.length; i = i + 3) { //for each vertex, initialize normal x, normal y, normal z
-            ns[i + x] = 0.0;
-            ns[i + y] = 0.0;
-            ns[i + z] = 0.0;
-        }
-
-        for (var i = 0; i < ind.length; i = i + 3) { //we work on triads of vertices to calculate normals so i = i+3 (i = indices index)
-            var v1 = [];
-            var v2 = [];
-            var normal = [];
-            //p2 - p1
-            v1[x] = vs[3 * ind[i + 2] + x] - vs[3 * ind[i + 1] + x];
-            v1[y] = vs[3 * ind[i + 2] + y] - vs[3 * ind[i + 1] + y];
-            v1[z] = vs[3 * ind[i + 2] + z] - vs[3 * ind[i + 1] + z];
-            //p0 - p1
-            v2[x] = vs[3 * ind[i] + x] - vs[3 * ind[i + 1] + x];
-            v2[y] = vs[3 * ind[i] + y] - vs[3 * ind[i + 1] + y];
-            v2[z] = vs[3 * ind[i] + z] - vs[3 * ind[i + 1] + z];
-            //cross product by Sarrus Rule
-            normal[x] = v1[y] * v2[z] - v1[z] * v2[y];
-            normal[y] = v1[z] * v2[x] - v1[x] * v2[z];
-            normal[z] = v1[x] * v2[y] - v1[y] * v2[x];
-            for (j = 0; j < 3; j++) { //update the normals of that triangle: sum of vectors
-                ns[3 * ind[i + j] + x] = ns[3 * ind[i + j] + x] + normal[x];
-                ns[3 * ind[i + j] + y] = ns[3 * ind[i + j] + y] + normal[y];
-                ns[3 * ind[i + j] + z] = ns[3 * ind[i + j] + z] + normal[z];
+    var tDatas;
+    RedBaseCameraInfo = function (redGL, key) {
+        if (!(this instanceof RedBaseCameraInfo)) return new RedBaseCameraInfo(redGL, key)
+        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+        if (typeof key != 'string') throw 'key는 문자열만 허용됩니다.'
+        var aspect
+        // 저장할 공간확보하고
+        if (!redGL['__datas']['RedBaseCameraInfo']) redGL['__datas']['RedBaseCameraInfo'] = {}
+        tDatas = redGL['__datas']['RedBaseCameraInfo']
+        // 기존에 등록된 녀석이면 퐈이어!
+        if (tDatas[key]) throw key + '는 이미 존재하는 RedBaseCameraInfo 입니다.'
+        /**DOC:
+            {
+                title :`uPMatrix`,
+                code : 'PROPERTY',
+                description : `
+                    - 퍼스펙티브 매트릭스
+                    - 고정유니폼으로서 쉐이더내에 uPMatrix 유니폼과 연동된다.
+                `,
+                return : 'mat4(Float32Arrat)'
             }
-        }
-        //normalize the result
-        for (var i = 0; i < vs.length; i = i + 3) { //the increment here is because each vertex occurs with an offset of 3 in the array (due to x, y, z contiguous values)
-
-            var nn = [];
-            nn[x] = ns[i + x];
-            nn[y] = ns[i + y];
-            nn[z] = ns[i + z];
-
-            var len = Math.sqrt((nn[x] * nn[x]) + (nn[y] * nn[y]) + (nn[z] * nn[z]));
-            if (len == 0) len = 1.0;
-
-            nn[x] = nn[x] / len;
-            nn[y] = nn[y] / len;
-            nn[z] = nn[z] / len;
-
-            ns[i + x] = nn[x];
-            ns[i + y] = nn[y];
-            ns[i + z] = nn[z];
-        }
-
-        return ns;
+        :DOC*/
+        Object.defineProperty(this, 'uPMatrix', {
+            value: mat4.create(),
+            enumerable: true
+        })
+        /**DOC:
+            {
+                title :`uCameraMatrix`,
+                description : `
+                    - 카메라 매트릭스
+                    - 고정유니폼으로서 쉐이더내에 uCameraMatrix 유니폼과 연동된다.
+                `,
+                return : 'mat4(Float32Arrat)'
+            }
+        :DOC*/
+        Object.defineProperty(this, 'uCameraMatrix', {
+            value: mat4.create(),
+            enumerable: true
+        })
+        /**DOC:
+            {
+                title :`fov`,
+                description : `
+                    - 카메라 fov
+                    - 기본값 45(실제 연산시에는 라디안으로 적용해서 계산됨)
+                `,
+                return : 'Number'
+            }
+        :DOC*/
+        this['fov'] = 45
+        /**DOC:
+            {
+                title :`aspect`,
+                description : `- 카메라 aspect`,
+                return : 'Number'
+            }
+        :DOC*/
+        this['aspect'] = 0.1;
+        /**DOC:
+            {
+                title :`near`,
+                description : `
+                    - 카메라 near
+                    - 기본값 0.1
+                `,
+                return : 'Number'
+            }
+        :DOC*/
+        this['near'] = 0.1
+        /**DOC:
+            {
+                title :`far`,
+                description : `
+                    - 카메라 far
+                    - 기본값 1000.0
+                `,
+                return : 'Number'
+            }
+        :DOC*/
+        this['far'] = 10000.0
+        Object.defineProperty(this, '__desiredCoords', {
+            value: new Float32Array([0, 0, 0]),
+            enumerable: true
+        })
+        Object.defineProperty(this, '__desiredRotation', {
+            value: new Float32Array([0, 0, 0]),
+            enumerable: true
+        })
+        this['__UUID'] = REDGL_UUID++
+        this['__canvas'] = redGL.__canvas
+        this.update()
+        // 캐싱
+        tDatas[key] = this
     }
-    checkShareInfo = function (redGL) {
-        if (!redGL['__datas']['RedPrimitive']) redGL['__datas']['RedPrimitive'] = {}
-        return redGL['__datas']['RedPrimitive']
+    var tempRotationMTX = mat4.create()
+    RedBaseCameraInfo.prototype = {
+        /**DOC:
+            {
+                title :`setPosition`,
+                code : 'FUNCTION',
+                description : `
+                    - 포지션 설정매서드.
+                `,
+                params : {
+                    x : [
+                        {type:'Number'},
+                        `x포지션`
+                    ],
+                    y : [
+                        {type:'Number'},
+                        `y포지션`
+                    ],
+                    z : [
+                        {type:'Number'},
+                        `z포지션`
+                    ]
+                },
+                return : 'RedBaseCameraInfo Instance'
+            }
+        :DOC*/
+        setPosition: function (x, y, z) {
+            this['__desiredCoords'][0] = x
+            this['__desiredCoords'][1] = y
+            this['__desiredCoords'][2] = z
+            return this
+        },
+        /**DOC:
+            {
+                title :`moveForward`,
+                code : 'FUNCTION',
+                description : `
+                    - TODO: 카메라 시점에서 앞으로 이동
+                `,
+                return : 'RedBaseCameraInfo Instance'
+            }
+        :DOC*/
+        moveForward: function (v) {
+            //TODO:
+        },
+        /**DOC:
+            {
+                title :`moveBack`,
+                code : 'FUNCTION',
+                description : `
+                    - TODO: 카메라 시점에서 뒤로 이동
+                `,
+                return : 'RedBaseCameraInfo Instance'
+            }
+        :DOC*/
+        moveBack: function (v) {
+            //TODO:
+        },
+        /**DOC:
+            {
+                title :`moveLeft`,
+                code : 'FUNCTION',
+                description : `
+                    - TODO: 카메라 시점에서 왼쪽으로 이동
+                `,
+                return : 'RedBaseCameraInfo Instance'
+            }
+        :DOC*/
+        moveLeft: function (v) {
+            //TODO:
+        },
+        /**DOC:
+            {
+                title :`moveRight`,
+                code : 'FUNCTION',
+                description : `
+                    - TODO: 카메라 시점에서 오른쪽으로 이동
+                `,
+                return : 'RedBaseCameraInfo Instance'
+            }
+        :DOC*/
+        moveRight: function (v) {
+            //TODO:
+        },
+        /**DOC:
+            {
+                title :`moveUp`,
+                code : 'FUNCTION',
+                description : `
+                    - TODO: 카메라 시점에서 위로 이동
+                `,
+                return : 'RedBaseCameraInfo Instance'
+            }
+        :DOC*/
+        moveUp: function (v) {
+            //TODO:
+        },
+        /**DOC:
+            {
+                title :`moveDown`,
+                code : 'FUNCTION',
+                description : `
+                    - TODO: 카메라 시점에서 아래로 이동
+                `,
+                return : 'RedBaseCameraInfo Instance'
+            }
+        :DOC*/
+        moveDown: function (v) {
+            //TODO:
+        },
+        /**DOC:
+            {
+                title :`lookAt`,
+                code : 'FUNCTION',
+                description : `
+                    - 카메라가 targetPosition을 바라보게 설정함.
+                `,
+                params : {
+                    targetPosition : [
+                        {type:'position vec3(Float32Array)'},
+                        `바라볼 포지션`
+                    ]
+                },
+                return : 'RedBaseCameraInfo Instance'
+            }
+        :DOC*/
+        lookAt: (function () {
+            var up = new Float32Array([0, 1, 0]);
+            return function (targetPosition) {
+                //out, eye, center, up
+                mat4.lookAt(this['uCameraMatrix'], this['__desiredCoords'], targetPosition, up);
+            }
+        })(),
+        /**DOC:
+            {
+                title :`update`,
+                code : 'FUNCTION',
+                description : `
+                    - 퍼스팩티브업데이트
+                `,
+                return : 'RedBaseCameraInfo Instance'
+            }
+        :DOC*/
+        update: (function () {
+            return function () {
+                // 퍼스펙티브만 관여
+                this['aspect'] = this['__canvas'].clientWidth / this['__canvas'].clientHeight
+                mat4.identity(this['uPMatrix'])
+                mat4.perspective(this['uPMatrix'], this['fov'] * Math.PI / 180, this['aspect'], this['near'], this['far'])
+                return this
+            }
+        })()
     }
-    RedPrimitive = {}
-    createGeo = function (redGL, tType, vertices, indices, uvs, normals) {
-        vertices = new Float32Array(vertices)
-        indices = new Uint16Array(indices)
-        uvs = new Float32Array(uvs)
-        normals = new Float32Array(normals)
-        vertices = redGL.createArrayBufferInfo(tType + '_vertices', RedFixedAttributeKey['aVertexPosition'], vertices, 3, vertices.length / 3, redGL.gl.FLOAT)
-        indices = redGL.createIndexBufferInfo(tType + '_indices', indices, 1, indices.length, redGL.gl.UNSIGNED_SHORT)
-        if (uvs) uvs = redGL.createArrayBufferInfo(tType + '_uvs', RedFixedAttributeKey['aTexcoord'], uvs, 2, uvs.length / 2, redGL.gl.FLOAT)
-        if (normals) normals = redGL.createArrayBufferInfo(tType + '_normals', RedFixedAttributeKey['aVertexNormal'], normals, 3, normals.length / 3, redGL.gl.FLOAT)
-        return redGL.createGeometryInfo(tType, vertices, indices, uvs, normals)
-    }
-    /**DOC:
-        {
-            code : 'FUNCTION',
-            title :`plane`,
-            description : `
-                - plane 지오메트리가 반환됨,
-                - 생성시 내부적으로 'RedPrimitivePlane' + '_' + width + '_' + height + '_' + segmentW + '_' + segmentH 키로 캐싱한뒤..
-                - share되는 지오메트리를 생성한다.
-            `,
-            return : 'RedPrimitivePlane Instance'
-        }
-    :DOC*/
-    RedPrimitive.plane = (function () {
-        var width_half;
-        var height_half;
-        var gridX;
-        var gridY;
-        var gridX1;
-        var gridY1;
-        var segment_width;
-        var segment_height;
-        var ix, iy;
-        var tX, tY;
-        var a, b, c, d;
-        return function RedPrimitivePlane(redGL, width, height, segmentW, segmentH) {
-            if (!(this instanceof RedPrimitivePlane)) return new RedPrimitivePlane(redGL, width, height, segmentW, segmentH)
-            if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-
-            width = width || 1, height = height || 1
-            segmentH = segmentH || 1, segmentH = segmentH || 1
-            width_half = width / 2, height_half = height / 2
-            gridX = Math.floor(segmentW) || 1, gridY = Math.floor(segmentH) || 1
-            gridX1 = gridX + 1, gridY1 = gridY + 1
-            segment_width = width / gridX, segment_height = height / gridY
-
-            // 저장할 공간확보하고
-            tDatas = checkShareInfo(redGL)
-            // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
-            tType = 'RedPrimitivePlane' + '_' + width + '_' + height + '_' + segmentW + '_' + segmentH
-            if (tDatas[tType]) {
-                // console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
-                return tDatas[tType]
-            }
-
-            ////////////////////////////////////////////////////////////////////////////
-            // 데이터 생성!
-
-            // buffers Data
-            var vertices = [];
-            var indices = [];
-            var uvs = [];
-            var normals = [];
-            // generate vertices, normals and uvs
-            for (iy = 0; iy < gridY1; iy++) {
-                tY = iy * segment_height - height_half
-                for (ix = 0; ix < gridX1; ix++) {
-                    tX = ix * segment_width - width_half,
-                        vertices.push(tX, - tY, 0),
-                        normals.push(0, 0, 1),
-                        uvs.push(ix / gridX, 1 - (iy / gridY))
-                }
-            }
-            // indices
-            for (iy = 0; iy < gridY; iy++) {
-                for (ix = 0; ix < gridX; ix++) {
-                    a = ix + gridX1 * iy,
-                        b = ix + gridX1 * (iy + 1),
-                        c = (ix + 1) + gridX1 * (iy + 1),
-                        d = (ix + 1) + gridX1 * iy,
-                        // faces
-                        indices.push(a, b, d, b, c, d)
-                }
-            }
-            ////////////////////////////////////////////////////////////////////////////
-            // 캐싱
-            tDatas[tType] = createGeo(redGL, tType, vertices, indices, uvs, normals)
-            // console.log(redGL['__datas']['RedPrimitive'])
-            return tDatas[tType]
-        }
-    })();
-    /**DOC:
-        {
-            code : 'FUNCTION',
-            title :`cube`,
-            description : `
-                - cube 지오메트리가 반환됨,
-                - 생성시 내부적으로 'RedPrimitiveCube' + '_' + width + '_' + height + '_' + depth + '_' + widthSegments + '_' + heightSegments + '_' + depthSegments 키로 캐싱한뒤..
-                - share되는 지오메트리를 생성한다.
-            `,
-            return : 'RedPrimitivePlane Instance'
-        }
-    :DOC*/
-    RedPrimitive.cube = (function () {
-        var numberOfVertices;
-        var groupStart;
-        var buildPlane;
-        buildPlane = function (vertices, indices, uvs, normals, u, v, w, udir, vdir, width, height, depth, gridX, gridY, materialIndex) {
-            var segmentWidth = width / gridX;
-            var segmentHeight = height / gridY;
-            var widthHalf = width / 2;
-            var heightHalf = height / 2;
-            var depthHalf = depth / 2;
-            var gridX1 = gridX + 1;
-            var gridY1 = gridY + 1;
-            var vertexCounter = 0;
-            var groupCount = 0;
-            var ix, iy;
-            var vector = []
-            // generate vertices, normals and uvs
-            for (iy = 0; iy < gridY1; iy++) {
-                var y = iy * segmentHeight - heightHalf;
-                for (ix = 0; ix < gridX1; ix++) {
-                    var x = ix * segmentWidth - widthHalf;
-                    // set values to correct vector component
-                    vector[u] = x * udir;
-                    vector[v] = y * vdir;
-                    vector[w] = depthHalf;
-                    // now apply vector to vertex buffer
-                    vertices.push(vector.x, vector.y, vector.z);
-                    // set values to correct vector component
-                    vector[u] = 0;
-                    vector[v] = 0;
-                    vector[w] = depth > 0 ? 1 : - 1;
-                    // now apply vector to normal buffer
-                    normals.push(vector.x, vector.y, vector.z);
-                    // uvs
-                    uvs.push(ix / gridX);
-                    uvs.push(1 - (iy / gridY));
-                    // counters
-                    vertexCounter += 1;
-                }
-            }
-            // indices
-            // 1. you need three indices to draw a single face
-            // 2. a single segment consists of two faces
-            // 3. so we need to generate six (2*3) indices per segment
-            for (iy = 0; iy < gridY; iy++) {
-                for (ix = 0; ix < gridX; ix++) {
-                    var a = numberOfVertices + ix + gridX1 * iy;
-                    var b = numberOfVertices + ix + gridX1 * (iy + 1);
-                    var c = numberOfVertices + (ix + 1) + gridX1 * (iy + 1);
-                    var d = numberOfVertices + (ix + 1) + gridX1 * iy;
-                    // faces
-                    indices.push(a, b, d);
-                    indices.push(b, c, d);
-                    // increase counter
-                    groupCount += 6;
-                }
-            }
-            // calculate new start value for groups
-            groupStart += groupCount;
-            // update total number of vertices
-            numberOfVertices += vertexCounter;
-
-        }
-        return function RedPrimitiveCube(redGL, width, height, depth, widthSegments, heightSegments, depthSegments) {
-            if (!(this instanceof RedPrimitiveCube)) return new RedPrimitiveCube(redGL, width, height, depth, widthSegments, heightSegments, depthSegments)
-            if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-
-            width = width || 1;
-            height = height || 1;
-            depth = depth || 1;
-            // segments
-            widthSegments = Math.floor(widthSegments) || 1;
-            heightSegments = Math.floor(heightSegments) || 1;
-            depthSegments = Math.floor(depthSegments) || 1;
-
-            // 저장할 공간확보하고
-            tDatas = checkShareInfo(redGL)
-            // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
-            tType = 'RedPrimitiveCube' + '_' + width + '_' + height + '_' + depth + '_' + widthSegments + '_' + heightSegments + '_' + depthSegments
-            if (tDatas[tType]) {
-                // console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
-                return tDatas[tType]
-            }
-
-            ////////////////////////////////////////////////////////////////////////////
-            // 데이터 생성!
-
-            // buffers Data
-            var vertices = [];
-            var indices = [];
-            var uvs = [];
-            var normals = [];
-            numberOfVertices = 0;
-            groupStart = 0;
-            //TODO: 적화필요
-            buildPlane(vertices, indices, uvs, normals, 'z', 'y', 'x', - 1, - 1, depth, height, width, depthSegments, heightSegments, 0); // px
-            buildPlane(vertices, indices, uvs, normals, 'z', 'y', 'x', 1, - 1, depth, height, - width, depthSegments, heightSegments, 1); // nx
-            buildPlane(vertices, indices, uvs, normals, 'x', 'z', 'y', 1, 1, width, depth, height, widthSegments, depthSegments, 2); // py
-            buildPlane(vertices, indices, uvs, normals, 'x', 'z', 'y', 1, - 1, width, depth, - height, widthSegments, depthSegments, 3); // ny
-            buildPlane(vertices, indices, uvs, normals, 'x', 'y', 'z', 1, - 1, width, height, depth, widthSegments, heightSegments, 4); // pz
-            buildPlane(vertices, indices, uvs, normals, 'x', 'y', 'z', - 1, - 1, width, height, - depth, widthSegments, heightSegments, 5); // nz
-            console.log(vertices, indices, uvs, normals)
-            ////////////////////////////////////////////////////////////////////////////
-            // 캐싱
-            tDatas[tType] = createGeo(redGL, tType, vertices, indices, uvs, normals)
-            // console.log(redGL['__datas']['RedPrimitive'])
-            return tDatas[tType]
-        }
-    })();
-    /**DOC:
-        {
-            code : 'FUNCTION',
-            title :`grid`,
-            description : `
-                - grid 지오메트리가 반환됨,
-                - 생성시 내부적으로 'RedPrimitiveFloor' + '_' + w + '_' + h 키로 캐싱한뒤..
-                - share되는 지오메트리를 생성한다.
-            `,
-            return : 'RedPrimitiveFloor Instance'
-        }
-    :DOC*/
-    RedPrimitive.grid = (function () {
-        var dim;
-        var lines;
-        var inc;
-        var i;
-        var t0, t1, t2, t3;
-        return function RedPrimitiveFloor(redGL, w, h) {
-            if (!(this instanceof RedPrimitiveFloor)) return new RedPrimitiveFloor(redGL, w, h)
-            if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-            // 저장할 공간확보하고
-            tDatas = checkShareInfo(redGL)
-            // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
-            w = w ? w : 50
-            h = h ? h : 50
-            tType = 'RedPrimitiveFloor' + '_' + w + '_' + h
-            if (tDatas[tType]) {
-                // console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
-                return tDatas[tType]
-            }
-
-            ////////////////////////////////////////////////////////////////////////////
-            // 데이터 생성!
-
-            // buffers Data
-            var vertices = [];
-            var indices = [];
-            dim = w,
-                lines = h,
-                inc = 2 * dim / lines
-
-            for (i = 0; i <= lines; i++) {
-
-                t0 = i * inc
-                t1 = lines + 1
-                t2 = 6 * i
-                t3 = 6 * t1
-                vertices[t2] = -dim,
-                    vertices[t2 + 1] = 0,
-                    vertices[t2 + 2] = -dim + t0,
-                    vertices[t2 + 3] = dim,
-                    vertices[t2 + 4] = 0,
-                    vertices[t2 + 5] = -dim + t0,
-                    vertices[t3 + t2] = -dim + t0,
-                    vertices[t3 + t2 + 1] = 0,
-                    vertices[t3 + t2 + 2] = -dim,
-                    vertices[t3 + t2 + 3] = -dim + t0,
-                    vertices[t3 + t2 + 4] = 0,
-                    vertices[t3 + t2 + 5] = dim,
-
-                    indices[2 * i] = 2 * i,
-                    indices[2 * i + 1] = 2 * i + 1,
-                    indices[2 * t1 + 2 * i] = 2 * t1 + 2 * i,
-                    indices[2 * t1 + 2 * i + 1] = 2 * t1 + 2 * i + 1
-            }
-
-            console.log(vertices, indices)
-            ////////////////////////////////////////////////////////////////////////////
-            // 캐싱
-            tDatas[tType] = createGeo(redGL, tType, vertices, indices)
-            // console.log(redGL['__datas']['RedPrimitive'])
-            return tDatas[tType]
-        }
-    })();
-    /**DOC:
-        {
-            code : 'FUNCTION',
-            title :`sphere`,
-            description : `
-                - sphere 지오메트리가 반환됨,
-                - 생성시 내부적으로 'RedPrimitiveSphere' + '_' + radius + '_' + widthSegments + '_' + heightSegments + '_' + phiStart + '_' + phiLength + '_' + thetaStart + '_' + thetaLength 키로 캐싱한뒤..
-                - share되는 지오메트리를 생성한다.
-            `,
-            return : 'RedPrimitiveSphere Instance'
-        }
-    :DOC*/
-    RedPrimitive.sphere = (function () {
-        var thetaEnd;
-        var ix, iy;
-        var index
-        var grid = [];
-        var vertex = new Float32Array([0, 0, 0])
-        var normal = new Float32Array([0, 0, 0])
-        var a, b, c, d;
-        return function RedPrimitiveSphere(redGL, radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength) {
-            if (!(this instanceof RedPrimitiveSphere)) return new RedPrimitiveSphere(redGL, radius, widthSegments, heightSegments, phiStart, phiLength, thetaStart, thetaLength)
-            if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-
-            radius = radius || 1;
-            widthSegments = Math.max(3, Math.floor(widthSegments) || 8);
-            heightSegments = Math.max(2, Math.floor(heightSegments) || 6);
-            phiStart = phiStart !== undefined ? phiStart : 0;
-            phiLength = phiLength !== undefined ? phiLength : Math.PI * 2;
-            thetaStart = thetaStart !== undefined ? thetaStart : 0;
-            thetaLength = thetaLength !== undefined ? thetaLength : Math.PI;
-
-            thetaEnd = thetaStart + thetaLength;
-            ix, iy;
-            index = 0;
-            grid.length = 0
-            vertex[0] = 0, vertex[1] = 0, vertex[2] = 0
-            normal[0] = 0, normal[1] = 0, normal[2] = 0
-
-            // 저장할 공간확보하고
-            tDatas = checkShareInfo(redGL)
-            // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
-            tType = 'RedPrimitiveSphere' + '_' + radius + '_' + widthSegments + '_' + heightSegments + '_' + phiStart + '_' + phiLength + '_' + thetaStart + '_' + thetaLength
-            if (tDatas[tType]) {
-                // console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
-                return tDatas[tType]
-            }
-
-            ////////////////////////////////////////////////////////////////////////////
-            // 데이터 생성!
-
-            // buffers Data
-            var vertices = [];
-            var indices = [];
-            var uvs = [];
-            var normals = [];
-            // generate vertices, normals and uvs
-            for (iy = 0; iy <= heightSegments; iy++) {
-                var verticesRow = [];
-                var v = iy / heightSegments;
-                for (ix = 0; ix <= widthSegments; ix++) {
-                    var u = ix / widthSegments;
-                    // vertex
-                    vertex.x = - radius * Math.cos(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
-                    vertex.y = radius * Math.cos(thetaStart + v * thetaLength);
-                    vertex.z = radius * Math.sin(phiStart + u * phiLength) * Math.sin(thetaStart + v * thetaLength);
-                    vertices.push(vertex.x, vertex.y, vertex.z);
-                    // normal
-                    normal[0] = vertex.x
-                    normal[1] = vertex.y
-                    normal[2] = vertex.z
-                    vec3.normalize(normal, normal)
-                    normals.push(normal[0], normal[1], normal[2]);
-                    // uv
-                    uvs.push(u, 1 - v);
-                    verticesRow.push(index++);
-                }
-                grid.push(verticesRow);
-            }
-            // indices
-            for (iy = 0; iy < heightSegments; iy++) {
-                for (ix = 0; ix < widthSegments; ix++) {
-                    a = grid[iy][ix + 1]
-                    b = grid[iy][ix]
-                    c = grid[iy + 1][ix]
-                    d = grid[iy + 1][ix + 1]
-                    if (iy !== 0 || thetaStart > 0) indices.push(a, b, d)
-                    if (iy !== heightSegments - 1 || thetaEnd < Math.PI) indices.push(b, c, d)
-                }
-            }
-            // console.log(vertices, indices, uvs, normals)
-            ////////////////////////////////////////////////////////////////////////////
-            // 캐싱
-            tDatas[tType] = createGeo(redGL, tType, vertices, indices, uvs, normals)
-            // console.log(redGL['__datas']['RedPrimitive'])
-            return tDatas[tType]
-        }
-    })();
-    RedPrimitive.cone = (function () {
-
-        return function RedPrimitiveCone(redGL,
-            bottomRadius,
-            topRadius,
-            height,
-            radialSubdivisions,
-            verticalSubdivisions,
-            opt_topCap,
-            opt_bottomCap
-        ) {
-            if (!(this instanceof RedPrimitiveCone)) return new RedPrimitiveCone(redGL,
-                bottomRadius,
-                topRadius,
-                height,
-                radialSubdivisions,
-                verticalSubdivisions,
-                opt_topCap,
-                opt_bottomCap
-            )
-            if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-
-
-            radialSubdivisions = verticalSubdivisions ? radialSubdivisions : 3
-            verticalSubdivisions = verticalSubdivisions ? verticalSubdivisions : 1
-            height = height ? height : 1
-            topRadius = topRadius ? topRadius : 1
-            bottomRadius = bottomRadius ? bottomRadius : 1
-           
-            // 저장할 공간확보하고
-            tDatas = checkShareInfo(redGL)
-            // 기존에 생성된 녀석이면 생성된 프리미티브 정보를 넘긴다.
-            tType = 'RedPrimitiveCone' + '_' + bottomRadius + '_' + topRadius + '_' + height + '_' + radialSubdivisions + '_' + verticalSubdivisions + '_' + opt_topCap + '_' + opt_bottomCap
-            if (tDatas[tType]) {
-                // console.log('기존에 생성된 공융 프리미티브를 사용함! : ' + tType)
-                return tDatas[tType]
-            }
-            ////////////////////////////////////////////////////////////////////////////
-            // 데이터 생성!
-
-            // buffers Data
-            var vertices = [];
-            var indices = [];
-            var uvs = [];
-            var normals = [];
-
-            var topCap = (opt_topCap === undefined) ? true : opt_topCap;
-            var bottomCap = (opt_bottomCap === undefined) ? true : opt_bottomCap;
-            var extra = (topCap ? 2 : 0) + (bottomCap ? 2 : 0);
-            var numVertices = (radialSubdivisions + 1) * (verticalSubdivisions + 1 + extra);
-            var vertsAroundEdge = radialSubdivisions + 1;
-            // The slant of the cone is var ant across its surface
-            var slant = Math.atan2(bottomRadius - topRadius, height);
-            var cosSlant = Math.cos(slant);
-            var sinSlant = Math.sin(slant);
-            var start = topCap ? -2 : 0;
-            var end = verticalSubdivisions + (bottomCap ? 2 : 0);
-            for (var yy = start; yy <= end; ++yy) {
-                var v = yy / verticalSubdivisions;
-                var y = height * v;
-                var ringRadius;
-                if (yy < 0) y = 0, v = 1, ringRadius = bottomRadius;
-                else if (yy > verticalSubdivisions) y = height, v = 1, ringRadius = topRadius;
-                else ringRadius = bottomRadius + (topRadius - bottomRadius) * (yy / verticalSubdivisions);
-                if (yy === -2 || yy === verticalSubdivisions + 2) ringRadius = 0,v = 0;
-                y -= height / 2;
-                for (var ii = 0; ii < vertsAroundEdge; ++ii) {
-                    var sin = Math.sin(ii * Math.PI * 2 / radialSubdivisions);
-                    var cos = Math.cos(ii * Math.PI * 2 / radialSubdivisions);
-                    vertices.push(sin * ringRadius, y, cos * ringRadius),
-                    normals.push(
-                        (yy < 0 || yy > verticalSubdivisions) ? 0 : (sin * cosSlant),
-                        (yy < 0) ? -1 : (yy > verticalSubdivisions ? 1 : sinSlant),
-                        (yy < 0 || yy > verticalSubdivisions) ? 0 : (cos * cosSlant)),
-                    uvs.push((ii / radialSubdivisions), 1 - v)
-                }
-            }
-
-            for (var yy = 0; yy < verticalSubdivisions + extra; ++yy) {  // eslint-disable-line
-                for (var ii = 0; ii < radialSubdivisions; ++ii) {  // eslint-disable-line
-                    indices.push(
-                        vertsAroundEdge * (yy + 0) + 0 + ii,
-                        vertsAroundEdge * (yy + 0) + 1 + ii,
-                        vertsAroundEdge * (yy + 1) + 1 + ii);
-                    indices.push(
-                        vertsAroundEdge * (yy + 0) + 0 + ii,
-                        vertsAroundEdge * (yy + 1) + 1 + ii,
-                        vertsAroundEdge * (yy + 1) + 0 + ii);
-                }
-            }
-            console.log(vertices, indices, uvs, normals)
-            ////////////////////////////////////////////////////////////////////////////
-            // 캐싱
-            tDatas[tType] = createGeo(redGL, tType, vertices, indices, uvs, normals)
-            // console.log(redGL['__datas']['RedPrimitive'])
-            return tDatas[tType]
-        }
-    })()
-    Object.freeze(RedPrimitive)
+    Object.freeze(RedBaseCameraInfo)
 })();
 "use strict";
 var RedAmbientLightInfo;
@@ -2075,6 +2426,7 @@ var RedAmbientLightInfo;
         :DOC*/
         this['color'] = new Float32Array([0.03, 0.03, 0.03, 1])
         this['__UUID'] = REDGL_UUID++
+        Object.seal(this)
     }
     RedAmbientLightInfo['TYPE'] = 'ambient'
     Object.freeze(RedAmbientLightInfo)
@@ -2108,7 +2460,7 @@ var RedDirectionalLightInfo;
         // 저장할 공간확보하고
         if (!redGL['__datas']['RedDirectionalLightInfo']) redGL['__datas']['RedDirectionalLightInfo'] = {}
         tDatas = redGL['__datas']['RedDirectionalLightInfo']
-       
+
         /**DOC:
 		{
             title :`color`,
@@ -2122,17 +2474,20 @@ var RedDirectionalLightInfo;
         }
         :DOC*/
         this['color'] = new Float32Array([1, 1, 1, 1])
-         /**DOC:
-		{
-            title :`direction`,
-            description : `라이트 디렉션`,
-            code:'PROPERTY',
-            example : `인스턴스.color`,
-            return : 'Float32(vec3)'
-        }
-        :DOC*/
+        /**DOC:
+       {
+           title :`direction`,
+           description : `
+            - 라이트 디렉션
+           `,
+           code:'PROPERTY',
+           example : `인스턴스.color`,
+           return : 'Float32(vec3)'
+       }
+       :DOC*/
         this['direction'] = new Float32Array([0, 0, 0])
         this['__UUID'] = REDGL_UUID++
+        Object.seal(this)
     }
     RedDirectionalLightInfo['TYPE'] = 'directional'
     Object.freeze(RedDirectionalLightInfo)
@@ -2203,14 +2558,14 @@ var RedPointLightInfo;
         this['radius'] = 1
         /**DOC:
 		{
-            title :`usedebugMode`,
+            title :`useDebugMode`,
             description : `디버그모드 사용여부`,
             code:'PROPERTY',
-            example : `인스턴스.usedebugMode`,
+            example : `인스턴스.useDebugMode`,
             return : 'Boolean'
         }
         :DOC*/
-        this['usedebugMode'] = false
+        this['useDebugMode'] = false
         this['__UUID'] = REDGL_UUID++
         this['__debugMesh'] = redGL.createMeshInfo(
             'RedPointLightInfo__debugMesh' + this['__UUID'],
@@ -2220,392 +2575,134 @@ var RedPointLightInfo;
         this['__debugMesh'].children.push(
             redGL.createMeshInfo(
                 'RedPointLightInfo__debugMesh' + this['__UUID']+'_center',
-                RedPrimitive.sphere(redGL, 0.03,16,16,16),
+                RedPrimitive.sphere(redGL, 0.01,1,1,1),
                 redGL.createMaterialInfo('color')
             )
         )        
         this['__debugMesh'].drawMode = redGL.gl.LINE_STRIP
-
+        this['__debugMesh']['children'][0].drawMode = redGL.gl.LINE_STRIP
+        Object.seal(RedAmbientLightInfo)
     }
     RedPointLightInfo['TYPE'] = 'point'
     Object.freeze(RedPointLightInfo)
 })();
 "use strict";
-/**DOC:
-    {
-        constructorYn : true,
-        title :`RedMaterialInfo`,
-        description : `
-            - 재질 생성기.
-            - 타입키에 해당하는 <b>RedMaterialDefine</b> 정의가 존재하지않을경우 에러.
-        `,
-        params : {
-            redGL : [
-                {type:'RedGL Instance'},
-                '- redGL 인스턴스'
-            ],
-            typeName : [
-                {type:'String'},
-                '- 재질 타입 지정'
-            ],
-            diffuseInfo : [
-                {type:'RedTextureInfo or RedCubeTextureInfo'},
-                '- 텍스쳐를 사용할경우 Diffuse맵이 들어감'
-            ]
-        },
-        example : `
-            var test;
-            test = RedGL(Canvas Element)
-            // basic이라는 이름으로 버텍스 쉐이더를 만든다. 
-            test.createShaderInfo('basic', RedProgramInfo.VERTEX_SHADER, 쉐이더소스)
-            test.createShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER, 쉐이더소스)
-            // basic이라는 이름으로 프로그램을 만든다. 
-            test.createProgramInfo(
-                'basic',
-                test.getShaderInfo('basic', RedProgramInfo.VERTEX_SHADER),
-                test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER)
-            )
-            // basic이라는 타입의 재질 정의한다.
-            test.createMaterialDefine(test.getProgramInfo('basic'))
-            // basic재질을 실제로 생성한다.
-            test.createMaterialInfo('basic')
-        `,
-        return : 'RedMaterialInfo Instance'
-    }
-:DOC*/
-var RedMaterialInfo;
+var RedTextureIndex;
 (function () {
-    var tDefineMap
-    var tDegineData;
-    var tUniform;
-    var typeMAP;
-    var k, t0;
-    typeMAP = {
-        f: {
-            16: 'uniformMatrix4fv',
-            12: 'uniformMatrix3fv',
-            8: 'uniformMatrix2fv',
-            4: 'uniform4fv',
-            3: 'uniform3fv',
-            2: 'uniform2fv',
-            1: 'uniform1fv'
-        },
-        i: {
-            16: 'uniformMatrix4iv',
-            12: 'uniformMatrix3iv',
-            8: 'uniformMatrix2iv',
-            4: 'uniform4iv',
-            3: 'uniform3iv',
-            2: 'uniform2iv',
-            1: 'uniform1iv'
-        }
-    }
-    RedMaterialInfo = function (redGL, typeName, diffuseInfo) {
-        if (!(this instanceof RedMaterialInfo)) return new RedMaterialInfo(redGL, typeName, diffuseInfo)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof typeName != 'string') throw 'typeName은 문자열만 허용됩니다.'
-        // 디파인더에서 재질정의를 찾고
-        tDefineMap = redGL['__datas']['RedMaterialDefine']
-        tDegineData = tDefineMap[typeName]
-        if (!tDegineData) throw typeName + '재질은 존재하지않습니다.'
-        /**DOC:
+	var tGL;
+	/**DOC:
 		{
-            title :`programInfo`,
-			description : `재질에 사용된 프로그램정보`,
-			example : `인스턴스.programInfo`,
-			return : 'RedProgramInfo'
-        }
-        :DOC*/
-        this['programInfo'] = tDegineData['programInfo']
-        /**DOC:
+			constructorYn : true,
+			title :`RedTextureIndex`,
+			description : `
+				- 텍스쳐 고유인덱스
+			`,
+			example : `
+				RedTextureIndex.DIFFUSE
+				RedTextureIndex.NORMAL
+				RedTextureIndex.CUBE
+			`,
+			return : 'Integer'
+		}
+	:DOC*/
+	RedTextureIndex = {
+		/**DOC:
 		{
-            title :`diffuseInfo`,
-            description : `
-                - diffuseInfo
-            `,
-			example : `인스턴스.diffuseInfo`,
-			return : 'RedTextureInfo or RedCubeTextureInfo'
-        }
-        :DOC*/
-        this['diffuseInfo'] = diffuseInfo
-        /**DOC:
+			title :`CREATE`,
+			code : 'CONST',
+			description : `
+				- 텍스쳐 생성시 자동부여되는 기본인덱스
+				- 텍스쳐 생성완료이후 지정된 인덱스로 변환됨
+			`,
+			return : 'Integer'
+		}
+		:DOC*/
+		CREATE: 1,
+		/**DOC:
 		{
-            title :`uniforms`,
-            description : `
-                - 렌더링시 참고할 유니폼데이터
-            `,
-			example : `인스턴스.uniforms`,
-			return : 'Object'
-        }
-        :DOC*/
-        this['uniforms'] = tUniform = {}
-        // 유니폼은 프로그램에 의하여 생성되고, 재질정보를 토대로 렌더시 참조
-        tDegineData['programInfo'].makeUniformValue(this)
-        /**DOC:
+			title :`DIFFUSE`,
+			code : 'CONST',
+			description : `
+				- 디퓨즈 텍스쳐 인덱스
+				- 텍스쳐 생성지 지정하지않을경우 기본 디퓨즈로 인식함
+			`,
+			return : 'Integer'
+		}
+		:DOC*/
+		DIFFUSE: 1,
+		/**DOC:
 		{
-            title :`needUniformList`,
-            description : `
-                - 렌더링시 유니폼리스트를 다시 만들어야할지 여부
-                - 시스템에서 자동으로 설정한다.
-            `,
-			example : `인스턴스.needUniformList`,
-			return : 'Boolean'
-        }
-        :DOC*/
-        this['needUniformList'] = true
-        // 유니폼을 업데이트할 glMethod를 찾는다. 
-        for (k in tUniform) {
-            t0 = tUniform[k]
-            if (t0 instanceof Float32Array || t0 instanceof Float64Array) {
-                t0['__uniformMethod'] = typeMAP['f'][t0.length]
-                t0['__isMatrix'] = t0['__uniformMethod'].length > 11
-            } else if (
-                t0 instanceof Uint8Array ||
-                t0 instanceof Uint16Array ||
-                t0 instanceof Uint32Array ||
-                t0 instanceof Int8Array ||
-                t0 instanceof Int16Array ||
-                t0 instanceof Int32Array
-            ) {
-                t0['__uniformMethod'] = typeMAP['i'][t0.length]
-                t0['__isMatrix'] = t0['__uniformMethod'].length > 11
-            } else if (typeof t0 == 'number') {
-            } else if (t0 instanceof RedAtlasUVInfo) {
-            } else if (t0 instanceof RedTextureInfo || t0 instanceof RedCubeTextureInfo) {
-            } else if (t0 instanceof RedAtlasTextureInfo) {
-                this['uniforms']['uAtlascoord'] = t0['atlasUVInfo']
-            } else throw k + '는 올바르지 않은 타입입니다.'
-        }
-        // 프로그램 정보를 처리
-        if (this['needUniformList']) {
-            this['__uniformList'] = []
-            var tUniformGroup = this['uniforms']
-            var tUniformLocationGroup = this['programInfo']['uniforms']
-            for (k in tUniformGroup) {
-                this['__uniformList'].push({
-                    key: k,
-                    type: tUniformLocationGroup[k]['type'],
-                    value: tUniformGroup[k],
-                    location: tUniformLocationGroup[k]['location']
-                })
-                // if(tMeterial.hasOwnProperty(k)) throw '유니폼이름과 재질의 프로퍼티네임이 같으면 안됩니다.'
-                this[k] = tUniformGroup[k]
-            }
-            this['needUniformList'] = false
-        }
-        this['__UUID'] = REDGL_UUID++
-    }
-    Object.freeze(RedMaterialInfo)
-})();
-"use strict";
-/**DOC:
-    {
-        constructorYn : true,
-        title :`RedMaterialDefine`,
-        description : `
-            - RedGL에서 사용할 재질정보를 정의.
-            - <b>유일키</b>만 지원하며 키 중복일경우 에러발생.
-            - <b>Object.freeze</b> 상태로 정의됨.
-        `,
-        params : {
-            redGL : [
-                {type:'RedGL Instance'},
-                '- redGL 인스턴스'
-            ],
-            programInfo : [
-                {type:'RedProgramInfo'},
-                '- 재질과 바인딩될 RedProgramInfo 지정'
-            ]
-        },
-        example : `
-            var test;
-            test = RedGL(Canvas Element)
-            // basic이라는 이름으로 버텍스 쉐이더를 만든다. 
-            test.createShaderInfo('basic', RedProgramInfo.VERTEX_SHADER, 쉐이더소스)
-            test.createShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER, 쉐이더소스)
-            // basic이라는 이름으로 프로그램을 만든다. 
-            test.createProgramInfo(
-                'basic',
-                test.getShaderInfo('basic', RedProgramInfo.VERTEX_SHADER),
-                test.getShaderInfo('basic', RedProgramInfo.FRAGMENT_SHADER)
-            )
-            // basic이라는 타입의 재질을 만든다.
-            test.createMaterialDefine(test.getProgramInfo('basic'))
-        `,
-        return : 'RedMaterialDefine Instance'
-    }
-:DOC*/
-var RedMaterialDefine;
-(function () {
-    var tDatas;
-    var tKey;
-    RedMaterialDefine = function (redGL, programInfo) {
-        if (!(this instanceof RedMaterialDefine)) return new RedMaterialDefine(redGL, programInfo)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (!(programInfo instanceof RedProgramInfo)) throw 'RedProgramInfo 인스턴스만 허용됩니다.'
-        // 저장할 공간확보하고
-        if (!redGL['__datas']['RedMaterialDefine']) redGL['__datas']['RedMaterialDefine'] = {}
-        tKey = programInfo['key']
-        tDatas = redGL['__datas']['RedMaterialDefine']
-        // 기존에 등록된 녀석이면 에러
-        if (tDatas[tKey]) throw tKey + '는 이미 존재하는 RedMaterialDefine 입니다.'
-        /**DOC:
+			title :`NORMAL`,
+			code : 'CONST',
+			description : `
+				- 노멀 텍스쳐 인덱스
+			`,
+			return : 'Integer'
+		}
+		:DOC*/
+		NORMAL: 3,
+		/**DOC:
 		{
-            title :`programInfo`,
-			description : `실제 재질을 만들때 참고할 programInfo`,
-			example : `인스턴스.programInfo`,
-			return : 'RedProgramInfo'
-        }
-        :DOC*/
-        this['programInfo'] = programInfo
-        this['__UUID'] = REDGL_UUID++
-        // 캐싱
-        tDatas[tKey] = this
-        Object.freeze(this)
-    }
-    Object.freeze(RedMaterialDefine)
-})();
-"use strict";
-var RedSceneInfo;
-/**DOC:
-    {
-        constructorYn : true,
-        title :`RedSceneInfo`,
-        description : `
-            - RedGL에서 사용할 Scene정보를 생성
-        `,
-        params : {
-            redGL : [
-                {type:'RedGL Instance'},
-                '- redGL 인스턴스'
-            ],
-            key : [
-                {type:'String'},
-                '- 존재하는 키일경우 에러.'
-            ],
-            camera : [
-                {type:'RedBaseCameraInfo'},
-                '- 사용할 카메라 객체등록'
-            ]
-        },
-        example : `
-            var test;
-            test = RedGL(Canvas Element)
-            // firstScene 키로 Scene생성
-            test.createSceneInfo('firstScene')
-        `,
-        return : 'RedSceneInfo Instance'
-    }
-:DOC*/
-(function () {
-    var tDatas;
-    RedSceneInfo = function (redGL, key, camera) {
-        if (!(this instanceof RedSceneInfo)) return new RedSceneInfo(redGL, key, camera)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (typeof key != 'string') throw 'key는 문자열만 허용됩니다.'
-        if (!(camera instanceof RedBaseCameraInfo)) throw 'camera는 RedBaseCameraInfo 인스턴스만 허용됩니다.'
-        // 저장할 공간확보하고
-        if (!redGL['__datas']['RedSceneInfo']) redGL['__datas']['RedSceneInfo'] = {}
-        tDatas = redGL['__datas']['RedSceneInfo']
-        // 기존에 등록된 녀석이면 퐈이어!
-        if (tDatas[key]) throw key + '는 이미 존재하는 RedSceneInfo 입니다.'
-        /**DOC:
+			title :`DISPLACEMENT`,
+			code : 'CONST',
+			description : `
+				- DISPLACEMENT 텍스쳐 인덱스
+			`,
+			return : 'Integer'
+		}
+		:DOC*/
+		DISPLACEMENT: 4,
+		/**DOC:
 		{
-            title :`children`,
-			description : `씬이 물고있는 Mesh리스트들`,
-			example : `인스턴스.children`,
-			return : 'Array'
-        }
-        :DOC*/
-        this['children'] = []
-        /**DOC:
-		{
-            title :`camera`,
-			description : `씬이 가지고있는 카메라`,
-			example : `인스턴스.camera`,
-			return : 'RedBaseCameraInfo'
-        }
-        :DOC*/
-        this['camera'] = camera
-        /**DOC:
-		{
-            title :`lights`,
-			description : `씬이 가지고있는 광원정보`,
-			example : `인스턴스.lights`,
-			return : 'Object'
-        }
-        :DOC*/
-        this['lights'] = {
-            ambient : [],
-            directional : [],
-            point : [],
-            spot : []
-        }
-        this['__UUID'] = REDGL_UUID++
-        // 캐싱
-        tDatas[key] = this
-        Object.seal(RedSceneInfo)
-    }
-    RedSceneInfo.prototype = {
-        /**DOC:
-		{
-            title :`setSkyBox`,
-            description : `스카이박스 설정`,
-            code:'FUNCTION',
-			example : `인스턴스.setSkyBox(RedSkyBoxInfo Instance)`
-        }
-        :DOC*/
-        setSkyBox: function (v) {
-            this['skyBox'] = v
-        },
-        /**DOC:
-		{
-            title :`setGrid`,
-            description : `그리드 설정`,
-            code:'FUNCTION',
-			example : `인스턴스.setGrid(RedMeshInfo Instance)`
-        }
-        :DOC*/
-        setGrid: function (v) {
-            this['grid'] = v
-        },
-          /**DOC:
-		{
-            title :`addLight`,
-            description : `라이트 설정`,
-            code:'FUNCTION',
-			example : `인스턴스.addLight`
-        }
-        :DOC*/
-        addLight: (function () {
-            var tDatas;
-            return function (v) {
-                if (v instanceof RedDirectionalLightInfo) {
-                    tDatas = this['lights'][RedDirectionalLightInfo.TYPE]
-                    if (tDatas.length == 16) throw '직사광 최대갯수는 16개입니다.'
-                    else tDatas.push(v)
-                }else if (v instanceof RedPointLightInfo) {
-                    tDatas = this['lights'][RedPointLightInfo.TYPE]
-                    if (tDatas.length == 16) throw '포인트라이트 최대갯수는 16개입니다.'
-                    else tDatas.push(v)
-                }else if (v instanceof RedAmbientLightInfo) {
-                    tDatas = this['lights'][RedAmbientLightInfo.TYPE]
-                    // 엠비언트는 일단 무조건 갈아침
-                    tDatas[0] = v
-                }else if (v instanceof RedSpotLightInfo) {
-                    tDatas = this['lights'][RedSpotLightInfo.TYPE]
-                    if (tDatas.length == 16) throw '스폿라이트 최대갯수는 16개입니다.'
-                    else tDatas.push(v)
-                } else throw '등록할수 없는 타입입니다.'
-            }
-        })()
-    }
-    Object.freeze(RedSceneInfo)
+			title :`SPECULAR`,
+			code : 'CONST',
+			description : `
+				- SPECULAR 텍스쳐 인덱스
+			`,
+			return : 'Integer'
+		}
+		:DOC*/
+		SPECULAR: 5,
+		//아틀라스는 자동
+		ETC_VERTEX_1: 6,
+		ETC_VERTEX_2: 7,
+		ETC_FRAGMENT_1: 8,
+		ETC_FRAGMENT_2: 9,
+		
+		/////////////////////
+		CUBE_CREATE: 16,
+		/**DOC:
+			{
+			title :`CUBE_DIFFUSE`,
+			code : 'CONST',
+			description : `
+				- 큐브 텍스쳐 인덱스
+			`,
+			return : 'Integer'
+		}
+		:DOC*/
+		CUBE_DIFFUSE: 17,
+		/**DOC:
+			{
+			title :`CUBE_REFLECTION`,
+			code : 'CONST',
+			description : `
+				- 큐브 텍스쳐 인덱스
+			`,
+			return : 'Integer'
+		}
+		:DOC*/
+		CUBE_REFLECTION: 18,
+		CUBE_REFRACTION: 19
+		
+	}
+	Object.freeze(RedTextureIndex)
 })();
 "use strict";
 var RedTextureInfo;
 (function () {
 	var tGL;
+	var nullTexture;
 	/**DOC:
 		{
 			constructorYn : true,
@@ -2620,18 +2717,18 @@ var RedTextureInfo;
 				src : [
 					{type:'String or CanvasElement'},
 					'텍스쳐경로나 캔버스 오브젝트만 사용가능'
+				],
+				targetIndex : [
+					{type:'Integer'},
+					'- 타겟 인덱스를 지정한다.',
+					'- 기본값 : RedTextureIndex.DIFFUSE',
+					'- RedTextureIndex의 목록을 사용한다.',
+					'- 아틀라스텍스쳐의 경우 시스템에서 자동으로 부여함.'
 				]
-				// targetIndex : [
-				// 	{type:'Integer'},
-				// 	'- 타겟 인덱스를 지정한다.',
-				// 	'- 기본값 : 1 (기본인덱스는 1번을 사용함)',
-				// 	'- 아틀라스텍스쳐의 경우 하드웨어 지원 텍스쳐수의 절반을 parseInt한 값을 시작으로 끝까지 시스템에서 자동으로 부여함.'
-
-				// ]
 			},
 			example : `
 				var testGL
-				testGL = RedGL(document.getElementById('test'), true)
+				testGL = RedGL(Canvas Element)
 				testGL.createTextureInfo('asset/crate.png')
 			`,
 			return : 'RedTextureInfo Instance'
@@ -2639,1666 +2736,273 @@ var RedTextureInfo;
 	:DOC*/
 	RedTextureInfo = function (redGL, src, targetIndex, internalFormat, format, type) {
 		if (!(this instanceof RedTextureInfo)) return new RedTextureInfo(redGL, src, targetIndex, internalFormat, format, type)
-		if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-		if (typeof src !='string' && !(src instanceof Element && src.nodeName == 'CANVAS')) throw 'src는 문자열과 캔버스 오브젝트만 허용됩니다.'
+		if (!(redGL instanceof RedGL)) throw 'RedTextureInfo : RedGL 인스턴스만 허용됩니다.'
+		if (src == undefined) throw 'RedTextureInfo : src는 문자열과 캔버스 오브젝트만 허용됩니다.'
+		if (src != undefined && typeof src != 'string' && !(src instanceof Element && src.nodeName == 'CANVAS')) throw 'RedTextureInfo : src는 문자열과 캔버스 오브젝트만 허용됩니다.'
 		var texture;
 		var img;
 		var level = 0;
-		var width = 2;
-		var height = 2;
+		var width = 1;
+		var height = 1;
 		var border = 0;
 		var self;
+		
+		console.log(src)
 		self = this
 		tGL = redGL.gl
 		internalFormat = internalFormat ? internalFormat : tGL.RGBA;
 		format = format ? format : tGL.RGBA;
 		type = type ? type : tGL.UNSIGNED_BYTE;
-		targetIndex = targetIndex ? targetIndex : 1
+		targetIndex = targetIndex==undefined ? RedTextureIndex.DIFFUSE : targetIndex
+		if (!nullTexture) {
+			nullTexture = tGL.createTexture()
+			tGL.activeTexture(tGL.TEXTURE0)
+			tGL.bindTexture(tGL.TEXTURE_2D, nullTexture)
+			// 초기이미지 설정
+			tGL.texImage2D(
+				tGL.TEXTURE_2D,
+				level,
+				internalFormat,
+				width,
+				height,
+				border,
+				format,
+				type,
+				new Uint8Array(
+					222, 222, 222, 255
+				)
+			)
+		}
 		texture = tGL.createTexture()
 		tGL.activeTexture(tGL.TEXTURE0)
-		tGL.bindTexture(tGL.TEXTURE_2D, texture)
-		// 초기이미지 설정
-		tGL.texImage2D(
-			tGL.TEXTURE_2D,
-			level,
-			internalFormat,
-			width,
-			height,
-			border,
-			format,
-			type,
-			new Uint8Array(
-				222, 222, 222, 255,
-				66, 66, 66, 255,
-				66, 66, 66, 255,
-				222, 222, 222, 255
-			)
-		)
+		tGL.bindTexture(tGL.TEXTURE_2D, nullTexture)
 		img = new Image();
 		// 캔버스 일경우 캔버스이미지데이터를 활용함
-		img.src = src instanceof Element ? src.toDataURL() : src
+		console.log('src instanceof Element',src,src instanceof Element)
+		if (src != undefined) img.src = src instanceof Element ? src.toDataURL() : src
+	
 		img.crossOrigin = 'anonymous'
 		img.addEventListener('load', function () {
+			console.log('여기')
 			// 로딩상태 플래그를 완료로 설정
 			self['loaded'] = 1
 			// 타겟인덱스를 설정함		
 			self['__targetIndex'] = targetIndex
-			// tGL.activeTexture(tGL.TEXTURE_2D, tGL.TEXTURE0)
-			tGL.activeTexture(tGL.TEXTURE0)
+			tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CREATE)
 			tGL.bindTexture(tGL.TEXTURE_2D, self['texture'])
-			tGL.texImage2D(tGL.TEXTURE_2D, 0, tGL.RGBA, tGL.RGBA, tGL.UNSIGNED_BYTE, self['__img'])
-			tGL.texParameterf(tGL.TEXTURE_2D, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR);
+			tGL.texImage2D(tGL.TEXTURE_2D, 0, internalFormat, format, type, self['__img'])
 			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_MIN_FILTER, tGL.LINEAR_MIPMAP_NEAREST);
-			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_S, tGL.CLAMP_TO_EDGE);
-			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_T, tGL.CLAMP_TO_EDGE);
+			tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR);
+			// tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_S, tGL.CLAMP_TO_EDGE);
+			// tGL.texParameteri(tGL.TEXTURE_2D, tGL.TEXTURE_WRAP_T, tGL.CLAMP_TO_EDGE);
 			tGL.generateMipmap(tGL.TEXTURE_2D)
 			// img.onload = null
 		});
 		// tGL.bindTexture(tGL.TEXTURE_2D, null)
-		this['__img'] = img
-		// 인덱스 번호 지정 - 초기생성전담은 0번 인덱스를 사용함
-		this['__targetIndex'] = 0
-		// 로딩이 다되었는지
+
+		/**DOC:
+		{
+			title :`loaded`,
+			code : 'PROPERTY',
+			description : `
+			- 텍스쳐 로딩완료여부
+			`,
+			example : `
+			인스턴스.loaded
+			`,
+			return : '0 or 1'
+		}
+		:DOC*/
 		this['loaded'] = 0
-		// 액티브된적이있는지
-		this['actived'] = 0
+		/**DOC:
+		{
+			title :`texture`,
+			code : 'PROPERTY',
+			description : `
+				- WebGLTexture 인스턴스
+			`,
+			example : `
+				인스턴스.loaded
+			`,
+			return : 'WebGLTexture Instance'
+		}
+		:DOC*/
+		this['texture'] = texture
+		this['__img'] = img
 		// 웹지엘 텍스쳐인지
 		this['__webglTexture'] = 1
-		this['__UUID'] = REDGL_UUID++
-		this['texture'] = texture
-	}
-	RedTextureInfo.prototype.updateTexture = function(src){
-		console.log('업데이트',src)
-		self['loaded'] = 0
-		this['__img'].src=src instanceof Element ? src.toDataURL() : src
-	}
-})();
-"use strict";
-/**DOC:
-    {
-        constructorYn : true,
-        title :`RedAtlasUVInfo`,
-        description : `
-            - <b>RedAtlasTextureManager</b>에 의해 자동 생성된 <b>RedAtlasUVInfo</b>.
-            - <span style="color:red">렌더링시 고정 유니폼인 <b>uAtlascoord</b>에 사용된다.</span>
-            - 사용자 생성은 금지한다.
-            - Object.freeze 상태로 반환.
-        `,
-        params : {
-            uvArray : [
-                {type:'Array'},
-                '- 생성초기값'
-            ]
-        },
-        return : 'RedAtlasUVInfo instance'
-    }
-:DOC*/
-var RedAtlasUVInfo;
-RedAtlasUVInfo = function (uvArray) {
-    if (!(this instanceof RedAtlasUVInfo)) return new RedAtlasUVInfo(uvArray)
-    if (!(uvArray instanceof Array)) throw 'uvArray는 Array만 허용합니다.'
-    this['value'] = new Float32Array(uvArray)
-    this['value']['__UUID'] = this['__UUID'] = REDGL_UUID++
-    Object.freeze(this)
-}
-"use strict";
-/**DOC:
-    {
-        constructorYn : true,
-        title :`RedAtlasInfo`,
-        description : `
-            - <b>RedAtlasTextureManager</b>에 의해 자동 생성된 <b>RedAtlasInfo</b>.
-            - 고유값으로 캐싱되며, 사용자 생성은 금지한다.
-            - 하드웨어가 지원하는 최대크기(최대 4096*4096으로 제한)의 <b>Atlas</b>객체를 가진다.
-            - 소스맵을 기반으로 <b>RedAtlasTextureInfo</b>를 내부적으로 가진다.
-            - <b>Atlas</b>정보가 업데이트되면 자동 갱신된다.
-            - Object.seal 상태로 반환.
-        `,
-        params : {
-            redGL : [
-                {type:'RedGL Instance'},
-                `
-                    - RedGL 객체.
-                `
-            ],
-            targetAtlas : [
-                {type:'Atlas instance'},
-                `
-                    - Atlas 인스턴스 객체를 주입.
-                `
-            ]
-        },
-        return : 'RedAtlasInfo Instance'
-    }
-:DOC*/
-var RedAtlasInfo;
-RedAtlasInfo = function (redGL, targetAtlas) {
-    if (!(this instanceof RedAtlasInfo)) return new RedAtlasInfo(redGL, targetAtlas)
-    if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-    /**DOC:
-    {
-        title :`RedAtlasInfo`,
-        code : 'PROPERTY',
-        description : `
-            Atlas정보(Atlas).
-        `,
-        example : `
-            인스턴스.atlas
-        `,
-        return : 'Atlas Instance'
-    }
-    :DOC*/
-    this['atlas'] = targetAtlas
-    /**DOC:
-    {
-        title :`textureInfo`,
-        code : 'PROPERTY',
-        description : `
-            텍스쳐 정보(RedAtlasTextureInfo)
-        `,
-        example : `
-            인스턴스.textureInfo
-        `,
-        return : 'RedAtlasTextureInfo를 Instance'
-    }
-    :DOC*/
-    this['textureInfo'] = null
-    Object.seal(this)
-}
-"use strict";
-/**DOC:
-    {
-        constructorYn : true,
-        title :`RedAtlasTextureManager`,
-        description : `
-            - <b>Atlas를 생성하고 텍스쳐관련작업을 자동으로 관리하는 오브젝트</b>
-        `,
-        params : {
-            redGL : [
-                {type:'RedGL'},
-                '- redGL Instance'
-            ],
-            srcList : [
-				{type:'String or Array'},
-				'단일 문자열로 들어오면 알아서 배열로 바꿈.'
-			],
-			callback : [
-				 {type:'Function'},
-				 '아틀라스 완성후 실행할 콜백.'
-			]
-        },
-        example : `
-            RedAtlasTextureManager(redGLInstance, 원하는경로, 콜백이필요하면 콜백)
-        `,
-        return : 'RedAtlasTextureManager OBJECT'
-    }
-:DOC*/
-var RedAtlasTextureManager;
-(function () {
-	var MAX_TEXTURE_SIZE;
-	var MAX_TEXTURE_IMAGE_UNITS; // 최대 허용 이미지유닛수
-	var atlasInfoList; // 아틀라스 객체 리스트
-	var atlasKeyMap; // 아틀라스에 등록된 이미지 맵정보
-	var tRedGL;
-	var tTextureUnitIndex; // 텍스쳐 유닛인덱스
-	var tAtlas; // 대상 아틀라스
-	var createAtlas; // 아틀라스 캔버스 생성기
-	var atlasPack; // 아틀라스에 이미지를 실제로 업로드하는 녀석
-	atlasKeyMap = {}
-	atlasInfoList = []
-	createAtlas = function (image) {
-		var canvas;
-		var t0;
-		if (image && (image['width'] > MAX_TEXTURE_SIZE || image['height'] > MAX_TEXTURE_SIZE)) throw MAX_TEXTURE_SIZE + ' - 최대 허용사이즈보다 이미지가 큽니다.'
-		canvas = document.createElement('canvas');
-		canvas.width = MAX_TEXTURE_SIZE, canvas.height = MAX_TEXTURE_SIZE;
-		canvas.style.background = 'transparent', canvas.style.margin = '3px', canvas.style.display = 'inline-block'
-		// document.body.appendChild(canvas)
-		// 아틀라스 생성
-		tAtlas = new Atlas(canvas);
-		tAtlas['atlasInfo'] = RedAtlasInfo(tRedGL, tAtlas)
-		tTextureUnitIndex++
-		if (tTextureUnitIndex == MAX_TEXTURE_IMAGE_UNITS) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 2)
-		tAtlas['__targetIndex'] = tTextureUnitIndex // console.log(tAtlas)
-		atlasInfoList.push(tAtlas['atlasInfo'])
-
-	}
-	atlasPack = function (targetImage) {
-		tAtlas = atlasInfoList[0]['atlas']
-		var node = tAtlas.pack(targetImage);
-		var i, len;
-		if (node === false) {
-			// 아틀라스를 전체를 돌면서 찾아야하고..
-			i = 0, len = atlasInfoList.length
-			for (i; i < len; i++) {
-				// 기존있는놈중에 들어가면 종료시키고
-				tAtlas = atlasInfoList[i]['atlas']
-				node = tAtlas.pack(targetImage);
-				if (node) break
-			}
-			// 여기까지 흘러들어오면 아틀라스캔버스 자체를 추가한다.
-			if (node === false) {
-				createAtlas(targetImage)
-				node = tAtlas.pack(targetImage)
-			}
-		}
-		// RedAtlasTextureInfo를 생성하고 맵에 담아둠
-		console.log(tAtlas.uv()[targetImage.id])
-		atlasKeyMap[targetImage.id] = new RedAtlasTextureInfo(
-			tAtlas.uv()[targetImage.id],
-			tAtlas['atlasInfo']
-		)
-		return node
-	}
-	RedAtlasTextureManager = function (redGL, srcList, callback) {
-		if (!(this instanceof RedAtlasTextureManager)) return new RedAtlasTextureManager(redGL, srcList, callback)
-		if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-		if (!(srcList instanceof Array)) srcList = [srcList]
-		tRedGL = redGL
-		MAX_TEXTURE_SIZE = redGL['detect']['MAX_TEXTURE_SIZE']
-		MAX_TEXTURE_IMAGE_UNITS = redGL['detect']['MAX_TEXTURE_IMAGE_UNITS']
-		if (tTextureUnitIndex == undefined) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 2)
-		if (MAX_TEXTURE_SIZE > 4096) MAX_TEXTURE_SIZE = 4096
-		console.log('MAX_TEXTURE_SIZE', MAX_TEXTURE_SIZE)
-		console.log('MAX_TEXTURE_IMAGE_UNITS', MAX_TEXTURE_IMAGE_UNITS)
-		if (!tAtlas) createAtlas()
-		var loaded, targetNum;
-		loaded = 0
-		targetNum = srcList.length
-		srcList.forEach(function (src) {
-			var img = new Image();
-			var id = src
-			if (atlasKeyMap[id]) return // 이미존재하면 나가리..
-			img.id = id
-			img.src = src
-			img.onload = function () {
-				var node = atlasPack(this)
-				loaded++
-				if (targetNum == loaded) {
-					atlasInfoList.forEach(function (v) {
-						if (!v['textureInfo']) v['textureInfo'] = RedTextureInfo(redGL, v['atlas']['canvas'], v['atlas']['__targetIndex'])
-						else v['textureInfo'].updateTexture(v['atlas']['canvas'])
-					})
-					if (callback) callback()
-				}
-			};
-		})
-		return RedAtlasTextureManager
+		this['__webglTextureYn'] = 1
+		this['__UUID'] = REDGL_UUID++		
+		// 인덱스 번호 지정 - 초기생성전담은 0번 인덱스를 사용함
+		this['__targetIndex'] = RedTextureIndex.CREATE
 	}
 	/**DOC:
 		{
-			title :`getByKey`,
+			title :`updateTexture`,
 			code : 'PROPERTY',
 			description : `
-				- 이미지등록시 사용된 src를 key로 해당하는 RedAtlasTextureInfo 맵을 조회한다.
+				- 텍스쳐 경로를 업데이트.
+				- 실행시 loaded가 0으로 변환되며 텍스쳐재생성후 loaded가 1로 변함.
 			`,
 			example : `
-				RedAtlasTextureManager.getByKey('찾고싶은 src')
+				인스턴스.updateTexture(새로운경로)
 			`,
-			return : 'RedAtlasTextureInfo instance'
+			return : 'void'
 		}
-	:DOC*/
-	RedAtlasTextureManager.getByKey = function (key) {
-		return atlasKeyMap[key]
+		:DOC*/
+	RedTextureInfo.prototype.updateTexture = function (src) {
+		console.log('업데이트', src)
+		this['loaded'] = 0
+		this['__img'].src = src instanceof Element ? src.toDataURL() : src
 	}
-	Object.freeze(RedAtlasTextureManager)
 })();
+
 "use strict";
-var RedAtlasTextureInfo;
+var RedCubeTextureInfo;
 (function () {
-    var checkMap;;
-    checkMap = {}
-    /**DOC:
-        {
-            constructorYn : true,
-            title :`RedAtlasTextureInfo`,
-            description : `
-                - <b>RedAtlasTextureManager</b>에 의해 자동 생성된 <b>RedAtlasTextureInfo</b>.
-                - 고유값으로 캐싱되며, 사용자 생성은 금지한다.
-                - Object.freeze 상태로 반환.
-            `,
-            params : {
-                atlasUVInfo : [
-                    {type:'Array'},
-                    `
-                        - 아틀라스상의 Rect정보.
-                    `
-                ],
-                parentAtlasInfo : [
-                    {type:'Atlas instance'},
-                    `
-                        - Atlas 인스턴스 객체.
-                    `
-                ]
-            },
-            return : 'RedAtlasTextureInfo Instance'
-        }
-    :DOC*/
-    RedAtlasTextureInfo = (function () {
-        var t0;
-        var tKey;
-        return function (atlasUVInfo, parentAtlasInfo) {
-            if (!(this instanceof RedAtlasTextureInfo)) return new RedAtlasTextureInfo(atlasUVInfo, parentAtlasInfo)
-            if (!(atlasUVInfo instanceof Array)) throw 'atlasUVInfo는 Array만 허용합니다.'
-            if (!(parentAtlasInfo instanceof RedAtlasInfo)) throw 'parentAtlasInfo는 RedAtlasInfo  인스턴스만 허용합니다.'
-            t0 = [
-                atlasUVInfo[0][0],
-                1.0-atlasUVInfo[2][1],
-                (atlasUVInfo[1][0] - atlasUVInfo[0][0]),
-                (atlasUVInfo[2][1] - atlasUVInfo[0][1])
-            ]
-            tKey = t0.toString()
-            if (checkMap[tKey]) atlasUVInfo = checkMap[tKey]
-            else atlasUVInfo = checkMap[tKey] = RedAtlasUVInfo(t0)
-            console.log(atlasUVInfo)
-            /**DOC:
-                {
-                    title :`atlasUVInfo`,
-                    code : 'PROPERTY',
-                    description : `
-                        - atlasUVInfo 반환
-                    `,
-                    example : `
-                        인스턴스.atlasUVInfo
-                    `,
-                    return : 'RedAtlasUVInfo Instance'
-                }
-            :DOC*/
-            this['atlasUVInfo'] = atlasUVInfo
-            /**DOC:
-                {
-                    title :`parentAtlasInfo`,
-                    code : 'PROPERTY',
-                    description : `
-                        - parentAtlasInfo 반환
-                    `,
-                    example : `
-                        인스턴스.parentAtlasInfo
-                    `,
-                    return : 'RedAtlasInfo Instance'
-                }
-            :DOC*/
-            this['parentAtlasInfo'] = parentAtlasInfo
-            this['__webglAtlasTexture'] = 1
-            Object.freeze(this)
-        }
-    })()
-})();
-"use strict";
-var RedBaseRenderInfo;
-/**DOC:
-    {
-        constructorYn : true,
-        title :`RedBaseRenderInfo`,
-        description : `
-           - 렌더러
-        `,
-        params : {
-            redGL : [
-                {type:'RedGL Instance'},
-                '- redGL 인스턴스'
-            ],
-            redScene : [
-                {type:'RedSceneInfo'},
-                '- RedSceneInfo을 일단 최초 렌더 그룹으로 본다.',
-                `- <span style="color:red"><b>
-                   - 월드는 과연필요한가 -_-?
-                   - 씬이 카메라는 먹으면 어짜피 같은효과가 아닌가?
-                 </b></span>
-                `
-            ],
-            callback : [
-                {type:'Function'},
-                '- 루프시 사전에 돌릴 콜백등록'
-            ]
-        },
-        example : `
-            var renderer = testGL.createBaseRenderInfo(RedGL Instance, RedSceneInfo Instance, function (time) {
-                // 렌더링시 사전호출될 콜백
-            })
-            renderer.start()
-        `,
-        return : 'RedBaseRenderInfo Instance'
-    }
-:DOC*/
-(function () {
-    var tDatas;
-    var SIN, COS;
-    SIN = Math.sin, COS = Math.cos
-
-    RedBaseRenderInfo = function (redGL, redScene, callback) {
-        if (!(this instanceof RedBaseRenderInfo)) return new RedBaseRenderInfo(redGL, redScene, callback)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        var self;
-        self = this
-        // 씬생성!!
-        this['callback'] = callback
-        this['targetScene'] = redScene
-        this['__UUID'] = REDGL_UUID++        
-        //
-        var uniform1fiMAP = {
-            float: 'uniform1f',
-            int: 'uniform1i'
-        }
-        var k; //루프변수
-        var tScene; // 대상 RedScene
-        var tMesh; // 대상 메쉬
-        var tMVMatrix; // 대상 메쉬의 매트릭스 
-        var tNMatrix; // 대상 메쉬의 노멀매트릭스
-        ///////////////////////////////////////////////////////////////////
-        var a, aSx, aSy, aSz, aCx, aCy, aCz, tRx, tRy, tRz;
-        var a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, a30, a31, a32, a33;
-        var b0, b1, b2, b3;
-        var b00, b01, b02, b10, b11, b12, b20, b21, b22
-        var aX, aY, aZ;
-        ///////////////////////////////////////////////////////////////////
-        var tGL; // 대상 RedGL의 gl context
-        var tMeterial; // 대상 재질
-        var tProgramInfo; // 대상 프로그램 정보
-        var tProgram; // 대상 프로그램
-        var tGeometry; // 대상 지오메트리
-        var tAttrGroup; // 대상 버퍼정보그룹
-        var tAttrGroupList; // 대상 버퍼정보그룹을 리스트화함
-        var tAttrLocationGroup; // 대상 Attribute의 location 정보들
-        var tAttrBufferInfo; // 대상 RedBufferInfo 
-        var tAttrPointer; // 대상 Attrobute가 반영될 쉐이더내의 변수이름
-        var tUniformGroup; // 대상 유니폼 그룹
-        var tUniformGroupList; // 대상 유니폼 그룹을 리스트화함
-        var tUniformLocationGroup; // 대상 프로그램의 uniform location 정보들
-        var tUniformKey, tUniformValue, tUniformType; // 대상 유니폼 키와 값
-        var tLocation; // 대상 location 정보
-        var tIndicesBuffer; // 인덱스 버퍼
-        var tVertexPositionBuffer; // 포지션 버퍼
-        ///////////////////////////////////////////////////////////////////
-        var cacheProgram; // 이전 대상 프로그램        
-        var cacheAttrUUID; // 어트리뷰트 캐싱정보
-        var cacheDrawBufferUUID; // draw버퍼 캐싱정보
-        var cacheTexture1_UUID; // 일반 텍스쳐 캐싱정보
-        var cacheTexture2_UUID; // 큐브 텍스쳐 캐싱정보
-        var cacheTextureAtlas_UUID; // 텍스쳐 아틀라스 캐싱정보
-        var cacheActiveTextureIndex; // 액티브된 텍스쳐정보
-        var cacheActiveCubeTextureIndex; // 액티브된 큐브특스쳐정보
-        var cacheUAtlascoord_UUID; // 아틀라스 UV텍스쳐 정보
-        ///////////////////////////////////////////////////////////////////
-        var cacheUseCullFace; // 컬페이스 사용여부 캐싱정보
-        var cacheCullFace; // 컬페이스 캐싱정보
-        var cacheUseBlendMode; // 블렌드모드 사용여부 캐싱정보
-        var cacheBlendModeFactor; // 블렌드팩터 캐싱정보
-        var cacheUseDepthTest; // 뎁스테스트 사용여부 캐싱정보
-        var cacheDepthTestFunc; // 뎁스테스트 팩터 캐싱정보
-        ///////////////////////////////////////////////////////////////////
-        var aspect;
-        var debugPointRenderList = [];
-
-        cacheAttrUUID = {}
-        cacheTextureAtlas_UUID = {}
-        this.render = function (time) {
-            //TODO: 재질 소팅을 도입해야곘음 -_-;;
-            //////////////////////////////////////////////////////////
-            // cacheDrawBufferUUID 캐시를 한번제거함
-            // 왜냐? 버퍼가 중간에 등록만되고..사용이 안될떄..대비
-            cacheDrawBufferUUID = undefined
-            //////////////////////////////////////////////////////////
-            self['callback'] ? self['callback'](time) : 0
-            self['numDrawCall'] = 0
-            tGL = redGL.gl
-            //////////////////////////////////////////////////////////////////
-            tScene = self['targetScene']
-            tGL.clear(tGL.COLOR_BUFFER_BIT);
-            // TODO: 이부분은 리사이저이벤트로 날릴수 있을듯        ... 흠 프로그램 변경때문에 안되남...   
-            tScene['camera'].update()
-            for (k in redGL['__datas']['RedProgramInfo']) {
-                var tempProgramInfo;
-                tempProgramInfo = redGL['__datas']['RedProgramInfo'][k]
-                tGL.useProgram(tempProgramInfo['program'])
-                // 파스팩티브 갱신
-                tLocation = tempProgramInfo['uniforms']['uPMatrix']['location']
-                tGL.uniformMatrix4fv(tLocation, false, tScene['camera']['uPMatrix'])
-                // 카메라갱신
-                tLocation = tempProgramInfo['uniforms']['uCameraMatrix']['location']
-                tGL.uniformMatrix4fv(tLocation, false, tScene['camera']['uCameraMatrix'])
-                // 라이트갱신
-                // console.log(tScene['lights'])
-                self.setAmbientLight(tempProgramInfo)
-                self.setDirectionalLight(tempProgramInfo)
-                self.setPointLight(tempProgramInfo)
-              
-
-            }
-            cacheProgram = null // 캐쉬된 프로그램을 삭제
-            //////////////////////////////////////////////////////////////////
-            //////////////////////////////////////////////////////////////////
-
-            self.drawSkyBox(tScene['skyBox'], time)
-            tGL.clear(tGL.DEPTH_BUFFER_BIT);
-            self.draw(tScene['children'], time)
-            self.draw(debugPointRenderList)            
-            self.drawGrid(tScene['grid'], time)
-            // Set the backbuffer's alpha to 1.0
-            requestAnimationFrame(self.render)
-        };
-        this.setAmbientLight = (function(){
-            var tColorList = new Float32Array(4)
-            return function(programInfo){
-                if (
-                    tScene['lights'][RedAmbientLightInfo.TYPE].length
-                    && programInfo['uniforms']['uAmbientLightColor']
-                ) {
-                    tScene['lights'][RedAmbientLightInfo.TYPE].forEach(function (v, i) {
-                        tColorList[i * 4 + 0] = v['color'][0] 
-                        tColorList[i * 4 + 1] = v['color'][1] 
-                        tColorList[i * 4 + 2] = v['color'][2] 
-                        tColorList[i * 4 + 3] = v['color'][3] 
-                    })
-                    tLocation = programInfo['uniforms']['uAmbientLightColor']['location']
-                    tGL.uniform4fv(tLocation, tColorList)
-                }
-            }
-        })()
-        this.setDirectionalLight = (function () {
-            var tDirectionList = [], tColorList = []
-            return function (programInfo) {
-                if (
-                    tScene['lights'][RedDirectionalLightInfo.TYPE].length
-                    && programInfo['uniforms']['uDirectionnalLightDirection']
-                ) {
-                    tDirectionList.length = 0
-                    tColorList.length = 0
-                    tScene['lights'][RedDirectionalLightInfo.TYPE].forEach(function (v, i) {
-                        tDirectionList[i * 3 + 0] = v['direction'][0]
-                        tDirectionList[i * 3 + 1] = v['direction'][1]
-                        tDirectionList[i * 3 + 2] = v['direction'][2]
-                        tColorList[i * 4 + 0] = v['color'][0] 
-                        tColorList[i * 4 + 1] = v['color'][1] 
-                        tColorList[i * 4 + 2] = v['color'][2] 
-                        tColorList[i * 4 + 3] = v['color'][3] 
-                    })
-                    tLocation = programInfo['uniforms']['uDirectionnalLightDirection']['location']
-                    tGL.uniform3fv(tLocation, new Float32Array(tDirectionList))
-                    tLocation = programInfo['uniforms']['uDirectionnalLightColor']['location']
-                    tGL.uniform4fv(tLocation, new Float32Array(tColorList))
-                    tLocation = programInfo['uniforms']['uDirectionalNum']['location']
-                    tGL.uniform1i(tLocation, tScene['lights'][RedDirectionalLightInfo.TYPE].length)
-                }
-            }
-        })()
-        this.setPointLight = (function () {
-            var tPointList = [], tColorList = [], tPointRadius = new Float32Array(16)
-            return function (programInfo) {
-                if (
-                    tScene['lights']['point'].length
-                    && programInfo['uniforms']['uPointNum']
-                ) {
-                    tPointList.length = 0
-                    tColorList.length = 0
-                    debugPointRenderList.length = 0
-                    tScene['lights'][RedPointLightInfo.TYPE].forEach(function (v, i) {
-                        tPointList[i * 3 + 0] = v['position'][0]
-                        tPointList[i * 3 + 1] = v['position'][1]
-                        tPointList[i * 3 + 2] = v['position'][2]
-                        tColorList[i * 4 + 0] = v['color'][0]
-                        tColorList[i * 4 + 1] = v['color'][1]
-                        tColorList[i * 4 + 2] = v['color'][2] 
-                        tColorList[i * 4 + 3] = v['color'][3] 
-                        tPointRadius[i] = v['radius']
-                        if (v['useDebugMode']) {
-                            debugPointRenderList.push(v['__debugMesh'])
-                            v['__debugMesh'].position[0] = v.position[0]
-                            v['__debugMesh'].position[1] = v.position[1]
-                            v['__debugMesh'].position[2] = v.position[2]
-                            v['__debugMesh'].scale[0] = v.radius * 2
-                            v['__debugMesh'].scale[1] = v.radius * 2
-                            v['__debugMesh'].scale[2] = v.radius * 2
-                            v['__debugMesh'].materialInfo.uColor[0] = v['color'][0]
-                            v['__debugMesh'].materialInfo.uColor[1] = v['color'][1] 
-                            v['__debugMesh'].materialInfo.uColor[2] = v['color'][2]
-                            v['__debugMesh'].materialInfo.uColor[3] = 0.5
-                        }
-                    })
-                    tLocation = programInfo['uniforms']['uPointLightPosition']['location']
-                    tGL.uniform3fv(tLocation, new Float32Array(tPointList))
-                    tLocation = programInfo['uniforms']['uPointLightColor']['location']
-                    tGL.uniform4fv(tLocation, new Float32Array(tColorList))
-                    tLocation = programInfo['uniforms']['uPointNum']['location']
-                    tGL.uniform1i(tLocation, tScene['lights'][RedPointLightInfo.TYPE].length)
-                    tLocation = programInfo['uniforms']['uPointLightRadius']['location']
-                    tGL.uniform1fv(tLocation, tPointRadius)
-                }
-            }
-        })()
-        this.drawGrid = (function () {
-            var list = [];
-            return function (grid) {
-                if (grid) {
-                    list.length = 0
-                    list.push(grid)
-                    self.draw(list)
-                }
-            }
-        })();
-        this.drawSkyBox = (function () {
-            var list = [];
-            return function (skyBox) {
-                if (skyBox) {
-                    // 스카이박스 스케일은 카메라 far와 연동됨
-                    skyBox['scale'][0] = skyBox['scale'][1] = skyBox['scale'][2] = tScene['camera']['far']
-                    list.length = 0
-                    list.push(skyBox)
-                    self.draw(list)
-                }
-            }
-        })();
-        this.draw = function (renderList, time, parentMTX) {
-            var i, i2; // 루프변수
-            i = renderList.length
-            while (i--) {
-                self['numDrawCall']++
-                tMesh = renderList[i]
-                tMVMatrix = tMesh['uMVMatrix']
-                tNMatrix = tMesh['uNMatrix']
-                // 매트릭스 초기화
-                tMVMatrix[0] = 1, tMVMatrix[1] = 0, tMVMatrix[2] = 0, tMVMatrix[3] = 0,
-                    tMVMatrix[4] = 0, tMVMatrix[5] = 1, tMVMatrix[6] = 0, tMVMatrix[7] = 0,
-                    tMVMatrix[8] = 0, tMVMatrix[9] = 0, tMVMatrix[10] = 1, tMVMatrix[11] = 0,
-                    tMVMatrix[12] = 0, tMVMatrix[13] = 0, tMVMatrix[14] = 0, tMVMatrix[15] = 1
-                // 기본 변환
-                a = tMVMatrix
-                // 이동
-                aX = tMesh['position'][0], aY = tMesh['position'][1], aZ = tMesh['position'][2];
-                a[12] = a[0] * aX + a[4] * aY + a[8] * aZ + a[12];
-                a[13] = a[1] * aX + a[5] * aY + a[9] * aZ + a[13];
-                a[14] = a[2] * aX + a[6] * aY + a[10] * aZ + a[14];
-                a[15] = a[3] * aX + a[7] * aY + a[11] * aZ + a[15];
-                // xyz축 회전 
-                tRx = tMesh['rotation'][0], tRy = tMesh['rotation'][1], tRz = tMesh['rotation'][2]
-                aSx = SIN(tRx), aCx = COS(tRx), aSy = SIN(tRy), aCy = COS(tRy), aSz = SIN(tRz), aCz = COS(tRz),
-                    a00 = a[0], a01 = a[1], a02 = a[2],
-                    a10 = a[4], a11 = a[5], a12 = a[6],
-                    a20 = a[8], a21 = a[9], a22 = a[10],
-                    b00 = aCy * aCz, b01 = aSx * aSy * aCz - aCx * aSz, b02 = aCx * aSy * aCz + aSx * aSz,
-                    b10 = aCy * aSz, b11 = aSx * aSy * aSz + aCx * aCz, b12 = aCx * aSy * aSz - aSx * aCz,
-                    b20 = -aSy, b21 = aSx * aCy, b22 = aCx * aCy,
-                    a[0] = a00 * b00 + a10 * b01 + a20 * b02, a[1] = a01 * b00 + a11 * b01 + a21 * b02, a[2] = a02 * b00 + a12 * b01 + a22 * b02,
-                    a[4] = a00 * b10 + a10 * b11 + a20 * b12, a[5] = a01 * b10 + a11 * b11 + a21 * b12, a[6] = a02 * b10 + a12 * b11 + a22 * b12,
-                    a[8] = a00 * b20 + a10 * b21 + a20 * b22, a[9] = a01 * b20 + a11 * b21 + a21 * b22, a[10] = a02 * b20 + a12 * b21 + a22 * b22;
-                // 스케일
-                aX = tMesh['scale'][0], aY = tMesh['scale'][1], aZ = tMesh['scale'][2]
-                a[0] = a[0] * aX, a[1] = a[1] * aX, a[2] = a[2] * aX, a[3] = a[3] * aX;
-                a[4] = a[4] * aY, a[5] = a[5] * aY, a[6] = a[6] * aY, a[7] = a[7] * aY,
-                    a[8] = a[8] * aZ, a[9] = a[9] * aZ, a[10] = a[10] * aZ, a[11] = a[11] * aZ,
-                    a[12] = a[12], a[13] = a[13], a[14] = a[14], a[15] = a[15]
-                // 부모가있으면 곱함
-                if (parentMTX) {
-                    // 부모매트릭스 복사
-                    var parentClone = new glMatrix.ARRAY_TYPE(16);
-                    parentClone[0] = parentMTX[0], parentClone[1] = parentMTX[1], parentClone[2] = parentMTX[2], parentClone[3] = parentMTX[3],
-                        parentClone[4] = parentMTX[4], parentClone[5] = parentMTX[5], parentClone[6] = parentMTX[6], parentClone[7] = parentMTX[7],
-                        parentClone[8] = parentMTX[8], parentClone[9] = parentMTX[9], parentClone[10] = parentMTX[10], parentClone[11] = parentMTX[11],
-                        parentClone[12] = parentMTX[12], parentClone[13] = parentMTX[13], parentClone[14] = parentMTX[14], parentClone[15] = parentMTX[15]
-                    /////////////////////////////////////////////////////////////////////////////////////////////
-                    // 매트립스 곱
-                    a00 = parentClone[0], a01 = parentClone[1], a02 = parentClone[2], a03 = parentClone[3],
-                        a10 = parentClone[4], a11 = parentClone[5], a12 = parentClone[6], a13 = parentClone[7],
-                        a20 = parentClone[8], a21 = parentClone[9], a22 = parentClone[10], a23 = parentClone[11],
-                        a30 = parentClone[12], a31 = parentClone[13], a32 = parentClone[14], a33 = parentClone[15],
-                        // Cache only the current line of the second matrix
-                        b0 = tMVMatrix[0], b1 = tMVMatrix[1], b2 = tMVMatrix[2], b3 = tMVMatrix[3],
-                        tMVMatrix[0] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30,
-                        tMVMatrix[1] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31,
-                        tMVMatrix[2] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32,
-                        tMVMatrix[3] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33,
-                        b0 = tMVMatrix[4], b1 = tMVMatrix[5], b2 = tMVMatrix[6], b3 = tMVMatrix[7],
-                        tMVMatrix[4] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30,
-                        tMVMatrix[5] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31,
-                        tMVMatrix[6] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32,
-                        tMVMatrix[7] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33,
-                        b0 = tMVMatrix[8], b1 = tMVMatrix[9], b2 = tMVMatrix[10], b3 = tMVMatrix[11],
-                        tMVMatrix[8] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30,
-                        tMVMatrix[9] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31,
-                        tMVMatrix[10] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32,
-                        tMVMatrix[11] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33,
-                        b0 = tMVMatrix[12], b1 = tMVMatrix[13], b2 = tMVMatrix[14], b3 = tMVMatrix[15],
-                        tMVMatrix[12] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30,
-                        tMVMatrix[13] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31,
-                        tMVMatrix[14] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32,
-                        tMVMatrix[15] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33
-                    /////////////////////////////////////////////////////////////////////////////////////////////
-                }
-                // 정보세팅
-                tMeterial = tMesh['materialInfo']
-                tProgramInfo = tMeterial['programInfo']
-                tProgram = tProgramInfo['program']
-                tGeometry = tMesh['geometryInfo']
-                tAttrGroup = tGeometry['attributes']
-                tAttrGroupList = tGeometry['__attributeList']
-                tAttrLocationGroup = tProgramInfo['attributes']
-                tUniformGroup = tMeterial['uniforms']
-                tUniformLocationGroup = tProgramInfo['uniforms']
-                tIndicesBuffer = tGeometry['indices']
-                tVertexPositionBuffer = tAttrGroup['vertexPosition']
-
-
-                // 프로그램 세팅 & 캐싱
-                cacheProgram != tProgram ? tGL.useProgram(tProgram) : 0
-                cacheProgram = tProgram
-                // 어트리뷰트 입력
-                i2 = tAttrGroupList.length
-                while (i2--) {
-                    tAttrBufferInfo = tAttrGroupList[i2], // 대상버퍼구하고
-                        tAttrPointer = tAttrBufferInfo['shaderPointerKey'] // 바인딩할 쉐이더 변수키를 알아낸다.
-                    if (tAttrLocationGroup[tAttrPointer]) { // 정보매칭이 안되는 녀석은 무시한다 
-                        tLocation = tAttrLocationGroup[tAttrPointer]['location'] // 로케이션도 알아낸다.
-                        // 캐싱된 attribute정보과 현재 대상정보가 같다면 무시
-                        cacheAttrUUID[tLocation] == tAttrBufferInfo['__UUID'] ?
-                            0 :
-                            (
-                                tGL.bindBuffer(tGL.ARRAY_BUFFER, tAttrBufferInfo['buffer']), // 실제 버퍼 바인딩하고
-                                tAttrBufferInfo['enabled'] ? 0 : (tGL.enableVertexAttribArray(tLocation), tAttrBufferInfo['enabled'] = 1), // 해당로케이션을 활성화 시킨다
-                                tGL.vertexAttribPointer(
-                                    tLocation,
-                                    tAttrBufferInfo['pointSize'],
-                                    tAttrBufferInfo['arrayType'],
-                                    tAttrBufferInfo['normalize'],
-                                    tAttrBufferInfo['stride'],
-                                    tAttrBufferInfo['offset']
-                                ),
-                                cacheAttrUUID[tLocation] = tAttrBufferInfo['__UUID'] // 상태 캐싱
-                            )
-                    }
-                }
-                // 유니폼 입력
-                tUniformGroupList = tMeterial['__uniformList']
-                i2 = tUniformGroupList.length
-                var bitmapRenderable = true
-                while (i2--) {
-                    tUniformKey = tUniformGroupList[i2]['key'],
-                        tUniformType = tUniformGroupList[i2]['type'],
-                        // tUniformValue = tUniformGroupList[i2]['value'],
-                        tUniformValue = tMeterial[tUniformKey]
-                        tLocation = tUniformGroupList[i2]['location']
-                        // if(tUniformKey == 'uShininess') console.log(tUniformValue)
-                    if (tUniformKey == 'uAtlascoord') {
-                        cacheUAtlascoord_UUID == tUniformValue['__UUID'] ? 0 : tGL.uniform4fv(tLocation, tUniformValue['value'])
-                        cacheUAtlascoord_UUID = tUniformValue['__UUID']
-                    } else if (tUniformValue['__uniformMethod']) {
-                        tUniformValue['__isMatrix'] // 매트릭스형태인지 아닌지 파악
-                            ?
-                            tGL[tUniformValue['__uniformMethod']](tLocation, false, tUniformValue) :
-                            tGL[tUniformValue['__uniformMethod']](tLocation, tUniformValue)
-                    } else if (uniform1fiMAP[tUniformType]) {
-                        // 유니폼인데 숫자값일경우
-                        // console.log(tUniformKey,tUniformType,tUniformValue)
-                        tGL[uniform1fiMAP[tUniformType]](tLocation, tUniformValue)
-                    } else if (tUniformValue['__webglAtlasTexture']) {
-                        var tTexture;
-                        tTexture = tUniformValue['parentAtlasInfo']['textureInfo']
-                        if (cacheTextureAtlas_UUID[tTexture['__targetIndex']] == undefined) bitmapRenderable = false
-                        if (tTexture['loaded']) {
-                            if (cacheTextureAtlas_UUID[tTexture['__targetIndex']] != tTexture['__UUID']) {
-                                // console.log('오남')
-                                tTexture['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
-                                tTexture['actived'] = 1
-                                // tGL.activeTexture(tGL.TEXTURE0 + tTexture['__targetIndex'])
-                                tGL.bindTexture(tGL.TEXTURE_2D, tTexture['texture'])
-                                cacheTextureAtlas_UUID[tTexture['__targetIndex']] = tTexture['__UUID']
-                            }
-                            cacheActiveTextureIndex != tTexture['__targetIndex'] ? tGL.uniform1i(tLocation, tTexture['__targetIndex']) : 0
-                            cacheActiveTextureIndex = tTexture['__targetIndex']
-                        }
-                    } else if (tUniformValue['__webglTexture']) {
-
-                        if (cacheTexture1_UUID == undefined) bitmapRenderable = false
-                        if (tUniformValue['loaded']) {
-                            if (cacheTexture1_UUID != tUniformValue['__UUID']) {
-                                tUniformValue['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
-                                tUniformValue['actived'] = 1
-                                // tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
-                                tGL.bindTexture(tGL.TEXTURE_2D, tUniformValue['texture'])
-                                cacheTexture1_UUID = tUniformValue['__UUID']
-                            }
-                            cacheActiveTextureIndex != tUniformValue['__targetIndex'] ? tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
-                            cacheActiveTextureIndex = tUniformValue['__targetIndex']
-                        }
-                    } else if (tUniformValue['__webglCubeTexture']) {
-                        if (cacheTexture2_UUID == undefined) bitmapRenderable = false
-                        if (tUniformValue['loaded']) {
-                            if (cacheTexture2_UUID != tUniformValue['__UUID']) {
-                                tUniformValue['actived'] ? 0 : tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
-                                tUniformValue['actived'] = 1
-                                // tGL.activeTexture(tGL.TEXTURE0 + tUniformValue['__targetIndex'])
-                                tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, tUniformValue['texture'])
-                                cacheTexture2_UUID = tUniformValue['__UUID']
-                            }
-                            cacheActiveCubeTextureIndex != tUniformValue['__targetIndex'] ? tGL.uniform1i(tLocation, tUniformValue['__targetIndex']) : 0
-                            cacheActiveCubeTextureIndex = tUniformValue['__targetIndex']
-                        }
-                    } else throw '안되는 나쁜 타입인거야!!'
-                }
-
-                if (tUniformLocationGroup['uNMatrix']) {
-                    //클론
-                    tNMatrix[0] = tMVMatrix[0], tNMatrix[1] = tMVMatrix[1], tNMatrix[2] = tMVMatrix[2], tNMatrix[3] = tMVMatrix[3],
-                        tNMatrix[4] = tMVMatrix[4], tNMatrix[5] = tMVMatrix[5], tNMatrix[6] = tMVMatrix[6], tNMatrix[7] = tMVMatrix[7],
-                        tNMatrix[8] = tMVMatrix[8], tNMatrix[9] = tMVMatrix[9], tNMatrix[10] = tMVMatrix[10], tNMatrix[11] = tMVMatrix[11],
-                        tNMatrix[12] = tMVMatrix[12], tNMatrix[13] = tMVMatrix[13], tNMatrix[14] = tMVMatrix[14], tNMatrix[15] = tMVMatrix[15];
-                    // mat4Inverse
-                    var inverse_c = tNMatrix[0], inverse_d = tNMatrix[1], inverse_e = tNMatrix[2], inverse_g = tNMatrix[3],
-                        inverse_f = tNMatrix[4], inverse_h = tNMatrix[5], inverse_i = tNMatrix[6], inverse_j = tNMatrix[7],
-                        inverse_k = tNMatrix[8], inverse_l = tNMatrix[9], inverse_n = tNMatrix[10], inverse_o = tNMatrix[11],
-                        inverse_m = tNMatrix[12], inverse_p = tNMatrix[13], inverse_r = tNMatrix[14], inverse_s = tNMatrix[15],
-                        inverse_A = inverse_c * inverse_h - inverse_d * inverse_f,
-                        inverse_B = inverse_c * inverse_i - inverse_e * inverse_f,
-                        inverse_t = inverse_c * inverse_j - inverse_g * inverse_f,
-                        inverse_u = inverse_d * inverse_i - inverse_e * inverse_h,
-                        inverse_v = inverse_d * inverse_j - inverse_g * inverse_h,
-                        inverse_w = inverse_e * inverse_j - inverse_g * inverse_i,
-                        inverse_x = inverse_k * inverse_p - inverse_l * inverse_m,
-                        inverse_y = inverse_k * inverse_r - inverse_n * inverse_m,
-                        inverse_z = inverse_k * inverse_s - inverse_o * inverse_m,
-                        inverse_C = inverse_l * inverse_r - inverse_n * inverse_p,
-                        inverse_D = inverse_l * inverse_s - inverse_o * inverse_p,
-                        inverse_E = inverse_n * inverse_s - inverse_o * inverse_r,
-                        inverse_q = inverse_A * inverse_E - inverse_B * inverse_D + inverse_t * inverse_C + inverse_u * inverse_z - inverse_v * inverse_y + inverse_w * inverse_x;
-                    inverse_q = 1 / inverse_q;
-                    tNMatrix[0] = (inverse_h * inverse_E - inverse_i * inverse_D + inverse_j * inverse_C) * inverse_q,
-                        tNMatrix[1] = (-inverse_d * inverse_E + inverse_e * inverse_D - inverse_g * inverse_C) * inverse_q,
-                        tNMatrix[2] = (inverse_p * inverse_w - inverse_r * inverse_v + inverse_s * inverse_u) * inverse_q,
-                        tNMatrix[3] = (-inverse_l * inverse_w + inverse_n * inverse_v - inverse_o * inverse_u) * inverse_q,
-                        tNMatrix[4] = (-inverse_f * inverse_E + inverse_i * inverse_z - inverse_j * inverse_y) * inverse_q,
-                        tNMatrix[5] = (inverse_c * inverse_E - inverse_e * inverse_z + inverse_g * inverse_y) * inverse_q,
-                        tNMatrix[6] = (-inverse_m * inverse_w + inverse_r * inverse_t - inverse_s * inverse_B) * inverse_q,
-                        tNMatrix[7] = (inverse_k * inverse_w - inverse_n * inverse_t + inverse_o * inverse_B) * inverse_q,
-                        tNMatrix[8] = (inverse_f * inverse_D - inverse_h * inverse_z + inverse_j * inverse_x) * inverse_q,
-                        tNMatrix[9] = (-inverse_c * inverse_D + inverse_d * inverse_z - inverse_g * inverse_x) * inverse_q,
-                        tNMatrix[10] = (inverse_m * inverse_v - inverse_p * inverse_t + inverse_s * inverse_A) * inverse_q,
-                        tNMatrix[11] = (-inverse_k * inverse_v + inverse_l * inverse_t - inverse_o * inverse_A) * inverse_q,
-                        tNMatrix[12] = (-inverse_f * inverse_C + inverse_h * inverse_y - inverse_i * inverse_x) * inverse_q,
-                        tNMatrix[13] = (inverse_c * inverse_C - inverse_d * inverse_y + inverse_e * inverse_x) * inverse_q,
-                        tNMatrix[14] = (-inverse_m * inverse_u + inverse_p * inverse_B - inverse_r * inverse_A) * inverse_q,
-                        tNMatrix[15] = (inverse_k * inverse_u - inverse_l * inverse_B + inverse_n * inverse_A) * inverse_q;
-                    // transpose
-                    a01 = tNMatrix[1], a02 = tNMatrix[2], a03 = tNMatrix[3],
-                        a12 = tNMatrix[6], a13 = tNMatrix[7], a23 = tNMatrix[11],
-                        tNMatrix[1] = tNMatrix[4], tNMatrix[2] = tNMatrix[8], tNMatrix[3] = tNMatrix[12], tNMatrix[4] = a01, tNMatrix[6] = tNMatrix[9],
-                        tNMatrix[7] = tNMatrix[13], tNMatrix[8] = a02, tNMatrix[9] = a12, tNMatrix[11] = tNMatrix[14],
-                        tNMatrix[12] = a03, tNMatrix[13] = a13, tNMatrix[14] = a23;
-                    tGL.uniformMatrix4fv(tUniformLocationGroup['uNMatrix']['location'], false, tNMatrix)
-                }
-                // uMVMatrix 입력 //TODO: 이것도 자동으로 하고싶은데...
-                tGL.uniformMatrix4fv(tUniformLocationGroup['uMVMatrix']['location'], false, tMVMatrix)
-                ////////////////////////////////////////////////////////////////////////////////////////////////////
-                // GL 드로잉상태관련 캐싱들 처리
-                // TODO: CCW도먹어야하나?
-                // 컬페이스 사용여부 캐싱처리
-                if (cacheUseCullFace != tMesh['useCullFace']) {
-                    (cacheUseCullFace = tMesh['useCullFace']) ? tGL.enable(tGL.CULL_FACE) : tGL.disable(tGL.CULL_FACE)
-                }
-                if (cacheCullFace != tMesh['cullFace']) tGL.cullFace(tMesh['cullFace']), cacheCullFace = tMesh['cullFace']
-                // 뎁스테스트 사용여부 캐싱처리
-                if (cacheUseDepthTest != tMesh['useDepthTest']) (cacheUseDepthTest = tMesh['useDepthTest']) ? tGL.enable(tGL.DEPTH_TEST) : tGL.disable(tGL.DEPTH_TEST)
-                // 뎁스테스팅 캐싱처리
-                if (cacheDepthTestFunc != tMesh['depthTestFunc']) tGL.depthFunc(cacheDepthTestFunc = tMesh['depthTestFunc'])
-                // 블렌딩 사용여부 캐싱처리
-                if (cacheUseBlendMode != tMesh['useBlendMode']) {
-                    (cacheUseBlendMode = tMesh['useBlendMode']) ? tGL.enable(tGL.BLEND) : tGL.disable(tGL.BLEND)
-                }
-                // 블렌딩팩터 캐싱처리
-                if (cacheBlendModeFactor != (tMesh['blendFactor1'] + tMesh['blendFactor2'])) {
-                    tGL.blendFunc(tMesh['blendFactor1'], tMesh['blendFactor2'])
-                    cacheBlendModeFactor = tMesh['blendFactor1'] + tMesh['blendFactor2']
-                }
-                ////////////////////////////////////////////////////////////////////////////////////////////////////
-                if (tIndicesBuffer) {
-                    if (bitmapRenderable) {
-                        cacheDrawBufferUUID == tIndicesBuffer['__UUID'] ? 0 : tGL.bindBuffer(tGL.ELEMENT_ARRAY_BUFFER, tIndicesBuffer['buffer'])
-                        tGL.drawElements(tMesh['drawMode'], tIndicesBuffer['pointNum'], tGL.UNSIGNED_SHORT, 0)
-                        cacheDrawBufferUUID = tIndicesBuffer['__UUID']
-                    }
-                } else {
-                    tGL.drawArrays(tMesh['drawMode'], 0, tVertexPositionBuffer['pointNum'])
-                    cacheDrawBufferUUID = tVertexPositionBuffer['__UUID']
-                }
-                // 자식을 콜
-                tMesh['children'].length ? self.draw(tMesh['children'], time, tMVMatrix) : 0
-            }
-        }
-    }
-    RedBaseRenderInfo.prototype = {
-        /**DOC:
-            {
-                title :`start`,
-                code : `FUNCTION`,
-                description : `
-                    - 렌더러 시작 매서드
-                `,
-                example : `
-                    var renderer = RedBaseRenderInfo(RedGL Instance, RedSceneInfo Instance, function (time) {
-                        // 렌더링시 사전호출될 콜백
-                    })
-                    renderer.start()
-                `,
-                return : `RedBaseRenderInfo Instance`
-            }
-        :DOC*/
-        start: function () {
-            requestAnimationFrame(this.render)
-            return this
-        },
-        /**DOC:
-            {
-                title :`pause`,
-                code : `FUNCTION`,
-                description : `
-                    - 렌더러 pause 매서드
-                    <h2>- TODO 구현해야함</h2>
-                `,
-                return : `RedBaseRenderInfo Instance`
-            }
-        :DOC*/
-        pause: function () {
-            //TODO:
-            return this
-        },
-        /**DOC:
-            {
-                title :`resume`,
-                code : `FUNCTION`,
-                description : `
-                    - 렌더러 resume 매서드
-                    <h2>- TODO 구현해야함</h2>
-                `,
-                return : `RedBaseRenderInfo Instance`
-            }
-        :DOC*/
-        resume: function () {
-            //TODO:
-            return this
-        },
-        /**DOC:
-            {
-                title :`numDrawCall`,
-                code : `PROPERTY`,
-                description : `
-                    - 렌더러 당 콜횟수
-                `,
-                return : `Number`
-            }
-        :DOC*/
-        numDrawCall : 0
-    }
-    Object.freeze(RedBaseRenderInfo)
-})();
-"use strict";
-var redGLDetect;
-
-(function () {
-	var checkList, reg, makeCamelCase, i, k;
 	var tGL;
 	/**DOC:
 		{
 			constructorYn : true,
-			title :`redGLDetect`,
+			title :`RedCubeTextureInfo`,
 			description : `
-				- webgl 기본정보를 디텍팅한다.
+				- Cube 텍스쳐 생성기
 			`,
 			params : {
 				redGL : [
-					{type:'RedGL Instance'}
+					{type:'RedGL Instance'},
+					'텍스쳐경로나 캔버스 오브젝트만 사용가능'
+				],
+				src : [
+					{type:'Array'},
+					`
+						TEXTURE_CUBE_MAP_POSITIVE_X,
+						TEXTURE_CUBE_MAP_NEGATIVE_X,
+						TEXTURE_CUBE_MAP_POSITIVE_Y, 
+						TEXTURE_CUBE_MAP_NEGATIVE_Y,
+						TEXTURE_CUBE_MAP_POSITIVE_Z,
+						TEXTURE_CUBE_MAP_NEGATIVE_Z
+					`
+				],
+				targetIndex : [
+					{type:'Integer'},
+					'- 타겟 인덱스를 지정한다.',
+					'- 기본값 : RedTextureIndex.CUBE_REFLECTION',
+					'- RedTextureIndex.CUBE_XXX의 목록을 사용한다.'
 				]
 			},
-			example : `
-				testGL.detect
-			`,
-			return : 'redGLDetect Instance'
+			return : 'RedCubeTextureInfo Instance'
 		}
 	:DOC*/
-	redGLDetect = function (redGL) {
-		if (!(this instanceof redGLDetect)) return new redGLDetect(redGL)
-		if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+	RedCubeTextureInfo = function (redGL, srcList, targetIndex) {
+		if (!(this instanceof RedCubeTextureInfo)) return new RedCubeTextureInfo(redGL, srcList, targetIndex)
+		if (!(redGL instanceof RedGL)) throw 'RedCubeTextureInfo : RedGL 인스턴스만 허용됩니다.'
+		if (!(srcList instanceof Array)) throw 'RedCubeTextureInfo : srcList는 Array만 허용됩니다.'
+		var texture;
+		var i;
+		var loadedNum;
+		var self;
+		var targetIndex;
+		self = this
 		tGL = redGL.gl
-		checkList = ('VENDOR,VERSION,SHADING_LANGUAGE_VERSION,RENDERER,MAX_VERTEX_ATTRIBS,MAX_VARYING_VECTORS,MAX_VERTEX_UNIFORM_VECTORS,' +
-			'MAX_VERTEX_TEXTURE_IMAGE_UNITS,MAX_FRAGMENT_UNIFORM_VECTORS,MAX_TEXTURE_SIZE,MAX_CUBE_MAP_TEXTURE_SIZE,' +
-			'MAX_COMBINED_TEXTURE_IMAGE_UNITS,MAX_TEXTURE_IMAGE_UNITS,MAX_RENDERBUFFER_SIZE,MAX_VIEWPORT_DIMS,' +
-			'RED_BITS,GREEN_BITS,BLUE_BITS,ALPHA_BITS,DEPTH_BITS,STENCIL_BITS').split(',');
+		loadedNum = 0
 
-		reg = /[_]\S/g
-		makeCamelCase = function (v) {
-			return v.charAt(1).toUpperCase()
-		};
-		i = checkList.length
-		while (i--) this[k = checkList[i]] = tGL.getParameter(tGL[k])
-	}
-})();
-"use strict";
-var RedSkyBoxInfo;
-/**DOC:
-    {
-        constructorYn : true,
-        title :`RedSkyBoxInfo`,
-        description : `
-            <h2>RedMeshBaseInfo 상속객체</h2>
-            - 기본 스카이박스 생성기
-        `,
-        params:{
-            redGL : [
-                {type:'Red Instance'},
-                'redGL 인스턴스'
-            ],
-            srcList : [
-                {type:'Array'},
-                `
-                    tGL.TEXTURE_CUBE_MAP_POSITIVE_X<br>
-                    tGL.TEXTURE_CUBE_MAP_NEGATIVE_X<br>
-                    tGL.TEXTURE_CUBE_MAP_POSITIVE_Y<br>
-                    tGL.TEXTURE_CUBE_MAP_NEGATIVE_Y<br>
-                    tGL.TEXTURE_CUBE_MAP_POSITIVE_Z<br>
-                    tGL.TEXTURE_CUBE_MAP_NEGATIVE_Z<br>
-                순으로 입력
-                `
-            ]
-        },
-        example : `
-            testScene.setSkyBox(
-                testGL.createSkyBoxInfo([
-                    'asset/cubemap/posx.jpg',
-                    'asset/cubemap/negx.jpg',
-                    'asset/cubemap/posy.jpg',
-                    'asset/cubemap/negy.jpg',
-                    'asset/cubemap/posz.jpg',
-                    'asset/cubemap/negz.jpg'
-                ])
-            )
-        `,
-        return : 'RedSkyBoxInfo Instance'
-    }
-:DOC*/
-(function () {
-    RedSkyBoxInfo = function (redGL, srcList) {
-        if (!(this instanceof RedSkyBoxInfo)) return new RedSkyBoxInfo(redGL, srcList)
-        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
-        if (!(srcList instanceof Array)) throw 'srcList는 Array만 허용됩니다.'
-        if (srcList.length != 6) throw 'srcList는 6개여야 합니다.'
-        RedMeshBaseInfo.call(this, redGL)
-        this['materialInfo'] = RedMaterialInfo(redGL, 'skybox', RedCubeTextureInfo(redGL, srcList))
-        this['geometryInfo'] = RedPrimitive.cube(redGL)
-        this['scale'][0] = 1000//TODO: 카메라 far 물어야함
-        this['scale'][1] = 1000
-        this['scale'][2] = 1000
-        this['cullFace'] = redGL.gl.FRONT
-    }
-    Object.freeze(RedSkyBoxInfo)
-})();
-"use strict";
-var RedShaderLoader;
-/**DOC:
-    {
-        constructorYn : true,
-        title :`RedShaderLoader`,
-        description : `
-			<h2>- 걍 소스로딩기</h2>
-			<h2>- TODO: 중복로딩을 막아야함...</h2>
-        `,
-        params : {
-            list : [
-                {type:'Array'},
-                '소스 로딩정보'
-            ],
-            callback : [
-                {type:'Function'},
-                '- 소스로딩완료후 실행될 콜백'
-            ]
-        },
-		example : `
-			RedShaderLoader(
-				[
-					{ id: 'colorVS', src: 'glsl/colorVS.glsl' },
-					{ id: 'colorFS', src: 'glsl/colorFS.glsl' },
-					{ id: 'bitmapPhongVS', src: 'glsl/bitmapPhongVS.glsl' },
-					{ id: 'bitmapPhongFS', src: 'glsl/bitmapPhongFS.glsl' },
-					{ id: 'skyBoxVS', src: 'glsl/skyBoxVS.glsl' },
-					{ id: 'skyBoxFS', src: 'glsl/skyBoxFS.glsl' }
-				],
-				function(){
-					console.log('콜백!')
+		var i = srcList.length
+		this['__imgList'] = []
+		while (i--) {
+			var img = new Image()
+			var tSrc
+			tSrc = srcList[i]
+			if (tSrc != undefined && typeof tSrc != 'string' && !(tSrc instanceof Element && tSrc.nodeName == 'CANVAS')) throw 'RedTextureInfo : src는 문자열과 캔버스 오브젝트만 허용됩니다.'
+			img.src = tSrc instanceof Element ? tSrc.toDataURL() : tSrc
+			console.log(img.src)
+			img.onload = function () {
+				loadedNum++
+				this.onload = null
+				if (loadedNum == 6) {
+					self.__allLoaed(tGL)
 				}
-			)
-        `,
-        return : 'RedSceneInfo Instance'
-    }
-:DOC*/
-(function () {
-	RedShaderLoader = function (list, callback) {
-		console.log(list, callback)
-		if (!(this instanceof RedShaderLoader)) return new RedShaderLoader(list, callback)
-		var cnt = 0;
-		list['callback'] = callback
-		list.forEach(function (v, idx) {
-			var xhr = new XMLHttpRequest();
-			xhr.open('GET', v['src'], true);
-			xhr.onreadystatechange = function () {
-				var scr;
-				if (xhr.readyState == 4 && xhr.status == 200) {
-					scr = document.createElement('script');
-					scr.setAttribute('id', v['id'])
-					scr.setAttribute('type','glsl')
-					scr.text = xhr.responseText;
-					console.log(v['id'],scr.text);
-					console.log(list)
-					document.body.appendChild(scr);
-					if (++cnt == list.length && list['callback']) list['callback']();
-				}
-			};
-			xhr.send(null);
-		});
-	};
-
-})();
-"use strict";
-var RedGL;
-var REDGL_UUID; // 내부에서 사용할 고유아이디
-(function () {
-	var getGL;
-	var instanceList = [];
-	REDGL_UUID = 0
-	getGL = (function () {
-		var checkList; // 체크할 리스트
-		var option; // 기본초기화 옵션
-		var t0, i;
-		option = {
-			alpha: false,
-			depth: true,
-			failIfMajorPerformanceCaveat: false,
-			premultipliedAlpha: false,
-			preserveDrawingBuffer: false,
-			stencil: false
-		}
-		checkList = 'experimental-webgl,webgl,webkit-3d,moz-webgl,3d'.split(',')
-		return function (cvs) {
-			i = checkList.length
-			while (i--) {
-				if (t0 = cvs.getContext(checkList[i], option)) return t0
 			}
-			throw "웹지엘을 사용할수없습니다."
+			this['__imgList'][i] = img
 		}
-	})();
-	/**DOC:
+		/**DOC:
 		{
-			constructorYn : true,
-			title :`RedGL`,
+			title :`loaded`,
+			code : 'PROPERTY',
 			description : `
-				- RedGL 인스턴스 생성자
+			- 텍스쳐 로딩완료여부
 			`,
-			params : {
-				canvas : [
-					{type:'Canvas Element'}
-				],
-				callback :[
-					{type:'function'},
-					'컨텐스트초기화이후 실행될 콜백'
-				],
-				fullMode : [
-					{type:'Boolean'},
-					'- 기본값 false',
-					'- true일경우 윈도우사이즈가 변할때마다 추적함'
-				],
-				shaderSourceInfo : [
-					{type:'Object'},
-					'미리로드할 쉐이더 소스정보'
-				]
-			},
 			example : `
-				RedGL(document.getElementById('test'))
+			인스턴스.loaded
 			`,
-			return : 'RedGL Instance'
+			return : '0 or 1'
 		}
-	:DOC*/
-	RedGL = function (canvas, callback, fullMode, shaderSourceInfo) {
-		if (!(this instanceof RedGL)) return new RedGL(canvas, callback, fullMode, shaderSourceInfo)
-		var tGL;
-		this['__canvas'] = canvas
-		this['gl'] = tGL = getGL(canvas)
-		fullMode ? this.setSize() : 0 // 풀모드일경우....처음 확장
-		this['fullMode'] = fullMode
+		:DOC*/
+		this['loaded'] = 0
+		/**DOC:
+		{
+			title :`texture`,
+			code : 'PROPERTY',
+			description : `
+				- WebGLTexture 인스턴스
+			`,
+			example : `
+				인스턴스.loaded
+			`,
+			return : 'WebGLTexture Instance'
+		}
+		:DOC*/
+		this['texture'] = tGL.createTexture()
+		// 인덱스 번호 지정 - 초기생성전담은 0번 인덱스를 사용함
+		targetIndex = targetIndex==undefined ? RedTextureIndex.CUBE_CREATE : targetIndex 
+		this['__targetIndex'] = RedTextureIndex.CUBE_CREATE
+		this['__allLoadedTargetIndex'] = targetIndex
+		// 웹지엘 텍스쳐인지
+		this['__webglCubeTexture'] = 1
+		this['__webglTextureYn'] = 1
 		this['__UUID'] = REDGL_UUID++
-		this['__datas'] = {}
-		this['detect'] = redGLDetect(this)
-		console.log('RedGL 생성완료')
-		// 초기상태정의
-		// tGL.clearColor(0,0,0,0)
-		// set the depthTest
-		tGL.enable(tGL.DEPTH_TEST);
-		tGL.depthFunc(tGL.LESS)
-		// tGL.depthMask(false)
-		// 컬링 페이스 설정
-		tGL.frontFace(tGL.CCW)
-		tGL.enable(tGL.CULL_FACE);
-		tGL.cullFace(tGL.BACK)
-		// 블렌드모드설정
-		tGL.enable(tGL.BLEND);
-		tGL.blendFunc(tGL.ONE, tGL.ONE_MINUS_SRC_ALPHA);
-		// tGL.blendFuncSeparate(tGL.SRC_ALPHA, tGL.ONE_MINUS_SRC_ALPHA,tGL.ZERO, tGL.ONE);
-		// 픽셀 블렌딩 결정
-		tGL.pixelStorei(tGL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
-		// 픽셀 플립 기본설정
-		tGL.pixelStorei(tGL.UNPACK_FLIP_Y_WEBGL, true);
-		// 시저박스 설정
-		tGL.enable(tGL.SCISSOR_TEST);
-		tGL.scissor(0, 0, tGL.drawingBufferWidth, tGL.drawingBufferHeight);
-		// set the viewport rectangle
-		tGL.viewport(0, 0, tGL.drawingBufferWidth, tGL.drawingBufferHeight);
-		
-		instanceList.push(this)
-		console.log(shaderSourceInfo, callback)
-		if (shaderSourceInfo) RedShaderLoader(shaderSourceInfo, callback)
-		else callback ? callback() : 0
 
+		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CUBE_CREATE)
+		tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, this['texture'])
 	}
-	window.addEventListener('resize', function () {
-		instanceList.forEach(function (v) {
-			if (v['fullMode']) v.setSize()
+	RedCubeTextureInfo.prototype['__allLoaed'] = function () {
+		// 로딩상태 플래그를 완료로 설정
+
+		// 타겟인덱스를 설정함	
+		var self
+		self = this
+		this['__targetIndex'] = this['__allLoadedTargetIndex']
+		console.log(this)
+		tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CUBE_CREATE)
+		tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, self['texture'])
+		this['__imgList'].forEach(function (img, index) {
+			// console.log(
+			// 	tGL.TEXTURE_CUBE_MAP_POSITIVE_X,
+			// 	tGL.TEXTURE_CUBE_MAP_NEGATIVE_X,
+			// 	 tGL.TEXTURE_CUBE_MAP_POSITIVE_Y, 
+			// 	 tGL.TEXTURE_CUBE_MAP_NEGATIVE_Y,
+			// 	  tGL.TEXTURE_CUBE_MAP_POSITIVE_Z,
+			// 	   tGL.TEXTURE_CUBE_MAP_NEGATIVE_Z
+			// )
+			tGL.texImage2D(
+				tGL.TEXTURE_CUBE_MAP_POSITIVE_X + index,
+				0,
+				tGL.RGBA,
+				tGL.RGBA,
+				tGL.UNSIGNED_BYTE,
+				img
+			);
+
 		})
-	})
-	RedGL.prototype = {
-		/**DOC:
-		{
-			title :`setSize`,
-			code: 'FUNCTION',
-			description : `
-				wengl 캔버스의 크기를 지정함.
-				인자를 입력하지 않으면 화면상의 풀사이즈로 적용됨
-			`,
-			params : {
-				width : [
-					{type:'Number'},
-					'가로값'
-				],
-				height : [
-					{type:'Number'},
-					'세로값'
-				]
-			},
-			example : `
-				인스턴스.setSize(600,600)
-			`
-		}
-		:DOC*/
-		setSize: function (width, height) {
-			console.log('실행을했냐!')
-			var gl;
-			var W, H;
-			W = width ? width : (document.documentElement ? document.documentElement.clientWidth : document.body.clientWidth)
-			H = height ? height : (document.documentElement ? document.documentElement.clientHeight : document.body.clientHeight)
-			gl = this.gl
-			W = W
-			H = H
-			this.__canvas.width = W * window.devicePixelRatio
-			this.__canvas.height = H * window.devicePixelRatio
-			this.__canvas.style.width = W
-			this.__canvas.style.height = H
-			gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-			// set the scissor rectangle
-			gl.enable(gl.SCISSOR_TEST);
-			gl.scissor(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
-		},
-		/**DOC:
-		{
-			title :`calcNormal`,
-			code: 'FUNCTION',
-			description : `
-				- 버텍스 정보와 인덱스정보를 토대로 노말데이터(Float32Array생성.
-				- <span style="color:red">이놈음 다른곳으로 옮겨야할듯</span>
-			`,
-			params : {
-				pos : [
-					{type:'Float32Array'},
-					'버덱스 데이터 정보'
-				],
-				idx : [
-					{type:'Uint16Array'},
-					'인덱스 데이터 정보'
-				]
-			},
-			example : `
-				var vs = new Float32Array(10)
-				var is = new Uint16Array(10)
-				RedGL인스턴스.calcNormal(vs,is)
-			`,
-			return : 'Float32Array Instance'
-		}
-		:DOC*/
-		calcNormal: (function () {
-			var sqrt, v1, v2;
-			sqrt = Math.sqrt,
-				v1 = { x: 0, y: 0, z: 0 }, v2 = { x: 0, y: 0, z: 0 };
-			return function calcNormal(pos, idx) {
-				var i, j, k, l;
-				var ns = new Float32Array(pos.length)
-				for (i = 0, j = pos.length; i < j; i++) ns[i] = 0.0;
-				for (i = 0, j = idx.length; i < j; i += 3) {
-					k = 3 * idx[i + 1],
-						l = 3 * idx[i],
-						v1.x = pos[k] - pos[l],
-						v1.y = pos[k + 1] - pos[l + 1],
-						v1.z = pos[k + 2] - pos[l + 2],
-						l = 3 * idx[i + 2],
-						v2.x = pos[l] - pos[k],
-						v2.y = pos[l + 1] - pos[k + 1],
-						v2.z = pos[l + 2] - pos[k + 2];
-					for (k = 0; k < 3; k++) {
-						l = 3 * idx[i + k],
-							ns[l] += v1.y * v2.z - v1.z * v2.y,
-							ns[l + 1] += v1.z * v2.x - v1.x * v2.z,
-							ns[l + 2] += v1.x * v2.y - v1.y * v2.x;
-					}
-				}
-				for (i = 0, j = pos.length; i < j; i += 3) {
-					v1.x = ns[i],
-						v1.y = ns[i + 1],
-						v1.z = ns[i + 2],
-						k = sqrt(v1.x * v1.x + v1.y * v1.y + v1.z * v1.z) || 0.00001,
-						ns[i] = v1.x / k,
-						ns[i + 1] = v1.y / k,
-						ns[i + 2] = v1.z / k;
-				}
-				return ns;
-			};
-		})(),
-		/**DOC:
-		{
-			title :`getSourceFromScript`,
-			code: 'FUNCTION',
-			description : `
-				script 소스를 가져옴
-			`,
-			params : {
-				id : [
-					{type:'String'},
-					'아이디'
-				]
-			},
-			example : `
-				RedShaderInfo.getSourceFromScript(id)
-			`,
-			return : 'String'
-		}
-		:DOC*/
-		getSourceFromScript: (function () {
-			var shaderScript
-			var str, k;
-			return function (id) {
-				shaderScript = document.getElementById(id)
-				if (!shaderScript) throw "쉐이더소스가 없음!"
-				str = "";
-				k = shaderScript.firstChild;
-				while (k) {
-					if (k.nodeType == 3) str += k.textContent;
-					k = k.nextSibling;
-				}
-				return str
-			}
-		})(),
-		/**DOC:
-		{
-			title :`createShaderInfo`,
-			code : 'FUNCTION',
-			description : `
-				- RedGL 쉐이더 생성기.
-				- 유일키만 지원하며 키 중복일경우 기존 캐싱된 쉐이더정보를 반환함.
-				- 단 프레그먼트/버텍스의 키는 따로 관리함.
-			`,
-			params : {
-				key : [
-					{type:'String'},
-					'- 등록될 키명'
-				],
-				type : [
-					{type:'String'},
-					'- 버텍스 쉐이더(RedShaderInfo.VERTEX_SHADER)',
-					'- 프레그먼트 쉐이더(RedShaderInfo.FRAGMENT_SHADER)'
-				],
-				source : [
-					{type:'String'},
-					'- 생성할 쉐이더 소스문자열'
-				]
-			},
-			example : `
-			 	var test;
-				test = RedGL(Canvas Element)
-				// basic이라는 이름으로 버텍스 쉐이더를 만든다. 
-				test.createShaderInfo('basic', RedShaderInfo.VERTEX_SHADER, 쉐이더소스)
-			`,
-			return : 'RedShaderInfo Instance'
-		}
-		:DOC*/
-		createShaderInfo: function (key, type, source) {
-			return new RedShaderInfo(this, key, type, source)
-		},
-		/**DOC:
-		{
-			title :`getShaderInfo`,
-			code : 'FUNCTION',
-			description : `
-				- 정의된 쉐이더를 조회
-			`
-		}
-		:DOC*/
-		getShaderInfo: function (key, type) {
-			return this['__datas']['shaderInfo'][type][key]
-		},
-		/**DOC:
-		{
-			title :`createProgram`,
-			code : 'FUNCTION',
-			description : `프로그램 생성 단축 매서드`
-		}
-		:DOC*/
-		createProgramInfo: function (key, vShaderInfo, fShaderInfo, makeUniformValue) {
-			return new RedProgramInfo(this, key, vShaderInfo, fShaderInfo, makeUniformValue)
-		},
-		/**DOC:
-		{
-			title :`getProgramInfo`,
-			code : 'FUNCTION',
-			description : `프로그램 조회`,
-			parmas : {
-				key :[
-					{type:'String'},
-					'키로 등록된 프로그램을 조회함'
-				]
-			}
-		}
-		:DOC*/
-		getProgramInfo: function (key) {
-			return this['__datas']['RedProgramInfo'][key]
-		},
-		/**DOC:
-		{
-			title :`createArrayBufferInfo`,
-			code : 'FUNCTION',
-			description : `Array버퍼 생성 단축 매서드`
-		}
-		:DOC*/
-		createArrayBufferInfo: function (key, shaderPointerKey, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode) {
-			//TODO: pointNum, arrayType도 그냥 단축시켜버릴까 -_-
-			return new RedBufferInfo(this, RedBufferInfo.ARRAY_BUFFER, key, shaderPointerKey, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode)
-		},
-		/**DOC:
-		{
-			title :`createIndexBufferInfo`,
-			code : 'FUNCTION',
-			description : `ElementArray버퍼 생성 단축 매서드`
-		}
-		:DOC*/
-		createIndexBufferInfo: function (key, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode) {
-			//TODO: pointNum, arrayType도 그냥 단축시켜버릴까 -_-
-			return new RedBufferInfo(this, RedBufferInfo.ELEMENT_ARRAY_BUFFER, key, null, dataList, pointSize, pointNum, arrayType, normalize, stride, offset, drawMode)
-		},
-		/**DOC:
-		{
-			title :`getArrayBufferInfo`,
-			code : 'FUNCTION',
-			description : `Array버퍼 조회 매서드`,
-			parmas : {
-				key :[
-					{type:'String'},
-					'키로 등록된 Array버퍼를 조회함'
-				]
-			}
-		}
-		:DOC*/
-		getArrayBufferInfo: function (key) {
-			return this['__datas']['RedBufferInfo'][key]
-		},
-		/**DOC:
-		{
-			title :`getIndexBufferInfo`,
-			code : 'FUNCTION',
-			description : `ElementArray버퍼 조회 매서드`,
-			parmas : {
-				key :[
-					{type:'String'},
-					'키로 등록된 ElementArray버퍼를 조회함'
-				]
-			}
-		}
-		:DOC*/
-		getIndexBufferInfo: function (key) {
-			return this['__datas']['RedBufferInfo'][key]
-		},
-		/**DOC:
-		{
-			title :`createGeometryInfo`,
-			code : 'FUNCTION',
-			description : `지오메트리정보 생성 단축 매서드`
-		}
-		:DOC*/
-		createGeometryInfo: function (key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer) {
-			//TODO: texcoordBuffer, normalBuffer 이없으면 자동생성할수있게!
-			return new RedGeometryInfo(this, key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer)
-		},
-		/**DOC:
-		{
-			title :`getGeometryInfo`,
-			code : 'FUNCTION',
-			description : `지오메트리정보 조회 매서드.`,
-			parmas : {
-				key :[
-					{type:'String'},
-					'키로 등록된 지오메트리정보를 조회함'
-				]
-			}
-		}
-		:DOC*/
-		getGeometryInfo: function (key) {
-			return this['__datas']['RedGeometryInfo'][key]
-		},
-		/**DOC:
-		{
-			title :`createMaterialDefine`,
-			code : 'FUNCTION',
-			description : `재질정의정보 생성 단축 매서드`
-		}
-		:DOC*/
-		createMaterialDefine: function (programInfo) {
-			return new RedMaterialDefine(this, programInfo)
-		},
-		/**DOC:
-		{
-			title :`createMaterialInfo`,
-			code : 'FUNCTION',
-			description : `재질정보 생성 단축 매서드`
-		}
-		:DOC*/
-		createMaterialInfo: function (typeName, diffuseInfo) {
-			return new RedMaterialInfo(this, typeName, diffuseInfo)
-		},
-		/**DOC:
-		{
-			title :`createTextureInfo`,
-			code : 'FUNCTION',
-			description : `텍스쳐정보 생성 단축 매서드`
-		}
-		:DOC*/
-		createTextureInfo: function (src, targetIndex, internalFormat, format, type, callback) {
-			return new RedTextureInfo(this, src, targetIndex, internalFormat, format, type, callback)
-		},
-		/**DOC:
-		{
-			title :`createMeshInfo`,
-			code : 'FUNCTION',
-			description : `매시정보 단축 생성 매서드`
-		}
-		:DOC*/
-		createMeshInfo: function (key, geometry, material) {
-			return new RedMeshInfo(this, key, geometry, material)
-		},
-		/**DOC:
-		{
-			title :`getMeshInfo`,
-			code : 'FUNCTION',
-			description : `매시정보 조회 단축 매서드`,
-			parmas : {
-				key :[
-					{type:'String'},
-					'키로 등록된 매쉬를 조회함'
-				]
-			}
-		}
-		:DOC*/
-		getMeshInfo: function (key) {
-			return this['__datas']['RedMeshInfo'][key]
-		},
-		/**DOC:
-		{
-			title :`createSceneInfo`,
-			code : 'FUNCTION',
-			description : `씬정보 단축 생성 매서드`
-		}
-		:DOC*/
-		createSceneInfo: function (key, camera) {
-			return new RedSceneInfo(this, key, camera)
-		},
-		createAmbientLight : function(){
-			return new RedAmbientLightInfo(this)
-		},
-		createDirectionalLight : function(){
-			return new RedDirectionalLightInfo(this)
-		},
-		createPointLight : function(){
-			return new RedPointLightInfo(this)
-		},
-		createSkyBoxInfo : function(srcList){
-			return new RedSkyBoxInfo(this,srcList)
-		},
-		/**DOC:
-		{
-			title :`createBaseCameraInfo`,
-			code : 'FUNCTION',
-			description : `베이스카메라 단축 생성 매서드`
-		}
-		:DOC*/
-		createBaseCameraInfo : function(key){
-			return new RedBaseCameraInfo(this,key)
-		},
-		/**DOC:
-		{
-			title :`getBaseCameraInfo`,
-			code : 'FUNCTION',
-			description : `베이스 카메라정보 조회 단축 매서드`,
-			parmas : {
-				key :[
-					{type:'String'},
-					'키로 등록된 베이스 카메라를 조회함'
-				]
-			}
-		}
-		:DOC*/
-		getBaseCameraInfo : function(key){
-			return this['__datas']['RedBaseCameraInfo'][key]
-		},
-		createBaseRenderInfo: function (redScene, callback) {
-			return new RedBaseRenderInfo(this, redScene, callback)
-		}
+
+		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_MIN_FILTER, tGL.LINEAR);
+		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_MAG_FILTER, tGL.LINEAR);
+		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_WRAP_S, tGL.CLAMP_TO_EDGE);
+		tGL.texParameteri(tGL.TEXTURE_CUBE_MAP, tGL.TEXTURE_WRAP_T, tGL.CLAMP_TO_EDGE);
+		tGL.generateMipmap(tGL.TEXTURE_CUBE_MAP);
+
+		self['loaded'] = 1
+
 	}
 })();
 "use strict";
@@ -4544,3 +3248,2006 @@ var Atlas;
     };
 
 })()
+"use strict";
+/**DOC:
+    {
+        constructorYn : true,
+        title :`RedAtlasUVInfo`,
+        description : `
+            - <b>RedAtlasTextureManager</b>에 의해 자동 생성된 <b>RedAtlasUVInfo</b>.
+            - <span style="color:red">렌더링시 고정 유니폼인 <b>uAtlascoord</b>에 사용된다.</span>
+            - 사용자 생성은 금지한다.
+            - Object.freeze 상태로 반환.
+        `,
+        params : {
+            uvArray : [
+                {type:'Array'},
+                '- 생성초기값'
+            ]
+        },
+        return : 'RedAtlasUVInfo instance'
+    }
+:DOC*/
+var RedAtlasUVInfo;
+RedAtlasUVInfo = function (uvArray) {
+    if (!(this instanceof RedAtlasUVInfo)) return new RedAtlasUVInfo(uvArray)
+    if (!(uvArray instanceof Array)) throw 'uvArray는 Array만 허용합니다.'
+    this['value'] = new Float32Array(uvArray)
+    this['value']['__UUID'] = this['__UUID'] = REDGL_UUID++
+    Object.freeze(this)
+}
+"use strict";
+/**DOC:
+    {
+        constructorYn : true,
+        title :`RedAtlasInfo`,
+        description : `
+            - <b>RedAtlasTextureManager</b>에 의해 자동 생성된 <b>RedAtlasInfo</b>.
+            - 고유값으로 캐싱되며, 사용자 생성은 금지한다.
+            - 하드웨어가 지원하는 최대크기(최대 4096*4096으로 제한)의 <b>Atlas</b>객체를 가진다.
+            - <b>Atlas</b>정보가 업데이트되면 자동 갱신된다.
+        `,
+        params : {
+            redGL : [
+                {type:'RedGL Instance'},
+                `
+                    - RedGL 객체.
+                `
+            ],
+            targetAtlas : [
+                {type:'Atlas instance'},
+                `
+                    - Atlas 인스턴스 객체를 주입.
+                `
+            ]
+        },
+        return : 'RedAtlasInfo Instance'
+    }
+:DOC*/
+var RedAtlasInfo;
+RedAtlasInfo = function (redGL, targetAtlas) {
+    if (!(this instanceof RedAtlasInfo)) return new RedAtlasInfo(redGL, targetAtlas)
+    if (!(redGL instanceof RedGL)) throw 'RedAtlasInfo : RedGL 인스턴스만 허용됩니다.'
+    if (!(targetAtlas instanceof Atlas)) throw 'RedAtlasInfo : Atlas 인스턴스만 허용됩니다.'
+    /**DOC:
+    {
+        title :`atlas`,
+        code : 'PROPERTY',
+        description : `
+            Atlas정보(Atlas).
+        `,
+        example : `
+            인스턴스.atlas
+        `,
+        return : 'Atlas Instance'
+    }
+    :DOC*/
+    this['atlas'] = targetAtlas
+    /**DOC:
+    {
+        title :`textureInfo`,
+        code : 'PROPERTY',
+        description : `
+            - 텍스쳐 정보(RedTextureInfo)
+            - 시스템에서 자동으로 생성관리함.
+        `,
+        example : `
+            인스턴스.textureInfo
+        `,
+        return : 'RedTextureInfo Instance'
+    }
+    :DOC*/
+    this['textureInfo'] = undefined
+}
+"use strict";
+/**DOC:
+    {
+        constructorYn : true,
+        title :`RedAtlasTextureManager`,
+        description : `
+			- <b>Atlas를 생성하고 텍스쳐관련작업을 자동으로 관리하는 오브젝트</b>
+			- 아틀라스 사이즈는 하드웨어지원 최대크기로 자동설정된다(최대 4096)
+			- 단 DIFFUSE로서만 이용할수 있다. 
+        `,
+        params : {
+            redGL : [
+                {type:'RedGL'},
+                '- redGL Instance'
+            ],
+            srcList : [
+				{type:'String or Array'},
+				'단일 문자열로 들어오면 알아서 배열로 바꿈.'
+			],
+			callback : [
+				 {type:'Function'},
+				 '아틀라스 완성후 실행할 콜백.'
+			]
+        },
+        example : `
+            RedAtlasTextureManager(redGLInstance, 원하는경로, 콜백이필요하면 콜백)
+        `,
+        return : 'void'
+    }
+:DOC*/
+var RedAtlasTextureManager;
+(function () {
+	var MAX_TEXTURE_SIZE;
+	var MAX_TEXTURE_IMAGE_UNITS; // 최대 허용 이미지유닛수
+	var atlasInfoList; // 아틀라스정보 객체 리스트
+	var atlasKeyMap; // 아틀라스에 등록된 이미지 맵정보
+	var tRedGL;
+	var tTextureUnitIndex; // 텍스쳐 유닛인덱스
+	var tAtlas; // 대상 아틀라스
+	var createAtlas; // 아틀라스 캔버스 생성기
+	var atlasPack; // 아틀라스에 이미지를 실제로 업로드하는 녀석
+	atlasKeyMap = {}
+	atlasInfoList = []
+	createAtlas = function (image) {
+		var canvas;
+		var t0;
+		if (image && (image['width'] > MAX_TEXTURE_SIZE || image['height'] > MAX_TEXTURE_SIZE)) throw MAX_TEXTURE_SIZE + ' - 최대 허용사이즈보다 이미지가 큽니다.'
+		canvas = document.createElement('canvas');
+		canvas.width = MAX_TEXTURE_SIZE, canvas.height = MAX_TEXTURE_SIZE;
+		canvas.style.background = 'transparent', canvas.style.margin = '3px', canvas.style.display = 'inline-block'
+		// document.body.appendChild(canvas)
+		// 아틀라스 생성
+		tTextureUnitIndex++
+		tAtlas = new Atlas(canvas);
+		tAtlas['atlasInfo'] = RedAtlasInfo(tRedGL, tAtlas)
+		tAtlas['atlasInfo']['textureInfo'] = RedTextureInfo(tRedGL, tAtlas['canvas'], tTextureUnitIndex)
+		tAtlas['atlasInfo']['__targetIndex'] = tTextureUnitIndex
+		atlasInfoList.push(tAtlas['atlasInfo'])
+
+	}
+	atlasPack = function (targetImage) {
+		tAtlas = atlasInfoList[0]['atlas']
+		var node = tAtlas.pack(targetImage);
+		var i, len;
+		if (node === false) {
+			// 아틀라스를 전체를 돌면서 찾아야하고..
+			i = 0, len = atlasInfoList.length
+			for (i; i < len; i++) {
+				// 기존있는놈중에 들어가면 종료시키고
+				tAtlas = atlasInfoList[i]['atlas']
+				node = tAtlas.pack(targetImage);
+				if (node) break
+			}
+			// 여기까지 흘러들어오면 아틀라스캔버스 자체를 추가한다.
+			if (node === false) {
+				createAtlas(targetImage)
+				node = tAtlas.pack(targetImage)
+			}
+		}
+		// RedAtlasTextureInfo를 생성하고 맵에 담아둠
+		console.log(tAtlas, tAtlas.uv())
+		atlasKeyMap[targetImage.id] = new RedAtlasTextureInfo(
+			tAtlas.uv()[targetImage.id],
+			tAtlas['atlasInfo']
+		)
+		return node
+	}
+	RedAtlasTextureManager = function (redGL, srcList, callback) {
+		if (!(this instanceof RedAtlasTextureManager)) return new RedAtlasTextureManager(redGL, srcList, callback)
+		if (!(redGL instanceof RedGL)) throw 'RedAtlasTextureManager : RedGL 인스턴스만 허용됩니다.'
+		if (typeof srcList == 'string') srcList = [srcList]
+		if (!(srcList instanceof Array) && typeof srcList !='string') throw 'RedAtlasTextureManager : srcList는 문자열 또는 Array만 허용됩니다.'
+		tRedGL = redGL
+		MAX_TEXTURE_SIZE = redGL['detect']['MAX_TEXTURE_SIZE']
+		// MAX_TEXTURE_IMAGE_UNITS = redGL['detect']['MAX_TEXTURE_IMAGE_UNITS']
+		MAX_TEXTURE_IMAGE_UNITS = redGL['detect']['MAX_COMBINED_TEXTURE_IMAGE_UNITS']		
+		if (tTextureUnitIndex == undefined) tTextureUnitIndex = MAX_TEXTURE_IMAGE_UNITS - parseInt(MAX_TEXTURE_IMAGE_UNITS / 5)
+		if (MAX_TEXTURE_SIZE > 2048 * 2) MAX_TEXTURE_SIZE = 2048 * 2
+		console.log('MAX_TEXTURE_SIZE', MAX_TEXTURE_SIZE)
+		console.log('MAX_TEXTURE_IMAGE_UNITS', MAX_TEXTURE_IMAGE_UNITS)
+		console.log('tTextureUnitIndex',tTextureUnitIndex)
+		if (!tAtlas) createAtlas()
+		var loaded, targetNum;
+		loaded = 0
+		targetNum = 0
+		srcList.forEach(function (src) {
+			var img = new Image();
+			var id = src
+			if (atlasKeyMap[id]) return // 이미존재하면 나가리..
+			img.id = id
+			img.src = src
+			targetNum++
+			img.onload = function () {
+				var node = atlasPack(this)
+				loaded++
+				if (targetNum == loaded) {
+					atlasInfoList.forEach(function (v) {
+						console.log("atlasInfo", v)
+						v['textureInfo'].updateTexture(v['atlas']['canvas'])
+
+					})
+					if (callback) callback(srcList)
+				}
+			};
+
+		})
+		return RedAtlasTextureManager
+	}
+	/**DOC:
+		{
+			title :`getByKey`,
+			code : 'PROPERTY',
+			description : `
+				- 이미지등록시 사용된 src를 key로 해당하는 RedAtlasTextureInfo 맵을 조회한다.
+			`,
+			example : `
+				RedAtlasTextureManager.getByKey('찾고싶은 src')
+			`,
+			return : 'RedAtlasTextureInfo instance'
+		}
+	:DOC*/
+	RedAtlasTextureManager.getByKey = function (key) { return atlasKeyMap[key] }
+	Object.freeze(RedAtlasTextureManager)
+})();
+"use strict";
+var RedAtlasTextureInfo;
+(function () {
+    var checkMap;;
+    checkMap = {}
+    /**DOC:
+        {
+            constructorYn : true,
+            title :`RedAtlasTextureInfo`,
+            description : `
+                - <b>RedAtlasTextureManager</b>에 의해 자동 생성된 <b>RedAtlasTextureInfo</b>.
+                - 고유값으로 캐싱되며, 사용자 생성은 금지한다.
+                - Object.freeze 상태로 반환.
+            `,
+            params : {
+                atlasUVInfo : [
+                    {type:'Array'},
+                    `
+                        - 아틀라스상의 Rect정보.
+                    `
+                ],
+                parentAtlasInfo : [
+                    {type:'Atlas instance'},
+                    `
+                        - Atlas 인스턴스 객체.
+                    `
+                ]
+            },
+            return : 'RedAtlasTextureInfo Instance'
+        }
+    :DOC*/
+    var t0;
+    var tKey;
+    var setAtlasUVInfo
+    setAtlasUVInfo = function (atlasUVInfo) {
+        t0 = [
+            atlasUVInfo[0][0],
+            1.0 - atlasUVInfo[2][1],
+            (atlasUVInfo[1][0] - atlasUVInfo[0][0]),
+            (atlasUVInfo[2][1] - atlasUVInfo[0][1])
+        ]
+        tKey = t0.toString()
+        if (checkMap[tKey]) atlasUVInfo = checkMap[tKey]
+        else atlasUVInfo = checkMap[tKey] = RedAtlasUVInfo(t0)
+        return atlasUVInfo
+    }
+    RedAtlasTextureInfo = (function () {
+
+        return function (atlasUVInfo, parentAtlasInfo) {
+            if (!(this instanceof RedAtlasTextureInfo)) return new RedAtlasTextureInfo(atlasUVInfo, parentAtlasInfo)
+            if (!(atlasUVInfo instanceof Array)) throw 'atlasUVInfo는 Array만 허용합니다.'
+            if (!(parentAtlasInfo instanceof RedAtlasInfo)) throw 'parentAtlasInfo는 RedAtlasInfo  인스턴스만 허용합니다.'
+            atlasUVInfo = setAtlasUVInfo(atlasUVInfo)
+            console.log(atlasUVInfo)
+            /**DOC:
+                {
+                    title :`atlasUVInfo`,
+                    code : 'PROPERTY',
+                    description : `
+                        - atlasUVInfo 반환
+                    `,
+                    example : `
+                        인스턴스.atlasUVInfo
+                    `,
+                    return : 'RedAtlasUVInfo Instance'
+                }
+            :DOC*/
+            this['atlasUVInfo'] = atlasUVInfo
+            /**DOC:
+                {
+                    title :`parentAtlasInfo`,
+                    code : 'PROPERTY',
+                    description : `
+                        - parentAtlasInfo 반환
+                    `,
+                    example : `
+                        인스턴스.parentAtlasInfo
+                    `,
+                    return : 'RedAtlasInfo Instance'
+                }
+            :DOC*/
+            this['parentAtlasInfo'] = parentAtlasInfo
+            this['__webglAtlasTexture'] = 1
+            this['__webglTextureYn'] = 1
+            Object.freeze(this)
+            console.log(this)
+        }
+    })()
+    RedAtlasTextureInfo.prototype.setAtlasUVInfo = setAtlasUVInfo
+})();
+"use strict";
+var RedSkyBoxInfo;
+/**DOC:
+    {
+        constructorYn : true,
+        title :`RedSkyBoxInfo`,
+        description : `
+            <h2>RedMeshBaseInfo 상속객체</h2>
+            - 기본 스카이박스 생성기
+        `,
+        params:{
+            redGL : [
+                {type:'Red Instance'},
+                'redGL 인스턴스'
+            ],
+            srcList : [
+                {type:'Array'},
+                `
+                    tGL.TEXTURE_CUBE_MAP_POSITIVE_X<br>
+                    tGL.TEXTURE_CUBE_MAP_NEGATIVE_X<br>
+                    tGL.TEXTURE_CUBE_MAP_POSITIVE_Y<br>
+                    tGL.TEXTURE_CUBE_MAP_NEGATIVE_Y<br>
+                    tGL.TEXTURE_CUBE_MAP_POSITIVE_Z<br>
+                    tGL.TEXTURE_CUBE_MAP_NEGATIVE_Z<br>
+                순으로 입력
+                `
+            ]
+        },
+        example : `
+            testScene.setSkyBox(
+                testGL.createSkyBoxInfo([
+                    'asset/cubemap/posx.jpg',
+                    'asset/cubemap/negx.jpg',
+                    'asset/cubemap/posy.jpg',
+                    'asset/cubemap/negy.jpg',
+                    'asset/cubemap/posz.jpg',
+                    'asset/cubemap/negz.jpg'
+                ])
+            )
+        `,
+        return : 'RedSkyBoxInfo Instance'
+    }
+:DOC*/
+(function () {
+    RedSkyBoxInfo = function (redGL, srcList) {
+        if (!(this instanceof RedSkyBoxInfo)) return new RedSkyBoxInfo(redGL, srcList)
+        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+        if (!(srcList instanceof Array)) throw 'srcList는 Array만 허용됩니다.'
+        if (srcList.length != 6) throw 'srcList는 6개여야 합니다.'
+        RedMeshBaseInfo.call(this, redGL)
+        this['materialInfo'] = RedMaterialInfo(redGL, 'skyBox', RedCubeTextureInfo(redGL, srcList,RedTextureIndex.CUBE_DIFFUSE))
+        this['geometryInfo'] = RedPrimitive.cube(redGL)
+         // 스카이박스 스케일은 카메라 far와 연동됨
+        this['scale'][0] = 1000
+        this['scale'][1] = 1000
+        this['scale'][2] = 1000
+        this['cullFace'] = redGL.gl.FRONT
+    }
+    Object.freeze(RedSkyBoxInfo)
+})();
+"use strict";
+var RedSceneInfo;
+/**DOC:
+    {
+        constructorYn : true,
+        title :`RedSceneInfo`,
+        description : `
+            - RedGL에서 사용할 Scene정보를 생성
+        `,
+        params : {
+            redGL : [
+                {type:'RedGL Instance'},
+                '- redGL 인스턴스'
+            ],
+            key : [
+                {type:'String'},
+                '- 존재하는 키일경우 에러.'
+            ],
+            camera : [
+                {type:'RedBaseCameraInfo'},
+                '- 사용할 카메라 객체등록',
+                '- 지정하지 않을경우 지정'
+            ]
+        },
+        example : `
+            var test;
+            test = RedGL(Canvas Element)
+            // firstScene 키로 Scene생성
+            RedSceneInfo(test, 'firstScene')
+        `,
+        return : 'RedSceneInfo Instance'
+    }
+:DOC*/
+(function () {
+    var tDatas;
+    RedSceneInfo = function (redGL, key, camera) {
+        if (!(this instanceof RedSceneInfo)) return new RedSceneInfo(redGL, key, camera)
+        if (!(redGL instanceof RedGL)) throw 'RedSceneInfo : RedGL 인스턴스만 허용됩니다.'
+        if (typeof key != 'string') throw 'RedSceneInfo : key는 문자열만 허용됩니다.'
+        if (camera == undefined) camera = RedBaseCameraInfo(testGL, 'autoInitCamera'+REDGL_UUID)
+        if (!(camera instanceof RedBaseCameraInfo)) throw 'RedSceneInfo : camera는 RedBaseCameraInfo 인스턴스만 허용됩니다.'
+        // 저장할 공간확보하고
+        if (!redGL['__datas']['RedSceneInfo']) redGL['__datas']['RedSceneInfo'] = {}
+        tDatas = redGL['__datas']['RedSceneInfo']
+        // 기존에 등록된 녀석이면 퐈이어!
+        if (tDatas[key]) throw key + '는 이미 존재하는 RedSceneInfo 입니다.'
+        /**DOC:
+		{
+            title :`children`,
+			description : `씬이 물고있는 Mesh리스트들`,
+			example : `인스턴스.children`,
+			return : 'Array'
+        }
+        :DOC*/
+        this['children'] = []
+        /**DOC:
+		{
+            title :`camera`,
+			description : `씬이 가지고있는 카메라`,
+			example : `인스턴스.camera`,
+			return : 'RedBaseCameraInfo'
+        }
+        :DOC*/
+        this['camera'] = camera
+        /**DOC:
+		{
+            title :`lights`,
+			description : `씬이 가지고있는 광원정보`,
+			example : `인스턴스.lights`,
+			return : 'Object'
+        }
+        :DOC*/
+        this['lights'] = {
+            ambient: [],
+            directional: [],
+            point: [],
+            spot: []
+        }
+        this['__UUID'] = REDGL_UUID++
+        // 캐싱
+        tDatas[key] = this
+        Object.seal(RedSceneInfo)
+    }
+    RedSceneInfo.prototype = {
+        /**DOC:
+		{
+            title :`setSkyBox`,
+            description : `스카이박스 설정`,
+            code:'FUNCTION',
+			example : `인스턴스.setSkyBox(RedSkyBoxInfo Instance)`
+        }
+        :DOC*/
+        setSkyBox: function (v) {
+            if (!(v instanceof RedSkyBoxInfo)) throw 'RedSceneInfo : RedSkyBoxInfo 인스턴스만 허용됩니다.'
+            this['skyBox'] = v
+        },
+        /**DOC:
+		{
+            title :`setGrid`,
+            description : `그리드 설정`,
+            code:'FUNCTION',
+			example : `인스턴스.setGrid(RedMeshInfo Instance)`
+        }
+        :DOC*/
+        setGrid: function (v) {
+            this['grid'] = v
+        },
+        /**DOC:
+      {
+          title :`addLight`,
+          description : `라이트 설정`,
+          code:'FUNCTION',
+          example : `인스턴스.addLight`
+      }
+      :DOC*/
+        addLight: (function () {
+            var tDatas;
+            return function (v) {
+                if (v instanceof RedDirectionalLightInfo) {
+                    tDatas = this['lights'][RedDirectionalLightInfo.TYPE]
+                    if (tDatas.length == 16) throw 'RedSceneInfo : 직사광 최대갯수는 16개입니다.'
+                    else tDatas.push(v)
+                } else if (v instanceof RedPointLightInfo) {
+                    tDatas = this['lights'][RedPointLightInfo.TYPE]
+                    if (tDatas.length == 16) throw 'RedSceneInfo : 포인트라이트 최대갯수는 16개입니다.'
+                    else tDatas.push(v)
+                } else if (v instanceof RedAmbientLightInfo) {
+                    tDatas = this['lights'][RedAmbientLightInfo.TYPE]
+                    // 엠비언트는 일단 무조건 갈아침
+                    tDatas[0] = v
+                } else if (v instanceof RedSpotLightInfo) {
+                    tDatas = this['lights'][RedSpotLightInfo.TYPE]
+                    if (tDatas.length == 16) throw 'RedSceneInfo : 스폿라이트 최대갯수는 16개입니다.'
+                    else tDatas.push(v)
+                } else throw 'RedSceneInfo : 등록할수 없는 Light타입입니다.'
+            }
+        })()
+    }
+    Object.freeze(RedSceneInfo)
+})();
+"use strict";
+var RedBaseRenderInfo;
+/**DOC:
+    {
+        constructorYn : true,
+        title :`RedBaseRenderInfo`,
+        description : `
+           - 렌더러
+        `,
+        params : {
+            redGL : [
+                {type:'RedGL Instance'},
+                '- redGL 인스턴스'
+            ],
+            redScene : [
+                {type:'RedSceneInfo'},
+                '- RedSceneInfo을 일단 최초 렌더 그룹으로 본다.',
+                `- <span style="color:red"><b>
+                   - 월드는 과연필요한가 -_-?
+                   - 씬이 카메라는 먹으면 어짜피 같은효과가 아닌가?
+                 </b></span>
+                `
+            ],
+            callback : [
+                {type:'Function'},
+                '- 루프시 사전에 돌릴 콜백등록'
+            ]
+        },
+        example : `
+            var renderer = testGL.createBaseRenderInfo(RedGL Instance, RedSceneInfo Instance, function (time) {
+                // 렌더링시 사전호출될 콜백
+            })
+            renderer.start()
+        `,
+        return : 'RedBaseRenderInfo Instance'
+    }
+:DOC*/
+(function () {
+    var tDatas;
+    var SIN, COS;
+    var emptyCubeMap;
+    var checkCallBox;
+    SIN = Math.sin, COS = Math.cos
+
+    RedBaseRenderInfo = function (redGL, redScene, callback) {
+        if (!(this instanceof RedBaseRenderInfo)) return new RedBaseRenderInfo(redGL, redScene, callback)
+        if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+
+        var self;
+        self = this
+        // 씬생성!!
+        this['callback'] = callback
+        this['targetScene'] = redScene
+        this['__UUID'] = REDGL_UUID++
+        //
+        var uniform1fiMAP = {
+            float: 'uniform1f',
+            int: 'uniform1i'
+        }
+        var floatData_1 = new Float32Array(1)
+        var intData_1 = new Uint16Array(1)
+        var k; //루프변수
+        var tScene; // 대상 RedScene
+        var tMesh; // 대상 메쉬
+        var tMVMatrix; // 대상 메쉬의 매트릭스 
+        var tNMatrix; // 대상 메쉬의 노멀매트릭스
+        ///////////////////////////////////////////////////////////////////
+        var a, aSx, aSy, aSz, aCx, aCy, aCz, tRx, tRy, tRz;
+        var a00, a01, a02, a03, a10, a11, a12, a13, a20, a21, a22, a23, a30, a31, a32, a33;
+        var b0, b1, b2, b3;
+        var b00, b01, b02, b10, b11, b12, b20, b21, b22
+        var aX, aY, aZ;
+        ///////////////////////////////////////////////////////////////////
+        var tGL; // 대상 RedGL의 gl context
+        var tMaterial; // 대상 재질
+        var tProgramInfo; // 대상 프로그램 정보
+        var tProgram; // 대상 프로그램
+        var tGeometry; // 대상 지오메트리
+        var tAttrGroup; // 대상 버퍼정보그룹
+        var tAttrGroupList; // 대상 버퍼정보그룹을 리스트화함
+        var tAttrLocationGroup; // 대상 Attribute의 location 정보들
+        var tAttrBufferInfo; // 대상 RedBufferInfo 
+        var tAttrPointerKey; // 대상 Attrobute가 반영될 쉐이더내의 변수이름
+        var tMaterialUniformGroup; // 대상 유니폼 그룹
+        var tUniformGroupList; // 대상 유니폼 그룹을 리스트화함
+        var tProgramUniformLocationGroup; // 대상 프로그램의 uniform location 정보들
+        var tUniformKey, tUniformValue, tUniformType; // 대상 유니폼 키와 값
+        var tLocation; // 대상 location 정보
+        var tIndicesBuffer; // 인덱스 버퍼
+        var tVertexPositionBuffer; // 포지션 버퍼
+        var tRenderType; // 
+        ///////////////////////////////////////////////////////////////////
+        var cacheProgram; // 이전 대상 프로그램        
+        var cacheProgramInfo; // 이전 대상 프로그램객체정보
+        var cacheAttrUUID; // 어트리뷰트 캐싱정보
+        var cacheDrawBufferUUID; // draw버퍼 캐싱정보
+        var cacheTexture_UUID; // 일반 텍스쳐 캐싱정보
+        var cacheUVAtlascoord_UUID; // 아틀라스 UV텍스쳐 정보
+        var cacheIntFloat; // int형이나 float형 캐싱정보
+        var cacheUseTexture; //텍스쳐사용여부 캐싱정보
+        ///////////////////////////////////////////////////////////////////
+        var cacheUseCullFace; // 컬페이스 사용여부 캐싱정보
+        var cacheCullFace; // 컬페이스 캐싱정보
+        var cacheUseBlendMode; // 블렌드모드 사용여부 캐싱정보
+        var cacheBlendModeFactor; // 블렌드팩터 캐싱정보
+        var cacheUseDepthTest; // 뎁스테스트 사용여부 캐싱정보
+        var cacheDepthTestFunc; // 뎁스테스트 팩터 캐싱정보
+        ///////////////////////////////////////////////////////////////////
+        var aspect;
+        var debugPointRenderList = [];
+
+        var useMap, tUseMapKey, tUseMapTextureKey
+        var bitmapRenderable
+        useMap = [
+            // ['uUseDiffuseTexture', 'uDiffuseTexture', 'DIFFUSE'],
+            ['uUseNormalTexture', 'uNormalTexture', 'NORMAL'],
+            ['uUseDisplacementTexture', 'uDisplacementTexture', 'DISPLACEMENT'],
+            ['uUseSpecularTexture', 'uSpecularTexture', 'SPECULAR'],
+            ['uUseEtcVertexTexture1', 'uEtcVertextTexture1', 'ETC_VERTEX_1'],
+            ['uUseEtcVertexTexture2', 'uEtcVertextTexture2', 'ETC_VERTEX_2'],
+            ['uUseEtcFragmentTexture1', 'uEtcFragmentTexture1', 'ETC_FRAGMENT_1'],
+            ['uUseEtcFragmentTexture2', 'uEtcFragmentTexture2', 'ETC_FRAGMENT_2'],
+            ['uUseReflectionTexture', 'uReflectionTexture', 'CUBE_REFLECTION'],
+            ['uUseRefractionTexture', 'uRefractionTexture', 'CUBE_REFRACTION']
+
+        ]
+        cacheAttrUUID = []
+        cacheTexture_UUID = {}
+        cacheUseTexture = {}
+
+        cacheIntFloat = {}
+        this.render = function (time) {
+
+            //TODO: 재질 소팅을 도입해야곘음 -_-;;
+            //////////////////////////////////////////////////////////
+            // cacheDrawBufferUUID 캐시를 한번제거함
+            // 왜냐? 버퍼가 중간에 등록만되고..사용이 안될떄..대비
+            cacheDrawBufferUUID = undefined
+            //////////////////////////////////////////////////////////
+            self['callback'] ? self['callback'](time) : 0
+            self['numDrawCall'] = 0
+            tGL = redGL.gl
+            //////////////////////////////////////////////////////////////////
+            tScene = self['targetScene']
+            tGL.clear(tGL.COLOR_BUFFER_BIT);
+            //////////////////////////////////////////////////////////////////
+            tScene['camera'].update()
+            for (k in redGL['__datas']['RedProgramInfo']) {
+                var tempProgramInfo;
+                tempProgramInfo = redGL['__datas']['RedProgramInfo'][k]
+                tGL.useProgram(tempProgramInfo['program'])
+                // 퍼스팩티브 갱신
+                tLocation = tempProgramInfo['uniforms']['uPMatrix']['location']
+                tGL.uniformMatrix4fv(tLocation, false, tScene['camera']['uPMatrix'])
+                // 카메라갱신
+                tLocation = tempProgramInfo['uniforms']['uCameraMatrix']['location']
+                tGL.uniformMatrix4fv(tLocation, false, tScene['camera']['uCameraMatrix'])
+                if (tempProgramInfo['uniforms']['uCameraPosition']) {
+                    tLocation = tempProgramInfo['uniforms']['uCameraPosition']['location']
+                    tGL.uniform3fv(tLocation, tScene['camera']['__desiredCoords'])
+                }
+
+                // 라이트갱신
+                // console.log(tScene['lights'])
+                self.setAmbientLight(tempProgramInfo)
+                self.setDirectionalLight(tempProgramInfo)
+                self.setPointLight(tempProgramInfo)
+
+                if (tempProgramInfo['uniforms']['uSystemTime']) {
+                    tLocation = tempProgramInfo['uniforms']['uSystemTime']['location']
+                    tGL.uniform1f(tLocation, time / 1000)
+                }
+                if (tempProgramInfo['uniforms']['uSystemResolution']) {
+                    tLocation = tempProgramInfo['uniforms']['uSystemResolution']['location']
+                    tGL.uniform2fv(tLocation, new Float32Array([tGL['drawingBufferWidth'], tGL['drawingBufferHeight']]))
+                }
+
+
+            }
+            cacheProgram = null // 캐쉬된 프로그램을 삭제
+            //////////////////////////////////////////////////////////////////
+            self.drawSkyBox(tScene['skyBox'], time)
+            tGL.clear(tGL.DEPTH_BUFFER_BIT);
+            self.draw(tScene['children'], time)
+            self.draw(debugPointRenderList)
+            self.drawGrid(tScene['grid'], time)
+            //////////////////////////////////////////////////////////////////
+            requestAnimationFrame(self.render)
+        };
+        // 암비언트 유니폼 세팅
+        this.setAmbientLight = (function () {
+            var tColorList = new Float32Array(4)
+            return function (programInfo) {
+                if (
+                    tScene['lights'][RedAmbientLightInfo.TYPE].length
+                    && programInfo['uniforms']['uAmbientLightColor']
+                ) {
+                    tScene['lights'][RedAmbientLightInfo.TYPE].forEach(function (v, index) {
+                        tColorList[index * 4 + 0] = v['color'][0]
+                        tColorList[index * 4 + 1] = v['color'][1]
+                        tColorList[index * 4 + 2] = v['color'][2]
+                        tColorList[index * 4 + 3] = v['color'][3]
+                    })
+                    tLocation = programInfo['uniforms']['uAmbientLightColor']['location']
+                    tGL.uniform4fv(tLocation, tColorList)
+                }
+            }
+        })()
+        // 디렉셔널 라이트 유니폼세팅
+        this.setDirectionalLight = (function () {
+            var tDirectionList = [], tColorList = []
+            return function (programInfo) {
+                if (
+                    tScene['lights'][RedDirectionalLightInfo.TYPE].length
+                    && programInfo['uniforms']['uDirectionnalLightDirection']
+                ) {
+                    tDirectionList.length = 0
+                    tColorList.length = 0
+                    tScene['lights'][RedDirectionalLightInfo.TYPE].forEach(function (v, index) {
+                        tDirectionList[index * 3 + 0] = v['direction'][0]
+                        tDirectionList[index * 3 + 1] = v['direction'][1]
+                        tDirectionList[index * 3 + 2] = v['direction'][2]
+                        tColorList[index * 4 + 0] = v['color'][0]
+                        tColorList[index * 4 + 1] = v['color'][1]
+                        tColorList[index * 4 + 2] = v['color'][2]
+                        tColorList[index * 4 + 3] = v['color'][3]
+                    })
+                    tLocation = programInfo['uniforms']['uDirectionnalLightDirection']['location']
+                    tGL.uniform3fv(tLocation, new Float32Array(tDirectionList))
+                    tLocation = programInfo['uniforms']['uDirectionnalLightColor']['location']
+                    tGL.uniform4fv(tLocation, new Float32Array(tColorList))
+                    tLocation = programInfo['uniforms']['uDirectionalNum']['location']
+                    tGL.uniform1i(tLocation, tScene['lights'][RedDirectionalLightInfo.TYPE].length)
+                }
+            }
+        })()
+        // 포인트 라이트 유니폼 세팅
+        this.setPointLight = (function () {
+            var tPointList = [], tColorList = [], tPointRadius = new Float32Array(16)
+            return function (programInfo) {
+                if (
+                    tScene['lights']['point'].length
+                    && programInfo['uniforms']['uPointNum']
+                ) {
+                    tPointList.length = 0
+                    tColorList.length = 0
+                    debugPointRenderList.length = 0
+                    tScene['lights'][RedPointLightInfo.TYPE].forEach(function (v, index) {
+                        tPointList[index * 3 + 0] = v['position'][0]
+                        tPointList[index * 3 + 1] = v['position'][1]
+                        tPointList[index * 3 + 2] = v['position'][2]
+                        tColorList[index * 4 + 0] = v['color'][0]
+                        tColorList[index * 4 + 1] = v['color'][1]
+                        tColorList[index * 4 + 2] = v['color'][2]
+                        tColorList[index * 4 + 3] = v['color'][3]
+                        tPointRadius[index] = v['radius']
+                        if (v['useDebugMode']) {
+                            debugPointRenderList.push(v['__debugMesh'])
+                            v['__debugMesh'].position[0] = v.position[0]
+                            v['__debugMesh'].position[1] = v.position[1]
+                            v['__debugMesh'].position[2] = v.position[2]
+                            v['__debugMesh'].scale[0] = v.radius * 2
+                            v['__debugMesh'].scale[1] = v.radius * 2
+                            v['__debugMesh'].scale[2] = v.radius * 2
+                            v['__debugMesh'].materialInfo.uColor[0] = v['color'][0]
+                            v['__debugMesh'].materialInfo.uColor[1] = v['color'][1]
+                            v['__debugMesh'].materialInfo.uColor[2] = v['color'][2]
+                            v['__debugMesh'].materialInfo.uColor[3] = 0.5
+                        }
+                    })
+                    tLocation = programInfo['uniforms']['uPointLightPosition']['location']
+                    tGL.uniform3fv(tLocation, new Float32Array(tPointList))
+                    tLocation = programInfo['uniforms']['uPointLightColor']['location']
+                    tGL.uniform4fv(tLocation, new Float32Array(tColorList))
+                    tLocation = programInfo['uniforms']['uPointNum']['location']
+                    tGL.uniform1i(tLocation, tScene['lights'][RedPointLightInfo.TYPE].length)
+                    tLocation = programInfo['uniforms']['uPointLightRadius']['location']
+                    tGL.uniform1fv(tLocation, tPointRadius)
+                }
+            }
+        })()
+        // 바닥그리드 draw
+        this.drawGrid = (function () {
+            var list = [];
+            return function (grid) {
+                if (grid) {
+                    list.length = 0
+                    list.push(grid)
+                    self.draw(list)
+                }
+            }
+        })();
+        // 스카이박스 draw
+        this.drawSkyBox = (function () {
+            var list = [];
+            return function (skyBox) {
+                if (skyBox) {
+                    // 스카이박스 스케일은 카메라 far와 연동됨
+                    skyBox['scale'][0] = skyBox['scale'][1] = skyBox['scale'][2] = tScene['camera']['far']
+                    list.length = 0
+                    list.push(skyBox)
+                    self.draw(list)
+                }
+            }
+        })();
+        // 기본 draw함수
+        this.draw = function (renderList, time, parentMTX) {
+            var i, i2, i3; // 루프변수
+            var tAtlasTextureInfo;
+            i = renderList.length
+            while (i--) {
+                self['numDrawCall']++
+                tMesh = renderList[i]
+                tMVMatrix = tMesh['uMVMatrix']
+                tNMatrix = tMesh['uNMatrix']
+                // 매트릭스 초기화
+                tMVMatrix[0] = 1, tMVMatrix[1] = 0, tMVMatrix[2] = 0, tMVMatrix[3] = 0,
+                    tMVMatrix[4] = 0, tMVMatrix[5] = 1, tMVMatrix[6] = 0, tMVMatrix[7] = 0,
+                    tMVMatrix[8] = 0, tMVMatrix[9] = 0, tMVMatrix[10] = 1, tMVMatrix[11] = 0,
+                    tMVMatrix[12] = 0, tMVMatrix[13] = 0, tMVMatrix[14] = 0, tMVMatrix[15] = 1
+                // 기본 변환
+                a = tMVMatrix
+                // 이동
+                aX = tMesh['position'][0], aY = tMesh['position'][1], aZ = tMesh['position'][2];
+                a[12] = a[0] * aX + a[4] * aY + a[8] * aZ + a[12];
+                a[13] = a[1] * aX + a[5] * aY + a[9] * aZ + a[13];
+                a[14] = a[2] * aX + a[6] * aY + a[10] * aZ + a[14];
+                a[15] = a[3] * aX + a[7] * aY + a[11] * aZ + a[15];
+                // xyz축 회전 
+                tRx = tMesh['rotation'][0], tRy = tMesh['rotation'][1], tRz = tMesh['rotation'][2]
+                aSx = SIN(tRx), aCx = COS(tRx), aSy = SIN(tRy), aCy = COS(tRy), aSz = SIN(tRz), aCz = COS(tRz),
+                    a00 = a[0], a01 = a[1], a02 = a[2],
+                    a10 = a[4], a11 = a[5], a12 = a[6],
+                    a20 = a[8], a21 = a[9], a22 = a[10],
+                    b00 = aCy * aCz, b01 = aSx * aSy * aCz - aCx * aSz, b02 = aCx * aSy * aCz + aSx * aSz,
+                    b10 = aCy * aSz, b11 = aSx * aSy * aSz + aCx * aCz, b12 = aCx * aSy * aSz - aSx * aCz,
+                    b20 = -aSy, b21 = aSx * aCy, b22 = aCx * aCy,
+                    a[0] = a00 * b00 + a10 * b01 + a20 * b02, a[1] = a01 * b00 + a11 * b01 + a21 * b02, a[2] = a02 * b00 + a12 * b01 + a22 * b02,
+                    a[4] = a00 * b10 + a10 * b11 + a20 * b12, a[5] = a01 * b10 + a11 * b11 + a21 * b12, a[6] = a02 * b10 + a12 * b11 + a22 * b12,
+                    a[8] = a00 * b20 + a10 * b21 + a20 * b22, a[9] = a01 * b20 + a11 * b21 + a21 * b22, a[10] = a02 * b20 + a12 * b21 + a22 * b22;
+                // 스케일
+                aX = tMesh['scale'][0], aY = tMesh['scale'][1], aZ = tMesh['scale'][2]
+                a[0] = a[0] * aX, a[1] = a[1] * aX, a[2] = a[2] * aX, a[3] = a[3] * aX;
+                a[4] = a[4] * aY, a[5] = a[5] * aY, a[6] = a[6] * aY, a[7] = a[7] * aY,
+                    a[8] = a[8] * aZ, a[9] = a[9] * aZ, a[10] = a[10] * aZ, a[11] = a[11] * aZ,
+                    a[12] = a[12], a[13] = a[13], a[14] = a[14], a[15] = a[15]
+                // 부모가있으면 곱함
+                if (parentMTX) {
+                    // 부모매트릭스 복사
+                    var parentClone = new glMatrix.ARRAY_TYPE(16);
+                    parentClone[0] = parentMTX[0], parentClone[1] = parentMTX[1], parentClone[2] = parentMTX[2], parentClone[3] = parentMTX[3],
+                        parentClone[4] = parentMTX[4], parentClone[5] = parentMTX[5], parentClone[6] = parentMTX[6], parentClone[7] = parentMTX[7],
+                        parentClone[8] = parentMTX[8], parentClone[9] = parentMTX[9], parentClone[10] = parentMTX[10], parentClone[11] = parentMTX[11],
+                        parentClone[12] = parentMTX[12], parentClone[13] = parentMTX[13], parentClone[14] = parentMTX[14], parentClone[15] = parentMTX[15]
+                    /////////////////////////////////////////////////////////////////////////////////////////////
+                    // 매트립스 곱
+                    a00 = parentClone[0], a01 = parentClone[1], a02 = parentClone[2], a03 = parentClone[3],
+                        a10 = parentClone[4], a11 = parentClone[5], a12 = parentClone[6], a13 = parentClone[7],
+                        a20 = parentClone[8], a21 = parentClone[9], a22 = parentClone[10], a23 = parentClone[11],
+                        a30 = parentClone[12], a31 = parentClone[13], a32 = parentClone[14], a33 = parentClone[15],
+                        // Cache only the current line of the second matrix
+                        b0 = tMVMatrix[0], b1 = tMVMatrix[1], b2 = tMVMatrix[2], b3 = tMVMatrix[3],
+                        tMVMatrix[0] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30,
+                        tMVMatrix[1] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31,
+                        tMVMatrix[2] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32,
+                        tMVMatrix[3] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33,
+                        b0 = tMVMatrix[4], b1 = tMVMatrix[5], b2 = tMVMatrix[6], b3 = tMVMatrix[7],
+                        tMVMatrix[4] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30,
+                        tMVMatrix[5] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31,
+                        tMVMatrix[6] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32,
+                        tMVMatrix[7] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33,
+                        b0 = tMVMatrix[8], b1 = tMVMatrix[9], b2 = tMVMatrix[10], b3 = tMVMatrix[11],
+                        tMVMatrix[8] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30,
+                        tMVMatrix[9] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31,
+                        tMVMatrix[10] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32,
+                        tMVMatrix[11] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33,
+                        b0 = tMVMatrix[12], b1 = tMVMatrix[13], b2 = tMVMatrix[14], b3 = tMVMatrix[15],
+                        tMVMatrix[12] = b0 * a00 + b1 * a10 + b2 * a20 + b3 * a30,
+                        tMVMatrix[13] = b0 * a01 + b1 * a11 + b2 * a21 + b3 * a31,
+                        tMVMatrix[14] = b0 * a02 + b1 * a12 + b2 * a22 + b3 * a32,
+                        tMVMatrix[15] = b0 * a03 + b1 * a13 + b2 * a23 + b3 * a33
+                    /////////////////////////////////////////////////////////////////////////////////////////////
+                }
+                // 정보세팅
+                tMaterial = tMesh['materialInfo']
+                tProgramInfo = tMaterial['programInfo']
+                tProgram = tProgramInfo['program']
+                tGeometry = tMesh['geometryInfo']
+                tAttrGroup = tGeometry['attributes']
+                tAttrGroupList = tGeometry['__attributeList']
+                tAttrLocationGroup = tProgramInfo['attributes']
+                tMaterialUniformGroup = tMaterial['uniforms']
+                tProgramUniformLocationGroup = tProgramInfo['uniforms']
+                tIndicesBuffer = tGeometry['indices']
+                tVertexPositionBuffer = tAttrGroup['vertexPosition']
+
+                // 프로그램 세팅 & 캐싱
+                if (cacheProgram != tProgram) {
+                    // 기존에 옵션맵을 쓰고있었으면 날린다. TODO: 이놈도정리대상이다.
+                    tGL.useProgram(tProgram)
+                    cacheTexture_UUID = {}
+                    cacheUVAtlascoord_UUID = undefined
+                    cacheUseTexture = {}
+                    cacheIntFloat = {}
+                }
+                cacheProgramInfo = tProgramInfo
+                cacheProgram = tProgram
+                // 어트리뷰트 입력
+                i2 = tAttrGroupList.length
+                while (i2--) {
+                    tAttrBufferInfo = tAttrGroupList[i2] // 대상버퍼구하고
+                    tAttrPointerKey = tAttrBufferInfo['shaderPointerKey'] // 바인딩할 쉐이더 변수키를 알아낸다.
+                    // 어트리뷰트 정보매칭이 안되는 녀석은 무시한다 
+                    if (tAttrLocationGroup[tAttrPointerKey]) {
+                        tLocation = tAttrLocationGroup[tAttrPointerKey]['location'] // 어트리뷰트 로케이션도 알아낸다.
+                        // 캐싱된 attribute정보과 현재 대상정보가 같다면 무시
+                        cacheAttrUUID[tLocation] == tAttrBufferInfo['__UUID'] ?
+                            0 :
+                            (
+                                // 실제 버퍼 바인딩하고
+                                tGL.bindBuffer(tGL.ARRAY_BUFFER, tAttrBufferInfo['buffer']),
+                                // 해당로케이션을 활성화된적이없으면 활성화 시킨다
+                                tAttrBufferInfo['enabled'] ? 0 : (tGL.enableVertexAttribArray(tLocation), tAttrBufferInfo['enabled'] = 1),
+                                tGL.vertexAttribPointer(
+                                    tLocation,
+                                    tAttrBufferInfo['pointSize'],
+                                    tAttrBufferInfo['glArrayType'],
+                                    tAttrBufferInfo['normalize'],
+                                    tAttrBufferInfo['stride'],
+                                    tAttrBufferInfo['offset']
+                                ),
+                                // 상태 캐싱
+                                cacheAttrUUID[tLocation] = tAttrBufferInfo['__UUID']
+                            )
+                    }
+                }
+                tMaterial['needUniformList'] ? tMaterial.updateUniformList() : 0
+                // 유니폼 입력
+                tUniformGroupList = tMaterial['__uniformList']
+                i2 = tUniformGroupList.length
+                bitmapRenderable = true
+                // console.log('sfdssdfsdfsdf')
+                while (i2--) {
+                    tUniformKey = tUniformGroupList[i2]['key']
+                    tUniformType = tUniformGroupList[i2]['type']
+                    // tUniformValue = tUniformGroupList[i2]['value'],
+                    tUniformValue = tMaterial[tUniformKey]
+                    tLocation = tUniformGroupList[i2]['location']
+                    // console.log(tUniformGroupList[i2])     
+                    ///////////////////////////////////////////////////////////////////////////////
+                    ///////////////////////////////////////////////////////////////////////////////                           
+                    // switch (tUniformGroupList[i2]['renderType']) {
+                    //     case RedConst.INT:
+                    //         // cacheIntFloat[tUniformKey] == tUniformValue ? 0 : (intData_1[0] = tUniformValue,tGL.uniform1iv(tLocation, intData_1))
+                    //         cacheIntFloat[tUniformKey] == tUniformValue ? 0 : tGL.uniform1i(tLocation, tUniformValue)
+                    //         cacheIntFloat[tUniformKey] = tUniformValue
+                    //         break
+                    //     case RedConst.FLOAT:                            
+                    //         // cacheIntFloat[tUniformKey] == tUniformValue ? 0 : (floatData_1[0] = tUniformValue,tGL.uniform1fv(tLocation, floatData_1))
+                    //         cacheIntFloat[tUniformKey] == tUniformValue ? 0 : tGL.uniform1f(tLocation, tUniformValue)
+                    //         cacheIntFloat[tUniformKey] = tUniformValue
+                    //         break
+                    //     case RedConst.VEC:
+                    //         tGL[tUniformValue['__uniformMethod']](tLocation, tUniformValue)
+                    //         break
+                    //     case RedConst.MAT:
+                    //         tGL[tUniformValue['__uniformMethod']](tLocation, false, tUniformValue)
+                    //         break
+                    //     case RedConst.SAMPLER:
+                    //         if (tUniformValue && tUniformValue['__webglTextureYn']) {
+                    //             tUniformValue['__webglAtlasTexture'] ? tUniformValue = tUniformValue['parentAtlasInfo']['textureInfo'] : 0
+                    //             if (tUniformValue['loaded']) {
+                    //                 var targetIndex = tUniformValue['__targetIndex']
+                    //                 if (cacheTexture_UUID[targetIndex] != tUniformValue['__UUID']) {
+                    //                     // console.log(targetIndex)
+                    //                     tGL.activeTexture(tGL.TEXTURE0 + targetIndex)
+                    //                     tGL.bindTexture(tUniformValue['__webglTexture'] ? tGL.TEXTURE_2D : tGL.TEXTURE_CUBE_MAP, tUniformValue['texture'])
+                    //                     cacheTexture_UUID[targetIndex] == tUniformValue['__UUID'] ? 0 : tGL.uniform1i(tLocation, targetIndex)
+                    //                     cacheTexture_UUID[targetIndex] = tUniformValue['__UUID']
+                    //                 }
+                    //             } else {
+                    //                 // cacheTexture_UUID[targetIndex] = undefined
+                    //                 bitmapRenderable = false
+                    //             }
+                    //             break
+                    //         }
+                    //         if (tUniformValue && !tUniformValue['__webglTextureYn']) {
+                    //             throw tUniformKey + ' : sampler에 sampler형식이 아닌 값이 들어옵니다.'
+                    //         }
+                    //         break
+                    //     case RedConst.ATLASCOORD:
+                    //         cacheUVAtlascoord_UUID == tUniformValue['__UUID'] ? 0 : tGL.uniform4fv(tLocation, tUniformValue['value'])
+                    //         cacheUVAtlascoord_UUID = tUniformValue['__UUID']
+                    //         break
+                    //     case undefined:
+                    //         // console.log('오는게있')
+                    //         break
+                    //     case null:
+                    //         // console.log('오는게있니2')
+                    //         break
+                    //     default:
+                    //         throw '안되는 나쁜 타입인거야!!'
+
+                    // }
+                    ///////////////////////////////////////////////////////////////////////////////
+                    ///////////////////////////////////////////////////////////////////////////////
+                    tRenderType = tUniformGroupList[i2]['renderType']
+                    // 유니폼인데 숫자값일 경우
+                    if (tRenderType == RedConst.SAMPLER) {
+                        if (tUniformValue && tUniformValue['__webglTextureYn']) {
+                            tUniformValue['__webglAtlasTexture'] ? tUniformValue = tUniformValue['parentAtlasInfo']['textureInfo'] : 0
+                            if (tUniformValue['loaded']) {
+                                var targetIndex = tUniformValue['__targetIndex']
+                                if (cacheTexture_UUID[targetIndex] != tUniformValue['__UUID']) {
+                                    // console.log(targetIndex)
+                                    tGL.activeTexture(tGL.TEXTURE0 + targetIndex)
+                                    tGL.bindTexture(tUniformValue['__webglTexture'] ? tGL.TEXTURE_2D : tGL.TEXTURE_CUBE_MAP, tUniformValue['texture'])
+                                    cacheTexture_UUID[targetIndex] == tUniformValue['__UUID'] ? 0 : tGL.uniform1i(tLocation, targetIndex)
+                                    cacheTexture_UUID[targetIndex] = tUniformValue['__UUID']
+                                }
+                            } else {
+                                // cacheTexture_UUID[targetIndex] = undefined
+                                bitmapRenderable = false
+                            }
+                        }
+                        if (tUniformValue && !tUniformValue['__webglTextureYn']) throw tUniformKey + ' : sampler에 sampler형식이 아닌 값이 들어옵니다.'
+                    }
+                    else if (tRenderType == RedConst.INT) cacheIntFloat[tUniformKey] == tUniformValue ? 0 : tGL.uniform1i(tLocation, tUniformValue), cacheIntFloat[tUniformKey] = tUniformValue
+                    else if (tRenderType == RedConst.FLOAT) cacheIntFloat[tUniformKey] == tUniformValue ? 0 : tGL.uniform1f(tLocation, tUniformValue), cacheIntFloat[tUniformKey] = tUniformValue
+                    else if (tRenderType == RedConst.VEC) tGL[tUniformValue['__uniformMethod']](tLocation, tUniformValue)
+                    else if (tRenderType == RedConst.MAT) tGL[tUniformValue['__uniformMethod']](tLocation, false, tUniformValue)
+                    // 아틀라스코디네이트값인경우
+                    else if (tRenderType == RedConst.ATLASCOORD) cacheUVAtlascoord_UUID == tUniformValue['__UUID'] ? 0 : tGL.uniform4fv(tLocation, tUniformValue['value']), cacheUVAtlascoord_UUID = tUniformValue['__UUID']
+                    // 이도저도아닌경우는 뭔가 잘못된거임
+                    else throw '안되는 나쁜 타입인거야!!'
+                    ///////////////////////////////////////////////////////////////////////////////
+                    ///////////////////////////////////////////////////////////////////////////////
+                };
+
+                /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                // i3 = useMap.length
+                // while (i3--) {
+                //     tUseMapKey = useMap[i3][0]
+                //     if (tProgramInfo['uniforms'][tUseMapKey]) {
+                //         tUseMapTextureKey = useMap[i3][1]                        
+                //         if (tMaterial[tUseMapTextureKey] && tMaterial[tUseMapTextureKey]['loaded']) {
+                //             if (tMaterial[tUseMapTextureKey]['__targetIndex'] != RedTextureIndex[useMap[i3][2]]) {
+                //                 console.log(tMaterial[tUseMapTextureKey])
+                //                 console.log(tUseMapKey, tUseMapTextureKey, tMaterial[tUseMapTextureKey]['__targetIndex'], RedTextureIndex[useMap[i3][2]])
+                //                 throw useMap[i3][2] + " 인덱스타입이 아닙니다."
+                //             }
+                //             cacheUseTexture[tUseMapKey] == 1 ? 0 : tGL.uniform1i(tProgramInfo['uniforms'][tUseMapKey]['location'], 1)
+                //             cacheUseTexture[tUseMapKey] = 1
+                //         } else {
+                //             cacheUseTexture[tUseMapKey] == 0 ? 0 : tGL.uniform1i(tProgramInfo['uniforms'][tUseMapKey]['location'], 0)
+                //             cacheUseTexture[tUseMapKey] = 0
+                //         }
+                //     }
+                // }
+                if (!emptyCubeMap) {
+                    if (tProgramInfo['uniforms']['uUseReflectionTexture'] || tProgramInfo['uniforms']['uUseRefractionTexture']) {
+                        var t;
+                        t = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NzMxRDhBQzRFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NzMxRDhBQzVFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo3MzFEOEFDMkU1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo3MzFEOEFDM0U1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuojYFUAAAAQSURBVHjaYvj//z8DQIABAAj8Av7bok0WAAAAAElFTkSuQmCC'
+                        emptyCubeMap = redGL.createCubeTextureInfo([t, t, t, t, t, t])
+                        if (tProgramInfo['uniforms']['uUseReflectionTexture']) {
+                            tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CUBE_REFLECTION)
+                            tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, emptyCubeMap['texture'])
+                            tGL.uniform1i(tProgramInfo['uniforms']['uReflectionTexture']['location'], RedTextureIndex.CUBE_REFLECTION)
+                        }
+                        if (tProgramInfo['uniforms']['uReflectionTexture']) {
+                            tGL.activeTexture(tGL.TEXTURE0 + RedTextureIndex.CUBE_REFRACTION)
+                            tGL.bindTexture(tGL.TEXTURE_CUBE_MAP, emptyCubeMap['texture'])
+                            tGL.uniform1i(tProgramInfo['uniforms']['uRefractionTexture']['location'], RedTextureIndex.CUBE_REFRACTION)
+                        }
+                        // emptyCube ['uUseReflectionTexture', 'uReflectionTexture', 'CUBE_REFLECTION']
+                        console.log('언제오니')
+                    }
+                }
+
+                i3 = 0
+                tUseMapKey = useMap[i3][0]
+                if (tProgramInfo['uniforms'][tUseMapKey]) {
+                    tLocation = tProgramInfo['uniforms'][tUseMapKey]['location']
+                    tUseMapTextureKey = useMap[i3][1]
+                    tUniformValue = tMaterial[tUseMapTextureKey]
+                    if (tUniformValue && tUniformValue['loaded']) {
+                        if (tUniformValue['__targetIndex'] != RedTextureIndex[useMap[i3][2]]) {
+                            console.log(tUniformValue)
+                            console.log(tUseMapKey, tUseMapTextureKey, tUniformValue['__targetIndex'], RedTextureIndex[useMap[i3][2]])
+                            throw useMap[i3][2] + " 인덱스타입이 아닙니다."
+                        }
+                        cacheUseTexture[tUseMapKey] == 1 ? 0 : tGL.uniform1i(tLocation, 1), cacheUseTexture[tUseMapKey] = 1
+                    } else cacheUseTexture[tUseMapKey] == 0 ? 0 : tGL.uniform1i(tLocation, 0), cacheUseTexture[tUseMapKey] = 0
+                }
+                i3 = 1
+                tUseMapKey = useMap[i3][0]
+                if (tProgramInfo['uniforms'][tUseMapKey]) {
+                    tLocation = tProgramInfo['uniforms'][tUseMapKey]['location']
+                    tUseMapTextureKey = useMap[i3][1]
+                    tUniformValue = tMaterial[tUseMapTextureKey]
+                    if (tUniformValue && tUniformValue['loaded']) {
+                        if (tUniformValue['__targetIndex'] != RedTextureIndex[useMap[i3][2]]) {
+                            console.log(tUniformValue)
+                            console.log(tUseMapKey, tUseMapTextureKey, tUniformValue['__targetIndex'], RedTextureIndex[useMap[i3][2]])
+                            throw useMap[i3][2] + " 인덱스타입이 아닙니다."
+                        }
+                        cacheUseTexture[tUseMapKey] == 1 ? 0 : tGL.uniform1i(tLocation, 1), cacheUseTexture[tUseMapKey] = 1
+                    } else cacheUseTexture[tUseMapKey] == 0 ? 0 : tGL.uniform1i(tLocation, 0), cacheUseTexture[tUseMapKey] = 0
+                }
+                i3 = 2
+                tUseMapKey = useMap[i3][0]
+                if (tProgramInfo['uniforms'][tUseMapKey]) {
+                    tLocation = tProgramInfo['uniforms'][tUseMapKey]['location']
+                    tUseMapTextureKey = useMap[i3][1]
+                    tUniformValue = tMaterial[tUseMapTextureKey]
+                    if (tUniformValue && tUniformValue['loaded']) {
+                        if (tUniformValue['__targetIndex'] != RedTextureIndex[useMap[i3][2]]) {
+                            console.log(tUniformValue)
+                            console.log(tUseMapKey, tUseMapTextureKey, tUniformValue['__targetIndex'], RedTextureIndex[useMap[i3][2]])
+                            throw useMap[i3][2] + " 인덱스타입이 아닙니다."
+                        }
+                        cacheUseTexture[tUseMapKey] == 1 ? 0 : tGL.uniform1i(tLocation, 1), cacheUseTexture[tUseMapKey] = 1
+                    } else cacheUseTexture[tUseMapKey] == 0 ? 0 : tGL.uniform1i(tLocation, 0), cacheUseTexture[tUseMapKey] = 0
+                }
+                i3 = 3
+                tUseMapKey = useMap[i3][0]
+                if (tProgramInfo['uniforms'][tUseMapKey]) {
+                    tLocation = tProgramInfo['uniforms'][tUseMapKey]['location']
+                    tUseMapTextureKey = useMap[i3][1]
+                    tUniformValue = tMaterial[tUseMapTextureKey]
+                    if (tUniformValue && tUniformValue['loaded']) {
+                        if (tUniformValue['__targetIndex'] != RedTextureIndex[useMap[i3][2]]) {
+                            console.log(tUniformValue)
+                            console.log(tUseMapKey, tUseMapTextureKey, tUniformValue['__targetIndex'], RedTextureIndex[useMap[i3][2]])
+                            throw useMap[i3][2] + " 인덱스타입이 아닙니다."
+                        }
+                        cacheUseTexture[tUseMapKey] == 1 ? 0 : tGL.uniform1i(tLocation, 1), cacheUseTexture[tUseMapKey] = 1
+                    } else cacheUseTexture[tUseMapKey] == 0 ? 0 : tGL.uniform1i(tLocation, 0), cacheUseTexture[tUseMapKey] = 0
+                }
+                i3 = 4
+                tUseMapKey = useMap[i3][0]
+                if (tProgramInfo['uniforms'][tUseMapKey]) {
+                    tLocation = tProgramInfo['uniforms'][tUseMapKey]['location']
+                    tUseMapTextureKey = useMap[i3][1]
+                    tUniformValue = tMaterial[tUseMapTextureKey]
+                    if (tUniformValue && tUniformValue['loaded']) {
+                        if (tUniformValue['__targetIndex'] != RedTextureIndex[useMap[i3][2]]) {
+                            console.log(tUniformValue)
+                            console.log(tUseMapKey, tUseMapTextureKey, tUniformValue['__targetIndex'], RedTextureIndex[useMap[i3][2]])
+                            throw useMap[i3][2] + " 인덱스타입이 아닙니다."
+                        }
+                        cacheUseTexture[tUseMapKey] == 1 ? 0 : tGL.uniform1i(tLocation, 1), cacheUseTexture[tUseMapKey] = 1
+                    } else cacheUseTexture[tUseMapKey] == 0 ? 0 : tGL.uniform1i(tLocation, 0), cacheUseTexture[tUseMapKey] = 0
+                }
+                /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+                // 노말매트릭스를 사용할경우
+                if (tProgramUniformLocationGroup['uNMatrix']) {
+                    //클론
+                    tNMatrix[0] = tMVMatrix[0], tNMatrix[1] = tMVMatrix[1], tNMatrix[2] = tMVMatrix[2], tNMatrix[3] = tMVMatrix[3],
+                        tNMatrix[4] = tMVMatrix[4], tNMatrix[5] = tMVMatrix[5], tNMatrix[6] = tMVMatrix[6], tNMatrix[7] = tMVMatrix[7],
+                        tNMatrix[8] = tMVMatrix[8], tNMatrix[9] = tMVMatrix[9], tNMatrix[10] = tMVMatrix[10], tNMatrix[11] = tMVMatrix[11],
+                        tNMatrix[12] = tMVMatrix[12], tNMatrix[13] = tMVMatrix[13], tNMatrix[14] = tMVMatrix[14], tNMatrix[15] = tMVMatrix[15]
+                    // mat4Inverse
+                    var inverse_c = tNMatrix[0], inverse_d = tNMatrix[1], inverse_e = tNMatrix[2], inverse_g = tNMatrix[3],
+                        inverse_f = tNMatrix[4], inverse_h = tNMatrix[5], inverse_i = tNMatrix[6], inverse_j = tNMatrix[7],
+                        inverse_k = tNMatrix[8], inverse_l = tNMatrix[9], inverse_n = tNMatrix[10], inverse_o = tNMatrix[11],
+                        inverse_m = tNMatrix[12], inverse_p = tNMatrix[13], inverse_r = tNMatrix[14], inverse_s = tNMatrix[15],
+                        inverse_A = inverse_c * inverse_h - inverse_d * inverse_f,
+                        inverse_B = inverse_c * inverse_i - inverse_e * inverse_f,
+                        inverse_t = inverse_c * inverse_j - inverse_g * inverse_f,
+                        inverse_u = inverse_d * inverse_i - inverse_e * inverse_h,
+                        inverse_v = inverse_d * inverse_j - inverse_g * inverse_h,
+                        inverse_w = inverse_e * inverse_j - inverse_g * inverse_i,
+                        inverse_x = inverse_k * inverse_p - inverse_l * inverse_m,
+                        inverse_y = inverse_k * inverse_r - inverse_n * inverse_m,
+                        inverse_z = inverse_k * inverse_s - inverse_o * inverse_m,
+                        inverse_C = inverse_l * inverse_r - inverse_n * inverse_p,
+                        inverse_D = inverse_l * inverse_s - inverse_o * inverse_p,
+                        inverse_E = inverse_n * inverse_s - inverse_o * inverse_r,
+                        inverse_q = inverse_A * inverse_E - inverse_B * inverse_D + inverse_t * inverse_C + inverse_u * inverse_z - inverse_v * inverse_y + inverse_w * inverse_x;
+                    inverse_q = 1 / inverse_q,
+                        tNMatrix[0] = (inverse_h * inverse_E - inverse_i * inverse_D + inverse_j * inverse_C) * inverse_q,
+                        tNMatrix[1] = (-inverse_d * inverse_E + inverse_e * inverse_D - inverse_g * inverse_C) * inverse_q,
+                        tNMatrix[2] = (inverse_p * inverse_w - inverse_r * inverse_v + inverse_s * inverse_u) * inverse_q,
+                        tNMatrix[3] = (-inverse_l * inverse_w + inverse_n * inverse_v - inverse_o * inverse_u) * inverse_q,
+                        tNMatrix[4] = (-inverse_f * inverse_E + inverse_i * inverse_z - inverse_j * inverse_y) * inverse_q,
+                        tNMatrix[5] = (inverse_c * inverse_E - inverse_e * inverse_z + inverse_g * inverse_y) * inverse_q,
+                        tNMatrix[6] = (-inverse_m * inverse_w + inverse_r * inverse_t - inverse_s * inverse_B) * inverse_q,
+                        tNMatrix[7] = (inverse_k * inverse_w - inverse_n * inverse_t + inverse_o * inverse_B) * inverse_q,
+                        tNMatrix[8] = (inverse_f * inverse_D - inverse_h * inverse_z + inverse_j * inverse_x) * inverse_q,
+                        tNMatrix[9] = (-inverse_c * inverse_D + inverse_d * inverse_z - inverse_g * inverse_x) * inverse_q,
+                        tNMatrix[10] = (inverse_m * inverse_v - inverse_p * inverse_t + inverse_s * inverse_A) * inverse_q,
+                        tNMatrix[11] = (-inverse_k * inverse_v + inverse_l * inverse_t - inverse_o * inverse_A) * inverse_q,
+                        tNMatrix[12] = (-inverse_f * inverse_C + inverse_h * inverse_y - inverse_i * inverse_x) * inverse_q,
+                        tNMatrix[13] = (inverse_c * inverse_C - inverse_d * inverse_y + inverse_e * inverse_x) * inverse_q,
+                        tNMatrix[14] = (-inverse_m * inverse_u + inverse_p * inverse_B - inverse_r * inverse_A) * inverse_q,
+                        tNMatrix[15] = (inverse_k * inverse_u - inverse_l * inverse_B + inverse_n * inverse_A) * inverse_q,
+                        // transpose
+                        a01 = tNMatrix[1], a02 = tNMatrix[2], a03 = tNMatrix[3],
+                        a12 = tNMatrix[6], a13 = tNMatrix[7], a23 = tNMatrix[11],
+                        tNMatrix[1] = tNMatrix[4], tNMatrix[2] = tNMatrix[8], tNMatrix[3] = tNMatrix[12], tNMatrix[4] = a01, tNMatrix[6] = tNMatrix[9],
+                        tNMatrix[7] = tNMatrix[13], tNMatrix[8] = a02, tNMatrix[9] = a12, tNMatrix[11] = tNMatrix[14],
+                        tNMatrix[12] = a03, tNMatrix[13] = a13, tNMatrix[14] = a23;
+                    // uNMatrix 입력 
+                    tGL.uniformMatrix4fv(tProgramUniformLocationGroup['uNMatrix']['location'], false, tNMatrix)
+                }
+                // uMVMatrix 입력 
+                tGL.uniformMatrix4fv(tProgramUniformLocationGroup['uMVMatrix']['location'], false, tMVMatrix)
+                ////////////////////////////////////////////////////////////////////////////////////////////////////
+                // GL 드로잉상태관련 캐싱들 처리
+                // TODO: CCW도먹어야하나?
+
+                // 컬페이스 사용여부 캐싱처리
+                if (cacheUseCullFace != tMesh['useCullFace']) (cacheUseCullFace = tMesh['useCullFace']) ? tGL.enable(tGL.CULL_FACE) : tGL.disable(tGL.CULL_FACE)
+                if (cacheCullFace != tMesh['cullFace']) tGL.cullFace(tMesh['cullFace']), cacheCullFace = tMesh['cullFace']
+                // 뎁스테스트 사용여부 캐싱처리
+                if (cacheUseDepthTest != tMesh['useDepthTest']) (cacheUseDepthTest = tMesh['useDepthTest']) ? tGL.enable(tGL.DEPTH_TEST) : tGL.disable(tGL.DEPTH_TEST)
+                // 뎁스테스팅 캐싱처리
+                if (cacheDepthTestFunc != tMesh['depthTestFunc']) tGL.depthFunc(cacheDepthTestFunc = tMesh['depthTestFunc'])
+                // 블렌딩 사용여부 캐싱처리
+                if (cacheUseBlendMode != tMesh['useBlendMode']) (cacheUseBlendMode = tMesh['useBlendMode']) ? tGL.enable(tGL.BLEND) : tGL.disable(tGL.BLEND)
+                // 블렌딩팩터 캐싱처리
+                if (cacheBlendModeFactor != (tMesh['blendFactor1'] + tMesh['blendFactor2'])) {
+                    tGL.blendFunc(tMesh['blendFactor1'], tMesh['blendFactor2'])
+                    cacheBlendModeFactor = tMesh['blendFactor1'] + tMesh['blendFactor2']
+                }
+                ////////////////////////////////////////////////////////////////////////////////////////////////////
+                // 최종 드로잉결절
+                if (tIndicesBuffer) {
+                    if (bitmapRenderable) {
+                        cacheDrawBufferUUID == tIndicesBuffer['__UUID'] ? 0 : tGL.bindBuffer(tGL.ELEMENT_ARRAY_BUFFER, tIndicesBuffer['buffer'])
+                        tGL.drawElements(tMesh['drawMode'], tIndicesBuffer['pointNum'], tGL.UNSIGNED_SHORT, 0)
+                        cacheDrawBufferUUID = tIndicesBuffer['__UUID']
+                    }
+                } else {
+                    tGL.drawArrays(tMesh['drawMode'], 0, tVertexPositionBuffer['pointNum'])
+                    cacheDrawBufferUUID = tVertexPositionBuffer['__UUID']
+                }
+                // 자식을 콜
+                tMesh['children'].length ? self.draw(tMesh['children'], time, tMVMatrix) : 0
+            }
+        }
+    }
+    RedBaseRenderInfo.prototype = {
+        /**DOC:
+            {
+                title :`start`,
+                code : `FUNCTION`,
+                description : `
+                    - 렌더러 시작 매서드
+                `,
+                example : `
+                    var renderer = RedBaseRenderInfo(RedGL Instance, RedSceneInfo Instance, function (time) {
+                        // 렌더링시 사전호출될 콜백
+                    })
+                    renderer.start()
+                `,
+                return : `RedBaseRenderInfo Instance`
+            }
+        :DOC*/
+        start: function () {
+            requestAnimationFrame(this.render)
+            return this
+        },
+        /**DOC:
+            {
+                title :`pause`,
+                code : `FUNCTION`,
+                description : `
+                    - 렌더러 pause 매서드
+                    <h2>- TODO 구현해야함</h2>
+                `,
+                return : `RedBaseRenderInfo Instance`
+            }
+        :DOC*/
+        pause: function () {
+            //TODO:
+            return this
+        },
+        /**DOC:
+            {
+                title :`resume`,
+                code : `FUNCTION`,
+                description : `
+                    - 렌더러 resume 매서드
+                    <h2>- TODO 구현해야함</h2>
+                `,
+                return : `RedBaseRenderInfo Instance`
+            }
+        :DOC*/
+        resume: function () {
+            //TODO:
+            return this
+        },
+        /**DOC:
+            {
+                title :`numDrawCall`,
+                code : `PROPERTY`,
+                description : `
+                    - 렌더러 당 콜횟수
+                `,
+                return : `Number`
+            }
+        :DOC*/
+        numDrawCall: 0
+    }
+    Object.freeze(RedBaseRenderInfo)
+})();
+"use strict";
+var redGLDetect;
+
+(function () {
+	var checkList, reg, makeCamelCase, i, k;
+	var tGL;
+	/**DOC:
+		{
+			constructorYn : true,
+			title :`redGLDetect`,
+			description : `
+				- webgl 기본정보를 디텍팅한다.
+			`,
+			params : {
+				redGL : [
+					{type:'RedGL Instance'}
+				]
+			},
+			example : `
+				testGL.detect
+			`,
+			return : 'redGLDetect Instance'
+		}
+	:DOC*/
+	redGLDetect = function (redGL) {
+		if (!(this instanceof redGLDetect)) return new redGLDetect(redGL)
+		if (!(redGL instanceof RedGL)) throw 'RedGL 인스턴스만 허용됩니다.'
+		tGL = redGL.gl
+		checkList = ('VENDOR,VERSION,SHADING_LANGUAGE_VERSION,RENDERER,MAX_VERTEX_ATTRIBS,MAX_VARYING_VECTORS,MAX_VERTEX_UNIFORM_VECTORS,' +
+			'MAX_VERTEX_TEXTURE_IMAGE_UNITS,MAX_FRAGMENT_UNIFORM_VECTORS,MAX_TEXTURE_SIZE,MAX_CUBE_MAP_TEXTURE_SIZE,' +
+			'MAX_COMBINED_TEXTURE_IMAGE_UNITS,MAX_TEXTURE_IMAGE_UNITS,MAX_RENDERBUFFER_SIZE,MAX_VIEWPORT_DIMS,' +
+			'RED_BITS,GREEN_BITS,BLUE_BITS,ALPHA_BITS,DEPTH_BITS,STENCIL_BITS').split(',');
+
+		reg = /[_]\S/g
+		makeCamelCase = function (v) {
+			return v.charAt(1).toUpperCase()
+		};
+		i = checkList.length
+		while (i--) this[k = checkList[i]] = tGL.getParameter(tGL[k])
+	}
+})();
+"use strict";
+var RedConst;
+(function () {
+    RedConst = {
+        INT: 0x0001,
+        FLOAT: 0x0002,
+        VEC: 0x0003,
+        MAT: 0x0004,
+        SAMPLER: 0x0005,
+        ATLASCOORD: 0x0006,
+        RENDER_TYPE: 0x0007,
+
+    }
+    Object.freeze(RedConst)
+})();
+"use strict";
+var RedShaderLoader;
+/**DOC:
+    {
+        constructorYn : true,
+        title :`RedShaderLoader`,
+        description : `
+			<h2>- 걍 소스로딩기</h2>
+			<h2>- TODO: 중복로딩을 막아야함...</h2>
+        `,
+        params : {
+            list : [
+                {type:'Array'},
+                '소스 로딩정보'
+            ],
+            callback : [
+                {type:'Function'},
+                '- 소스로딩완료후 실행될 콜백'
+            ]
+        },
+		example : `
+			RedShaderLoader(
+				[
+					{ id: 'colorVS', src: 'glsl/colorVS.glsl' },
+					{ id: 'colorFS', src: 'glsl/colorFS.glsl' },
+					{ id: 'bitmapPhongVS', src: 'glsl/bitmapPhongVS.glsl' },
+					{ id: 'bitmapPhongFS', src: 'glsl/bitmapPhongFS.glsl' },
+					{ id: 'skyBoxVS', src: 'glsl/skyBoxVS.glsl' },
+					{ id: 'skyBoxFS', src: 'glsl/skyBoxFS.glsl' }
+				],
+				function(){
+					console.log('콜백!')
+				}
+			)
+        `,
+        return : 'RedSceneInfo Instance'
+    }
+:DOC*/
+(function () {
+	var makeShaders;
+	makeShaders = function (redGL, datas) {
+		var k, tData;
+		for (k in datas) {
+			tData = datas[k]
+			console.log(tData)
+			redGL.createShaderInfo(tData['name'], RedShaderInfo.VERTEX_SHADER, redGL.getSourceFromScript(tData['shaderInfo']['vs']['id']))
+			redGL.createShaderInfo(tData['name'], RedShaderInfo.FRAGMENT_SHADER, redGL.getSourceFromScript(tData['shaderInfo']['fs']['id']))
+			redGL.createProgramInfo(
+				tData['name'],
+				redGL.getShaderInfo(tData['name'], RedShaderInfo.VERTEX_SHADER),
+				redGL.getShaderInfo(tData['name'], RedShaderInfo.FRAGMENT_SHADER),
+				tData['initUniformValue'],
+				tData['defineTexture']
+			)
+			redGL.createMaterialDefine(redGL.getProgramInfo(tData['name']))
+		}
+	}
+	RedShaderLoader = function (redGL, shaderInfos, callback) {
+		if (!(this instanceof RedShaderLoader)) return new RedShaderLoader(redGL, shaderInfos, callback)
+		var cnt = 0;
+		var tList = [];
+		for (var k in shaderInfos) {
+			tList.push(shaderInfos[k]['shaderInfo']['vs'])
+			tList.push(shaderInfos[k]['shaderInfo']['fs'])
+		}
+		console.log(tList)
+		tList['callback'] = callback
+		tList.forEach(function (v, idx) {
+			var xhr = new XMLHttpRequest();
+			xhr.open('GET', v['src'], true);
+			xhr.onreadystatechange = function () {
+				var scr;
+				if (xhr.readyState == 4 && xhr.status == 200) {
+					scr = document.createElement('script');
+					scr.setAttribute('id', v['id'])
+					scr.setAttribute('type', 'glsl')
+					scr.text = xhr.responseText;
+					console.log(v['id'], scr.text);
+					console.log(shaderInfos)
+					document.body.appendChild(scr);
+
+					
+				if (++cnt == tList.length) {
+					setTimeout(function(){
+						makeShaders(redGL, shaderInfos)
+						if (tList['callback']) tList['callback']();
+					},1)
+				}
+				}
+			};
+			xhr.send(null);
+		});
+	};
+
+})();
+"use strict";
+var RedGL;
+var REDGL_UUID; // 내부에서 사용할 고유아이디
+(function () {
+	var getGL;
+	var instanceList = [];
+	REDGL_UUID = 0
+	getGL = (function () {
+		var checkList; // 체크할 리스트
+		var option; // 기본초기화 옵션
+		var t0, i;
+		option = {
+			alpha: false,
+			depth: true,
+			stencil: false,
+			antialias: true,
+			premultipliedAlpha: false,
+			preserveDrawingBuffer: false,
+			powerPreference: 'default', // default, high-performance, low-power
+			failIfMajorPerformanceCaveat: false
+		}
+		checkList = 'experimental-webgl,webgl,webkit-3d,moz-webgl,3d'.split(',')
+		return function (cvs) {
+			i = checkList.length
+			while (i--) {
+				if (t0 = cvs.getContext(checkList[i], option)) return console.log(checkList[i]), t0
+			}
+			throw "웹지엘을 사용할수없습니다."
+		}
+	})();
+	/**DOC:
+		{
+			constructorYn : true,
+			title :`RedGL`,
+			description : `
+				RedGL 인스턴스 생성자
+				<b>초기화 옵션</b>
+				alpha: false,
+				depth: true,
+				stencil: false,
+				antialias: true,
+				premultipliedAlpha: false,
+				preserveDrawingBuffer: false,
+				powerPreference: 'default', // default, high-performance, low-power
+				failIfMajorPerformanceCaveat: false
+			`,
+			params : {
+				canvas : [
+					{type:'Canvas Element'}
+				],
+				callback :[
+					{type:'function'},
+					'컨텍스트 초기화이후 실행될 콜백'
+				],
+				fullMode : [
+					{type:'Boolean'},
+					'- 기본값 false',
+					'- true일경우 윈도우사이즈가 변할때마다 추적함'
+				],
+				shaderSourceInfo : [
+					{type:'Object'},
+					'미리로드할 쉐이더 소스정보'
+				]
+			},
+			example : `
+				// 기초 초기화
+				RedGL(document.getElementById('test'), function(){ 콜백내용 })
+				// 풀스크린 초기화
+				RedGL(document.getElementById('test'), function(){ 콜백내용 }, true)
+				// 쉐이더 추가 초기화
+				RedGL(document.getElementById('test'), function(){ 콜백내용 }, true, [
+					// 추가할 쉐이더 소스를 아래의 형식으로 입력
+					{ id: 'colorVS', src: 'glsl/colorVS.glsl' },
+					{ id: 'colorFS', src: 'glsl/colorFS.glsl' },
+					{ id: 'bitmapVS', src: 'glsl/bitmapVS.glsl' },
+					{ id: 'bitmapFS', src: 'glsl/bitmapFS.glsl' },
+					{ id: 'bitmapPhongVS', src: 'glsl/bitmapPhongVS.glsl' },
+					{ id: 'bitmapPhongFS', src: 'glsl/bitmapPhongFS.glsl' },
+					{ id: 'skyBoxVS', src: 'glsl/skyBoxVS.glsl' },
+					{ id: 'skyBoxFS', src: 'glsl/skyBoxFS.glsl' }
+				])
+			`,
+			return : 'RedGL Instance'
+		}
+	:DOC*/
+	RedGL = function (canvas, callback, fullMode, shaderSourceInfo) {
+		if (!(this instanceof RedGL)) return new RedGL(canvas, callback, fullMode, shaderSourceInfo)
+		var tGL;
+		this['__canvas'] = canvas
+		canvas.style.boxSizing = 'border-box'
+		this['gl'] = tGL = getGL(canvas)
+		fullMode ? this.setSize() : 0 // 풀모드일경우....처음 확장
+		this['fullMode'] = fullMode
+		this['__UUID'] = REDGL_UUID++
+		this['__datas'] = {}
+		this['detect'] = redGLDetect(this)
+		console.log('RedGL 생성완료')
+		// 초기상태정의
+	
+		tGL.enable(tGL.DEPTH_TEST);
+		tGL.depthFunc(tGL.LESS)
+		// 컬링 페이스 설정
+		tGL.frontFace(tGL.CCW)
+		tGL.enable(tGL.CULL_FACE);
+		tGL.cullFace(tGL.BACK)
+		// 블렌드모드설정
+		tGL.enable(tGL.BLEND);
+		tGL.blendFunc(tGL.ONE, tGL.ONE_MINUS_SRC_ALPHA);
+		// 픽셀 블렌딩 결정
+		tGL.pixelStorei(tGL.UNPACK_PREMULTIPLY_ALPHA_WEBGL, true);
+		// 픽셀 플립 기본설정
+		tGL.pixelStorei(tGL.UNPACK_FLIP_Y_WEBGL, true);
+		// 시저박스 설정
+		tGL.enable(tGL.SCISSOR_TEST);
+		tGL.scissor(0, 0, tGL.drawingBufferWidth, tGL.drawingBufferHeight);
+		// set the viewport rectangle
+		tGL.viewport(0, 0, tGL.drawingBufferWidth, tGL.drawingBufferHeight);
+
+		// tGL.clearColor(1, 1, 1, 1);
+		// tGL.clear(tGL.COLOR_BUFFER_BIT);
+		// tGL.colorMask(true, true, true, false);
+		
+		instanceList.push(this)
+		console.log(shaderSourceInfo, callback)
+		this['__nullTexture'] = this.createTextureInfo('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NzMxRDhBQzRFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NzMxRDhBQzVFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo3MzFEOEFDMkU1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo3MzFEOEFDM0U1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuojYFUAAAAQSURBVHjaYvj//z8DQIABAAj8Av7bok0WAAAAAElFTkSuQmCC',0)
+		// var t;
+		// t = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAAyJpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADw/eHBhY2tldCBiZWdpbj0i77u/IiBpZD0iVzVNME1wQ2VoaUh6cmVTek5UY3prYzlkIj8+IDx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IkFkb2JlIFhNUCBDb3JlIDUuMC1jMDYxIDY0LjE0MDk0OSwgMjAxMC8xMi8wNy0xMDo1NzowMSAgICAgICAgIj4gPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4gPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIgeG1sbnM6eG1wPSJodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvIiB4bWxuczp4bXBNTT0iaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wL21tLyIgeG1sbnM6c3RSZWY9Imh0dHA6Ly9ucy5hZG9iZS5jb20veGFwLzEuMC9zVHlwZS9SZXNvdXJjZVJlZiMiIHhtcDpDcmVhdG9yVG9vbD0iQWRvYmUgUGhvdG9zaG9wIENTNS4xIFdpbmRvd3MiIHhtcE1NOkluc3RhbmNlSUQ9InhtcC5paWQ6NzMxRDhBQzRFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiIHhtcE1NOkRvY3VtZW50SUQ9InhtcC5kaWQ6NzMxRDhBQzVFNUZFMTFFN0IxMDVGNEEzQjQ0RjAwRDIiPiA8eG1wTU06RGVyaXZlZEZyb20gc3RSZWY6aW5zdGFuY2VJRD0ieG1wLmlpZDo3MzFEOEFDMkU1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIgc3RSZWY6ZG9jdW1lbnRJRD0ieG1wLmRpZDo3MzFEOEFDM0U1RkUxMUU3QjEwNUY0QTNCNDRGMDBEMiIvPiA8L3JkZjpEZXNjcmlwdGlvbj4gPC9yZGY6UkRGPiA8L3g6eG1wbWV0YT4gPD94cGFja2V0IGVuZD0iciI/PuojYFUAAAAQSURBVHjaYvj//z8DQIABAAj8Av7bok0WAAAAAElFTkSuQmCC'
+		// this.createCubeTextureInfo([t, t, t, t, t, t])
+		
+
+		if (shaderSourceInfo) RedShaderLoader(this, shaderSourceInfo, callback)
+		else callback ? callback() : 0
+		
+
+	}
+	window.addEventListener('resize', function () {
+		instanceList.forEach(function (v) {
+			if (v['fullMode']) v.setSize()
+		})
+	})
+	RedGL.prototype = {
+		/**DOC:
+		{
+			title :`setSize`,
+			code: 'FUNCTION',
+			description : `
+				wengl 캔버스의 크기를 지정함.
+				인자를 입력하지 않으면 화면상의 풀사이즈로 적용됨
+			`,
+			params : {
+				width : [
+					{type:'Number'},
+					'가로값'
+				],
+				height : [
+					{type:'Number'},
+					'세로값'
+				]
+			},
+			example : `
+				인스턴스.setSize(600,600)
+			`
+		}
+		:DOC*/
+		setSize: (function () {
+			var gl;
+			var W, H;
+			return function (width, height) {
+				W = width ? width : (document.documentElement ? document.documentElement.clientWidth : document.body.clientWidth)
+				H = height ? height : (document.documentElement ? document.documentElement.clientHeight : document.body.clientHeight)
+				gl = this.gl
+				this.__canvas.width = W * window.devicePixelRatio
+				this.__canvas.height = H * window.devicePixelRatio
+				this.__canvas.style.width = W
+				this.__canvas.style.height = H
+				gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+				// set the scissor rectangle
+				gl.scissor(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+			}
+		})(),
+		/**DOC:
+		{
+			title :`getSourceFromScript`,
+			code: 'FUNCTION',
+			description : `
+				script 소스를 가져옴
+			`,
+			params : {
+				id : [
+					{type:'String'},
+					'아이디'
+				]
+			},
+			example : `
+				인스턴스.getSourceFromScript(id)
+			`,
+			return : 'String'
+		}
+		:DOC*/
+		getSourceFromScript: RedShaderInfo.getSourceFromScript,
+		/**DOC:
+		{
+			title :`createShaderInfo`,
+			code : 'FUNCTION',
+			description : `
+				- RedGL 쉐이더 생성기.
+				- 유일키만 지원하며 키 중복일경우 기존 캐싱된 쉐이더정보를 반환함.
+				- 단 프레그먼트/버텍스의 키는 따로 관리함.
+			`,
+			params : {
+				key : [
+					{type:'String'},
+					'- 등록될 키명'
+				],
+				type : [
+					{type:'String'},
+					'- 버텍스 쉐이더(RedShaderInfo.VERTEX_SHADER)',
+					'- 프레그먼트 쉐이더(RedShaderInfo.FRAGMENT_SHADER)'
+				],
+				source : [
+					{type:'String'},
+					'- 생성할 쉐이더 소스문자열'
+				]
+			},
+			example : `
+			 	var test;
+				test = RedGL(Canvas Element)
+				// basic이라는 이름으로 버텍스 쉐이더를 만든다. 
+				test.createShaderInfo('basic', RedShaderInfo.VERTEX_SHADER, 쉐이더소스)
+			`,
+			return : 'RedShaderInfo Instance'
+		}
+		:DOC*/
+		createShaderInfo: function (key, type, source) {
+			return new RedShaderInfo(this, key, type, source)
+		},
+		/**DOC:
+		{
+			title :`getShaderInfo`,
+			code : 'FUNCTION',
+			description : `
+				- 정의된 쉐이더를 조회
+			`
+		}
+		:DOC*/
+		getShaderInfo: function (key, type) {
+			console.log(key, type)
+			console.log(this['__datas']['shaderInfo'])
+			this['__datas']
+			return this['__datas']['shaderInfo'][type][key]
+		},
+		/**DOC:
+		{
+			title :`createProgram`,
+			code : 'FUNCTION',
+			description : `프로그램 생성 단축 매서드`
+		}
+		:DOC*/
+		createProgramInfo: function (key, vShaderInfo, fShaderInfo, initUniformValue, defineTexture) {
+			return new RedProgramInfo(this, key, vShaderInfo, fShaderInfo, initUniformValue, defineTexture)
+		},
+		/**DOC:
+		{
+			title :`getProgramInfo`,
+			code : 'FUNCTION',
+			description : `프로그램 조회`,
+			parmas : {
+				key :[
+					{type:'String'},
+					'키로 등록된 프로그램을 조회함'
+				]
+			}
+		}
+		:DOC*/
+		getProgramInfo: function (key) {
+			return this['__datas']['RedProgramInfo'][key]
+		},
+		/**DOC:
+		{
+			title :`createArrayBufferInfo`,
+			code : 'FUNCTION',
+			description : `Array버퍼 생성 단축 매서드`
+		}
+		:DOC*/
+		createArrayBufferInfo: function (key, shaderPointerKey, dataList, pointSize, pointNum, glArrayType, normalize, stride, offset, drawMode) {
+			//TODO: pointNum, glArrayType도 그냥 단축시켜버릴까 -_-
+			return new RedBufferInfo(this, RedBufferInfo.ARRAY_BUFFER, key, shaderPointerKey, dataList, pointSize, pointNum, glArrayType, normalize, stride, offset, drawMode)
+		},
+		/**DOC:
+		{
+			title :`createIndexBufferInfo`,
+			code : 'FUNCTION',
+			description : `ElementArray버퍼 생성 단축 매서드`
+		}
+		:DOC*/
+		createIndexBufferInfo: function (key, dataList, pointSize, pointNum, glArrayType, normalize, stride, offset, drawMode) {
+			//TODO: pointNum, glArrayType도 그냥 단축시켜버릴까 -_-
+			return new RedBufferInfo(this, RedBufferInfo.ELEMENT_ARRAY_BUFFER, key, null, dataList, pointSize, pointNum, glArrayType, normalize, stride, offset, drawMode)
+		},
+		/**DOC:
+		{
+			title :`getArrayBufferInfo`,
+			code : 'FUNCTION',
+			description : `Array버퍼 조회 매서드`,
+			parmas : {
+				key :[
+					{type:'String'},
+					'키로 등록된 Array버퍼를 조회함'
+				]
+			}
+		}
+		:DOC*/
+		getArrayBufferInfo: function (key) {
+			return this['__datas']['RedBufferInfo'][key]
+		},
+		/**DOC:
+		{
+			title :`getIndexBufferInfo`,
+			code : 'FUNCTION',
+			description : `ElementArray버퍼 조회 매서드`,
+			parmas : {
+				key :[
+					{type:'String'},
+					'키로 등록된 ElementArray버퍼를 조회함'
+				]
+			}
+		}
+		:DOC*/
+		getIndexBufferInfo: function (key) {
+			return this['__datas']['RedBufferInfo'][key]
+		},
+		/**DOC:
+		{
+			title :`createGeometryInfo`,
+			code : 'FUNCTION',
+			description : `지오메트리정보 생성 단축 매서드`
+		}
+		:DOC*/
+		createGeometryInfo: function (key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer) {
+			//TODO: texcoordBuffer, normalBuffer 이없으면 자동생성할수있게!
+			return new RedGeometryInfo(this, key, verticesBuffer, indicesBuffer, texcoordBuffer, normalBuffer)
+		},
+		/**DOC:
+		{
+			title :`getGeometryInfo`,
+			code : 'FUNCTION',
+			description : `지오메트리정보 조회 매서드.`,
+			parmas : {
+				key :[
+					{type:'String'},
+					'키로 등록된 지오메트리정보를 조회함'
+				]
+			}
+		}
+		:DOC*/
+		getGeometryInfo: function (key) {
+			return this['__datas']['RedGeometryInfo'][key]
+		},
+		/**DOC:
+		{
+			title :`createMaterialDefine`,
+			code : 'FUNCTION',
+			description : `재질정의정보 생성 단축 매서드`
+		}
+		:DOC*/
+		createMaterialDefine: function (programInfo) {
+			return new RedMaterialDefine(this, programInfo)
+		},
+		/**DOC:
+		{
+			title :`createMaterialInfo`,
+			code : 'FUNCTION',
+			description : `재질정보 생성 단축 매서드`
+		}
+		:DOC*/
+		createMaterialInfo: function (typeName, diffuseInfo, normalInfo, displacementInfo, specularInfo, reflectionTexture,refractionTexture) {
+			return new RedMaterialInfo(this, typeName, diffuseInfo, normalInfo, displacementInfo, specularInfo, reflectionTexture,refractionTexture)
+		},
+		/**DOC:
+		{
+			title :`createTextureInfo`,
+			code : 'FUNCTION',
+			description : `텍스쳐정보 생성 단축 매서드`
+		}
+		:DOC*/
+		createTextureInfo: function (src, targetIndex, internalFormat, format, type, callback) {
+			return new RedTextureInfo(this, src, targetIndex, internalFormat, format, type, callback)
+		},
+		/**DOC:
+		{
+			title :`createCubeTextureInfo`,
+			code : 'FUNCTION',
+			description : `큐브 텍스쳐정보 생성 단축 매서드`
+		}
+		:DOC*/
+		createCubeTextureInfo: function (srcList) {
+			return new RedCubeTextureInfo(this, srcList)
+		},
+
+		/**DOC:
+		{
+			title :`createMeshInfo`,
+			code : 'FUNCTION',
+			description : `매시정보 단축 생성 매서드`
+		}
+		:DOC*/
+		createMeshInfo: function (key, geometry, material) {
+			return new RedMeshInfo(this, key, geometry, material)
+		},
+		/**DOC:
+		{
+			title :`getMeshInfo`,
+			code : 'FUNCTION',
+			description : `매시정보 조회 단축 매서드`,
+			parmas : {
+				key :[
+					{type:'String'},
+					'키로 등록된 매쉬를 조회함'
+				]
+			}
+		}
+		:DOC*/
+		getMeshInfo: function (key) {
+			return this['__datas']['RedMeshInfo'][key]
+		},
+		/**DOC:
+		{
+			title :`createSceneInfo`,
+			code : 'FUNCTION',
+			description : `씬정보 단축 생성 매서드`
+		}
+		:DOC*/
+		createSceneInfo: function (key, camera) {
+			return new RedSceneInfo(this, key, camera)
+		},
+		/**DOC:
+		{
+			title :`createAmbientLight`,
+			code : 'FUNCTION',
+			description : `암비언트라이트 단축 생성 매서드`
+		}
+		:DOC*/
+		createAmbientLight: function () {
+			return new RedAmbientLightInfo(this)
+		},
+		/**DOC:
+		{
+			title :`createDirectionalLight`,
+			code : 'FUNCTION',
+			description : `방향광 단축 생성 매서드`
+		}
+		:DOC*/
+		createDirectionalLight: function () {
+			return new RedDirectionalLightInfo(this)
+		},
+		/**DOC:
+		{
+			title :`createPointLight`,
+			code : 'FUNCTION',
+			description : `점광 단축 생성 매서드`
+		}
+		:DOC*/
+		createPointLight: function () {
+			return new RedPointLightInfo(this)
+		},
+		/**DOC:
+		{
+			title :`createSkyBoxInfo`,
+			code : 'FUNCTION',
+			description : `스카이박스 단축 생성 매서드`
+		}
+		:DOC*/
+		createSkyBoxInfo: function (srcList) {
+			return new RedSkyBoxInfo(this, srcList)
+		},
+		/**DOC:
+		{
+			title :`createBaseCameraInfo`,
+			code : 'FUNCTION',
+			description : `베이스카메라 단축 생성 매서드`
+		}
+		:DOC*/
+		createBaseCameraInfo: function (key) {
+			return new RedBaseCameraInfo(this, key)
+		},
+		/**DOC:
+		{
+			title :`getBaseCameraInfo`,
+			code : 'FUNCTION',
+			description : `베이스 카메라정보 조회 단축 매서드`,
+			parmas : {
+				key :[
+					{type:'String'},
+					'키로 등록된 베이스 카메라를 조회함'
+				]
+			}
+		}
+		:DOC*/
+		getBaseCameraInfo: function (key) {
+			return this['__datas']['RedBaseCameraInfo'][key]
+		},
+		/**DOC:
+		{
+			title :`createBaseRenderInfo`,
+			code : 'FUNCTION',
+			description : `렌더러 단축 생성 매서드`
+		}
+		:DOC*/
+		createBaseRenderInfo: function (redScene, callback) {
+			return new RedBaseRenderInfo(this, redScene, callback)
+		}
+	}
+})();
