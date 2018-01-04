@@ -176,13 +176,13 @@ start = function () {
 			testScene['lights']['directional'][i].direction[1] = Math.cos(time / 1400 + i) * 20 + Math.sin(time / 2700 + i) * 50
 			testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200 + i) * 20
 		}
-		// testMatBitmap['uDisplacementPower'] = Math.sin(time/300)*3
-		// i = parseInt(testScene.children.length)
-		// while (i--) {
-		// 	testScene.children[i]['rotation'][0] +=0.01
-		// 	testScene.children[i]['rotation'][1] +=0.01
-		// 	testScene.children[i]['rotation'][2] +=0.01
-		// }
+		testMatBitmap['uDisplacementPower'] = Math.sin(time/300)*3
+		i = parseInt(testScene.children.length)
+		while (i--) {
+			testScene.children[i]['rotation'][0] +=0.01
+			testScene.children[i]['rotation'][1] +=0.01
+			testScene.children[i]['rotation'][2] +=0.01
+		}
 		checkCallBox.innerHTML = 'numDrawCall : ' + renderer.numDrawCall
 	})
 	renderer.start()
