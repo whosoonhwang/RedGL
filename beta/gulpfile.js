@@ -96,6 +96,7 @@ gulp.task('make-doc', function () {
 		"src/renderer/RedBaseRenderInfo.js",
 
 		"src/RedGLDetect.js",
+		"src/RedConst.js",
 		"src/RedShaderLoader.js",
 		"src/redGL.js",
 	])
@@ -147,6 +148,7 @@ gulp.task('combine-js', function () {
 		"src/renderer/RedBaseRenderInfo.js",
 
 		"src/RedGLDetect.js",
+		"src/RedConst.js",
 		"src/RedShaderLoader.js",
 		"src/redGL.js",
 	])
