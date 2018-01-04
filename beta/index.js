@@ -109,7 +109,7 @@ start = function () {
 		testScene.addLight(testLight)
 	}
 	// 포인트 라이트 테스트
-	i = 5
+	i = 16
 	while (i--) {
 		var testLight = testGL.createPointLight(testGL)
 		testLight.color[0] = Math.random()
@@ -172,11 +172,11 @@ start = function () {
 		}
 		i = testScene['lights']['directional'].length
 		while (i--) {
-			testScene['lights']['directional'][i].direction[0] = Math.sin(time / 1700 + i) * 20
-			testScene['lights']['directional'][i].direction[1] = Math.cos(time / 1400 + i) * 20 + Math.sin(time / 2700 + i) * 50
-			testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200 + i) * 20
+			testScene['lights']['directional'][i].direction[0] = Math.sin(time / 1700 + Math.PI * 2 / testScene['lights']['directional'].length * i) * 20
+			testScene['lights']['directional'][i].direction[1] = Math.cos(time / 1400 + Math.PI * 2 / testScene['lights']['directional'].length * i) * 20 + Math.sin(time / 2700 + Math.PI * 2 / testScene['lights']['directional'].length * i) * 50
+			testScene['lights']['directional'][i].direction[2] = Math.sin(time / 2200 + Math.PI * 2 / testScene['lights']['directional'].length * i) * 20
 		}
-		testMatBitmap['uDisplacementPower'] = Math.sin(time/300)*3
+		testMatBitmap['uDisplacementPower'] = Math.sin(time/500)*3
 		i = parseInt(testScene.children.length)
 		while (i--) {
 			testScene.children[i]['rotation'][0] +=0.01

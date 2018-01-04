@@ -45,6 +45,10 @@ var RedMeshBaseInfo;
             value: mat4.create(),
             enumerable: true
         })
+        Object.defineProperty(this, '__parentMVMatrixClone', {
+            value: mat4.create(),
+            enumerable: true
+        })
         /**DOC:
 		{
             title :`position`,
